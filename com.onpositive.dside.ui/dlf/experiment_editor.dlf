@@ -1,0 +1,60 @@
+<form xmlns="http://jetface.org/JetFace1.0/" caption=" ">
+	<composite-editor bindTo="Root" grabVertical="true">
+		<splitter horizontal="true">
+			<vc>
+				<section caption="Generic">
+					<string caption="Architeture" bindTo="architecture" />
+					<string caption="Preprocessing" bindTo="preprocessing" />
+					<string caption="Dataset" bindTo="dataset" />
+				</section>
+
+				<section caption="Learning Process">
+					<combo bindTo="optimizer" caption="Optimizer"></combo>
+					<string bindTo="lr" caption="Learning Rate"></string>
+					<string bindTo="batch" caption="Batch Size"></string>
+					<string bindTo="loss" caption="Loss Function"></string>
+					<hc margin="0,0,0,0">
+						<string bindTo="clipnorm" caption="Clip Gradient norm to"></string>
+						<string bindTo="clipvalue" caption="Clip Gradient value to"></string>
+					</hc>
+				</section>
+				<section caption="Cross Validation and Holdout">
+					<hc margin="0,0,0,0">
+						<string bindTo="folds_count" caption="Folds Count"></string>
+						<string bindTo="testSplit" caption="Test Split" />
+						<string bindTo="num_seeds" caption="Seed Count" />
+					</hc>
+					<checkbox bindTo="stratified" caption="Stratified" />
+				</section>
+				<section caption="Metrics">
+					<string bindTo="metrics" caption="Metrics"></string>
+					<hc margin="0,0,0,0">
+						<combo bindTo="primary_metric" caption="Primary Metric"
+							grabHorizontal="true"></combo>
+						<combo bindTo="primary_metric_mode"
+							caption="Primary Metric Mode" grabHorizontal="false"></combo>
+						<combo bindTo="aggregation_metric"
+							caption="Aggregation Metric" grabHorizontal="true"></combo>
+
+					</hc>
+				</section>
+				<section caption="Tasks">
+				</section>
+			</vc>
+			<vc grabVertical="true">
+				<section caption="Callbacks">
+					<list bindTo="callbacks"></list>
+				</section>
+				<section caption="Hyperparameters">
+					<list bindTo="hyperparameters"></list>
+				</section>
+				<section caption="Stages">
+					<list bindTo="stages"></list>
+				</section>
+				<section caption="Declarations" grabVertical="true">
+					<tree property="children" bindTo="declarations"></tree>
+				</section>
+			</vc>
+		</splitter>
+	</composite-editor>
+</form>

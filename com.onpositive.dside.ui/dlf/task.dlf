@@ -1,0 +1,9 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" caption="Please configure your task settings">
+ 	<model class="com.onpositive.dside.ui.TaskConfiguration"/>
+ 	<list bindTo="experiment"/>
+ 	<string bindTo="tasks"/>
+ 	<spinner bindTo="numWorkers" caption="Total number of workers"/>
+ 	
+ 	<radio  bindTo="fitFromScratch" caption="Fit from start"/>
+ 	<radio  bindTo="allowResume" caption="Resume incomplete tasks"/> 	
+</composite-editor>

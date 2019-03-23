@@ -1,0 +1,14 @@
+<form xmlns="http://jetface.org/JetFace1.0/" caption="Datasets">
+	<model class="com.onpositive.dside.ui.DataSetsView"/>
+	<pattern-filter targetId="e" />
+	<table bindTo="datasets" initialSortExpression="Score" id="e" openOnDoubleClick="true">
+	<actions toMenu="true">		
+		<binded-action bindTo="$.open" caption="Open Dataset" image="com.onpositive.semantic.ui.edit"/>		
+	</actions>	
+		<columns>
+			<column  caption="Name" imageFromBase="true" id="name" resizeWeight="3"/>
+			<column id="config" caption="Configuration"  resizeWeight="10"/>
+			<column id="len" caption="Size"  resizeWeight="1"/>
+		</columns>
+	</table>
+</form>

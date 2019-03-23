@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Opencsv-repackaged
+Bundle-SymbolicName: opencsv-repackaged
+Bundle-Version: 1.0.0
+Bundle-ClassPath: .
+Export-Package: com.opencsv,
+ com.opencsv.bean,
+ com.opencsv.bean.comparator,
+ com.opencsv.bean.concurrent,
+ com.opencsv.bean.customconverter,
+ com.opencsv.enums,
+ com.opencsv.exceptions,
+ com.opencsv.stream.reader
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: opencsv-repackaged
+Require-Bundle: org.apache.commons.lang3;bundle-version="3.1.0"

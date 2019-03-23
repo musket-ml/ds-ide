@@ -1,0 +1,53 @@
+
+properties:
+  metrics:
+    multivalue: true
+  loss:
+    type: string     
+  lr:
+    type: float
+    defaultValue: 0.001
+    min: 0  
+  folds_count:
+     defaultValue: 5
+     type: int
+  testSplit:
+     type: float
+     min: 0
+     max: 1.0
+     step: 0.1
+  num_seeds:
+     type: int
+     defaultValue: 1
+  stratified: 
+     type: boolean
+  batch:
+     type: int
+     min: 1
+     required: true
+  testSplitSeed:
+     type: int
+     defaultValue: 123
+  primary_metric:
+     type: string
+     customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm
+  aggregation_metric:
+     type: string
+     customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm       
+  primary_metric_mode:
+     type: string
+     fixedValues: [min,max,auto]
+     defaultValue: auto
+  optimizer:         
+     type: string
+     fixedValues: [adam,sgd,nadam,rmsprop]
+     lowerCase: true
+     defaultValue: auto
+  callbacks:
+    multivalue: true
+    type: callback
+  clipnorm:
+    type: float
+  clipvalue:
+    type: float  
+            

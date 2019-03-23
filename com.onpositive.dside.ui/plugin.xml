@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            class="com.onpositive.dside.ui.ExperimentsView"
+            icon="icons/experiment.png"
+            id="com.onpositive.dside.ui.experiments"
+            name="Experiments"
+            restorable="true">
+      </view>
+      <view
+            class="com.onpositive.dside.ui.DataSetsView"
+            icon="icons/data_icon.png"
+            id="com.onpositive.dside.ui.datasets"
+            name="Datasets"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.ui.resourcePerspective">
+         <view
+               id="com.example.test"
+               relative="org.eclipse.ui.navigator.ProjectExplorer"
+               relationship="stack"
+               ratio="0.5">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="com.onpositive.dside.ui.objectContribution1"
+            objectClass="org.eclipse.core.resources.IFolder">
+         <action
+               class="com.onpositive.dside.ui.ShowExperiments"
+               icon="icons/experiment.png"
+               id="com.onpositive.dside.ui.action1"
+               label="Show Experiments">
+         </action>
+      </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="com.onpositive.dside.ui.objectContribution2"
+            objectClass="org.eclipse.core.resources.IProject">
+         <action
+               class="com.onpositive.dside.ui.Connect"
+               id="com.onpositive.dside.ui.action2"
+               label="Connect">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.onpositive.dside.ui.editors.ExperimentMultiPageEditor"
+            contributorClass="com.onpositive.dside.ui.editors.MultiPageEditorContributor"
+            extensions="yaml"
+            filenames="config.yaml, config_concrete.yaml"
+            icon="icons/experiment.png"
+            id="com.onpositive.dside.ui.editors.ExperimentMultiPageEditor"
+            name="Experiment">
+      </editor>
+      <editor
+            class="com.onpositive.dside.ui.DataSetViewer"
+            default="false"
+            icon="icons/data_icon.png"
+            id="com.onpositive.dside.ui.dsviewer"
+            name="DataSet Viewer">
+      </editor>
+   </extension>
+
+</plugin>

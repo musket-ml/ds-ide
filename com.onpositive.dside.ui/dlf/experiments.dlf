@@ -1,0 +1,20 @@
+<form xmlns="http://jetface.org/JetFace1.0/" caption="Experiments">
+	<model class="com.onpositive.dside.ui.ExperimentsView"/>
+	<pattern-filter targetId="e" />
+	<table bindTo="experiments" initialSortExpression="Score" id="e" openOnDoubleClick="true">
+	<actions toMenu="true">
+		<binded-action bindTo="$.deleteExperiment" caption="Delete Experement" image="com.onpositive.semantic.ui.delete"/>
+		<binded-action bindTo="$.duplicate" caption="Create Duplicate" image="com.onpositive.semantic.ui.copy"/>
+		<binded-action bindTo="$.open" caption="Open Experiment" image="com.onpositive.semantic.ui.edit"/>
+		<binded-action bindTo="$.compare" caption="Compare Confifurations" image="com.onpositive.semantic.ui.settings"/>
+		<binded-action bindTo="$.launch" caption="Launch Experiments" image="com.onpositive.commons.namespace.ide.ui.element"/>
+		<binded-action bindTo="$.task" caption="Launch Tasks" image="com.onpositive.ide.ui.change"/>
+	</actions>	
+		<columns>
+			<column  caption="Name" imageFromBase="true" textFromBase="true" resizeWeight="3"/>
+			<column id="Completed" caption="Completed"  resizeWeight="1"/>
+			<column id="Score" caption="Score"  resizeWeight="1"/>
+			<column id="Description" caption="Description"  resizeWeight="6"/>
+		</columns>
+	</table>
+</form>

@@ -1,0 +1,8 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" >
+  <splitter horizontal="true">
+  	<list bindSelectionTo="e" bindTo="errors"/>
+  	<composite-editor bindTo="e">  		
+  		<text bindTo="trace" readonly="true"/>
+  	</composite-editor>
+  </splitter>
+</composite-editor>
