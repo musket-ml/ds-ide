@@ -3,7 +3,8 @@ package com.onpositive.musket_core;
 import java.io.StringReader;
 import java.util.ArrayList;
 
-import org.eclipse.core.runtime.ICoreRunnable;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobFunction;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -48,7 +49,7 @@ public class ServerManager {
 		}
 		String dump = new Yaml().dump(task);
 		String label = LabelAccess.getLabel(task);
-		Job job = Job.create("Performing: " + label, (ICoreRunnable) monitor -> {
+		Job job = Job.create("Performing: " + label, (IJobFunction) monitor -> {
 			// do something long running
 			// ...
 			Object taskResult = null;
@@ -67,6 +68,10 @@ public class ServerManager {
 					((IHasAfterCompletionTasks) task).afterCompletion(taskResult);
 				}
 			}
+			if (monitor.isCanceled()){
+				return Status.CANCEL_STATUS;
+			}
+			return Status.OK_STATUS;
 		});
 		org.eclipse.jface.action.Action value = new org.eclipse.jface.action.Action() {
 			public void run() {

@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Yamledit
+Bundle-SymbolicName: com.onpositive.yamledit
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ONPOSITIVE
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: com.onpositive.dside.ui.editors.yaml.model
+Require-Bundle: snake_yaml_repackaged;bundle-version="1.0.0",
+ com.onpositive.semantic.model.core;bundle-version="1.0.0",
+ com.onpositive.semantic.model.java;bundle-version="1.0.0",
+ com.onpositive.semantic.model.bindings;bundle-version="1.0.0",
+ com.onpositive.semantic.model.ui.generic

@@ -8,8 +8,6 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
@@ -21,7 +19,6 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
-import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 
@@ -34,8 +31,6 @@ import com.onpositive.musket_core.ExperimentError;
 import com.onpositive.musket_core.ExperimentLogs;
 import com.onpositive.musket_core.ExperimentResults;
 import com.onpositive.musket_core.IExperimentExecutionListener;
-
-import de.jcup.yamleditor.YamlEditor;
 
 /**
  * An example showing how to create a multi-page editor. This example has 3
