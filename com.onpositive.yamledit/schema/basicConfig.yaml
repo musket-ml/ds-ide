@@ -16,6 +16,8 @@ properties:
      min: 0
      max: 1.0
      step: 0.1
+  testTimeAugmentation:
+     type: string    
   num_seeds:
      type: int
      defaultValue: 1
@@ -49,5 +51,29 @@ properties:
   clipnorm:
     type: float
   clipvalue:
-    type: float  
-            
+    type: float
+  declarations:
+    type: object
+    range: declaration    
+    multivalue: true
+  stages:
+    type: object
+    range: stage    
+    multivalue: true  
+  callbacks:
+    type: object
+    range: callback    
+    multivalue: true
+  dataset:  
+    type: object
+    range: dataset
+  pretrain_transform:
+    type: object
+    range: dataset
+  extra_train_data:
+    type: object
+    range: dataset      
+  datasets:                
+    type: object
+    range: dataset    
+    multivalue: true

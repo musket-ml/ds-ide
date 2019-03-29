@@ -1,10 +1,7 @@
 package com.onpositive.dside.ui;
-import py4j.GatewayServer;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-
-import com.onpositive.musket_core.IServer;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -17,7 +14,6 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 
-	private IServer hello;
 	
 	/**
 	 * The constructor
@@ -35,16 +31,7 @@ public class Activator extends AbstractUIPlugin {
 		plugin = this;
 	}
 
-	public IServer getServer() {
-		if (hello!=null) {
-			return hello;
-		}
-		GatewayServer.turnLoggingOff();
-        GatewayServer server = new GatewayServer();
-        server.start();
-        hello = (IServer) server.getPythonServerEntryPoint(new Class[] { IServer.class });
-        return hello;
-	}
+	
 
 	/*
 	 * (non-Javadoc)

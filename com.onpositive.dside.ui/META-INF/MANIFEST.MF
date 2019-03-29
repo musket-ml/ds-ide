@@ -30,7 +30,12 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.console,
  org.eclipse.debug.ui,
  org.eclipse.ui.forms,
- com.onpositive.yamledit;bundle-version="1.0.0"
+ com.onpositive.yamledit;bundle-version="1.0.0",
+ com.onpositive.semantic.model,
+ com.python.pydev.debug;bundle-version="7.1.0",
+ org.python.pydev.debug;bundle-version="7.1.0",
+ org.python.pydev.core,
+ org.python.pydev.ast
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: com.onpositive.dside.ui
 Bundle-ActivationPolicy: lazy

@@ -12,6 +12,8 @@ public class PropertyDescription {
 	protected Object defaultValue;
 	protected boolean required;
 	protected String type;
+	protected String range;
+	
 	protected String[] fixedValues;
 	protected Double min;
 	protected Double max;
@@ -73,5 +75,11 @@ public class PropertyDescription {
 	}
 	public void setFixedValues(String[] fixedValues) {
 		this.fixedValues = fixedValues;
+	}
+	public String getRange() {
+		return range;
+	}
+	public void setRange(String range) {
+		this.range = range;
 	}
 }

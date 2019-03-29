@@ -5,14 +5,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+
+import com.onpositive.dside.tasks.IServerTask;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.IExperimentExecutionListener;
-import com.onpositive.musket_core.IHasAfterCompletionTasks;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.Range;
 
 @Display("dlf/launch.dlf")
-public class LaunchConfiguration implements IHasAfterCompletionTasks {
+public class LaunchConfiguration implements IServerTask<Object> {
 
 	public LaunchConfiguration(Collection<Object> collection) {
 		collection.forEach(e -> {
@@ -62,6 +66,16 @@ public class LaunchConfiguration implements IHasAfterCompletionTasks {
 	boolean launchTasks;
 
 	boolean fitFromScratch;
+	
+	boolean debug;
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
 
 	public boolean isLaunchTasks() {
 		return launchTasks;
@@ -124,4 +138,24 @@ public class LaunchConfiguration implements IHasAfterCompletionTasks {
 			}
 		});
 	}
+
+	@Override
+	public Class<Object> resultClass() {
+		return Object.class;
+	}
+
+	@Override
+	public org.eclipse.core.resources.IProject[] getProject() {
+		ArrayList<org.eclipse.core.resources.IProject>p=new ArrayList<>();
+		for(Experiment e:experiment) {
+			IPath path = e.getPath();
+			IFile fileForLocation = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
+			if (fileForLocation!=null) {
+				p.add(fileForLocation.getProject());
+			}
+		}
+		return p.toArray(new org.eclipse.core.resources.IProject[p.size()]);
+	}
+
+	
 }

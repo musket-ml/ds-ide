@@ -29,14 +29,19 @@ public class ModelNodeLabelProvider implements IRichLabelProvider {
 	public StyledString getRichTextLabel(Object arg0) {
 		ModelNode node = (ModelNode) arg0;
 		StyledString res = new StyledString();
+
 		if (node.key != null) {
 			res.append(node.key);
+		} else {
+			if (node.object instanceof String) {
+				return new StyledString(node.object.toString());
+			}
 		}
 		if (node.object instanceof Map) {
 			Map<Object, Object> m = (Map) node.object;
 
 			if (!m.isEmpty()) {
-				//res.append("(", new Style("dark green", null));
+				// res.append("(", new Style("dark green", null));
 				m.entrySet().forEach(f -> {
 					Object value = f.getValue();
 					if (value instanceof Boolean || value instanceof String || value instanceof Number) {
@@ -44,24 +49,32 @@ public class ModelNodeLabelProvider implements IRichLabelProvider {
 						res.append(value.toString(), new Style("dark blue", null));
 					}
 				});
-				//res.append(")", new Style("dark green", null));
+				// res.append(")", new Style("dark green", null));
+			}
+		}
+		if (node.object != null) {
+			if (node.object.equals(node.key)) {
+				return res;
 			}
 		}
 		if (node.object instanceof Number || node.object instanceof String || node.object instanceof Boolean) {
-			res.append(":", new Style("dark green", null));			
-			res.append(node.object.toString(), new Style("dark blue", null));			
+			res.append(":", new Style("dark green", null));
+
+			res.append(node.object.toString(), new Style("dark blue", null));
 		}
 		if (node.object instanceof List) {
-			List l=(List) node.object;
-			if (!l.isEmpty()) {
-				//res.append("(", new Style("dark green", null));
-				for (Object f:l) {
-					if (f instanceof Boolean || f instanceof String || f instanceof Number) {
-						res.append(" " );
-						res.append(f.toString(), new Style("dark blue", null));
+			if (!node.hasChildren()) {
+				List l = (List) node.object;
+				if (!l.isEmpty()) {
+					// res.append("(", new Style("dark green", null));
+					for (Object f : l) {
+						if (f instanceof Boolean || f instanceof String || f instanceof Number) {
+							res.append(" ");
+							res.append(f.toString(), new Style("dark blue", null));
+						}
 					}
-				}				
-				//res.append(")", new Style("dark green", null));
+					// res.append(")", new Style("dark green", null));
+				}
 			}
 		}
 		return res;

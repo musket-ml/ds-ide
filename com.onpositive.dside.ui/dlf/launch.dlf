@@ -8,4 +8,6 @@
  	<radio  bindTo="fitFromScratch" caption="Fit from start"/>
  	<radio  bindTo="allowResume" caption="Resume incomplete experiments"/>
  	<radio  bindTo="onlyReports" caption="Only generate reports"/>
+ 	<separator vertical="false"/>
+ 	<checkbox bindTo="debug" caption="Launch in debug mode?"/>
 </composite-editor>

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,20 @@ public class Experiment {
 		int result = 1;
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
 		return result;
+	}
+	
+	public String getProjectPath() {
+		File file = new File(path);
+		while (true) {
+			if (file.getParentFile()==null) {
+				break;
+			}
+			file=file.getParentFile();
+			if (file.getName().equals("experiments")) {
+				return file.getParentFile().getAbsolutePath();
+			}
+		}
+		return file.getAbsolutePath();
 	}
 
 	@Override
@@ -291,5 +306,20 @@ public class Experiment {
 
 	public IPath getPath() {
 		return new Path(path);
+	}
+
+	public boolean hasSeeds() {		
+		Number orDefault = (Number) this.getConfig().getOrDefault("num_seeds", 1);
+		return orDefault.intValue()>1;		
+	}
+
+	public boolean hasStages() {
+		List orDefault = (List) this.getConfig().getOrDefault("stages", 5);
+		return orDefault.size()>1;
+	}
+
+	public boolean hasFolds() {
+		Number orDefault = (Number) this.getConfig().getOrDefault("folds_count", 5);
+		return orDefault.intValue()>1;
 	}
 }

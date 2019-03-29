@@ -5,7 +5,9 @@
 				<section caption="Generic">
 					<string caption="Architeture" bindTo="architecture" />
 					<string caption="Preprocessing" bindTo="preprocessing" />
-					<string caption="Dataset" bindTo="dataset" />
+				</section>
+				<section caption="Tasks" id="tasks">
+
 				</section>
 
 				<section caption="Learning Process">
@@ -21,10 +23,14 @@
 				<section caption="Cross Validation and Holdout">
 					<hc margin="0,0,0,0">
 						<string bindTo="folds_count" caption="Folds Count"></string>
-						<string bindTo="testSplit" caption="Test Split" />
 						<string bindTo="num_seeds" caption="Seed Count" />
+						<checkbox bindTo="stratified" caption="Stratified" />
 					</hc>
-					<checkbox bindTo="stratified" caption="Stratified" />
+					<hc>
+						<string bindTo="testSplit" caption="Test Split" />
+						<string bindTo="testSplitSeed"
+							caption="Random seed for test split" />
+					</hc>
 				</section>
 				<section caption="Metrics">
 					<string bindTo="metrics" caption="Metrics"></string>
@@ -38,22 +44,41 @@
 
 					</hc>
 				</section>
-				<section caption="Tasks">
-				</section>
+
+
 			</vc>
 			<vc grabVertical="true">
-				<section caption="Callbacks">
-					<list bindTo="callbacks"></list>
+				<section caption="Data" grabVertical="false">
+					<string caption="Dataset" bindTo="dataset" />
+					<string caption="Test time augmentation"
+						bindTo="testTimeAugmentation" />
+					<string caption="Extra train data" bindTo="extra_train_data"></string>
+					<string caption="Pretrain trainsform"
+						bindTo="pretrain_transform"></string>
+					<label caption="Datasets" />
+					<tree property="children" bindTo="datasets"
+						minimumSize="100,70" grabHorizontal="true" grabVertical="true"></tree>
 				</section>
-				<section caption="Hyperparameters">
+				<section caption="Hyperparameters" expanded="false">
 					<list bindTo="hyperparameters"></list>
+				</section>
+				<section caption="Callbacks">
+					<list bindTo="callbacks">
+						<actions toToolbar="true" toMenu="true">
+							<edit-selection />
+							<remove-selection />
+							<create-child />
+						</actions>
+					</list>
 				</section>
 				<section caption="Stages">
 					<list bindTo="stages"></list>
 				</section>
+
 				<section caption="Declarations" grabVertical="true">
 					<tree property="children" bindTo="declarations"></tree>
 				</section>
+
 			</vc>
 		</splitter>
 	</composite-editor>

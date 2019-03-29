@@ -22,9 +22,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
+import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ExperimentFinder;
-import com.onpositive.musket_core.ServerManager;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.property.ValueUtils;
 import com.onpositive.semantic.model.ui.generic.widgets.ISelectorElement;
@@ -89,7 +89,7 @@ public class ExperimentsView extends XMLView {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-		ServerManager.addJobListener(launchListener);
+		TaskManager.addJobListener(launchListener);
 		AbstractEnumeratedValueSelector<?> element = (AbstractEnumeratedValueSelector<?>) getElement("e");
 		element.getViewer().addDoubleClickListener(new IDoubleClickListener() {
 
@@ -102,7 +102,7 @@ public class ExperimentsView extends XMLView {
 	}
 	@Override
 	public void dispose() {
-		ServerManager.removeJobListener(launchListener);
+		TaskManager.removeJobListener(launchListener);
 		super.dispose();
 	}
 
@@ -132,23 +132,27 @@ public class ExperimentsView extends XMLView {
 	public void launch() {
 		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
 		Object currentValue = el.getSelectionBinding().getValue();
+		launchExperiment(currentValue);
+	}
+
+	public static void launchExperiment(Object currentValue) {
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		LaunchConfiguration cfg=new LaunchConfiguration(collection);
 		boolean createObject = WidgetRegistry.createObject(cfg);
 		if (createObject) {
 			//String collect = collection.stream().map(x->x.toString()).collect(Collectors.joining(","));
-			ServerManager.perform(cfg);
+			TaskManager.perform(cfg);
 		}
 	}
 	public void task() {
 		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
 		Object currentValue = el.getSelectionBinding().getValue();
-		Collection<Object> collection = ValueUtils.toCollection(currentValue);
+		Collection<Object> collection = ValueUtils.toCollection(currentValue); 
 		TaskConfiguration cfg=new TaskConfiguration(collection);
 		boolean createObject = WidgetRegistry.createObject(cfg);
 		if (createObject) {
 			//String collect = collection.stream().map(x->x.toString()).collect(Collectors.joining(","));
-			ServerManager.perform(cfg);
+			TaskManager.perform(cfg);
 		}
 	}
 	

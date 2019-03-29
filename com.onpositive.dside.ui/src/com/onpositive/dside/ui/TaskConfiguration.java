@@ -9,29 +9,34 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
+import com.onpositive.dside.tasks.IServerTask;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.IExperimentExecutionListener;
-import com.onpositive.musket_core.IHasAfterCompletionTasks;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.Range;
 
 @Display("dlf/task.dlf")
-public class TaskConfiguration implements IHasAfterCompletionTasks {
+public class TaskConfiguration implements IServerTask<Object> {
 
 	public TaskConfiguration(Collection<Object> collection) {
 		collection.forEach(e -> {
 			experiment.add((Experiment) e);
 		});
+	}
+	@Override
+	public Class<Object> resultClass() {
+		return Object.class;
 	}
 
 	protected List<Experiment> experiment = new ArrayList<Experiment>();
@@ -90,6 +95,16 @@ public class TaskConfiguration implements IHasAfterCompletionTasks {
 	boolean allowResume;
 
 	boolean onlyReports;
+	
+	boolean debug;
+
+	public boolean isDebug() {
+		return debug;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
+	}
 
 	protected Map<String, Object> taskArgs = new LinkedHashMap<>();
 
@@ -185,5 +200,17 @@ public class TaskConfiguration implements IHasAfterCompletionTasks {
 				}
 			}
 		});
+	}
+	@Override
+	public IProject[] getProject() {
+		ArrayList<org.eclipse.core.resources.IProject>p=new ArrayList<>();
+		for(Experiment e:experiment) {
+			IPath path = e.getPath();
+			IFile fileForLocation = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
+			if (fileForLocation!=null) {
+				p.add(fileForLocation.getProject());
+			}
+		}
+		return p.toArray(new org.eclipse.core.resources.IProject[p.size()]);
 	}
 }

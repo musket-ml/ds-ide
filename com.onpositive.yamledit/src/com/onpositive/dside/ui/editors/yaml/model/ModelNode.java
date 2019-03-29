@@ -16,10 +16,10 @@ import com.onpositive.semantic.model.api.property.IHasPropertyProvider;
 import com.onpositive.semantic.model.api.property.IPropertyProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
 import com.onpositive.semantic.model.api.property.java.annotations.TextLabel;
+import com.onpositive.semantic.model.ui.generic.IKnowsImageObject;
 
-@Image("icons/cf_obj.png")
 @TextLabel(provider = ModelNodeLabelProvider.class)
-public class ModelNode implements IHasPropertyProvider {
+public class ModelNode implements IHasPropertyProvider,IKnowsImageObject {
 
 	protected Object object;
 	protected NodeKind clazz;
@@ -40,8 +40,14 @@ public class ModelNode implements IHasPropertyProvider {
 		result = prime * result + ((object == null) ? 0 : object.hashCode());
 		return result;
 	}
+	public boolean hasChildren() {
+		return this.clazz.hasChildren();
+	}
 
 	public ArrayList<ModelNode> getChildren() {
+		if (!this.clazz.hasChildren()) {
+			return new ArrayList<>();
+		}
 		ArrayList<ModelNode> res = new ArrayList<>();
 		if (this.object instanceof Map) {
 			Map<String, Object> m = (Map) this.object;
@@ -50,7 +56,7 @@ public class ModelNode implements IHasPropertyProvider {
 				if (value instanceof Boolean || value instanceof String || value instanceof Number) {
 					return;
 				} else {
-					ModelNode ma = new ModelNode(value, clazz);
+					ModelNode ma = new ModelNode(value, clazz.createChild(value));
 					ma.key = f.getKey();
 					res.add(ma);
 				}
@@ -60,7 +66,7 @@ public class ModelNode implements IHasPropertyProvider {
 			for (Object o : ((ArrayList) this.object)) {
 				Object value = o;
 				if (value instanceof Boolean || value instanceof String || value instanceof Number) {
-					ModelNode ma = new ModelNode(value, clazz);
+					ModelNode ma = new ModelNode(value, clazz.createChild(value));
 					res.add(ma);
 					ma.setKey(value.toString());
 				} else {
@@ -68,12 +74,12 @@ public class ModelNode implements IHasPropertyProvider {
 						Map m = (Map) value;
 						if (m.size() == 1) {
 							Object next = m.keySet().iterator().next();
-							ModelNode ma = new ModelNode(m.get(next), clazz);
+							ModelNode ma = new ModelNode(m.get(next), clazz.createChild(m.get(next)));
 							ma.setKey(next.toString());
 							res.add(ma);
 						}
 					} else {
-						ModelNode ma = new ModelNode(value, clazz);
+						ModelNode ma = new ModelNode(value, clazz.createChild(value));
 						res.add(ma);
 					}
 				}
@@ -147,6 +153,9 @@ public class ModelNode implements IHasPropertyProvider {
 
 	@Override
 	public String toString() {
+		if (this.key!=null&&this.key.length()>0) {
+			return this.key+": "+this.toYaml();
+		}
 		return this.toYaml();
 	}
 
@@ -158,6 +167,11 @@ public class ModelNode implements IHasPropertyProvider {
 	public void update(String string) {
 		Object loadAs = new Yaml().loadAs(new StringReader(string), Object.class);
 		this.object = loadAs;
+	}
+
+	@Override
+	public String getImageID() {
+		return this.clazz.nodetype.getIcon();
 	}
 
 }

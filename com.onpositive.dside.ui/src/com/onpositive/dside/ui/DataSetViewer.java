@@ -1,12 +1,8 @@
 package com.onpositive.dside.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,7 +21,13 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import com.onpositive.commons.elements.AbstractUIElement;
+import com.onpositive.commons.elements.RootElement;
 import com.onpositive.musket_core.DataSet;
+import com.onpositive.semantic.model.binding.Binding;
+import com.onpositive.semantic.model.ui.generic.widgets.IUIElement;
+import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
+import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class DataSetViewer extends EditorPart{
 
@@ -87,6 +89,13 @@ public class DataSetViewer extends EditorPart{
 
 	@Override
 	public void createPartControl(Composite parent) {
+		
+		RootElement rl=new RootElement(parent);
+		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(dataset,null,null);
+		System.out.println(widgetObject);
+		IUIElement<?> createWidget = widgetObject.createWidget(new Binding(dataset));
+		rl.add((AbstractUIElement<?>) createWidget);
+		parent=(Composite) rl.getElement("inner").getControl();
 		ArrayList<Object>items=new ArrayList<>();
 		images = new LinkedHashMap<>();
 		gallery = new Gallery(parent, SWT.V_SCROLL | SWT.VIRTUAL);
@@ -96,6 +105,7 @@ public class DataSetViewer extends EditorPart{
 		gr.setMinMargin(3);
 		
 		DefaultGalleryItemRenderer ir = new DefaultGalleryItemRenderer();
+		
 
 		gallery.setGroupRenderer(gr);
 		gallery.setItemRenderer(ir);
@@ -127,8 +137,7 @@ public class DataSetViewer extends EditorPart{
 				
 				System.out.println( "setData index " + index); //$NON-NLS-1$
 				// Your image here
-				// item.setImage(eclipseImage);
-				
+				// item.setImage(eclipseImage);				
 			}
 
 		});

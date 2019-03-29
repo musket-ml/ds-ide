@@ -11,6 +11,7 @@ public class NodeKind implements IPropertyProvider {
 
 	INodeListener listener;
 	protected NodeType nodetype;
+	
 
 	public NodeKind(String kind, INodeListener listener) {
 		super();
@@ -37,6 +38,9 @@ public class NodeKind implements IPropertyProvider {
 		if (node==null) {
 			return null;
 		}
+		if (arg1==null) {
+			return null;
+		}
 		if (arg1.equals("children")) {
 			return JavaPropertyProvider.instance.getProperty(arg0, "Children");
 		}
@@ -44,6 +48,15 @@ public class NodeKind implements IPropertyProvider {
 			return new MapProperty(this, arg1);
 		}
 		return null;
+	}
+
+	public boolean hasChildren() {
+		return nodetype.chidren();
+	}
+
+	public NodeKind createChild(Object value) {
+		String childrenKind = nodetype.getChildrenKind();
+		return new NodeKind(childrenKind, listener);
 	}
 
 }

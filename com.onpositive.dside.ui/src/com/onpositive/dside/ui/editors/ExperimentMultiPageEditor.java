@@ -92,7 +92,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	protected void createPages() {
 		createPage0();
 		try {
-			formEditor = new ExperimentOverivewEditorPart(this.editor);
+			formEditor = new ExperimentOverivewEditorPart(this.editor,experiment);
 			this.addPage(0,formEditor, getEditorInput());
 			setPageText(0, "Overview");
 		} catch (PartInitException e) {
@@ -106,7 +106,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 
 	private void updatePages() {
 		for (int i = 2; i < this.getPageCount(); i++) {
-			this.removePage(1);
+			this.removePage(i);
 		}
 		
 

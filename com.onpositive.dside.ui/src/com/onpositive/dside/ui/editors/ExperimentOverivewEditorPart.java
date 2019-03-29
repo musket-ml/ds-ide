@@ -1,50 +1,206 @@
 package com.onpositive.dside.ui.editors;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.FileEditorInput;
 
 import com.onpositive.commons.elements.AbstractUIElement;
+import com.onpositive.commons.elements.Container;
+import com.onpositive.commons.elements.LinkElement;
 import com.onpositive.commons.elements.RootElement;
+import com.onpositive.dside.dto.introspection.InstrospectedFeature;
+import com.onpositive.dside.dto.introspection.InstrospectionResult;
+import com.onpositive.dside.tasks.GateWayRelatedTask;
+import com.onpositive.dside.tasks.TaskManager;
+import com.onpositive.dside.ui.DynamicUI;
+import com.onpositive.dside.ui.ExperimentsView;
+import com.onpositive.dside.ui.TaskConfiguration;
 import com.onpositive.dside.ui.editors.yaml.model.INodeListener;
 import com.onpositive.dside.ui.editors.yaml.model.ModelNode;
 import com.onpositive.dside.ui.editors.yaml.model.NodeKind;
+import com.onpositive.musket_core.Experiment;
+import com.onpositive.musket_core.ProjectManager;
+import com.onpositive.musket_core.ProjectWrapper;
 import com.onpositive.semantic.model.binding.Binding;
-import com.onpositive.semantic.model.ui.generic.widgets.IUIElement;
+import com.onpositive.semantic.model.ui.generic.HyperlinkEvent;
+import com.onpositive.semantic.model.ui.generic.IHyperlinkListener;
+import com.onpositive.semantic.model.ui.property.editors.SectionEditor;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 import de.jcup.yamleditor.YamlEditor;
 
-public class ExperimentOverivewEditorPart extends EditorPart implements INodeListener{
-
+public class ExperimentOverivewEditorPart extends EditorPart implements INodeListener {
 
 	private TextEditor experiment;
 	private EditorModel model;
 	private Binding binding;
+	private Experiment exp;
 
-	public ExperimentOverivewEditorPart(TextEditor editor) {
-		this.experiment=editor;
+	public ExperimentOverivewEditorPart(TextEditor editor, Experiment exp) {
+		this.experiment = editor;
+		this.exp = exp;
+		project = ProjectManager.getInstance().getProject(exp);
+		project.refresh(() -> {
+			InstrospectionResult details = project.getDetails();
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					introspected(details);
+				}
+			});
+
+		});
 	}
-	
+
+	boolean disposed;
+
+	private void introspected(InstrospectionResult details) {
+		if (this.disposed) {
+			return;
+		}
+		this.populateTasks(uiRoot);
+		uiRoot.getContentParent().layout(true, true);
+	}
+
 	@Override
 	public void dispose() {
+		disposed = true;
 		super.dispose();
 	}
 
 	@Override
 	public void createPartControl(Composite parent) {
-		RootElement rl=new RootElement(parent);
-		NodeKind kind = new NodeKind("basicConfig",this);
-		model = new EditorModel(experiment,kind);
-		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(model,null,null);
+		RootElement rl = new RootElement(parent);
+		NodeKind kind = new NodeKind("basicConfig", this);
+		model = new EditorModel(experiment, kind);
+		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(model, null, null);
 		binding = new Binding(model);
-		IUIElement<?> createWidget = widgetObject.createWidget(binding);
-		rl.add((AbstractUIElement<?>) createWidget);
+		uiRoot = (Container) widgetObject.createWidget(binding);
+		rl.add((AbstractUIElement<?>) uiRoot);
+		populateTasks(uiRoot);
+	}
+
+	private void populateTasks(Container createWidget) {
+		SectionEditor element = (SectionEditor) createWidget.getElement("tasks");
+		element.setLayoutManager(null);
+		RowLayout layout = new RowLayout();
+		layout.wrap = true;
+		element.setLayout(layout);
+		List<AbstractUIElement<?>> children = new ArrayList<>(element.getChildren());
+		children.forEach(r -> element.remove(r));
+		LinkElement element2 = new LinkElement();
+		element2.setCaption("Launch Experiment");
+		element2.setIcon("run_experiment");
+		element2.addHyperLinkListener(new IHyperlinkListener() {
+
+			@Override
+			public void linkExited(HyperlinkEvent e) {
+
+			}
+
+			@Override
+			public void linkEntered(HyperlinkEvent e) {
+
+			}
+
+			@Override
+			public void linkActivated(HyperlinkEvent e) {
+				doSave(new NullProgressMonitor());
+				ExperimentsView.launchExperiment(exp);
+			}
+		});
+		element2.setIcon("layer");
+		element.add(element2);
+		element2 = new LinkElement();
+		element2.setCaption("Validate Model");
+		element2.setIcon("validate");
+		element.add(element2);
+		element2 = new LinkElement();
+		element2.setCaption("Analize Predictions");
+		element2.setIcon("analize");
+//		element2.addHyperLinkListener(new IHyperlinkListener() {
+//			
+//			@Override
+//			public void linkExited(HyperlinkEvent e) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//			
+//			@Override
+//			public void linkEntered(HyperlinkEvent e) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//			
+//			@Override
+//			public void linkActivated(HyperlinkEvent e) {
+//				FileEditorInput editorInput = (FileEditorInput) getEditorInput();
+//				GateWayRelatedTask gateWayRelatedTask = new GateWayRelatedTask(editorInput.getFile().getProject());
+//				TaskManager.perform(gateWayRelatedTask);
+//			}
+//		});
+		element.add(element2);
+		List<InstrospectedFeature> tasks = project.getTasks();
+		tasks.forEach(r -> {
+			LinkElement taskElement = new LinkElement();
+			String name = r.getName();
+			taskElement.setCaption(name.substring(0, 1).toUpperCase() + name.substring(1).replace('_', ' '));
+			taskElement.setIcon("generic_task");
+			taskElement.addHyperLinkListener(new IHyperlinkListener() {
+
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void linkExited(HyperlinkEvent e) {
+
+				}
+
+				@Override
+				public void linkEntered(HyperlinkEvent e) {
+
+				}
+
+				@Override
+				public void linkActivated(HyperlinkEvent e) {
+					doSave(new NullProgressMonitor());
+					Map<String, Object> open = new DynamicUI(r).open(exp);
+					if (open != null) {
+						TaskConfiguration cfg = new TaskConfiguration(Collections.singleton(exp));
+						cfg.setTaskArgs(open);
+						if (open.containsKey("debug")) {
+							cfg.setDebug((Boolean)open.get("debug"));
+						}
+						if (open.containsKey("workers")) {
+							cfg.setNumWorkers(Integer.parseInt(open.get("workers").toString()));
+						}
+						cfg.setTasks(r.getName());
+						TaskManager.perform(cfg);
+					}					
+				}
+			});
+			element.add(taskElement);
+		});
+		element.getControl().layout(true, true);
+
 	}
 
 	@Override
@@ -53,21 +209,24 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
-		this.dirty=false;
+		this.dirty = false;
 		firePropertyChange(PROP_DIRTY);
 	}
 
 	@Override
 	public void doSaveAs() {
-		
+
 	}
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		super.setInput(input);
-		super.setSite(site);		
+		super.setSite(site);
 	}
+
 	boolean dirty;
+	private ProjectWrapper project;
+	private Container uiRoot;
 
 	@Override
 	public boolean isDirty() {
@@ -80,25 +239,24 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 	}
 
 	public void updateFromText() {
-		model.update(((YamlEditor)experiment).getDocument().get());
+		model.update(((YamlEditor) experiment).getDocument().get());
 		binding.refresh(true);
-		
+
 	}
 
 	public void updateText() {
 		if (dirty) {
 			String string = model.getRoot().toString();
-			((YamlEditor)experiment).getDocument().set(string);
-			this.dirty=false;
+			((YamlEditor) experiment).getDocument().set(string);
+			this.dirty = false;
 			firePropertyChange(PROP_DIRTY);
 		}
 	}
 
 	@Override
 	public void updated(ModelNode node, Object newValue, String property) {
-		this.dirty=true;
+		this.dirty = true;
 		firePropertyChange(PROP_DIRTY);
 	}
-
 
 }

@@ -1,0 +1,12 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" caption="Error during project refresh" description="Press ok to navigate to error line">
+	<model class="com.onpositive.musket_core.StackVisualizer"/>
+	
+	<table bindTo="error.elements" isOrdered="true" bindSelectionTo="b" hint="-1,600">
+		<columns >
+			<column imageFromBase="true" textFromBase="true"/>
+			
+		</columns>
+	</table>
+	<label caption="Please select stack trace element to see details"/>
+	<text readonly="true" bindTo="b.code" minimumSize="-1,70"/>
+</composite-editor>

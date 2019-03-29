@@ -1,0 +1,14 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" margin="0,0,0,0">
+	<label caption="Please configure model that should be used:"/>
+	<separator vertical="false"/>
+	<model class="com.onpositive.dside.ui.ModelEvaluationSpec"/>
+	
+	<combo bindTo="folds" visibility="hasFolds"/>
+	<string bindTo="folds_numbers" visibility="ShowFolds" caption="Fold Numbers"/>
+	<combo bindTo="seeds" caption="Seed Selection" visibility="hasSeeds"/>
+	<string bindTo="seed_numbers" visibility="ShowSeeds" caption="Seed Numbers" />
+	
+	<combo bindTo="stages" visibility="hasStages"/>
+	<string bindTo="stages_numbers" visibility="ShowStages" caption="Stage Numbers"/>
+	
+</composite-editor>

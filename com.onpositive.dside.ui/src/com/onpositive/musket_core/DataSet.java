@@ -1,5 +1,8 @@
 package com.onpositive.musket_core;
 
+import com.onpositive.semantic.model.api.property.java.annotations.Display;
+
+@Display("dlf/dataset.dlf")
 public class DataSet {
 
 	private IDataSet dataset;
@@ -23,5 +26,10 @@ public class DataSet {
 
 	public Object item(int i) {
 		return dataset.item(i);
+	}
+	
+	@Override
+	public String toString() {
+		return dataset.name();
 	}
 }

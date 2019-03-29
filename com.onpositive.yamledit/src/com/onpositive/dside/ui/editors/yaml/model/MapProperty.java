@@ -1,9 +1,12 @@
 package com.onpositive.dside.ui.editors.yaml.model;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.semantic.model.api.meta.BaseMeta;
 import com.onpositive.semantic.model.api.meta.DefaultMetaKeys;
@@ -37,12 +40,12 @@ final class MapProperty extends AbstractWritableProperty implements IProperty {
 	public IMeta getMeta() {
 		BaseMeta meta = (BaseMeta) super.getMeta();
 		PropertyDescription propertyDescription = this.nodeKind.nodetype.getProperties().get(arg1);
-		if (propertyDescription!=null&&propertyDescription.multivalue) {
+		if (propertyDescription != null && propertyDescription.multivalue) {
 			this.typeIsCollection = true;
 			this.type = ArrayList.class;
 			meta.putMeta(DefaultMetaKeys.MULTI_VALUE_KEY, true);
 		}
-		
+
 		if (propertyDescription != null) {
 			if (propertyDescription.step != null) {
 				meta.putMeta(DefaultMetaKeys.RANGE_DIGITS__KEY, 2);
@@ -54,23 +57,24 @@ final class MapProperty extends AbstractWritableProperty implements IProperty {
 					meta.putMeta(DefaultMetaKeys.RANGE_MIN__KEY, propertyDescription.min);
 				}
 			}
-			if (propertyDescription.fixedValues!=null) {
+			if (propertyDescription.fixedValues != null) {
 				meta.putMeta(DefaultMetaKeys.FIXED_BOUND_KEY, true);
-				Realm<Object> realm = new Realm<>(Arrays.asList((Object[])propertyDescription.fixedValues));
+				Realm<Object> realm = new Realm<>(Arrays.asList((Object[]) propertyDescription.fixedValues));
 				meta.putMeta(DefaultMetaKeys.REALM__KEY, realm);
 				meta.registerService(IRealmProvider.class, new IRealmProvider<Object>() {
 
 					@Override
 					public IRealm<Object> getRealm(IHasMeta model, Object parentObject, Object object) {
-						
+
 						return realm;
 					}
 				});
-				
+
 			}
-			if (propertyDescription.customRealm!=null) {
+			if (propertyDescription.customRealm != null) {
 				try {
-					meta.registerService(IRealmProvider.class, (IRealmProvider)Class.forName(propertyDescription.customRealm).newInstance());
+					meta.registerService(IRealmProvider.class,
+							(IRealmProvider) Class.forName(propertyDescription.customRealm).newInstance());
 				} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -87,84 +91,156 @@ final class MapProperty extends AbstractWritableProperty implements IProperty {
 			return m.getChildren();
 		}
 		PropertyDescription propertyDescription = this.nodeKind.nodetype.getProperties().get(arg1);
+		boolean isObject = isObject(propertyDescription);
 		Object object = ((Map) m.object).get(arg1);
 		if (object == null) {
-			
 			if (propertyDescription != null) {
 				if (propertyDescription.defaultValue != null) {
 					return propertyDescription.getDefaultValue();
 				}
 			}
-			
 		}
-		
+
 		if (propertyDescription != null) {
+
 			if (propertyDescription.isLowerCase()) {
-				if (object!=null) {
+				if (object != null) {
 					return object.toString().toLowerCase();
 				}
 			}
 		}
-		if (object instanceof Map) {
-			Map<String,Object> ma=(Map) object;
-			ArrayList<ModelNode>nodes=new ArrayList<>();
-			for (String s:ma.keySet()) {
-				ModelNode n=new ModelNode(ma.get(s), this.nodeKind);
-				nodes.add(n);
-				n.setKey(s);
-				nodes.add(n);
+		if (isObject) {
+
+			if (object instanceof Map) {
+				Map<String, Object> ma = (Map) object;
+				ArrayList<ModelNode> nodes = new ArrayList<>();
+				for (String s : ma.keySet()) {
+					ModelNode n = new ModelNode(ma.get(s), getKind(s));
+					nodes.add(n);
+					n.setKey(s);
+				}
+				return nodes;
+			} else if (object instanceof ArrayList) {
+
+				ArrayList<ModelNode> nodes = new ArrayList<>();
+				for (Object s : (ArrayList) object) {
+					ModelNode n = new ModelNode(s, getKind(null));
+					nodes.add(n);
+				}
+				return nodes;
+			} else {
+				ModelNode mn = new ModelNode(object, getKind(null));
+				return mn;
 			}
-			return nodes;
 		}
 		return object;
+	}
+
+	private NodeKind getKind(String key) {
+		
+		PropertyDescription propertyDescription = this.nodeKind.nodetype.getProperties().get(arg1);
+		if (propertyDescription!=null) {
+			String range = propertyDescription.getRange();
+			if (range!=null) {
+				NodeKind nodeKind2 = new NodeKind(range, this.nodeKind.listener);
+				
+				return nodeKind2;
+			}
+		}
+		return this.nodeKind;
+	}
+
+	private boolean isObject(PropertyDescription propertyDescription) {
+		boolean isObject = false;
+		String type2 = propertyDescription != null ? propertyDescription.getType() : "";
+		if (type2 != null && type2.equals("object")) {
+			isObject = true;
+		}
+		return isObject;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void doSet(Object target, Object object) throws IllegalAccessException {
 		ModelNode m = (ModelNode) target;
+		PropertyDescription propertyDescription = this.nodeKind.nodetype.getProperties().get(arg1);
+		boolean isObject = isObject(propertyDescription);
 		Object v = ((Map) m.object).get(arg1);
-		if (object instanceof ArrayList) {
-			LinkedHashMap<String, Object>ms=new LinkedHashMap<>();
-			boolean isMap=true;
-			for (Object o: (ArrayList<?>)object) {
-				if (o instanceof ModelNode) {
-					ModelNode ma=(ModelNode) o;
-					if (ma.getKey()!=null) {
-						ms.put(ma.getKey(), ma.object);
+		if (isObject) {
+
+			if (object instanceof ArrayList) {
+				LinkedHashMap<String, Object> ms = new LinkedHashMap<>();
+				boolean isMap = true;
+				for (Object o : (ArrayList<?>) object) {
+					if (o instanceof ModelNode) {
+						ModelNode ma = (ModelNode) o;
+						if (ma.getKey() != null) {
+							ms.put(ma.getKey(), ma.object);
+						} else {
+							isMap = false;
+						}
+					} else {
+						isMap = false;
 					}
-					else {
-						isMap=false;
+				}
+				if (isMap) {
+					object = ms;
+				} else {
+					ArrayList<Object>zzz=new ArrayList<>();
+					for (Object o : (ArrayList<?>) object) {						
+						ModelNode ma = (ModelNode) o;
+						zzz.add(ma);						
 					}
+					object=zzz;
+				}
+			}
+			if (object instanceof ModelNode) {
+				ModelNode n = (ModelNode) object;
+				LinkedHashMap<String, Object> rs = new LinkedHashMap<>();
+				if (n.getKey() != null) {
+					rs.put(n.getKey(), n.object);
+				}
+				if (n.object instanceof String) {
+					object=n.object;
 				}
 				else {
-					isMap=false;
+					object = rs;
 				}
 			}
-			if (isMap) {
-				object=ms;
-			}
-			else {
-				System.out.println("A");
+			if (object instanceof String) {
+				try {
+				object=new Yaml().load(new StringReader((String) object));
+				}catch (Exception e) {
+				}
 			}
 		}
-		if (object instanceof ModelNode) {
-			ModelNode n=(ModelNode)object;
-			LinkedHashMap<String, Object>rs=new LinkedHashMap<>();
-			if (n.getKey()!=null) {
-				rs.put(n.getKey(), n.object);
+		if (propertyDescription!=null&&propertyDescription.type!=null&&propertyDescription.getType().equals("int")) {
+			try {
+				if (object instanceof String) {
+					object=Integer.parseInt((String) object);
+				}
+			}catch (Exception e) {
+				// TODO: handle exception
 			}
-			object=rs;
+		}
+		if (propertyDescription!=null&&propertyDescription.type!=null&&propertyDescription.getType().equals("float")) {
+			try {
+				if (object instanceof String) {
+					object=Double.parseDouble((String) object);
+				}
+			}catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 		if (v == object || (v != null && v.equals(object))) {
 			return;
 		}
-		
+
 		Map<String, Object> map = (Map<String, Object>) m.object;
-		if (object==null) {
+		if (object == null) {
 			map.remove(arg1);
-		}			
-		else map.put(arg1, object);
+		} else
+			map.put(arg1, object);
 		this.nodeKind.listener.updated(m, object, arg1);
 	}
 }

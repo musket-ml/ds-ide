@@ -56,6 +56,15 @@
          </action>
       </objectContribution>
    </extension>
+   <extension point="org.eclipse.debug.core.launchConfigurationTypes">
+	<launchConfigurationType
+        delegate="com.onpositive.musket_core.MusketLaunchConfigurationDelegate"
+        id="org.python.pydev.debug.musketLaunchConfigurationType"
+        modes="run, debug, interactive"
+        name="Musket Core Run"
+        public="false">
+	</launchConfigurationType>
+   </extension>
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -74,6 +83,29 @@
             id="com.onpositive.dside.ui.dsviewer"
             name="DataSet Viewer">
       </editor>
+   </extension>
+   <extension
+         point="com.onpositive.semantic.model.images">
+      <image
+            id="run_experiment"
+            image="icons/run_exc.png"
+            name="run_experiment">
+      </image>
+      <image
+            id="validate"
+            image="icons/validate.gif"
+            name="validate">
+      </image>
+      <image
+            id="analize"
+            image="icons/watch_exp.gif"
+            name="analize">
+      </image>
+      <image
+            id="generic_task"
+            image="icons/debugt_obj.png"
+            name="generic_task">
+      </image>
    </extension>
 
 </plugin>

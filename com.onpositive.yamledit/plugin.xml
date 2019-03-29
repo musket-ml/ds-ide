@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="com.onpositive.semantic.model.images">
+      <image
+            id="layer"
+            image="icons/html_tag_obj.png"
+            name="layer">
+      </image>
+      <image
+            id="callback"
+            image="icons/class_obj.png"
+            name="callback">
+      </image>
+      <image
+            id="declaration"
+            image="icons/methpub_obj.png"
+            name="declaration">
+      </image>
+      <image
+            id="stage"
+            image="icons/correction_cast.png"
+            name="stage">
+      </image>
+      <image
+            id="dataset"
+            image="icons/data_icon.png"
+            name="dataset">
+      </image>
+   </extension>
+
+</plugin>
