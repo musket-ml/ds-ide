@@ -1,8 +1,16 @@
 package com.onpositive.dside.tasks;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.debug.core.ILaunch;
+import java.io.StringReader;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.swt.widgets.Display;
+import org.yaml.snakeyaml.Yaml;
+
+import com.onpositive.musket_core.IProgressReporter;
 import com.onpositive.musket_core.IServer;
 
 import py4j.GatewayServer;
@@ -21,6 +29,9 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 	protected boolean debug;
 	private int listeningPort;
 	private GatewayServer server;
+	protected IServer musketServer;
+	private com.onpositive.musket_core.IProject musketProject;
+	private ILaunch launch;
 
 	@Override
 	public Class<Object> resultClass() {
@@ -45,12 +56,33 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 	}
 
 	public void created(IServer server) {
+		this.musketServer=server;		
 		com.onpositive.musket_core.IProject project2 = server.project(this.project.getLocation().toOSString());
-		delegate.started(server, project2);
+		this.musketProject=project2;
+		delegate.started(this);		
+	}
+	
+	public <T,R> void perform(T data,Class<R>resultClass,Consumer<R>func){
+		Thread thread = new Thread() {
+			@Override
+			public void run() {
+				Yaml yaml = new Yaml();
+				Object performTask = musketServer.performTask(yaml.dump(data), null);
+				if (resultClass.isInstance(performTask)){
+					Display.getDefault().asyncExec(()->func.accept(resultClass.cast(performTask)));
+				}
+				else {
+					R loadAs = yaml.loadAs(new StringReader((String) performTask), resultClass);
+					Display.getDefault().asyncExec(()->func.accept(loadAs));
+				}
+			}			
+		};
+		thread.setDaemon(true);
+		thread.start();			
 	}
 
 	public void afterStart(ILaunch launch) {
-
+		this.launch=launch;
 	};
 
 	@Override
@@ -78,5 +110,13 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 	@Override
 	public String toString() {
 		return "server";
+	}
+
+	public void terminate() {
+		try {
+			this.launch.terminate();
+		} catch (DebugException e) {
+			e.printStackTrace();
+		}
 	}
 }

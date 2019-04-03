@@ -47,6 +47,9 @@ public class ExperimentLogs {
 
 	public ArrayList<String> metrics() {
 		ArrayList<String> rs = new ArrayList<>();
+		if (headers==null) {
+			return rs;
+		}
 		for (String s : this.headers) {
 			if (s.startsWith("val_")) {
 				rs.add(s.substring(4));

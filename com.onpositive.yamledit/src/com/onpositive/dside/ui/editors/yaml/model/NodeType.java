@@ -10,7 +10,12 @@ public class NodeType {
 	protected boolean children;
 	protected String childrenKind;
 	protected String icon;
-
+	protected String polimophic;
+	protected boolean closed;
+	protected Map<String,NodeType>nodeTypes=new LinkedHashMap<String, NodeType>();
+	protected String defaultProperty;
+	protected String type;
+	protected boolean root;
 	public String getIcon() {
 		return icon;
 	}
@@ -45,6 +50,54 @@ public class NodeType {
 
 	public boolean chidren() {
 		return children;
+	}
+
+	public Map<String, NodeType> getTypes() {
+		return nodeTypes;
+	}
+
+	public void setTypes(Map<String, NodeType> nodeTypes) {
+		this.nodeTypes = nodeTypes;
+	}
+
+	public String getPolimophic() {
+		return polimophic;
+	}
+
+	public void setPolimophic(String polimophic) {
+		this.polimophic = polimophic;
+	}
+
+	public boolean isClosed() {
+		return closed;
+	}
+
+	public void setClosed(boolean closed) {
+		this.closed = closed;
+	}
+
+	public String getDefaultProperty() {
+		return defaultProperty;
+	}
+
+	public void setDefaultProperty(String defaultProperty) {
+		this.defaultProperty = defaultProperty;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public boolean isRoot() {
+		return root;
+	}
+
+	public void setRoot(boolean root) {
+		this.root = root;
 	}
 
 }

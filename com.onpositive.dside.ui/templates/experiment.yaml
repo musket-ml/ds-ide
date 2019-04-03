@@ -1,0 +1,17 @@
+# This is our new experiment file
+# Please note that you may override this settings in experiment configuration file
+declarations: 
+  net: 
+    #Please describe your network here
+  preprocess: 
+    #Sequence of preprocesing operations  
+callbacks:
+preprocessing: preprocess
+architecture: net
+optimizer: adam
+batch: 50
+net:
+stages:
+  - epochs: 100
+dataset: #You need to feel it
+loss: binary_crossentropy  

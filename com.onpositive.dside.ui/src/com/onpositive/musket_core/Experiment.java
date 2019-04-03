@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +24,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.yaml.snakeyaml.Yaml;
 
+import com.onpositive.dside.ui.ModelEvaluationSpec;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
 import com.onpositive.semantic.model.api.property.java.annotations.TextLabel;
+import com.onpositive.semantic.model.api.realm.Realm;
 
 @Image("icons/experiment.png")
 @TextLabel(provider = ExperimentLabelProvider.class)
@@ -41,14 +44,14 @@ public class Experiment {
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
 		return result;
 	}
-	
+
 	public String getProjectPath() {
 		File file = new File(path);
 		while (true) {
-			if (file.getParentFile()==null) {
+			if (file.getParentFile() == null) {
 				break;
 			}
-			file=file.getParentFile();
+			file = file.getParentFile();
 			if (file.getName().equals("experiments")) {
 				return file.getParentFile().getAbsolutePath();
 			}
@@ -308,18 +311,41 @@ public class Experiment {
 		return new Path(path);
 	}
 
-	public boolean hasSeeds() {		
-		Number orDefault = (Number) this.getConfig().getOrDefault("num_seeds", 1);
-		return orDefault.intValue()>1;		
+	public ModelEvaluationSpec createModelSpec() {
+		return new ModelEvaluationSpec(this.hasSeeds(), this.hasStages(), this.hasFolds());
+	}
+
+	@SuppressWarnings("unchecked")
+	public Collection<String> getDataSets() {
+		ArrayList<String> datasets = new ArrayList<>();
+		datasets.add("train");
+		datasets.add("validation");
+		if (getConfig().containsKey("testSplit")) {
+			datasets.add("holdout");
+		}
+		Object object = getConfig().get("datasets");
+		if (object instanceof Map) {
+			datasets.addAll(((Map) object).keySet());
+		}
+		return datasets;
+	}
+
+	public boolean hasSeeds() {
+		Object orDefault2 = this.getConfig().getOrDefault("num_seeds", 1);
+		if (orDefault2 instanceof Number) {
+			Number orDefault = (Number) orDefault2;
+			return orDefault.intValue() > 1;
+		}
+		return false;
 	}
 
 	public boolean hasStages() {
 		List orDefault = (List) this.getConfig().getOrDefault("stages", 5);
-		return orDefault.size()>1;
+		return orDefault.size() > 1;
 	}
 
 	public boolean hasFolds() {
 		Number orDefault = (Number) this.getConfig().getOrDefault("folds_count", 5);
-		return orDefault.intValue()>1;
+		return orDefault.intValue() > 1;
 	}
 }

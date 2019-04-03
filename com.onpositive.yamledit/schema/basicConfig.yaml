@@ -1,79 +1,202 @@
-
-properties:
-  metrics:
-    multivalue: true
-  loss:
-    type: string     
-  lr:
-    type: float
-    defaultValue: 0.001
-    min: 0  
-  folds_count:
-     defaultValue: 5
-     type: int
-  testSplit:
-     type: float
-     min: 0
-     max: 1.0
-     step: 0.1
-  testTimeAugmentation:
-     type: string    
-  num_seeds:
-     type: int
-     defaultValue: 1
-  stratified: 
-     type: boolean
-  batch:
-     type: int
-     min: 1
-     required: true
-  testSplitSeed:
-     type: int
-     defaultValue: 123
-  primary_metric:
-     type: string
-     customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm
-  aggregation_metric:
-     type: string
-     customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm       
-  primary_metric_mode:
-     type: string
-     fixedValues: [min,max,auto]
-     defaultValue: auto
-  optimizer:         
-     type: string
-     fixedValues: [adam,sgd,nadam,rmsprop]
-     lowerCase: true
-     defaultValue: auto
-  callbacks:
-    multivalue: true
-    type: callback
-  clipnorm:
-    type: float
-  clipvalue:
-    type: float
-  declarations:
-    type: object
-    range: declaration    
-    multivalue: true
-  stages:
-    type: object
-    range: stage    
-    multivalue: true  
-  callbacks:
-    type: object
-    range: callback    
-    multivalue: true
-  dataset:  
-    type: object
-    range: dataset
-  pretrain_transform:
-    type: object
-    range: dataset
-  extra_train_data:
-    type: object
-    range: dataset      
-  datasets:                
-    type: object
-    range: dataset    
-    multivalue: true
+types: 
+   Optimizer:
+     type: object
+   function:
+     type: object 
+     
+   GenericDeclaration:
+     polimophic: true
+     closed: true   
+     defaultProperty: body
+     properties:         
+        parameters:  
+           type: string[]
+           description: Parameters that this declaration can accept
+           required: false
+        inputs:
+           type: string[]
+           required: false    
+           description: Optional names of this declaration inputs
+        outputs:   
+           type: string[]
+           required: false    
+           description: Optional names of members that are binded to this declaration outputs
+        body:
+           type: Referencable
+           multivalue: true
+           reference: true
+           #items: Element
+                   
+        with: 
+           type: any
+   DataSetDeclaration:
+     polimophic: true
+     closed: true
+     defaultProperty: body
+     properties:   
+       body:
+           type: DatasetFactory
+           #multivalue: true
+           required: true
+           reference: true
+           #items: Element   
+   Callback:
+      type: Referencable                   
+   Referencable:
+      type: object  
+      properties:
+         name: 
+           type: string
+         inputs:
+           type: string[]
+         args:
+           type: any[]   
+   DatasetFactory: 
+      type: object                  
+   Preprocessor:
+      type: Referencable
+   Layer:
+      type: Referencable  
+   LayerOrPreprocessor: 
+      type: "Layer,Preprocessor"   
+   ReduceLROnPlateau:
+      type: Callback
+      properties:
+          patience: 
+            type: int
+          factor: 
+            type: number
+          monitor: 
+            type: function
+          mode: 
+            type: string
+            
+          cooldown:
+            type: int
+          verbose: 
+            type: int 
+   PreprocessorDeclaration:
+      type: GenericDeclaration
+      closed: true
+      properties:               
+         body:
+           multivalue: true
+           type: Preprocessor
+           reference: true
+           
+   NetworkBlockDeclaration:
+      type: GenericDeclaration
+      closed: true
+      properties:               
+         body:
+           type: Layer
+           multivalue: true
+           reference: true
+         shared:
+           type: boolean
+           description: Mark this as true if you want to share weights between different references to this network declaration
+   Stage:
+      type: object
+      properties: 
+         epochs: 
+            type: integer
+            required: true       
+   BasicConfig:   
+    root: true     
+    properties:
+      metrics:
+        #multivalue: true
+        reference: true
+        type: function[]
+      loss:
+        type: function[]
+        reference: true  
+        #multivalue: true   
+      lr:
+        type: float
+        defaultValue: 0.001
+        min: 0  
+      folds_count:
+         defaultValue: 5
+         type: int
+      testSplit:
+         type: float
+         min: 0
+         max: 1.0
+         step: 0.1
+      testTimeAugmentation:
+         type: string    
+      num_seeds:
+         type: int
+         defaultValue: 1
+      stratified: 
+         type: boolean
+      batch:
+         type: int
+         min: 1
+         required: true
+      testSplitSeed:
+         type: int
+         defaultValue: 123
+      primary_metric:
+         type: function
+         customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm
+      aggregation_metric:
+         type: string
+         customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm       
+      primary_metric_mode:
+         type: string
+         fixedValues: [min,max,auto]
+         defaultValue: auto
+      optimizer:         
+         type: Optimizer
+         fixedValues: [adam,sgd,nadam,rmsprop]
+         lowerCase: true
+         defaultValue: adam
+      callbacks:
+        multivalue: true
+        type: callback
+      clipnorm:
+        type: float
+      clipvalue:
+        type: float
+      declarations:
+        type: GenericDeclaration
+        multivalue: true
+      stages:
+        type: Stage[]
+        required: true
+                  
+      architecture:
+        type: Layer
+        #range: stage  
+        reference: true  
+        multivalue: true
+      preprocessing:
+        type: Preprocessor
+        #range: stage  
+        reference: true  
+        multivalue: true
+      callbacks:
+        type: Callback
+        range: callback 
+        reference: true    
+        multivalue: true
+      dataset:   
+        type: DatasetFactory
+        reference: true
+        range: dataset
+      pretrain_transform:
+        type: object
+        range: dataset
+      extra_train_data:
+        type: object
+        range: dataset      
+      datasets:        
+                
+        type: DataSetDeclaration
+        multivalue: true
+      inference_batch:
+        type: integer
+      imports:
+        type: string[]    

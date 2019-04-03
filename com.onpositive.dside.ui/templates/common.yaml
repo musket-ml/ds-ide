@@ -1,0 +1,14 @@
+# This file stores common configuration settings
+# Please note that you may override this settings in experiment configuration file
+callbacks:
+  EarlyStopping:
+    patience: 100
+    monitor: val_binary_accuracy
+    verbose: 1
+  ReduceLROnPlateau:
+    patience: 8
+    factor: 0.5
+    monitor: val_binary_accuracy
+    mode: auto
+    cooldown: 5
+    verbose: 1

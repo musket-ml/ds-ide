@@ -19,6 +19,9 @@ public class PropertyDescription {
 	protected Double max;
 	protected Double step;
 	public String customRealm;
+	protected String description;
+	protected String items;
+	protected boolean reference;
 	private boolean lowerCase;
 	
 	public boolean isLowerCase() {
@@ -81,5 +84,23 @@ public class PropertyDescription {
 	}
 	public void setRange(String range) {
 		this.range = range;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public String getItems() {
+		return items;
+	}
+	public void setItems(String items) {
+		this.items = items;
+	}
+	public boolean isReference() {
+		return reference;
+	}
+	public void setReference(boolean reference) {
+		this.reference = reference;
 	}
 }

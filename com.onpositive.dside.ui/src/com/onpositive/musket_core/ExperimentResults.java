@@ -24,6 +24,7 @@ public class ExperimentResults extends Result {
 			InputStream inputStream;
 			try {
 				inputStream = new FileInputStream(path);
+				try {
 				Object load = yaml.load(inputStream);
 				if (load instanceof Map) {
 					Map<String, Object> obj = (Map<String, Object>) load;
@@ -48,6 +49,10 @@ public class ExperimentResults extends Result {
 						this.all = true;
 					}
 				}
+				}finally {
+					inputStream.close();	
+				}
+				
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}

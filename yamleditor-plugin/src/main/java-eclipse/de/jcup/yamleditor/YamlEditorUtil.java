@@ -59,6 +59,9 @@ public class YamlEditorUtil {
 		if (editorResource == null) {
 			return;
 		}
+		if (true) {
+			return;
+		}
 		scriptProblemMarkerHelper.removeMarkers(editorResource);
 	}
 

@@ -1,7 +1,14 @@
 package com.onpositive.dside.ui.editors;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Stack;
 
+import org.aml.typesystem.IStatusVisitor;
+import org.aml.typesystem.Status;
+import org.aml.typesystem.TypeRegistryImpl;
+import org.aml.typesystem.values.IArray;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -12,6 +19,14 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
+import org.eclipse.jface.text.contentassist.IContentAssistant;
+import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
+import org.eclipse.jface.text.hyperlink.URLHyperlinkDetector;
+import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -24,18 +39,28 @@ import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
+import org.python.pydev.editor.hover.AbstractPyEditorTextHover;
+import org.yaml.snakeyaml.nodes.NodeTuple;
 
+import com.onpositive.dside.ast.ASTElement;
+import com.onpositive.dside.ast.IHasLocation;
+import com.onpositive.dside.ast.TypeRegistryProvider;
+import com.onpositive.dside.ast.Universe;
+import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.ui.ExperimentErrorsEditorPart;
 import com.onpositive.dside.ui.ExperimentResultsEditorPart;
 import com.onpositive.dside.ui.LaunchConfiguration;
+import com.onpositive.dside.ui.editors.YamlHyperlinkDetector.FeatureInfo;
 import com.onpositive.musket_core.Errors;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ExperimentError;
 import com.onpositive.musket_core.ExperimentLogs;
 import com.onpositive.musket_core.ExperimentResults;
 import com.onpositive.musket_core.IExperimentExecutionListener;
+import com.onpositive.musket_core.ProjectWrapper;
 
 import de.jcup.yamleditor.YamlEditor;
+import de.jcup.yamleditor.YamlSourceViewerConfiguration;
 
 /**
  * An example showing how to create a multi-page editor. This example has 3
@@ -49,8 +74,7 @@ import de.jcup.yamleditor.YamlEditor;
 public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements IResourceChangeListener {
 
 	/** The text editor used in page 0. */
-	private TextEditor editor;
-
+	private YamlEditor editor;
 
 	public ExperimentMultiPageEditor() {
 		super();
@@ -63,6 +87,51 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	void createPage0() {
 		try {
 			editor = new YamlEditor();
+			editor.setSourceViewerConfiguration(new YamlSourceViewerConfiguration(editor) {
+
+				@Override
+				public IHyperlinkDetector[] getHyperlinkDetectors(ISourceViewer sourceViewer) {
+					if (sourceViewer == null)
+						return null;
+
+					return new IHyperlinkDetector[] { new URLHyperlinkDetector(),
+							new YamlHyperlinkDetector(ExperimentMultiPageEditor.this) };
+				}
+
+				protected IContentAssistProcessor createContentAssistProcessor() {
+					return new YamlEditorSimpleWordContentAssistProcessor(ExperimentMultiPageEditor.this);
+				}
+
+				@Override
+				public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
+					return new AbstractPyEditorTextHover() {
+
+						@Override
+						public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+							FeatureInfo detectFeatures = YamlHyperlinkDetector
+									.detectFeatures(ExperimentMultiPageEditor.this, textViewer, hoverRegion);
+							if (!detectFeatures.fs.isEmpty()) {
+								InstrospectedFeature instrospectedFeature = detectFeatures.fs.get(0);
+								if (instrospectedFeature.getDoc() != null
+										&& instrospectedFeature.getDoc().length() > 0) {
+									return instrospectedFeature.getDoc();
+								}
+								String source = instrospectedFeature.getSource();
+								if (source != null) {
+									return source;
+								}
+							}
+							return null;
+						}
+
+						@Override
+						public boolean isContentTypeSupported(String contentType) {
+							return true;
+						}
+					};
+				}
+
+			});
 			int index = addPage(editor, getEditorInput());
 			setPageText(index, editor.getTitle());
 		} catch (PartInitException e) {
@@ -86,20 +155,24 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 
 	private ExperimentOverivewEditorPart formEditor;
 
+	public ProjectWrapper getProject() {
+		return formEditor.getProject();
+	}
+
 	/**
 	 * Creates the pages of the multi-page editor.
 	 */
 	protected void createPages() {
 		createPage0();
 		try {
-			formEditor = new ExperimentOverivewEditorPart(this.editor,experiment);
-			this.addPage(0,formEditor, getEditorInput());
+			formEditor = new ExperimentOverivewEditorPart(this.editor, experiment);
+			this.addPage(0, formEditor, getEditorInput());
 			setPageText(0, "Overview");
 		} catch (PartInitException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		updatePages();
 		LaunchConfiguration.addListener(listener);
 	}
@@ -108,26 +181,16 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		for (int i = 2; i < this.getPageCount(); i++) {
 			this.removePage(i);
 		}
-		
 
 		IFileEditorInput e = (IFileEditorInput) getEditorInput();
 		IPath location = e.getFile().getParent().getLocation();
 		this.setPartName(experiment.toString());
 		ScrolledForm form = this.getHeaderForm().getForm();
-		Action action = new Action() {
-			@Override
-			public void run() {
-				System.out.println("Launch");
-			}
-		};
-		action.setText("Launch Experiment");
-		action.setImageDescriptor(DebugUITools.getImageDescriptor(IDebugUIConstants.IMG_ACT_RUN));
-		form.getToolBarManager().add(action);
-		form.getToolBarManager().update(true);
+
 		form.setText(experiment.toString());
 		ArrayList<ExperimentResults> results = experiment.results();
 		ArrayList<ExperimentLogs> logs = experiment.logs();
-		if (experiment.isCompleted() || results.size()>0 &&logs.size()>0) {
+		if (experiment.isCompleted() || results.size() > 0 && logs.size() > 0) {
 			ExperimentResultsEditorPart ps = new ExperimentResultsEditorPart(experiment);
 			try {
 				int pageCount = this.getPageCount();
@@ -170,6 +233,163 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		super.dispose();
 	}
 
+	static class ErrorVisitor implements IStatusVisitor {
+
+		Stack<IHasLocation> stack = new Stack<>();
+		protected IFile file;
+
+		public ErrorVisitor(IFile file) {
+			super();
+			this.file = file;
+		}
+
+		class ErrorAndMessage {
+			IHasLocation element;
+			String message;
+			String key;
+			boolean onKey;
+
+			public void report() {
+				try {
+					IMarker marker = file.createMarker("org.eclipse.core.resources.problemmarker");
+					int start = 0;
+					int end = 0;
+					if (element != null) {
+						IHasLocation peek = element;
+						start = peek.getStartOffset();
+						if (peek.getParent() == null) {
+							end = start;
+						} else {
+							end = peek.getEndOffset();
+						}
+						if (key!=null) {
+							NodeTuple findInKey = element.findInKey(key);
+							if (findInKey!=null) {
+								start=findInKey.getValueNode().getStartMark().getIndex();
+								end=findInKey.getValueNode().getEndMark().getIndex();
+								if (onKey) {
+									start=findInKey.getKeyNode().getStartMark().getIndex();
+									end=findInKey.getKeyNode().getEndMark().getIndex();
+								}
+							}
+							
+						}
+					}
+
+					marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+					marker.setAttribute(IMarker.CHAR_START, start);
+					marker.setAttribute(IMarker.CHAR_END, end);
+					marker.setAttribute(IMarker.LOCATION, file.getFullPath().toPortableString());
+					marker.setAttribute(IMarker.MESSAGE, message);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+
+			public ErrorAndMessage(IHasLocation element, String message, String key,boolean onKey) {
+				super();
+				this.element = element;
+				this.message = message;
+				this.key = key;
+				this.onKey=onKey;
+			}
+
+			@Override
+			public int hashCode() {
+				final int prime = 31;
+				int result = 1;
+				result = prime * result + getOuterType().hashCode();
+				result = prime * result + ((element == null) ? 0 : element.hashCode());
+				result = prime * result + ((key == null) ? 0 : key.hashCode());
+				result = prime * result + ((message == null) ? 0 : message.hashCode());
+				return result;
+			}
+
+			@Override
+			public boolean equals(Object obj) {
+				if (this == obj)
+					return true;
+				if (obj == null)
+					return false;
+				if (getClass() != obj.getClass())
+					return false;
+				ErrorAndMessage other = (ErrorAndMessage) obj;
+				if (!getOuterType().equals(other.getOuterType()))
+					return false;
+				if (element == null) {
+					if (other.element != null)
+						return false;
+				} else if (!element.equals(other.element))
+					return false;
+				if (key == null) {
+					if (other.key != null)
+						return false;
+				} else if (!key.equals(other.key))
+					return false;
+				if (message == null) {
+					if (other.message != null)
+						return false;
+				} else if (!message.equals(other.message))
+					return false;
+				return true;
+			}
+
+			private ErrorVisitor getOuterType() {
+				return ErrorVisitor.this;
+			}
+
+		}
+
+		public HashSet<ErrorAndMessage> messages = new HashSet<>();
+
+		@Override
+		public void startVisiting(Status st) {
+			try {
+				
+				Object source = st.getSource();
+				if (source instanceof IHasLocation) {
+					stack.push((IHasLocation) source);
+				}
+				
+
+				if (stack.size() > 0) {
+					if (!st.isOk()) {
+					IHasLocation peek = stack.peek();
+					ErrorAndMessage e = new ErrorAndMessage(peek, st.getMessage(), st.getKey(),st.isOnKey());
+					for (ErrorAndMessage m : new ArrayList<>(this.messages)) {
+						if (m.message.equals(st.getMessage())) {
+							IHasLocation z = peek;
+							while (z != null) {
+								if (z.equals(m.element)) {
+									this.messages.remove(m);
+								}
+								z = z.getParent();
+							}
+						}
+					}
+					
+						messages.add(e);
+					}
+				}
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+
+		@Override
+		public void endVisiting(Status st) {
+			Object source = st.getSource();
+			if (source instanceof IHasLocation) {
+				stack.pop();
+				if (stack.isEmpty()) {
+					this.messages.forEach(v -> v.report());
+				}
+			}
+		}
+
+	}
+
 	/**
 	 * Saves the multi-page editor's document.
 	 */
@@ -179,6 +399,27 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		}
 		getEditor(0).doSave(monitor);
 		getEditor(1).doSave(monitor);
+		Universe registry = TypeRegistryProvider.getRegistry("basicConfig");
+
+		IEditorInput editorInput = getEditorInput();
+		if (editorInput instanceof FileEditorInput) {
+			FileEditorInput fl = (FileEditorInput) editorInput;
+			IFile file = fl.getFile();
+			try {
+				IMarker[] findMarkers = file.findMarkers("org.eclipse.core.resources.problemmarker", true, 1);
+				for (IMarker m : findMarkers) {
+					m.delete();
+				}
+				String string = editor.getDocument().get();
+				Status validate = registry.validate(string, getProject().getDetails());
+				ErrorVisitor st = new ErrorVisitor(file);
+				validate.visitErrors(st);
+				System.out.println(st);
+			} catch (Exception e) {
+				e.printStackTrace();
+				// TODO: handle exception
+			}
+		}
 	}
 
 	/**

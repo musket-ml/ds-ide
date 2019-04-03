@@ -5,6 +5,6 @@ import com.onpositive.musket_core.IServer;
 
 public interface IGateWayServerTaskDelegate {
 
-	public void started(IServer server,IProject project);
+	public void started(GateWayRelatedTask task);
 	public void terminated();
 }

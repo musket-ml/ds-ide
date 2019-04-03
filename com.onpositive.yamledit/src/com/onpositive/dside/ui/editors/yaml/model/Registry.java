@@ -20,7 +20,7 @@ public class Registry {
 	}
 
 	public NodeType getType(String type) {
-		if (types.containsKey(type)) {
+		if (types.containsKey(type)&&false) {
 			return types.get(type);
 		}
 		InputStream resourceAsStream = Registry.class.getResourceAsStream("/schema/"+type+".yaml");

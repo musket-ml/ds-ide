@@ -35,8 +35,16 @@ Require-Bundle: org.eclipse.ui,
  com.python.pydev.debug;bundle-version="7.1.0",
  org.python.pydev.debug;bundle-version="7.1.0",
  org.python.pydev.core,
- org.python.pydev.ast
+ org.python.pydev.ast,
+ com.onpositive.commons.platform;bundle-version="1.3.9",
+ com.onpositive.semantic.model.ui.generic,
+ com.ibm.icu,
+ org.python.pydev.shared_ui,
+ org.python.pydev,
+ org.aml.typesystem
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: com.onpositive.dside.ui
 Bundle-ActivationPolicy: lazy
-Export-Package: com.onpositive.musket_core
+Export-Package: com.onpositive.dside.tasks.analize,
+ com.onpositive.musket_core
+Import-Package: org.aml.typesystem

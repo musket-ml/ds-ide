@@ -1,0 +1,27 @@
+<form xmlns="http://jetface.org/JetFace1.0/"
+	caption="Analize Predictions">
+	<model class="com.onpositive.dside.tasks.analize.AnalizeDataSet" />
+	<vc margin="0,0,0,0" grabVertical="true" minimumSize="-1,300">
+	<section caption="Model" visibility="!data">
+		<label caption="Please configure model that should be used:" />
+		<separator vertical="false" />
+
+		<combo bindTo="model.folds" visibility="model.hasFolds" />
+		<string bindTo="model.folds_numbers"
+			visibility="model.ShowFolds" caption="Fold Numbers" />
+		<combo bindTo="model.seeds" caption="Seed Selection"
+			visibility="model.hasSeeds" />
+		<string bindTo="model.seed_numbers"
+			visibility="model.ShowSeeds" caption="Seed Numbers" />
+
+		<combo bindTo="model.stages" visibility="model.hasStages" />
+		<string bindTo="model.stages_numbers"
+			visibility="model.ShowStages" caption="Stage Numbers" />
+	</section>
+	<section caption="Dataset">
+		<combo bindTo="dataset" grabHorizontal="true" realmExpression="$$.experiment.DataSets" />
+	</section>
+	</vc>
+	<separator vertical="false" />
+	<checkbox bindTo="debug" caption="Launch in debug mode?" />
+</form>

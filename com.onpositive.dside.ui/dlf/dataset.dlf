@@ -8,6 +8,6 @@
 		<label caption="Percent positive: 6.7%" grabHorizontal="false"/>
 	</hc>
 	<section caption="Data" grabVertical="true">
-	<container id="inner" grabVertical="true"/>
+	<container id="inner" grabVertical="true" grabHorizontal="true"/>
 	</section>
 </form>

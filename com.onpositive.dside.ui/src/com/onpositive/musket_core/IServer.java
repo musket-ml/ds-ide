@@ -7,6 +7,6 @@ public interface IServer {
 	
 	IProject project(String path);
 	
-	String performTask(String taskConfig,IProgressReporter reporter);
+	Object performTask(String taskConfig,IProgressReporter reporter);
 		
 }

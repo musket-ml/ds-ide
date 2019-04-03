@@ -133,6 +133,10 @@ public class YamlEditor extends TextEditor implements StatusMessageSupport, IRes
 			setTitleImageDependingOnSeverity(severity);
 		}
 	}
+	@Override
+	public void setSourceViewerConfiguration(SourceViewerConfiguration configuration) {
+		super.setSourceViewerConfiguration(configuration);
+	}
 
 	/**
 	 * Opens quick outline

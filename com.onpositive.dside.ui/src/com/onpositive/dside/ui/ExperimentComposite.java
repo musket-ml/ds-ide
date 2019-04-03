@@ -34,7 +34,7 @@ public class ExperimentComposite extends Composite {
 	public ExperimentComposite(Composite parent) {
 		super(parent, SWT.NONE);
 		setLayout(new GridLayout(4, false));
-		Label label = new Label(this,SWT.NONE);
+		Label label = new Label(this, SWT.NONE);
 		label.setText("Log:");
 		selector = new ComboViewer(this, SWT.READ_ONLY);
 		selector.setContentProvider(new ArrayContentProvider());
@@ -49,7 +49,7 @@ public class ExperimentComposite extends Composite {
 			}
 		});
 		selector.getControl().setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
-		Label label1 = new Label(this,SWT.NONE);
+		Label label1 = new Label(this, SWT.NONE);
 		label1.setText("Metric:");
 		metric = new ComboViewer(this, SWT.READ_ONLY);
 		metric.addSelectionChangedListener(new ISelectionChangedListener() {
@@ -110,17 +110,19 @@ public class ExperimentComposite extends Composite {
 	public void setResults(ExperimentLogs s) {
 		this.currentResults = s;
 		ArrayList<String> metrics = s.metrics();
-		if (!metrics.contains(this.metric_name)) {
-			this.metric.setInput(metrics.toArray());
+		if (!metrics.isEmpty()) {
+			if (!metrics.contains(this.metric_name)) {
+				this.metric.setInput(metrics.toArray());
 
-			this.metric_name = metrics.toArray()[0].toString();
-			this.metric.setSelection(new StructuredSelection(this.metric_name));
+				this.metric_name = metrics.toArray()[0].toString();
+				this.metric.setSelection(new StructuredSelection(this.metric_name));
+			}
 		}
 		render();
 	}
 
 	public void setExperiment(Experiment e) {
-		
+
 		ArrayList<ExperimentLogs> results = e.logs();
 		if (results.isEmpty()) {
 			return;

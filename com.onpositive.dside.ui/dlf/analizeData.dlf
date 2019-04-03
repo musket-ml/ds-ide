@@ -1,0 +1,12 @@
+<form xmlns="http://jetface.org/JetFace1.0/"
+	caption="Analize Dataset" description="Please select dataset">
+	<model class="com.onpositive.dside.tasks.analize.AnalizeDataSet" />
+	<vc grabVertical="true">
+	
+		<combo bindTo="dataset" grabHorizontal="true" caption="Please select dataset"
+			realmExpression="$$.experiment.DataSets" />
+
+	</vc>
+	<separator vertical="false" />
+	<checkbox bindTo="debug" caption="Launch in debug mode?" />
+</form>

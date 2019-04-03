@@ -1,0 +1,17 @@
+
+
+
+1. scalar property -> always parse to scalar
+
+
+2. array property
+
+   a) array of scalars
+   b) array of objects
+   
+3. object property
+
+
+declarations:
+   b: 
+    - Conv1D: [0,1]      

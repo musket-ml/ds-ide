@@ -38,7 +38,7 @@
 						<combo bindTo="primary_metric" caption="Primary Metric"
 							grabHorizontal="true"></combo>
 						<combo bindTo="primary_metric_mode"
-							caption="Primary Metric Mode" grabHorizontal="false"></combo>
+							caption="Primary Metric Mode" grabHorizontal="false" hint="30,-1"></combo>
 						<combo bindTo="aggregation_metric"
 							caption="Aggregation Metric" grabHorizontal="true"></combo>
 

@@ -19,6 +19,22 @@
             name="Datasets"
             restorable="true">
       </view>
+      <view
+            allowMultiple="true"
+            class="com.onpositive.dside.tasks.analize.AnalistsView"
+            icon="icons/cf_obj.png"
+            id="com.onpositive.dside.tasks.analize"
+            name="Analize Predictions"
+            restorable="false">
+      </view>
+      <view
+            allowMultiple="false"
+            class="com.onpositive.dside.ui.navigator.MusketNavigator"
+            icon="icons/maven.gif"
+            id="com.onpositive.dside.ui.musket.navigator"
+            name="Musket Navigator"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -31,7 +47,20 @@
                ratio="0.5">
          </view>
       </perspectiveExtension>
+      
    </extension>
+   <extension point="org.eclipse.ui.perspectiveExtensions">
+    <perspectiveExtension targetID="*">
+        <view
+              closeable="true"
+              id="com.onpositive.dside.tasks.analize"
+              moveable="true"
+              relationship="stack"
+              relative="org.eclipse.ui.editorss"
+              standalone="false"
+              visible="false"/> 
+    </perspectiveExtension>
+</extension>
    <extension
          point="org.eclipse.ui.popupMenus">
       <objectContribution
@@ -106,6 +135,244 @@
             image="icons/debugt_obj.png"
             name="generic_task">
       </image>
+      <image
+            id="analize_data"
+            image="icons/analize_data.gif"
+            name="analize_data">
+      </image>
+      <image
+            id="new_musket"
+            image="icons/new_m2_project_wizard.gif"
+            name="new_musket">
+      </image>
+      <image
+            id="experiments_obj"
+            image="icons/jars_obj.gif"
+            name="name">
+      </image>
+      <image
+            id="experiment"
+            image="icons/experiment.png"
+            name="experiment">
+      </image>
+      <image
+            id="experiment_group"
+            image="icons/packagefolder_test_obj.png"
+            name="experiment_group">
+      </image>
+      <image
+            id="new_exp_wiz"
+            image="icons/newex_wiz.png"
+            name="new_exp_wiz">
+      </image>
+      <image
+            id="com.onpositive.dside.ui.group_wiz_image"
+            image="icons/newsrcfldr_wiz@2x.png"
+            name="name">
+      </image>
    </extension>
+	 <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.musket.pydev.PythonCategory"
+            name="Musket"/>
+      <wizard
+            canFinishEarly="false"
+            category="org.musket.pydev.PythonCategory"
+            class="com.onpositive.dside.wizards.MusketProjectWizard"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
+            id="org.python.pydev.ui.wizards.project.MusketProjectWizard"
+            name="Musket Project"
+            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            project="true"/>
+      <wizard
+            category="org.musket.pydev.PythonCategory"
+            class="com.onpositive.dside.wizards.NewMusketExperiment"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/experiment.png"
+            id="com.onpositive.dside.ui.musket"
+            name="Musket Experiment"
+            project="false">
+      </wizard>
+      <wizard
+            category="org.musket.pydev.PythonCategory"
+            class="com.onpositive.dside.wizards.NewMusketGroupWizard"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/packagefolder_test_obj.png"
+            id="com.onpositive.dside.ui.groupWizard"
+            name="New Experiment Group">
+      </wizard>
+     </extension>   
+     <extension point="org.eclipse.ui.navigator.navigatorContent">
 
+      <navigatorContent
+            activeByDefault="true"
+            contentProvider="com.onpositive.dside.ui.navigator.MusketNavigator"
+            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
+            id="org.python.pydev.navigator.musketcontent"
+            labelProvider="com.onpositive.dside.ui.navigator.MusketLabelProvider"
+            name="Musket Navigator Content"
+            priority="normal">
+         <triggerPoints>
+             <or>
+                <instanceof value="org.eclipse.core.resources.IWorkspaceRoot" />
+                <instanceof value="org.eclipse.ui.IWorkingSet"/>
+                <and>
+                   <instanceof value="org.eclipse.core.resources.IProject"/>
+                   <test
+                         forcePluginActivation="true"
+                         property="org.eclipse.core.resources.projectNature"
+                         value="org.python.pydev.pythonNature"/>
+                </and>
+                <instanceof value="org.eclipse.core.resources.IFolder"/>
+                <instanceof value="org.eclipse.core.resources.IStorage"/>
+                <instanceof value="org.eclipse.core.resources.IFile"/>
+                <instanceof value="org.eclipse.core.resources.IResource"/>
+                <instanceof value="org.python.pydev.navigator.elements.IWrappedResource"/>
+                <instanceof value="org.python.pydev.shared_core.structure.TreeNode"/>
+                <instanceof value="org.python.pydev.navigator.elements.PythonNode"/>
+                <instanceof value="org.python.pydev.navigator.elements.ProjectConfigError"/>
+            </or>
+         </triggerPoints>
+         <commonWizard
+               type="new"
+               wizardId="org.python.pydev.ui.wizards.project.MusketProjectWizard">
+         </commonWizard>
+         <!-- that's so that we only have the python content shown, and not the resource content -->
+
+
+      </navigatorContent>
+      <commonFilter
+            activeByDefault="true"
+            class="com.onpositive.dside.ui.navigator.ExperimentsFilter"
+            id="com.onpositive.dside.ui.commonFilter1"
+            name="Experiments Folder Filter"
+            visibleInUI="true">
+      </commonFilter>
+      <actionProvider
+            class="com.onpositive.dside.ui.navigator.BasicActionProvider"
+            id="com.onpositive.dside.ui.navigator.BasicActionProvider"
+            priority="high">
+         <enablement></enablement>
+      </actionProvider>
+
+
+
+
+
+
+	  <!-- The ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'
+
+	  It seems that eclipse 3.6 fixed that, so, it's not needed anymore.
+      <commonFilter activeByDefault="true"
+	      name="PyDev: .* resources"
+	      description="PyDev: .*resources"
+	      id="org.python.pydev.navigator.filters.startsWithDot"
+	  	  class="org.python.pydev.navigator.filters.DotStartFilter">
+      </commonFilter>
+      -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </extension>
+
+    <!-- Bind the content extension to the viewer -->
+    <extension point="org.eclipse.ui.navigator.viewer">
+        <viewerContentBinding viewerId="org.python.pydev.navigator.view">
+            <includes>
+                <contentExtension pattern="org.python.pydev.navigator.musketcontent"/>
+                <contentExtension
+                      pattern="com.onpositive.dside.ui.commonFilter1">
+                </contentExtension>
+            </includes>
+        </viewerContentBinding>
+        <viewerActionBinding viewerId="org.python.pydev.navigator.view">
+            <includes>
+             <actionExtension
+                   pattern="com.onpositive.dside.ui.navigator.BasicActionProvider">
+             </actionExtension>
+            </includes>
+        </viewerActionBinding>
+    </extension>
+    <extension
+          point="org.eclipse.ui.popupMenus">
+       <objectContribution
+             adaptable="true"
+             id="com.onpositive.dside.ui.objectContribution1"
+             objectClass="com.onpositive.dside.ui.navigator.IExperimentContribution">
+          <action
+                class="com.onpositive.dside.ui.navigator.DeleteAction"
+                icon="icons/delete.gif"
+                id="com.onpositive.dside.ui.action1"
+                label="Delete"
+                menubarPath="group.edit">
+          </action>
+          <action
+                class="com.onpositive.dside.ui.navigator.RenameAction"
+                id="com.onpositive.dside.ui.action2"
+                label="Rename..."
+                 menubarPath="group.edit">
+          </action>
+          
+       </objectContribution>
+          <objectContribution
+             adaptable="true"
+             id="com.onpositive.dside.ui.objectContribution1"
+             objectClass="com.onpositive.dside.ui.navigator.IHasExperiments">
+             <action
+                class="com.onpositive.dside.ui.navigator.NewExperimentAction"
+                icon="icons/experiment.png"
+                id="com.onpositive.dside.ui.action3"
+                label="New Experiment"
+                menubarPath="group.new">
+          		</action>
+             <action
+                   class="com.onpositive.dside.ui.navigator.NewExperimentGroup"
+                   icon="icons/packagefolder_test_obj.png"
+                   id="com.onpositive.dside.ui.action3"
+                   label="New Experiment Group"
+                   menubarPath="group.new">
+             </action>
+         </objectContribution>  
+    </extension>
+    <extension
+          point="org.eclipse.ui.decorators">
+       <decorator
+             adaptable="true"
+             class="com.onpositive.dside.ui.decorators.ReadOnly"
+             id="com.onpositive.dside.ui.decorators.ReadOnly"
+             label="Read-only Decorator"
+             lightweight="true"
+             state="true">
+          <enablement>
+             <and>
+                <objectClass
+                      name="com.onpositive.dside.ui.navigator.IHasExperiments">
+                </objectClass>
+                <or>
+                   <objectClass
+                         name="com.onpositive.dside.ui.navigator.ExperimentNode">
+                   </objectClass>
+                </or>
+             </and>
+          </enablement>
+       </decorator>
+    </extension>
+    <extension
+          point="org.eclipse.ui.editors.markerAnnotationSpecification">
+    </extension>    
 </plugin>

@@ -90,6 +90,7 @@ public class ProjectWrapper {
 					try {
 					InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
 					refreshed(loadAs);
+					
 					}finally {
 						fileReader.close();
 					}

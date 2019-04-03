@@ -1,0 +1,21 @@
+<form xmlns="http://jetface.org/JetFace1.0/" caption="Analisis">
+	<model class="com.onpositive.dside.tasks.analize.AnalistsView" />
+	<hc id="f1"></hc>
+	<hc id="f2" grabHorizontal="true" grabVertical="false" hAlign="left"></hc>
+	<separator vertical="false" />
+	<stack grabVertical="true">
+		<vc grabVertical="true" id="empty" vAlign="center">
+			<label caption="Please select visualizer and analizer" id='label'
+				vAlign="center" hAlign="center" grabVertical="true">
+			</label>
+		</vc>
+		<ctab-folder bottom="true">
+			<vc id="stat" grabVertical="true" grabHorizontal="true"
+				caption="Statistics">
+			</vc>
+			<vc id="content" grabVertical="true" grabHorizontal="true"
+				caption="Data">
+			</vc>
+		</ctab-folder>
+	</stack>
+</form>

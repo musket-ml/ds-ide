@@ -29,31 +29,31 @@ public class Connect implements IObjectActionDelegate{
 
 	@Override
 	public void run(IAction action) {
-		IStructuredSelection sel=(IStructuredSelection) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getSelection();
-		IAdaptable s=(IAdaptable) sel.getFirstElement();
-		IProject adapter = s.getAdapter(IProject.class);
-		if (adapter!=null) {
-			IPath location = adapter.getLocation();
-			String portableString = location.toPortableString();
-			com.onpositive.musket_core.IProject project = Activator.getDefault().getServer().project(portableString);
-			List<DataSet> datasets = Utils.asList(project.datasets(),x->new DataSet(x));
-			DataSetsView exp;
-			try {
-				exp = (DataSetsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("com.onpositive.dside.ui.datasets");
-				exp.setDataSets(datasets);
-			} catch (PartInitException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}	
-			
-			try {
-				ExperimentsView exp2=(ExperimentsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("com.onpositive.dside.ui.experiments");
-				exp2.setLocation(Collections.singletonList(adapter));
-			} catch (PartInitException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+//		IStructuredSelection sel=(IStructuredSelection) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getSelection();
+//		IAdaptable s=(IAdaptable) sel.getFirstElement();
+//		IProject adapter = s.getAdapter(IProject.class);
+//		if (adapter!=null) {
+//			IPath location = adapter.getLocation();
+//			String portableString = location.toPortableString();
+//			com.onpositive.musket_core.IProject project = Activator.getDefault().getServer().project(portableString);
+//			List<DataSet> datasets = Utils.asList(project.datasets(),x->new DataSet(x));
+//			DataSetsView exp;
+//			try {
+//				exp = (DataSetsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("com.onpositive.dside.ui.datasets");
+//				exp.setDataSets(datasets);
+//			} catch (PartInitException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}	
+//			
+//			try {
+//				ExperimentsView exp2=(ExperimentsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("com.onpositive.dside.ui.experiments");
+//				exp2.setLocation(Collections.singletonList(adapter));
+//			} catch (PartInitException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
 	}
 
 	@Override

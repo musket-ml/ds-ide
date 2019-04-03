@@ -5,10 +5,13 @@ Bundle-SymbolicName: com.onpositive.yamledit;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ONPOSITIVE
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: com.onpositive.dside.ui.editors.yaml.model
+Export-Package: com.onpositive.dside.ast,
+ com.onpositive.dside.dto.introspection,
+ com.onpositive.dside.ui.editors.yaml.model
 Require-Bundle: snake_yaml_repackaged;bundle-version="1.0.0",
  com.onpositive.semantic.model.core;bundle-version="1.0.0",
  com.onpositive.semantic.model.java;bundle-version="1.0.0",
  com.onpositive.semantic.model.bindings;bundle-version="1.0.0",
  com.onpositive.semantic.model.ui.generic,
- com.onpositive.semantic.model
+ com.onpositive.semantic.model,
+ org.aml.typesystem;bundle-version="1.0.0"

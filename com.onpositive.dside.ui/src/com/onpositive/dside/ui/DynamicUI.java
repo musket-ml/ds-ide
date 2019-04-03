@@ -8,6 +8,7 @@ import org.eclipse.jface.dialogs.Dialog;
 
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.Container;
+import com.onpositive.commons.ui.appearance.HorizontalLayouter;
 import com.onpositive.commons.ui.appearance.OneElementOnLineLayouter;
 import com.onpositive.commons.ui.dialogs.FormDialog;
 import com.onpositive.dside.dto.introspection.InstrospectedFeature;
@@ -30,13 +31,14 @@ import com.onpositive.semantic.model.ui.property.editors.SeparatorElement;
 import com.onpositive.semantic.model.ui.property.editors.structured.ComboEnumeratedValueSelector;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
+import com.onpositive.semantic.ui.core.Rectangle;
 
 public class DynamicUI {
 
 	protected LinkedHashMap<String, Object> args = new MapWithProvider();
 	protected InstrospectedFeature feature;
 
-	class MapWithProvider extends LinkedHashMap<String, Object> implements IHasPropertyProvider {
+	public class MapWithProvider extends LinkedHashMap<String, Object> implements IHasPropertyProvider {
 
 		/**
 		 * 
@@ -55,7 +57,19 @@ public class DynamicUI {
 
 					if (name != null) {
 						final String s = name;
-						MapProperty mapProperty = new MapProperty(s);
+						MapProperty mapProperty = new MapProperty(s) {
+							@Override
+							protected void doSet(Object target, Object object)
+									throws IllegalAccessException {
+								IntrospectedParameter parameter = feature.getParameter(s);
+								if (parameter!=null) {
+									String type2 = parameter.getType();
+									System.out.println(type2);
+								}
+								Map targetMap=(Map) target;
+								targetMap.put(id, object);
+							}
+						};
 						BaseMeta m = (BaseMeta) mapProperty.getMeta();
 						IntrospectedParameter parameter = feature.getParameter(s);
 						if (parameter != null) {
@@ -69,7 +83,7 @@ public class DynamicUI {
 									m.putMeta(DefaultMetaKeys.SUBJECT_CLASS_KEY, int.class);
 								}
 								if (type.equals("float")) {
-									m.putMeta(DefaultMetaKeys.SUBJECT_CLASS_KEY, float.class);
+									m.putMeta(DefaultMetaKeys.SUBJECT_CLASS_KEY, double.class);
 								}
 								if (type.equals("bool")) {
 									m.putMeta(DefaultMetaKeys.SUBJECT_CLASS_KEY, boolean.class);
@@ -83,6 +97,8 @@ public class DynamicUI {
 					}
 					return null;
 				}
+				
+				
 			};
 		}
 
@@ -99,58 +115,10 @@ public class DynamicUI {
 		cm.getLayoutHints().setGrabVertical(true);
 		cm.setLayoutManager(new OneElementOnLineLayouter());
 		editor.setCaption(HumanCaption.getHumanCaption(feature.getName()));
-		ArrayList<IntrospectedParameter> parameters = feature.getParameters();
+		ArrayList<IntrospectedParameter> parameters = getParameters();
 		Binding bnd = new Binding(args);
-
 		for (IntrospectedParameter p : parameters) {
-			String type = p.getType();
-			if (type.equals("Model") || type.equals("ConnectedModel")) {
-				ModelEvaluationSpec ma = new ModelEvaluationSpec(ex.hasSeeds(), ex.hasStages(), ex.hasFolds());
-				args.put(p.getName(), ma);
-				IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(ma, null, null);
-				IUIElement<?> createWidget = widgetObject.createWidget(bnd.binding(p.getName()));
-				SectionEditor ed = new SectionEditor();
-				ed.setCaption(HumanCaption.getHumanCaption(p.getName()));
-				ed.add((AbstractUIElement<?>) createWidget);
-				cm.add(ed);
-				continue;
-			}
-			
-			if (p.getDefaultValue() != null) {
-				args.put(p.getName(), p.getDefaultValue());
-			}
-			Binding binding = (Binding) bnd.getBinding(p.getName());
-			binding.setRequired(true);
-			if (type.equals("DataSet")) {
-				args.put(p.getName(), "validation");
-				ArrayList<String>datasets=new ArrayList<>();
-				datasets.add("train");
-				datasets.add("validation");
-				if (ex.getConfig().containsKey("testSplit")) {
-					datasets.add("holdout");
-				}
-				Object object = ex.getConfig().get("datasets");
-				if (object instanceof Map) {
-					datasets.addAll(((Map) object).keySet());
-				}
-				ComboEnumeratedValueSelector<String> element = new ComboEnumeratedValueSelector<String>();
-				element.setRealm(new Realm(datasets));
-				element.setBinding(binding);
-				
-				element.setCaption(HumanCaption.getHumanCaption(p.getName()));
-				cm.add(element);
-			}
-			else if (type.equals("bool")) {
-				CheckboxElement element = new CheckboxElement();
-				element.setBinding(binding);
-				element.setCaption(HumanCaption.getHumanCaption(p.getName()));
-				cm.add(element);
-			} else {
-				OneLineTextElement<Object> element = new OneLineTextElement<Object>(binding);
-				element.setCaption(HumanCaption.getHumanCaption(p.getName()));
-				cm.add(element);
-			}
-			bnd.setSubjectClass(Integer.class);
+			createParameterUI(ex, cm, bnd, p);
 		}
 		editor.add(cm);
 		SeparatorElement element = new SeparatorElement();
@@ -165,7 +133,7 @@ public class DynamicUI {
 		f.setCaption("Run in debug mode?");
 		f.setBinding(bnd.binding("debug"));
 		editor.add(workers);
-		editor.add(f);	
+		editor.add(f);
 		bnd.refresh(true);
 		int open = new FormDialog(bnd, editor).open();
 		if (open == Dialog.OK) {
@@ -173,5 +141,81 @@ public class DynamicUI {
 		}
 		return null;
 	}
-	
+
+	protected ArrayList<IntrospectedParameter> getParameters() {
+		return feature.getParameters();
+	}
+	public Container populateParameters(Map<String,Object>values,Experiment ex) {
+		Container cm = new Container();
+		cm.setMargin(new Rectangle(0, 2, 0, 0));
+		cm.getLayoutHints().setGrabHorizontal(true);
+		cm.setLayoutManager(new HorizontalLayouter());
+		Binding bnd = new Binding(values);
+		ArrayList<IntrospectedParameter> parameters = getParameters();
+		for (IntrospectedParameter p : parameters) {
+			createParameterUI(ex, cm, bnd, p);
+		}		
+		return cm;
+	}
+
+	private void createParameterUI(Experiment ex, Container cm, Binding bnd, IntrospectedParameter p) {
+		String type = p.getType();
+		if (type==null) {
+			type="any";
+		}
+		if (type.equals("Model") || type.equals("ConnectedModel")) {
+			ModelEvaluationSpec ma = ex.createModelSpec();
+			args.put(p.getName(), ma);
+			IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(ma, null, null);
+			IUIElement<?> createWidget = widgetObject.createWidget(bnd.binding(p.getName()));
+			SectionEditor ed = new SectionEditor();
+			ed.setCaption(HumanCaption.getHumanCaption(p.getName()));
+			ed.add((AbstractUIElement<?>) createWidget);
+			cm.add(ed);			
+		}
+		if (p.getDefaultValue() != null) {
+			Object defaultValue = p.getDefaultValue();
+			if (type!=null) {
+				try {
+				if (type.equals("bool")) {
+					defaultValue=Boolean.parseBoolean(defaultValue.toString());
+				}
+				if (type.equals("int")) {
+					defaultValue=Integer.parseInt(defaultValue.toString());
+				}
+				if (type.equals("float")) {
+					defaultValue=Double.parseDouble(defaultValue.toString());
+				}
+				}catch (Exception e) {
+				}
+			}
+			args.put(p.getName(), defaultValue);
+		}
+		Binding binding = (Binding) bnd.getBinding(p.getName());
+		binding.setRequired(true);
+		if (type.equals("DataSet")) {
+			args.put(p.getName(), "validation");
+			ComboEnumeratedValueSelector<String> element = new ComboEnumeratedValueSelector<String>();
+			element.setRealm(new Realm<>(ex.getDataSets()));
+			element.setBinding(binding);
+
+			element.setCaption(HumanCaption.getHumanCaption(p.getName()));
+			cm.add(element);
+		} else if (type.equals("bool")) {
+			CheckboxElement element = new CheckboxElement();
+			element.setBinding(binding);
+			element.setCaption(HumanCaption.getHumanCaption(p.getName()));
+			cm.add(element);
+		} else {
+			OneLineTextElement<Object> element = new OneLineTextElement<Object>(binding);
+			element.setCaption(HumanCaption.getHumanCaption(p.getName()));
+			cm.add(element);
+		}
+		bnd.setSubjectClass(Integer.class);
+	}
+
+	public LinkedHashMap<String, Object> getArgs() {
+		return args;
+	}
+
 }

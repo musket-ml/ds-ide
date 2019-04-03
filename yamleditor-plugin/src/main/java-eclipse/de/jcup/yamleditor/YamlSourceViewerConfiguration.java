@@ -23,9 +23,16 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.text.AbstractReusableInformationControlCreator;
+import org.eclipse.jface.text.DefaultInformationControl;
+import org.eclipse.jface.text.DefaultInformationControl.IInformationPresenter;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.ICompletionListener;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.URLHyperlinkDetector;
@@ -42,11 +49,13 @@ import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.editors.text.TextSourceViewerConfiguration;
 import org.eclipse.ui.texteditor.ChainedPreferenceStore;
 import org.eclipse.ui.texteditor.MarkerAnnotation;
-
+import org.python.pydev.editor.PyInformationControlCreator;
+import org.python.pydev.editor.PyInformationPresenter;
 import de.jcup.yamleditor.document.YamlDocumentIdentifier;
 import de.jcup.yamleditor.document.YamlDocumentIdentifiers;
 import de.jcup.yamleditor.presentation.PresentationSupport;
@@ -65,7 +74,7 @@ public class YamlSourceViewerConfiguration extends TextSourceViewerConfiguration
 	private YamlEditorAnnotationHoover annotationHoover;
 	private IAdaptable adaptable;
 	private ContentAssistant contentAssistant;
-	private YamlEditorSimpleWordContentAssistProcessor contentAssistProcessor;
+	private IContentAssistProcessor contentAssistProcessor;
 	
 	/**
 	 * Creates configuration by given adaptable
@@ -82,7 +91,8 @@ public class YamlSourceViewerConfiguration extends TextSourceViewerConfiguration
 		this.annotationHoover = new YamlEditorAnnotationHoover();
 		
 		this.contentAssistant = new ContentAssistant();
-		contentAssistProcessor = new YamlEditorSimpleWordContentAssistProcessor();
+		this.contentAssistant.setInformationControlCreator(new PyInformationControlCreator());
+		contentAssistProcessor = createContentAssistProcessor();
 		contentAssistant.enableColoredLabels(true);
 		
 		contentAssistant.setContentAssistProcessor(contentAssistProcessor, IDocument.DEFAULT_CONTENT_TYPE);
@@ -90,13 +100,16 @@ public class YamlSourceViewerConfiguration extends TextSourceViewerConfiguration
 			contentAssistant.setContentAssistProcessor(contentAssistProcessor, identifier.getId());
 		}
 		
-		contentAssistant.addCompletionListener(contentAssistProcessor.getCompletionListener());
+		contentAssistant.addCompletionListener((ICompletionListener)contentAssistProcessor);
 
 		this.colorManager = adaptable.getAdapter(ColorManager.class);
 		Assert.isNotNull(colorManager, " adaptable must support color manager");
 		this.defaultTextAttribute = new TextAttribute(
 				colorManager.getColor(getPreferences().getColor(COLOR_NORMAL_TEXT)));
 		this.adaptable=adaptable;
+	}
+	protected IContentAssistProcessor createContentAssistProcessor() {
+		return new YamlEditorSimpleWordContentAssistProcessor();
 	}
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 		return contentAssistant;

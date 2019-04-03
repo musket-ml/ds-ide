@@ -26,6 +26,7 @@ import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.dto.introspection.InstrospectionResult;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.TaskManager;
+import com.onpositive.dside.tasks.analize.AnalizeDataSet;
 import com.onpositive.dside.ui.DynamicUI;
 import com.onpositive.dside.ui.ExperimentsView;
 import com.onpositive.dside.ui.TaskConfiguration;
@@ -104,10 +105,28 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 		element.setLayout(layout);
 		List<AbstractUIElement<?>> children = new ArrayList<>(element.getChildren());
 		children.forEach(r -> element.remove(r));
+		for (EditorTask task:EditorTasks.getTasks()) {
+			representTask(element, task);
+		}
+		
+		List<InstrospectedFeature> tasks = project.getTasks();
+		tasks.forEach(r -> {
+			representTask(element, new EditorTasks.UserTask(r));						
+		});
+		element.getControl().layout(true, true);
+
+	}
+
+	private void representTask(SectionEditor element, EditorTask task) {
 		LinkElement element2 = new LinkElement();
-		element2.setCaption("Launch Experiment");
-		element2.setIcon("run_experiment");
+		element2.setCaption(task.name);
+		element2.setIcon(task.image);
 		element2.addHyperLinkListener(new IHyperlinkListener() {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void linkExited(HyperlinkEvent e) {
@@ -121,86 +140,10 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 
 			@Override
 			public void linkActivated(HyperlinkEvent e) {
-				doSave(new NullProgressMonitor());
-				ExperimentsView.launchExperiment(exp);
+				task.perform(ExperimentOverivewEditorPart.this, exp);
 			}
 		});
-		element2.setIcon("layer");
 		element.add(element2);
-		element2 = new LinkElement();
-		element2.setCaption("Validate Model");
-		element2.setIcon("validate");
-		element.add(element2);
-		element2 = new LinkElement();
-		element2.setCaption("Analize Predictions");
-		element2.setIcon("analize");
-//		element2.addHyperLinkListener(new IHyperlinkListener() {
-//			
-//			@Override
-//			public void linkExited(HyperlinkEvent e) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//			
-//			@Override
-//			public void linkEntered(HyperlinkEvent e) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//			
-//			@Override
-//			public void linkActivated(HyperlinkEvent e) {
-//				FileEditorInput editorInput = (FileEditorInput) getEditorInput();
-//				GateWayRelatedTask gateWayRelatedTask = new GateWayRelatedTask(editorInput.getFile().getProject());
-//				TaskManager.perform(gateWayRelatedTask);
-//			}
-//		});
-		element.add(element2);
-		List<InstrospectedFeature> tasks = project.getTasks();
-		tasks.forEach(r -> {
-			LinkElement taskElement = new LinkElement();
-			String name = r.getName();
-			taskElement.setCaption(name.substring(0, 1).toUpperCase() + name.substring(1).replace('_', ' '));
-			taskElement.setIcon("generic_task");
-			taskElement.addHyperLinkListener(new IHyperlinkListener() {
-
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void linkExited(HyperlinkEvent e) {
-
-				}
-
-				@Override
-				public void linkEntered(HyperlinkEvent e) {
-
-				}
-
-				@Override
-				public void linkActivated(HyperlinkEvent e) {
-					doSave(new NullProgressMonitor());
-					Map<String, Object> open = new DynamicUI(r).open(exp);
-					if (open != null) {
-						TaskConfiguration cfg = new TaskConfiguration(Collections.singleton(exp));
-						cfg.setTaskArgs(open);
-						if (open.containsKey("debug")) {
-							cfg.setDebug((Boolean)open.get("debug"));
-						}
-						if (open.containsKey("workers")) {
-							cfg.setNumWorkers(Integer.parseInt(open.get("workers").toString()));
-						}
-						cfg.setTasks(r.getName());
-						TaskManager.perform(cfg);
-					}					
-				}
-			});
-			element.add(taskElement);
-		});
-		element.getControl().layout(true, true);
-
 	}
 
 	@Override
@@ -257,6 +200,14 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 	public void updated(ModelNode node, Object newValue, String property) {
 		this.dirty = true;
 		firePropertyChange(PROP_DIRTY);
+	}
+
+	public ProjectWrapper getProject() {
+		return project;
+	}
+
+	public void setProject(ProjectWrapper project) {
+		this.project = project;
 	}
 
 }

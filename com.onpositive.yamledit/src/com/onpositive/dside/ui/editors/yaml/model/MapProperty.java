@@ -235,7 +235,13 @@ final class MapProperty extends AbstractWritableProperty implements IProperty {
 		if (v == object || (v != null && v.equals(object))) {
 			return;
 		}
-
+		if (v==null) {
+			if (object instanceof Map) {
+				if (((Map) object).isEmpty()) {
+					return;
+				}
+			}
+		}
 		Map<String, Object> map = (Map<String, Object>) m.object;
 		if (object == null) {
 			map.remove(arg1);

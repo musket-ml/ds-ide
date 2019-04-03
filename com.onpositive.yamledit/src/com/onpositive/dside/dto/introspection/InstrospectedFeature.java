@@ -49,6 +49,7 @@ public class InstrospectedFeature {
 	
 	String sourcefile;
 	String source;
+	String viewer;
 	public String getSource() {
 		return source;
 	}
@@ -77,5 +78,18 @@ public class InstrospectedFeature {
 			}
 		}
 		return null;
+	}
+	
+	@Override
+	public String toString() {
+		return this.name;
+	}
+
+	public String getViewer() {
+		return viewer;
+	}
+
+	public void setViewer(String viewer) {
+		this.viewer = viewer;
 	}
 }
