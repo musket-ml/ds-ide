@@ -1,0 +1,7 @@
+templates:
+   - name: Basic Template
+     description: Basic Template
+     file: experiment.yaml
+   - name: Another template
+     description: Another Template
+     file: experiment.yaml

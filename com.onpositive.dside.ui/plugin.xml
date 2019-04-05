@@ -99,6 +99,7 @@
       <editor
             class="com.onpositive.dside.ui.editors.ExperimentMultiPageEditor"
             contributorClass="com.onpositive.dside.ui.editors.MultiPageEditorContributor"
+            default="true"
             extensions="yaml"
             filenames="config.yaml, config_concrete.yaml"
             icon="icons/experiment.png"
@@ -169,6 +170,56 @@
             id="com.onpositive.dside.ui.group_wiz_image"
             image="icons/newsrcfldr_wiz@2x.png"
             name="name">
+      </image>
+      <image
+            id="property_obj"
+            image="icons/att.gif"
+            name="property_obj">
+      </image>
+      <image
+            id="stage"
+            image="icons/unstage.png"
+            name="stage">
+      </image>
+      <image
+            id="stages"
+            image="icons/unstage_all.png"
+            name="stages">
+      </image>
+      <image
+            id="architecture"
+            image="icons/site_element.png"
+            name="architecture">
+      </image>
+      <image
+            id="work"
+            image="icons/workset.png"
+            name="work">
+      </image>
+      <image
+            id="preprocessor"
+            image="icons/css_propertyvalue_function.gif"
+            name="preprocessor">
+      </image>
+      <image
+            id="merge"
+            image="icons/merge.png"
+            name="merge">
+      </image>
+      <image
+            id="layer_unk"
+            image="icons/mergesessions.png"
+            name="layer_unk">
+      </image>
+      <image
+            id="cache"
+            image="icons/saveas_edit_memory.png"
+            name="cache">
+      </image>
+      <image
+            id="stack"
+            image="icons/stackframe.png"
+            name="stack">
       </image>
    </extension>
 	 <extension point="org.eclipse.ui.newWizards">
@@ -372,7 +423,4 @@
           </enablement>
        </decorator>
     </extension>
-    <extension
-          point="org.eclipse.ui.editors.markerAnnotationSpecification">
-    </extension>    
 </plugin>

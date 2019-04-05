@@ -198,32 +198,41 @@ public class ExperimentsView extends XMLView {
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		for (Object o : collection) {
 			Experiment e = (Experiment) o;
-			IInputValidator validator = new IInputValidator() {
-
-				@Override
-				public String isValid(String newText) {
-					if (newText.isEmpty()) {
-						return "Experiment should be named";
-					}
-					return null;
-				}
-			};
-			InputDialog inputDialog = new InputDialog(Display.getCurrent().getActiveShell(), "Duplicate Experiment",
-					"Please provide new name for dublicate of: " + e.toString(), "", validator);
-			inputDialog.open();
-			String value = inputDialog.getValue();
-			if (value != null && value.length() > 0) {
-				Experiment exp = e.duplicate(value);
-				if (exp != null) {
-					
-					this.experiments.add(exp);
-					
-					
-					open(exp);
-				}
+			Experiment exp=duplateExperiment(e);
+			if (exp!=null) {
+			this.experiments.add(exp);
 			}
 		}
 		fullRefresh();
+	}
+
+	public static Experiment duplateExperiment(Experiment e) {
+		IInputValidator validator = new IInputValidator() {
+
+			@Override
+			public String isValid(String newText) {
+				if (newText.isEmpty()) {
+					return "Experiment should be named";
+				}
+				return null;
+			}
+		};
+		InputDialog inputDialog = new InputDialog(Display.getCurrent().getActiveShell(), "Duplicate Experiment",
+				"Please provide new name for dublicate of: " + e.toString(), "", validator);
+		inputDialog.open();
+		String value = inputDialog.getValue();
+		if (value != null && value.length() > 0) {
+			Experiment exp = e.duplicate(value);
+			if (exp != null) {
+				
+				
+				
+				
+				open(exp);
+				return exp;
+			}
+		}
+		return null;
 	}
 
 	public void deleteExperiment() {

@@ -16,6 +16,7 @@ public class NodeType {
 	protected String defaultProperty;
 	protected String type;
 	protected boolean root;
+	protected String customValidator;
 	public String getIcon() {
 		return icon;
 	}
@@ -98,6 +99,14 @@ public class NodeType {
 
 	public void setRoot(boolean root) {
 		this.root = root;
+	}
+
+	public String getCustomValidator() {
+		return customValidator;
+	}
+
+	public void setCustomValidator(String customValidator) {
+		this.customValidator = customValidator;
 	}
 
 }

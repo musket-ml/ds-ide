@@ -21,6 +21,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
@@ -28,6 +29,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.python.pydev.core.log.Log;
+import org.python.pydev.shared_ui.EditorUtils;
 
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.commons.elements.AbstractUIElement;
@@ -136,7 +138,12 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 					folder3.create(true, true, monitor);
 				}
 				IFile file = folder3.getFile("config.yaml");
-				file.create(NewMusketExperiment.class.getResourceAsStream("/templates/experiment.yaml"), true, monitor);
+				Template template = TemplatesList.getTemplatesList().getTemplates().stream().filter(x->x.name.equals(experimentParams.template)).findFirst().get();
+				file.create(NewMusketExperiment.class.getResourceAsStream("/templates/"+template.file), true, monitor);
+				Display.getDefault().asyncExec(()->{
+					EditorUtils.openFile(file);	
+				});
+				
 			}
 		};
 
@@ -163,8 +170,10 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 			return false;
 		}
 		CommonNavigator activePart = (CommonNavigator) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-				.getActivePage().getActivePart();
-		activePart.getCommonViewer().refresh();
+				.getActivePage().findView("org.python.pydev.navigator.view");
+		if (activePart!=null) {
+			activePart.getCommonViewer().refresh();
+		}
 		return true;
 	}
 

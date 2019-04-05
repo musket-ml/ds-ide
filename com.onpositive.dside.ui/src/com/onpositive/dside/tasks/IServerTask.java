@@ -15,4 +15,6 @@ public interface IServerTask<T> {
 	public default void beforeStart() {};
 
 	public default void afterStart(ILaunch launch) {};
+	
+	default boolean save() {return false;}
 }

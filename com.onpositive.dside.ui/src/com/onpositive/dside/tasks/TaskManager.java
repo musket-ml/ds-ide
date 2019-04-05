@@ -114,7 +114,7 @@ public class TaskManager {
 		});
 	}
 
-	public static void perform(IServerTask<Object> task) {
+	public static void perform(IServerTask<?> task) {
 		task.beforeStart();
 		IProject[] projects = task.getProject();
 
@@ -194,7 +194,7 @@ public class TaskManager {
 								LaunchConfigurationCreator.getDefaultLocation(resource, false), // it'll be made
 																								// relative later on
 								pythonInterpreterManager, projName);
-
+					
 				// Common Tab Arguments
 				CommonTab tab = new CommonTab();
 				tab.setDefaults(createdConfiguration);
@@ -252,9 +252,12 @@ public class TaskManager {
 			HashMap<String, String> value = new HashMap<>();
 			value.put("PYTHONUNBUFFERED", "1");
 			createDefaultLaunchConfigurationWithoutSaving.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, value);
+			if (task.save()) {
+				createDefaultLaunchConfigurationWithoutSaving.doSave();
+			}
 			ILaunch launch = createDefaultLaunchConfigurationWithoutSaving.launch(task.isDebug() ? "debug" : "run",
 					new NullProgressMonitor());
-			TaskStatus value2 = new TaskStatus(task, absolutePath2);
+			TaskStatus value2 = new TaskStatus((IServerTask<Object>) task, absolutePath2);
 			if (launch.isTerminated()) {
 				value2.report(launch);
 			}

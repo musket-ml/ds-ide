@@ -1,6 +1,7 @@
 <composite-editor xmlns="http://jetface.org/JetFace1.0/" >
 	<model class="com.onpositive.dside.wizards.ExperimentParams"/>
 	<string bindTo="name" caption="Experiment name"/>
+	<combo  bindTo="template" realmExpression="$$.templates"/>
 	<hc>
 	<string bindTo="group" caption="Experiment group"/>
 	<string bindTo="project" caption="Experiment project"/>

@@ -15,6 +15,7 @@ types:
            required: false
         inputs:
            type: string[]
+           autoConvertToArray: true
            required: false    
            description: Optional names of this declaration inputs
         outputs:   
@@ -41,24 +42,36 @@ types:
            reference: true
            #items: Element   
    Callback:
-      type: Referencable                   
+      type: Referencable  
+      customValidator: com.onpositive.dside.ast.CallbackValidator                 
    Referencable:
       type: object  
       properties:
          name: 
            type: string
          inputs:
+           autoConvertToArray: true
            type: string[]
          args:
-           type: any[]   
+           type: any
    DatasetFactory: 
       type: object                  
    Preprocessor:
       type: Referencable
    Layer:
+      
       type: Referencable  
    LayerOrPreprocessor: 
-      type: "Layer,Preprocessor"   
+      type: "Layer,Preprocessor"
+   EarlyStopping:
+     type: Callback
+     properties:  
+          patience: 
+            type: number
+          monitor: 
+            type: function 
+          verbose: 
+            type: integer      
    ReduceLROnPlateau:
       type: Callback
       properties:
@@ -86,12 +99,17 @@ types:
            
    NetworkBlockDeclaration:
       type: GenericDeclaration
+      customValidator: com.onpositive.dside.ast.LayerValidator
       closed: true
       properties:               
          body:
            type: Layer
            multivalue: true
            reference: true
+         outputs:   
+           type: string[]
+           required: false    
+           description: Optional names of members that are binded to this declaration outputs  
          shared:
            type: boolean
            description: Mark this as true if you want to share weights between different references to this network declaration
@@ -100,9 +118,26 @@ types:
       properties: 
          epochs: 
             type: integer
-            required: true       
+            required: true 
+         loss:
+            type: function
+         initial_weights:
+            type: string
+         negatives:
+            type: number
+         validation_negatives:
+            type: number
+         unfreeze_encoder: 
+            type: boolean            
+         callbacks:
+            multivalue: true
+            type: Callback         
+         extra_callbacks:
+            multivalue: true
+            type: Callback               
    BasicConfig:   
-    root: true     
+    root: true    
+    customValidator: com.onpositive.dside.ast.RootValidator 
     properties:
       metrics:
         #multivalue: true

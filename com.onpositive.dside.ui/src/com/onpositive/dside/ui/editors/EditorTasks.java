@@ -17,6 +17,7 @@ import com.onpositive.dside.ui.ExperimentsView;
 import com.onpositive.dside.ui.HumanCaption;
 import com.onpositive.dside.ui.TaskConfiguration;
 import com.onpositive.musket_core.Experiment;
+import com.onpositive.musket_core.ValidateTask;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class EditorTasks {
@@ -43,7 +44,19 @@ public class EditorTasks {
 
 		@Override
 		public void perform(ExperimentOverivewEditorPart editor, Experiment exp) {
+			ValidateTask validateTask = new ValidateTask(exp);
+			TaskManager.perform(validateTask);
+		}
+	}
+	public static class DuplicateExperimentTask extends EditorTask {
 
+		public DuplicateExperimentTask() {
+			super("Create Duplicate", "com.onpositive.semantic.ui.copy");
+		}
+
+		@Override
+		public void perform(ExperimentOverivewEditorPart editor, Experiment exp) {
+			ExperimentsView.duplateExperiment(exp);
 		}
 	}
 	
@@ -116,6 +129,6 @@ public class EditorTasks {
 	}
 
 	public static EditorTask[] getTasks() {
-		return new EditorTask[] { new LaunchExperiment(), new ValidateModelTask(), new AnalizeDataTask(), new AnalizePredictionsTask() };
+		return new EditorTask[] { new LaunchExperiment(), new ValidateModelTask(), new AnalizeDataTask(), new AnalizePredictionsTask(), new DuplicateExperimentTask() };
 	}
 }

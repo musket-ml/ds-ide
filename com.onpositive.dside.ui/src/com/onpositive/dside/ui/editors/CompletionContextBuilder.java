@@ -15,7 +15,7 @@ public class CompletionContextBuilder {
 	
 	public static CompletionContext build(IDocument document, int offset) {
 		try {
-			CompletionContext ct=new CompletionContext();
+			CompletionContext ct=new CompletionContext(offset);
 			ct.content=document.get();
 			ArrayList<IndentAndName> indents = new ArrayList<>();
 			int lineOfOffset = document.getLineOfOffset(offset);
@@ -75,7 +75,7 @@ public class CompletionContextBuilder {
 			return ct;
 
 		} catch (BadLocationException e) {
-			return new CompletionContext();
+			return new CompletionContext(offset);
 		}
 	}
 }

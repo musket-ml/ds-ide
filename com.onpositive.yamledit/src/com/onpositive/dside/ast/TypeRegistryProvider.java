@@ -14,6 +14,7 @@ import org.aml.typesystem.meta.facets.HasKey;
 import org.aml.typesystem.meta.facets.IsRef;
 import org.aml.typesystem.meta.restrictions.DefaultPropertyMeta;
 
+import com.onpositive.dside.ui.editors.yaml.model.CustomValidatorRestriction;
 import com.onpositive.dside.ui.editors.yaml.model.NodeType;
 import com.onpositive.dside.ui.editors.yaml.model.PropertyDescription;
 import com.onpositive.dside.ui.editors.yaml.model.Registry;
@@ -70,6 +71,9 @@ public class TypeRegistryProvider {
 	}
 
 	private static void fill(AbstractType type2, NodeType nodeType,ITypeRegistry reg) {
+		if (nodeType.getCustomValidator()!=null) {
+			type2.addMeta(new CustomValidatorRestriction(nodeType.getCustomValidator()));
+		}
 		for (String s:nodeType.getProperties().keySet()) {
 			PropertyDescription propertyDescription = nodeType.getProperties().get(s);
 			String type = propertyDescription.getType();
@@ -99,6 +103,13 @@ public class TypeRegistryProvider {
 				if(type3.componentType().isObject()) {
 					type3.addMeta(new HasKey(true));
 				}
+			}
+			
+			if (propertyDescription.isAutoConvertToArray()) {
+				if (type3.isBuiltIn()) {
+					type3=TypeOps.derive(type3.name(), type3);
+				}
+				type3.addMeta(new AutoConvertToArray(true));
 			}
 			if (propertyDescription.isReference()) {
 				//type3=TypeOps.derive(type3.name(), type3);

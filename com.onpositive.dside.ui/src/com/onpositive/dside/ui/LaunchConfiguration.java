@@ -68,6 +68,8 @@ public class LaunchConfiguration implements IServerTask<Object> {
 	boolean fitFromScratch;
 	
 	boolean debug;
+	
+	public boolean save() {return true;}
 
 	public boolean isDebug() {
 		return debug;

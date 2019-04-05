@@ -42,7 +42,9 @@ import com.onpositive.dside.ast.CompletionContext;
 import com.onpositive.dside.ast.TypeRegistryProvider;
 import com.onpositive.dside.ast.Universe.CompletionSuggestions;
 import com.onpositive.dside.dto.introspection.InstrospectedFeature;
+import com.onpositive.dside.ui.editors.outline.OutlineLabelProvider;
 import com.onpositive.semantic.model.api.property.IProperty;
+import com.onpositive.semantic.model.api.property.java.annotations.Description;
 
 import de.jcup.yamleditor.YamlEditorUtil;
 
@@ -83,7 +85,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 					if (v.id().toLowerCase().startsWith(completionContext.completionStart.toLowerCase())) {
 					ps.add(new SimpleWordProposal(document, offset,
 							v.id()+":",
-							completionContext.completionStart, null));
+							completionContext.completionStart, v.description(),"property"));
 					}
 				}
 			} else {
@@ -92,9 +94,25 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 						continue;
 					}
 					if (v.name().toLowerCase().startsWith(completionContext.completionStart.toLowerCase())) {
-					ps.add(new SimpleWordProposal(document, offset,
-							v.name().substring(0, 1).toLowerCase() + v.name().substring(1),
-							completionContext.completionStart, null));
+							String description=null;
+							org.aml.typesystem.meta.facets.Description oneMeta = v.oneMeta(org.aml.typesystem.meta.facets.Description.class);
+							if (oneMeta!=null) {
+								description=oneMeta.value();
+							}
+							 
+							String word = v.name().substring(0, 1).toLowerCase() + v.name().substring(1);
+							if (!v.isSubTypeOf("Layer")&&!v.isSubTypeOf("Preprocessor")) {
+								word=v.name();
+							}
+							if (!completionContext.afterKey) {
+								word=word+":";
+							}
+							Image imageFromType = OutlineLabelProvider.imageFromType(v);
+							SimpleWordProposal e = new SimpleWordProposal(document, offset,
+							word,
+							completionContext.completionStart, description,v.name());
+							e.setImage(imageFromType);
+							ps.add(e);
 					}
 				}
 			}
@@ -118,9 +136,19 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 					}
 				}
 				if (f.getName().toLowerCase().startsWith(completionContext.completionStart.toLowerCase())) {
+					String doc=null;
+					if (f.getDoc() != null && f.getDoc().length() > 0) {
+						doc = f.getDoc();
+
+						
+					}
+					else {
+						doc=f.getSource();
+					}
+					//return feature.getSource();
 					ps.add(new SimpleWordProposal(document, offset,
 							f.getName().substring(0, 1).toLowerCase() + f.getName().substring(1),
-							completionContext.completionStart, f));
+							completionContext.completionStart, doc,null));
 				}
 			}
 		}
@@ -149,16 +177,22 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 		private int nextSelection;
 		private StyledString styledString;
 		private String textBefore;
-		private InstrospectedFeature feature;
+		private String doc;
+		private String kind;
+		private Image image;
 
-		SimpleWordProposal(IDocument document, int offset, String word, String start, InstrospectedFeature feature) {
+		SimpleWordProposal(IDocument document, int offset, String word, String start, String description,String kind) {
 			this.offset = offset;
 			this.word = word;
 
-			String source = document.get();
 			this.textBefore = start;
-			this.feature = feature;
+			this.doc = description;
+			this.kind=kind;
 			// textBefore = simpleWordCompletion.getTextbefore(source, offset);
+		}
+
+		public void setImage(Image imageFromType) {
+			this.image=imageFromType;
 		}
 
 		@Override
@@ -187,15 +221,11 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 
 		@Override
 		public String getAdditionalProposalInfo() {
-			if (feature == null) {
+			if (doc == null) {
 				return "";
 			}
-			if (feature.getDoc() != null && feature.getDoc().length() > 0) {
-				String doc = feature.getDoc();
-
-				return doc;
-			}
-			return feature.getSource();
+			return doc;
+			
 		}
 
 		@Override
@@ -205,6 +235,17 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 
 		@Override
 		public Image getImage() {
+			if (image!=null) {
+				return image;
+			}
+			if (kind!=null) {
+				if (kind.equals("property")) {
+					return SWTImageManager.getImage("property_obj");
+				}
+				if (kind.equals("property_req")) {
+					return SWTImageManager.getImage("property_obj");
+				}
+			}
 			return SWTImageManager.getImage("analize_data");
 		}
 
@@ -214,10 +255,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 
 				@Override
 				public String getInformationDisplayString() {
-					if (feature.getDoc() != null && feature.getDoc().length() > 0) {
-						return feature.getDoc();
-					}
-					return feature.getSource();
+					return doc;
 				}
 
 				@Override

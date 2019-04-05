@@ -3,5 +3,6 @@
 	<model class="com.onpositive.dside.wizards.ExperimentParams" />
 	<string bindTo="group" caption="Experiment group" />
 	<string bindTo="project" caption="Experiment project" />
+	
 	<text bindTo="description" />
 </composite-editor>

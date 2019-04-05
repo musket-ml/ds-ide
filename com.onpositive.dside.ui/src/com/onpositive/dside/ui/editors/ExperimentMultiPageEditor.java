@@ -1,13 +1,9 @@
 package com.onpositive.dside.ui.editors;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Stack;
+import java.util.List;
 
-import org.aml.typesystem.IStatusVisitor;
 import org.aml.typesystem.Status;
-import org.aml.typesystem.TypeRegistryImpl;
-import org.aml.typesystem.values.IArray;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -15,35 +11,49 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.debug.ui.DebugUITools;
-import org.eclipse.debug.ui.IDebugUIConstants;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
-import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.URLHyperlinkDetector;
+import org.eclipse.jface.text.reconciler.DirtyRegion;
+import org.eclipse.jface.text.reconciler.IReconciler;
+import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
+import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.widgets.ImageHyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.editor.hover.AbstractPyEditorTextHover;
-import org.yaml.snakeyaml.nodes.NodeTuple;
 
+import com.onpositive.commons.SWTImageManager;
 import com.onpositive.dside.ast.ASTElement;
-import com.onpositive.dside.ast.IHasLocation;
 import com.onpositive.dside.ast.TypeRegistryProvider;
 import com.onpositive.dside.ast.Universe;
 import com.onpositive.dside.dto.introspection.InstrospectedFeature;
@@ -51,6 +61,7 @@ import com.onpositive.dside.ui.ExperimentErrorsEditorPart;
 import com.onpositive.dside.ui.ExperimentResultsEditorPart;
 import com.onpositive.dside.ui.LaunchConfiguration;
 import com.onpositive.dside.ui.editors.YamlHyperlinkDetector.FeatureInfo;
+import com.onpositive.dside.ui.editors.outline.OutlineContentProvider;
 import com.onpositive.musket_core.Errors;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ExperimentError;
@@ -58,6 +69,7 @@ import com.onpositive.musket_core.ExperimentLogs;
 import com.onpositive.musket_core.ExperimentResults;
 import com.onpositive.musket_core.IExperimentExecutionListener;
 import com.onpositive.musket_core.ProjectWrapper;
+import com.onpositive.semantic.model.ui.property.editors.SeparatorElement;
 
 import de.jcup.yamleditor.YamlEditor;
 import de.jcup.yamleditor.YamlSourceViewerConfiguration;
@@ -101,6 +113,47 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				protected IContentAssistProcessor createContentAssistProcessor() {
 					return new YamlEditorSimpleWordContentAssistProcessor(ExperimentMultiPageEditor.this);
 				}
+				
+				@Override
+				public IReconciler getReconciler(ISourceViewer sourceViewer) {
+					// TODO Auto-generated method stub
+					return new MonoReconciler(new IReconcilingStrategy() {
+						
+						
+
+						@Override
+						public void setDocument(IDocument document) {
+							// TODO Auto-generated method stub
+							
+						}
+
+						@Override
+						public void reconcile(DirtyRegion dirtyRegion, IRegion subRegion) {
+							reconcile(null);
+						}
+
+						@Override
+						public void reconcile(IRegion partition) {
+							root=null;
+							try {
+							getRoot();
+							if (page!=null) {
+								Display.getDefault().asyncExec(new Runnable() {
+									
+									@Override
+									public void run() {
+										((ExperimentOutline) page).refresh();
+									}
+								});
+							}
+							}catch (Exception e) {
+								e.printStackTrace();
+								// TODO: handle exception
+							}
+						}
+						
+					},false);					
+				}
 
 				@Override
 				public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
@@ -132,6 +185,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				}
 
 			});
+			
 			int index = addPage(editor, getEditorInput());
 			setPageText(index, editor.getTitle());
 		} catch (PartInitException e) {
@@ -158,23 +212,98 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	public ProjectWrapper getProject() {
 		return formEditor.getProject();
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T getAdapter(Class<T> adapter) {
+		
+		if (IContentOutlinePage.class.equals(adapter)) {
+			return (T) getOutlinePage();
+		}
+		
+		if (IFile.class.equals(adapter)) {
+			IEditorInput input = getEditorInput();
+			if (input instanceof IFileEditorInput) {
+				IFileEditorInput feditorInput = (IFileEditorInput) input;
+				return (T) feditorInput.getFile();
+			}
+			return null;
+		}
+//		if (ISourceViewer.class.equals(adapter)) {
+//			return (T) getSourceViewer();
+//		}
+//		if (StatusMessageSupport.class.equals(adapter)) {
+//			return (T) this;
+//		}
+//		if (ITreeContentProvider.class.equals(adapter) || YamlEditorTreeContentProvider.class.equals(adapter)) {
+//			if (outlinePage == null) {
+//				return null;
+//			}
+//			return (T) outlinePage.getContentProvider();
+//		}
+		return super.getAdapter(adapter);
+	}
+	IContentOutlinePage page;
+
+	private IContentOutlinePage getOutlinePage() {
+		if (page!=null) {
+			return page;
+		}
+		page=new ExperimentOutline(this);
+		return page;
+	}
 
 	/**
 	 * Creates the pages of the multi-page editor.
 	 */
 	protected void createPages() {
 		createPage0();
+		formEditor = new ExperimentOverivewEditorPart(this.editor, experiment);
+//			this.addPage(0, formEditor, getEditorInput());
+//			setPageText(0, "Overview");
 		try {
-			formEditor = new ExperimentOverivewEditorPart(this.editor, experiment);
-			this.addPage(0, formEditor, getEditorInput());
-			setPageText(0, "Overview");
+			formEditor.init(getEditorSite(), getEditorInput());
+		} catch (PartInitException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		updatePages();
+		LaunchConfiguration.addListener(listener);
+		
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(IPageLayout.ID_OUTLINE);
 		} catch (PartInitException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		Composite head=getHeaderForm().getForm().getForm().getHead();
+		Composite headClient=new Composite(head, SWT.NONE);
+		
+		headClient.setLayout(new RowLayout ());
+		for (EditorTask task : EditorTasks.getTasks()) {
+			represent(headClient, task);
+		}
+		Label label = new Label(headClient, SWT.SEPARATOR|SWT.VERTICAL);
+		RowData layoutData = new RowData(3, 18);		
+		label.setLayoutData(layoutData);
+		List<InstrospectedFeature> tasks = getProject().getTasks();
+		tasks.forEach(r -> {
+			represent(headClient, new EditorTasks.UserTask(r));
+		});
+		getHeaderForm().getForm().getForm().setHeadClient(headClient);
+		validate();
+	}
 
-		updatePages();
-		LaunchConfiguration.addListener(listener);
+	private void represent(Composite headClient, EditorTask task) {
+		ImageHyperlink createImageHyperlink = getHeaderForm().getToolkit().createImageHyperlink(headClient, SWT.NONE);
+		createImageHyperlink.setText(task.name);
+		createImageHyperlink.setImage(SWTImageManager.getImage(task.image));
+		createImageHyperlink.addHyperlinkListener(new HyperlinkAdapter() {
+			@Override
+			public void linkActivated(HyperlinkEvent e) {
+			 task.perform(formEditor, experiment);
+			}
+		});
 	}
 
 	private void updatePages() {
@@ -233,161 +362,16 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		super.dispose();
 	}
 
-	static class ErrorVisitor implements IStatusVisitor {
-
-		Stack<IHasLocation> stack = new Stack<>();
-		protected IFile file;
-
-		public ErrorVisitor(IFile file) {
-			super();
-			this.file = file;
+	protected ASTElement root;
+	
+	public ASTElement getRoot() {
+		if (this.root!=null) {
+			return root;
 		}
-
-		class ErrorAndMessage {
-			IHasLocation element;
-			String message;
-			String key;
-			boolean onKey;
-
-			public void report() {
-				try {
-					IMarker marker = file.createMarker("org.eclipse.core.resources.problemmarker");
-					int start = 0;
-					int end = 0;
-					if (element != null) {
-						IHasLocation peek = element;
-						start = peek.getStartOffset();
-						if (peek.getParent() == null) {
-							end = start;
-						} else {
-							end = peek.getEndOffset();
-						}
-						if (key!=null) {
-							NodeTuple findInKey = element.findInKey(key);
-							if (findInKey!=null) {
-								start=findInKey.getValueNode().getStartMark().getIndex();
-								end=findInKey.getValueNode().getEndMark().getIndex();
-								if (onKey) {
-									start=findInKey.getKeyNode().getStartMark().getIndex();
-									end=findInKey.getKeyNode().getEndMark().getIndex();
-								}
-							}
-							
-						}
-					}
-
-					marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-					marker.setAttribute(IMarker.CHAR_START, start);
-					marker.setAttribute(IMarker.CHAR_END, end);
-					marker.setAttribute(IMarker.LOCATION, file.getFullPath().toPortableString());
-					marker.setAttribute(IMarker.MESSAGE, message);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
-
-			public ErrorAndMessage(IHasLocation element, String message, String key,boolean onKey) {
-				super();
-				this.element = element;
-				this.message = message;
-				this.key = key;
-				this.onKey=onKey;
-			}
-
-			@Override
-			public int hashCode() {
-				final int prime = 31;
-				int result = 1;
-				result = prime * result + getOuterType().hashCode();
-				result = prime * result + ((element == null) ? 0 : element.hashCode());
-				result = prime * result + ((key == null) ? 0 : key.hashCode());
-				result = prime * result + ((message == null) ? 0 : message.hashCode());
-				return result;
-			}
-
-			@Override
-			public boolean equals(Object obj) {
-				if (this == obj)
-					return true;
-				if (obj == null)
-					return false;
-				if (getClass() != obj.getClass())
-					return false;
-				ErrorAndMessage other = (ErrorAndMessage) obj;
-				if (!getOuterType().equals(other.getOuterType()))
-					return false;
-				if (element == null) {
-					if (other.element != null)
-						return false;
-				} else if (!element.equals(other.element))
-					return false;
-				if (key == null) {
-					if (other.key != null)
-						return false;
-				} else if (!key.equals(other.key))
-					return false;
-				if (message == null) {
-					if (other.message != null)
-						return false;
-				} else if (!message.equals(other.message))
-					return false;
-				return true;
-			}
-
-			private ErrorVisitor getOuterType() {
-				return ErrorVisitor.this;
-			}
-
-		}
-
-		public HashSet<ErrorAndMessage> messages = new HashSet<>();
-
-		@Override
-		public void startVisiting(Status st) {
-			try {
-				
-				Object source = st.getSource();
-				if (source instanceof IHasLocation) {
-					stack.push((IHasLocation) source);
-				}
-				
-
-				if (stack.size() > 0) {
-					if (!st.isOk()) {
-					IHasLocation peek = stack.peek();
-					ErrorAndMessage e = new ErrorAndMessage(peek, st.getMessage(), st.getKey(),st.isOnKey());
-					for (ErrorAndMessage m : new ArrayList<>(this.messages)) {
-						if (m.message.equals(st.getMessage())) {
-							IHasLocation z = peek;
-							while (z != null) {
-								if (z.equals(m.element)) {
-									this.messages.remove(m);
-								}
-								z = z.getParent();
-							}
-						}
-					}
-					
-						messages.add(e);
-					}
-				}
-
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-		}
-
-		@Override
-		public void endVisiting(Status st) {
-			Object source = st.getSource();
-			if (source instanceof IHasLocation) {
-				stack.pop();
-				if (stack.isEmpty()) {
-					this.messages.forEach(v -> v.report());
-				}
-			}
-		}
-
+		Universe registry = TypeRegistryProvider.getRegistry("basicConfig");
+		ASTElement buildRoot = registry.buildRoot(this.editor.getDocument().get(), getProject().getDetails());
+		this.root=buildRoot;
+		return buildRoot;
 	}
 
 	/**
@@ -398,9 +382,14 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			formEditor.updateText();
 		}
 		getEditor(0).doSave(monitor);
-		getEditor(1).doSave(monitor);
-		Universe registry = TypeRegistryProvider.getRegistry("basicConfig");
+		//getEditor(1).doSave(monitor);
 
+		validate();
+	}
+
+	public void validate() {
+		Universe registry = TypeRegistryProvider.getRegistry("basicConfig");
+		
 		IEditorInput editorInput = getEditorInput();
 		if (editorInput instanceof FileEditorInput) {
 			FileEditorInput fl = (FileEditorInput) editorInput;
@@ -412,7 +401,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				}
 				String string = editor.getDocument().get();
 				Status validate = registry.validate(string, getProject().getDetails());
-				ErrorVisitor st = new ErrorVisitor(file);
+				ErrorVisitor st = new ErrorVisitor(file,string);
 				validate.visitErrors(st);
 				System.out.println(st);
 			} catch (Exception e) {
@@ -466,13 +455,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	 * Calculates the contents of page 2 when the it is activated.
 	 */
 	protected void pageChange(int newPageIndex) {
-		super.pageChange(newPageIndex);
-		if (newPageIndex == 0) {
-			formEditor.updateFromText();
-		}
-		if (newPageIndex == 1) {
-			formEditor.updateText();
-		}
+		super.pageChange(newPageIndex);		
 	}
 
 	/**
@@ -493,6 +476,10 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				}
 			});
 		}
+	}
+
+	public void select(int start, int end) {
+		this.editor.selectAndReveal(start, end-start);
 	}
 
 }

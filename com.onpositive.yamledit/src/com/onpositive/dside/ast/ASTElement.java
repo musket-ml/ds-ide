@@ -1,6 +1,7 @@
 package com.onpositive.dside.ast;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,6 +38,7 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 	protected ITypeRegistry registry;
 	protected String oneValue;
 	protected boolean fromNull = false;
+	protected int num=-1;
 
 	public ASTElement(Node node, AbstractType type, ASTElement astElement) {
 		super();
@@ -75,6 +77,8 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 			}
 		}
 	}
+	
+	
 
 	public int getStartOffset() {
 		if (this.node == null) {
@@ -109,9 +113,7 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 	public Object getProperty(String name) {
 		
 		IPropertyView propertiesView = this.type.toPropertiesView();
-		if (name.equals("x")) {
-			System.out.println("A");
-		}
+		
 		IProperty property = propertiesView.property(name);
 
 		if (property == null) {
@@ -140,6 +142,15 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 			return null;
 		}
 		if (this.node instanceof SequenceNode) {
+			DefaultPropertyMeta mmm = this.type.oneMeta(DefaultPropertyMeta.class);
+			if (mmm!=null) {
+				if (mmm.value().equals(property.id())) {
+					return parseValue(range, node, false);	
+				}
+				else {
+					return null;
+				}
+			}
 			SequenceNode seq = (SequenceNode) this.node;
 			List<IProperty> positionalProperties = propertiesView.positionalProperties();
 			List<Node> value = seq.getValue();
@@ -156,7 +167,16 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 				if (t.getKeyNode() instanceof ScalarNode) {
 					ScalarNode sc = (ScalarNode) t.getKeyNode();
 					if (sc.getValue().equals(name)) {
-						return parseValue(range, t.getValueNode(), false);
+						Object parseValue = parseValue(range, t.getValueNode(), false);
+						AutoConvertToArray oneMeta = property.range().oneMeta(AutoConvertToArray.class);
+						if (oneMeta!=null) {
+							if (!(parseValue instanceof IArray)&&parseValue!=null) {
+								ArrayImpl arr=new ArrayImpl();
+								arr.add(parseValue);
+								return arr;
+							}
+						}
+						return parseValue;
 					}
 				}
 			}
@@ -240,7 +260,17 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 			if (range.isArray()) {
 				List<Node> value = seq.getValue();
 				AbstractType r1 = range;
-				return new ArrayImpl(value.stream().map(x -> parseInSequnce(r1, x)).collect(Collectors.toList()));
+				List<Object> collect = value.stream().map(x -> parseInSequnce(r1, x)).collect(Collectors.toList());
+				for (int i=0;i<collect.size();i++) {
+					Object object = collect.get(i);
+					if (object instanceof ASTElement) {
+						ASTElement el=(ASTElement) object;
+						if (el.key==null) {
+							el.num=i;
+						}
+					}
+				}
+				return new ArrayImpl(collect);
 			} else {
 				if (range.isObject()) {
 					DefaultPropertyMeta oneMeta = range.oneMeta(DefaultPropertyMeta.class);
@@ -254,6 +284,9 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 					// List<IProperty> positionalProperties =
 					// range.toPropertiesView().positionalProperties();
 
+				}
+				if (range.equals(BuiltIns.ANY)||range.isAnonimous()&&range.superType().equals(BuiltIns.ANY)) {
+					return new ASTElement(node, range, this);
 				}
 				return new ErrorElement(node, range, this);
 			}
@@ -408,7 +441,8 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 					keys.add(sc.getValue());
 				}
 			}
-			if (this.type.oneMeta(DefaultPropertyMeta.class)!=null) {
+			DefaultPropertyMeta oneMeta = this.type.oneMeta(DefaultPropertyMeta.class);
+			if (oneMeta!=null&&!keys.contains(oneMeta.value())) {
 				
 				return Collections.emptySet();
 			}
@@ -464,10 +498,17 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 
 	@Override
 	public String toString() {
+		if (this.key!=null) {
+			return this.key;
+		}
 		if (this.node instanceof ScalarNode) {
 			ScalarNode c = (ScalarNode) this.node;
 			return c.getValue();
 		}
+		
+		if (this.num!=-1) {
+			return ""+this.num;
+		}		
 		return super.toString();
 	}
 
@@ -475,15 +516,35 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 	public int propertyCount() {
 		if (this.node instanceof SequenceNode) {
 			SequenceNode s=(SequenceNode)this.node;
+			DefaultPropertyMeta mmm = this.type.oneMeta(DefaultPropertyMeta.class);
+			if (mmm!=null) {
+				return 1;				
+			}
 			return s.getValue().size();
 		}
 		if (this.node instanceof MappingNode) {
 			MappingNode s=(MappingNode)this.node;
 			return s.getValue().size();
 		}
+		if (this.node instanceof ScalarNode) {
+			ScalarNode s=(ScalarNode)this.node;
+			if (s.getValue()==null||s.getValue().trim().length()==0) {
+				return 0;
+			}
+		}
 		if (!this.fromNull) {
 			return 1;
 		}
+		
 		return 0;
+	}
+
+
+
+	public ASTElement getRoot() {
+		if (this.parent!=null) {
+			return this.parent.getRoot();
+		}
+		return this;
 	}
 }

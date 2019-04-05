@@ -11,6 +11,7 @@ public class CompletionContext {
 	public boolean afterKey=false;
 	public String completionStart;
 	public String content;
+	public int completionOffset;
 	
 	protected static HashMap<String, String>contexts=new HashMap<>();
 	
@@ -23,7 +24,8 @@ public class CompletionContext {
 		contexts.put("declarations", "preprocessor,Layer,model");
 	}
 	
-	public CompletionContext() {
+	public CompletionContext(int offset) {
+		this.completionOffset=offset;
 	}
 
 	

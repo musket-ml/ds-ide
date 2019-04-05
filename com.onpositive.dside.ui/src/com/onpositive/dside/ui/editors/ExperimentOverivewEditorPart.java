@@ -76,7 +76,9 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 			return;
 		}
 		this.populateTasks(uiRoot);
-		uiRoot.getContentParent().layout(true, true);
+		if (uiRoot!=null) {
+			uiRoot.getContentParent().layout(true, true);
+		}
 	}
 
 	@Override
@@ -98,22 +100,22 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 	}
 
 	private void populateTasks(Container createWidget) {
-		SectionEditor element = (SectionEditor) createWidget.getElement("tasks");
-		element.setLayoutManager(null);
-		RowLayout layout = new RowLayout();
-		layout.wrap = true;
-		element.setLayout(layout);
-		List<AbstractUIElement<?>> children = new ArrayList<>(element.getChildren());
-		children.forEach(r -> element.remove(r));
-		for (EditorTask task:EditorTasks.getTasks()) {
-			representTask(element, task);
-		}
-		
-		List<InstrospectedFeature> tasks = project.getTasks();
-		tasks.forEach(r -> {
-			representTask(element, new EditorTasks.UserTask(r));						
-		});
-		element.getControl().layout(true, true);
+//		SectionEditor element = (SectionEditor) createWidget.getElement("tasks");
+//		element.setLayoutManager(null);
+//		RowLayout layout = new RowLayout();
+//		layout.wrap = true;
+//		element.setLayout(layout);
+//		List<AbstractUIElement<?>> children = new ArrayList<>(element.getChildren());
+//		children.forEach(r -> element.remove(r));
+//		for (EditorTask task : EditorTasks.getTasks()) {
+//			representTask(element, task);
+//		}
+//
+//		List<InstrospectedFeature> tasks = project.getTasks();
+//		tasks.forEach(r -> {
+//			representTask(element, new EditorTasks.UserTask(r));
+//		});
+//		element.getControl().layout(true, true);
 
 	}
 
@@ -182,8 +184,10 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 	}
 
 	public void updateFromText() {
-		model.update(((YamlEditor) experiment).getDocument().get());
-		binding.refresh(true);
+		if (model != null) {
+			model.update(((YamlEditor) experiment).getDocument().get());
+			binding.refresh(true);
+		}
 
 	}
 

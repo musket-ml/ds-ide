@@ -22,7 +22,9 @@ public class PropertyDescription {
 	protected String description;
 	protected String items;
 	protected boolean reference;
+	protected boolean autoConvertToArray;
 	private boolean lowerCase;
+	private String customValidator;
 	
 	public boolean isLowerCase() {
 		return lowerCase;
@@ -102,5 +104,17 @@ public class PropertyDescription {
 	}
 	public void setReference(boolean reference) {
 		this.reference = reference;
+	}
+	public boolean isAutoConvertToArray() {
+		return autoConvertToArray;
+	}
+	public void setAutoConvertToArray(boolean autoConvertToArray) {
+		this.autoConvertToArray = autoConvertToArray;
+	}
+	public String getCustomValidator() {
+		return customValidator;
+	}
+	public void setCustomValidator(String customValidator) {
+		this.customValidator = customValidator;
 	}
 }

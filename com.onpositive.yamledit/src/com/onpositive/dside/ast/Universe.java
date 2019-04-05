@@ -13,13 +13,18 @@ import org.aml.typesystem.Status;
 import org.aml.typesystem.TypeOps;
 import org.aml.typesystem.TypeRegistryImpl;
 import org.aml.typesystem.beans.IProperty;
+import org.aml.typesystem.meta.facets.Description;
 import org.aml.typesystem.meta.facets.HasKey;
 import org.aml.typesystem.meta.facets.IsRef;
+import org.aml.typesystem.meta.restrictions.DefaultPropertyMeta;
 import org.aml.typesystem.meta.restrictions.minmax.MaxProperties;
 import org.aml.typesystem.values.IArray;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.SequenceNode;
+import org.yaml.snakeyaml.nodes.Tag;
 
 import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.dto.introspection.InstrospectionResult;
@@ -51,11 +56,16 @@ public class Universe extends TypeRegistryImpl {
 
 		@Override
 		public AbstractType getType(String type) {
-
+			
 			if (type == null) {
 				type = "string";
 			}
-
+			if (type.endsWith("[]")) {
+				AbstractType type2 = getType(type.substring(0,type.length()-2));
+				if (type2!=null) {
+					return TypeOps.array(type2);
+				}
+			}
 			if (types.containsKey(type)) {
 				return types.get(type);
 			}
@@ -75,6 +85,9 @@ public class Universe extends TypeRegistryImpl {
 		}
 
 		private AbstractType featureToType(ITypeRegistry iTypeRegistry, InstrospectedFeature instrospectedFeature) {
+//			if (instrospectedFeature.getName().startsWith("split")) {
+//				System.out.println("A");
+//			}
 			AbstractType superT = null;
 			String kind = instrospectedFeature.getKind();
 			if (kind == null) {
@@ -85,6 +98,9 @@ public class Universe extends TypeRegistryImpl {
 			}
 			if (kind.equals("dataset_factory")) {
 				kind = "DatasetFactory";
+			}
+			if (kind.equals("metric_or_loss")) {
+				kind = "function";
 			}
 			if (kind.equals("model")) {
 				kind = "Layer";
@@ -109,6 +125,21 @@ public class Universe extends TypeRegistryImpl {
 			AbstractType derive = TypeOps.derive(instrospectedFeature.getName(), superT);
 			ArrayList<IntrospectedParameter> parameters = instrospectedFeature.getParameters();
 			int pc = 0;
+			String doc=null;
+			if (instrospectedFeature.getDoc() != null && instrospectedFeature.getDoc().length() > 0) {
+				doc = instrospectedFeature.getDoc();
+				
+				
+			}
+			else {
+				doc=instrospectedFeature.getSource();
+			}
+			derive.addMeta(new Description(doc));
+			if (instrospectedFeature.getSourcefile()!=null&&instrospectedFeature.getSourcefile().endsWith("merge.py")) {
+				AbstractType declareProperty = derive.declareProperty("inputs", TypeOps.array(BuiltIns.STRING), false);
+				derive.addMeta(new DefaultPropertyMeta("inputs"));
+			}
+			boolean lastLayers=false;
 			if (!kind.equals("function") && !kind.equals("function")) {
 				for (IntrospectedParameter p : parameters) {
 					String type = p.getType();
@@ -123,7 +154,15 @@ public class Universe extends TypeRegistryImpl {
 							type = BuiltIns.NUMBER.name();
 						}
 					}
+					else {
+						type="any";
+					}
 					AbstractType type2 = getType(type);
+					if (type.equals("Layer[]")) {
+						lastLayers=true;
+						type2.addMeta(new HasKey(true));
+						type2.addMeta(new IsRef(true));
+					}
 					if (p.getName().equals("layer")) {
 						if (derive.name().equals("Bidirectional") || derive.name().equals("TimeDistributed")) {
 							type = "Layer";
@@ -138,8 +177,12 @@ public class Universe extends TypeRegistryImpl {
 						}
 					}
 					pc++;
+					
 					derive.declareProperty(p.getName(), type2, p.getDefaultValue() != null, true, p.getDefaultValue());
 				}
+			}
+			if (pc==1&&lastLayers) {
+				derive.addMeta(new DefaultPropertyMeta(instrospectedFeature.getParameters().get(0).getName()));
 			}
 			derive.addMeta(new MaxProperties(pc));
 			derive.closeUnknownProperties();
@@ -167,12 +210,12 @@ public class Universe extends TypeRegistryImpl {
 		return validate;
 	}
 
-	private ASTElement buildRoot(String content, InstrospectionResult instrospectionResult) {
+	public ASTElement buildRoot(String content, InstrospectionResult instrospectionResult) {
 		HashMap<String, InstrospectedFeature> rs = new HashMap<>();
 		instrospectionResult.getFeatures().forEach(v -> {
 			rs.put(v.getName(), v);
 			rs.put(v.getName().toLowerCase(), v);
-			if (v.getKind().equals("metrics")) {
+			if (v.getKind().equals("metrics")||v.getKind().equals("metric_or_loss")) {
 				rs.put("val_" + v.getName().toLowerCase(), v);
 				rs.put("loss", v);
 				rs.put("val_loss", v);
@@ -287,12 +330,44 @@ public class Universe extends TypeRegistryImpl {
 						}
 					}
 				}
+				else {
+					Object property2 = buildRoot.getProperty(property.id());
+					if (property2 instanceof IArray) {
+						IArray ass=(IArray) property2;
+						for (int j=0;j<ass.length();j++) {
+							Object item = ass.item(j);
+							if (item instanceof ASTElement) {
+								
+								ASTElement item2 = (ASTElement)item;
+								if (true) {
+									buildRoot=item2;
+									property=null;
+									i++;
+									break;
+								}
+							}
+							else {
+								return null;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (buildRoot!=null) {
+			if (buildRoot.oneValue!=null) {
+				if (property==null) {
+					property=buildRoot.getType().toPropertiesView().property(buildRoot.oneValue);
+				}
 			}
 		}
 		if (property!=null) {
 			AbstractType range = property.range();
 			if (range.isArray()) {
 				range=range.componentType();
+			}
+			if (range.isObject()) {
+				
 			}
 			ITypeRegistry registry = buildRoot.getRegistry();
 			Collection<AbstractType> types = registry.types();
@@ -302,10 +377,35 @@ public class Universe extends TypeRegistryImpl {
 					filteredTypes.add(ca);
 				}
 			}
-			
-			return new CompletionSuggestions(filteredTypes);			
+			if (!filteredTypes.isEmpty()) {
+				return new CompletionSuggestions(filteredTypes);
+			}
+			else {
+				AbstractType range2 = property.range();
+				NodeTuple findInKey = buildRoot.findInKey(property.id());
+				if (findInKey!=null) {
+					Node valueNode = findInKey.getValueNode();
+					if (valueNode instanceof SequenceNode) {
+						SequenceNode sc=(SequenceNode) valueNode;
+						for (Node n:sc.getValue()) {
+							if (n.getStartMark().getIndex()<completionContext.completionOffset) {
+								if (n.getStartMark().getIndex()>completionContext.completionOffset) {
+									return new CompletionSuggestions(new ASTElement(n, range2.componentType(), buildRoot), true);			
+								}
+							}
+						}
+						Boolean flowStyle=true;
+						return new CompletionSuggestions(new ASTElement(new MappingNode(Tag.MAP, true, new ArrayList<>(), valueNode.getStartMark(), 
+								valueNode.getEndMark(), flowStyle), range2.componentType(), buildRoot), true);
+					}
+					else {
+						return new CompletionSuggestions(new ASTElement(valueNode, range2.componentType(), buildRoot), true);			
+					}
+				}
+			}
 		}	
 		if (buildRoot!=null) {
+			
 			return new CompletionSuggestions(buildRoot, true);
 		}
 		return null;
