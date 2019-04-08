@@ -276,6 +276,14 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		IEditorInput editorInput = getEditorInput();
+		if (editorInput instanceof FileEditorInput) {
+			FileEditorInput fl = (FileEditorInput) editorInput;
+			IFile file = fl.getFile();
+			if (file.getName().equals("common.yaml")) {
+				return;
+			}
+		}
 		Composite head=getHeaderForm().getForm().getForm().getHead();
 		Composite headClient=new Composite(head, SWT.NONE);
 		
@@ -370,7 +378,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			return root;
 		}
 		Universe registry = TypeRegistryProvider.getRegistry("basicConfig");
-		ASTElement buildRoot = registry.buildRoot(this.editor.getDocument().get(), getProject().getDetails());
+		ASTElement buildRoot = registry.buildRoot(this.editor.getDocument().get(), getProject().getDetails(),experiment.getProjectPath());
 		this.root=buildRoot;
 		return buildRoot;
 	}
@@ -395,13 +403,17 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		if (editorInput instanceof FileEditorInput) {
 			FileEditorInput fl = (FileEditorInput) editorInput;
 			IFile file = fl.getFile();
+			
 			try {
 				IMarker[] findMarkers = file.findMarkers("org.eclipse.core.resources.problemmarker", true, 1);
 				for (IMarker m : findMarkers) {
 					m.delete();
 				}
+				if( file.getName().equals("common.yaml")) {
+					return;
+				}
 				String string = editor.getDocument().get();
-				Status validate = registry.validate(string, getProject().getDetails());
+				Status validate = registry.validate(string, getProject().getDetails(),experiment.getProjectPath());
 				ErrorVisitor st = new ErrorVisitor(file,string);
 				validate.visitErrors(st);
 				System.out.println(st);

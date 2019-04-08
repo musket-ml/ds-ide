@@ -72,43 +72,47 @@ public class ProjectWrapper {
 			
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
-				String absolutePath = projectMetaPath();
-				ProcessBuilder command = new ProcessBuilder().command("python", "-m", "musket_core.inspectProject", "--project",
-						path, "--out", absolutePath);
-				try {
-					command.environment().putAll(System.getenv());
-					File file = new File(getMetaDir() + "/error.log");
-					command.redirectError(file);
-					command.redirectOutput(new File(getMetaDir() + "/output.log"));
-					int waitFor = command.start().waitFor();
-					if (waitFor!=0) {
-						List<String> readAllLines = Files.readAllLines(file.toPath());
-						PythonError pythonError = new PythonError(readAllLines);
-						Display.getDefault().asyncExec(new Runnable() {
-							
-							@Override
-							public void run() {
-								boolean createObject = WidgetRegistry.createObject(new StackVisualizer(pythonError));
-								if (createObject) {
-									pythonError.open();
-								}
-							}
-						});
-						return Status.OK_STATUS;						
-					}
-					FileReader fileReader = new FileReader(absolutePath);
+				synchronized (ProjectWrapper.this) {
+				
+					String absolutePath = projectMetaPath();
+					ProcessBuilder command = new ProcessBuilder().command("python", "-m", "musket_core.inspectProject", "--project",
+							path, "--out", absolutePath);
 					try {
-					InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
-					refreshed(loadAs);
-					
-					}finally {
-						fileReader.close();
+						command.environment().putAll(System.getenv());
+						File file = new File(getMetaDir() + "/error.log");
+						command.redirectError(file);
+						command.redirectOutput(new File(getMetaDir() + "/output.log"));
+						int waitFor = command.start().waitFor();
+						if (waitFor!=0) {
+							List<String> readAllLines = Files.readAllLines(file.toPath());
+							PythonError pythonError = new PythonError(readAllLines);
+							Display.getDefault().asyncExec(new Runnable() {
+								
+								@Override
+								public void run() {
+									boolean createObject = WidgetRegistry.createObject(new StackVisualizer(pythonError));
+									if (createObject) {
+										pythonError.open();
+									}
+								}
+							});
+							return Status.OK_STATUS;						
+						}
+						FileReader fileReader = new FileReader(absolutePath);
+						try {
+						InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
+						refreshed(loadAs);
+						
+						}finally {
+							fileReader.close();
+						}
+						// ServerManager.perform(new IntrospectTask(this));
+					} catch (InterruptedException | IOException e) {
+						e.printStackTrace();
 					}
-					// ServerManager.perform(new IntrospectTask(this));
-				} catch (InterruptedException | IOException e) {
-					e.printStackTrace();
+					return Status.OK_STATUS;
 				}
-				return Status.OK_STATUS;
+				
 			}
 		});
 		create.schedule();
@@ -144,5 +148,9 @@ public class ProjectWrapper {
 
 	public List<InstrospectedFeature> getTasks() {
 		return details.getFeatures().stream().filter(x -> x.getKind().equals("task")).collect(Collectors.toList());
+	}
+
+	public String getPath() {
+		return this.path;
 	}
 }

@@ -32,6 +32,9 @@ import org.yaml.snakeyaml.nodes.SequenceNode;
 public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPropertyCount {
 
 	protected Node node;
+	
+	
+	
 	protected AbstractType type;
 	protected String key;
 	protected ASTElement parent;

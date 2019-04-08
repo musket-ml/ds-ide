@@ -1,5 +1,9 @@
 package com.onpositive.dside.ast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +27,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 import org.yaml.snakeyaml.nodes.Tag;
 
@@ -204,14 +209,16 @@ public class Universe extends TypeRegistryImpl {
 		this.root = root;
 	}
 
-	public Status validate(String content, InstrospectionResult instrospectionResult) {
-		ASTElement obj = buildRoot(content, instrospectionResult);
+	public Status validate(String content, InstrospectionResult instrospectionResult,String path) {
+		ASTElement obj = buildRoot(content, instrospectionResult,path);
 		Status validate = root.validate(obj);
 		return validate;
 	}
 
-	public ASTElement buildRoot(String content, InstrospectionResult instrospectionResult) {
+	public ASTElement buildRoot(String content, InstrospectionResult instrospectionResult,String path) {
 		HashMap<String, InstrospectedFeature> rs = new HashMap<>();
+		
+		
 		instrospectionResult.getFeatures().forEach(v -> {
 			rs.put(v.getName(), v);
 			rs.put(v.getName().toLowerCase(), v);
@@ -223,6 +230,32 @@ public class Universe extends TypeRegistryImpl {
 			rs.put(v.getName().substring(0, 1).toLowerCase() + v.getName().substring(1), v);
 		});
 		Node compose = new Yaml().compose(new StringReader(content));
+		File file = new File(path,"common.yaml");
+		if(file.exists()) {
+			FileReader fileReader=null;
+			try {
+				fileReader = new FileReader(file);
+				try {
+					Node root = new Yaml().compose(fileReader);
+					if (root instanceof MappingNode) {
+						merge(compose,(MappingNode) root);
+					}
+					}catch (Exception e) {
+						// TODO: handle exception
+					}
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} finally {
+				try {
+					fileReader.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		}
 		ASTElement obj = new ASTElement((MappingNode) compose, root, null);
 		obj.setRegistry(new InnerRegistry(rs));
 		Object property = obj.getProperty("declarations");
@@ -258,6 +291,53 @@ public class Universe extends TypeRegistryImpl {
 		return obj;
 	}
 
+	private void merge(Node compose, MappingNode root2) {
+		if (compose instanceof MappingNode) {
+			MappingNode nm=(MappingNode) compose;
+			for (NodeTuple toMerge:root2.getValue()) {
+				if (toMerge.getKeyNode() instanceof ScalarNode) {
+					ScalarNode c=(ScalarNode) toMerge.getKeyNode();
+					if (!hasKey(nm, c.getValue())) {
+						nm.getValue().add(toMerge);
+					}
+					else {
+						if (c.getValue().equals("declarations")||c.getValue().equals("callbacks")||c.getValue().equals("datasets")) {
+							Node key = getKey(nm, c.getValue());
+							if (key instanceof MappingNode) {
+								Node valueNode = toMerge.getValueNode();
+								if (valueNode instanceof MappingNode) {
+									merge((MappingNode)key,(MappingNode) valueNode);	
+								}								
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	public boolean hasKey(MappingNode n,String key) {
+		for (NodeTuple t:n.getValue()) {
+			if (t.getKeyNode() instanceof ScalarNode) {
+				ScalarNode sc=(ScalarNode)t.getKeyNode();
+				if (sc.getValue().equals(key)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	public Node getKey(MappingNode n,String key) {
+		for (NodeTuple t:n.getValue()) {
+			if (t.getKeyNode() instanceof ScalarNode) {
+				ScalarNode sc=(ScalarNode)t.getKeyNode();
+				if (sc.getValue().equals(key)) {
+					return t.getValueNode();
+				}
+			}
+		}
+		return null;
+	}
+
 	public static class CompletionSuggestions {
 		public final ASTElement ts;
 		public Collection<AbstractType> values;
@@ -276,11 +356,11 @@ public class Universe extends TypeRegistryImpl {
 		}
 	}
 
-	public CompletionSuggestions find(CompletionContext completionContext, InstrospectionResult details) {
+	public CompletionSuggestions find(CompletionContext completionContext, InstrospectionResult details,String path) {
 		String content = completionContext.content;
 		
 		
-		ASTElement buildRoot = buildRoot(content, details);
+		ASTElement buildRoot = buildRoot(content, details,path);
 		ArrayList<String> seq = completionContext.getSeq();
 		if (seq.isEmpty()) {
 			return new CompletionSuggestions(buildRoot, true);

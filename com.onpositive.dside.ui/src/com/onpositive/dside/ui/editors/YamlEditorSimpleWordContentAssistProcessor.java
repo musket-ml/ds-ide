@@ -70,7 +70,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 
 		ArrayList<InstrospectedFeature> features = editor.getProject().getDetails().getFeatures();
 		CompletionSuggestions find = TypeRegistryProvider.getRegistry("basicConfig").find(completionContext,
-				editor.getProject().getDetails());
+				editor.getProject().getDetails(),editor.getProject().getPath());
 		LinkedHashSet<String> strs = new LinkedHashSet<>();
 		ArrayList<ICompletionProposal> ps = new ArrayList<>();
 		if (find != null) {
