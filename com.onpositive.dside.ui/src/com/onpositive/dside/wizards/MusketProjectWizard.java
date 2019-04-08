@@ -46,6 +46,8 @@ import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 import org.python.pydev.ui.wizards.project.NewProjectExistingSourcesWizardPage;
 import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 
+import com.onpositive.dside.ui.builder.MusketNature;
+
 /**
  * Python Project creation wizard
  *
@@ -308,6 +310,14 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 					}
 				}
 			}
+		}
+		MusketNature musketNature = new MusketNature();
+		musketNature.setProject(createdProject);
+		try {
+			musketNature.configure();
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		// Switch to default perspective (will ask before changing)

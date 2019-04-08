@@ -45,11 +45,19 @@ public class ProjectWrapper {
 	protected String path;
 
 	protected ArrayList<Runnable> requests = new ArrayList<>();
+	protected ArrayList<Runnable> listeners = new ArrayList<>();
 
 	private InstrospectionResult details = new InstrospectionResult();
 
 	public InstrospectionResult getDetails() {
 		return details;
+	}
+	
+	public void addRefreshListener(Runnable r) {
+		this.listeners.add(r);
+	}
+	public void removeRefreshListener(Runnable r) {
+		this.listeners.remove(r);
 	}
 
 	public void setDetails(InstrospectionResult details) {
@@ -57,7 +65,9 @@ public class ProjectWrapper {
 	}
 
 	public synchronized void refresh(Runnable r) {
+		if (r!=null) {
 		this.requests.add(r);
+		}
 		Job create = Job.create("Refreshing project meta", new IJobFunction() {
 			
 			@Override
@@ -122,6 +132,9 @@ public class ProjectWrapper {
 			}
 			this.details = details;
 			for (Runnable r : requests) {
+				r.run();
+			}
+			for (Runnable r : new ArrayList<>(listeners)) {
 				r.run();
 			}
 		} finally {

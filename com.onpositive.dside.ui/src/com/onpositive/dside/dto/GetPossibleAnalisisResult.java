@@ -9,6 +9,9 @@ public class GetPossibleAnalisisResult {
 	protected ArrayList<InstrospectedFeature>visualizers=new ArrayList<>();
 	protected ArrayList<InstrospectedFeature>analizers=new ArrayList<>();
 	protected ArrayList<InstrospectedFeature> data_analizers=new ArrayList<>();
+	protected ArrayList<InstrospectedFeature>datasetFilters=new ArrayList<>();
+	
+	protected ArrayList<String>datasetStages;
 	
 	public ArrayList<InstrospectedFeature> getVisualizers() {
 		return visualizers;
@@ -48,5 +51,18 @@ public class GetPossibleAnalisisResult {
 			}
 		}
 		return null;
+	}
+	public ArrayList<String> getDatasetStages() {
+		return datasetStages;
+	}
+	
+	public void setDatasetStages(ArrayList<String> datasetStages) {
+		this.datasetStages = datasetStages;
+	}
+	public ArrayList<InstrospectedFeature> getDatasetFilters() {
+		return datasetFilters;
+	}
+	public void setDatasetFilters(ArrayList<InstrospectedFeature> datasetFilters) {
+		this.datasetFilters = datasetFilters;
 	}
 }

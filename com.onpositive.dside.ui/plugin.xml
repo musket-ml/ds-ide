@@ -221,6 +221,11 @@
             image="icons/stackframe.png"
             name="stack">
       </image>
+      <image
+            id="filter_x"
+            image="icons/filter_ps.png"
+            name="filter_x">
+      </image>
    </extension>
 	 <extension point="org.eclipse.ui.newWizards">
       <category
@@ -422,5 +427,136 @@
              </and>
           </enablement>
        </decorator>
+    </extension>
+    <extension
+          id="product"
+          point="org.eclipse.core.runtime.products">
+       <product
+             application="org.eclipse.ui.ide.workbench"
+             name="DS Ide">
+          <property
+                name="windowImages"
+                value="./icons/experiment.png">
+          </property>
+          <property
+                name="aboutText"
+                value="%productBlurb">
+          </property>
+          <property
+                name="aboutImage"
+                value="eclipse_lg.png">
+          </property>
+          <property
+                name="startupForegroundColor"
+                value="e6e8ff">
+          </property>
+          <property
+                name="startupProgressRect"
+                value="2,290,450,10">
+          </property>
+          <property
+                name="startupMessageRect"
+                value="7,265,320,20">
+          </property>
+          <property
+                name="appName"
+                value="DS Ide">
+          </property>
+          <property
+                name="preferenceCustomization"
+                value="plugin_customization.ini">
+          </property>
+       </product>
+    </extension>
+    <extension
+          id="musketBuilder"
+          name="Musket Project Builder"
+          point="org.eclipse.core.resources.builders">
+       <builder
+             hasNature="true">
+          <run
+                class="com.onpositive.dside.ui.builder.SampleBuilder">
+          </run>
+       </builder>
+    </extension>
+    <extension
+          id="musketNature"
+          name="Musket Project Nature"
+          point="org.eclipse.core.resources.natures">
+       <runtime>
+          <run
+                class="com.onpositive.dside.ui.builder.MusketNature">
+          </run>
+       </runtime>
+       <builder
+             id="com.onpositive.dside.ui.musketBuilder">
+       </builder>
+    </extension>
+    <extension
+          point="org.eclipse.ui.commands">
+       <category
+             id="com.onpositive.dside.ui.musketNature.category"
+             name="Musket Project Nature commands">
+       </category>
+       <command
+             categoryId="com.onpositive.dside.ui.musketNature.category"
+             defaultHandler="com.onpositive.dside.ui.builder.AddRemoveMusketNatureHandler"
+             id="com.onpositive.dside.ui.addRemoveMusketNature"
+             name="Add/RemoveMusket Project Nature">
+       </command>
+    </extension>
+    <extension
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+          <command
+                commandId="com.onpositive.dside.ui.addRemoveMusketNature"
+                label="Disable Musket builder"
+                style="push">
+             <visibleWhen
+                   checkEnabled="false">
+                <with
+                      variable="selection">
+                   <count
+                         value="1">
+                   </count>
+                   <iterate>
+                      <adapt
+                            type="org.eclipse.core.resources.IProject">
+                         <test
+                               property="org.eclipse.core.resources.projectNature"
+                               value="com.onpositive.dside.ui.musketNature">
+                         </test>
+                      </adapt>
+                   </iterate>
+                </with>
+             </visibleWhen>
+          </command>
+          <command
+                commandId="com.onpositive.dside.ui.addRemoveMusketNature"
+                label="Enable Musket builder"
+                style="push">
+             <visibleWhen
+                   checkEnabled="false">
+                <with
+                      variable="selection">
+                   <count
+                         value="1">
+                   </count>
+                   <iterate>
+                      <adapt
+                            type="org.eclipse.core.resources.IProject">
+                         <not>
+                            <test
+                                  property="org.eclipse.core.resources.projectNature"
+                                  value="com.onpositive.dside.ui.musketNature">
+                            </test>
+                         </not>
+                      </adapt>
+                   </iterate>
+                </with>
+             </visibleWhen>
+          </command>
+       </menuContribution>
     </extension>
 </plugin>

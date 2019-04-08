@@ -1,5 +1,6 @@
 package com.onpositive.dside.dto;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.onpositive.dside.ui.ModelEvaluationSpec;
@@ -12,17 +13,22 @@ public class DataSetAnalisysRequest {
 	private String visualizer;
 	private String analizer;
 	private boolean isData;
+	private String stage;
 	
 	protected HashMap<String, Object>visualizerArgs=new HashMap<>();
 	protected HashMap<String, Object>analzierArgs=new HashMap<>();
 	
-	public DataSetAnalisysRequest(ModelEvaluationSpec model, String dataset,String experimentPath,String visualizer,String analizer,boolean isData) {
+	
+	protected ArrayList<DataSetFilter>filters=new ArrayList<>();
+	
+	public DataSetAnalisysRequest(ModelEvaluationSpec model, String dataset,String experimentPath,String visualizer,String analizer,boolean isData,String stage) {
 		this.modelSpec=model;
 		this.datasetName=dataset;
 		this.experimentPath=experimentPath;
 		this.visualizer=visualizer;
 		this.analizer=analizer;
 		this.isData=isData;
+		this.stage=stage;
 	}
 	public ModelEvaluationSpec getSpec() {
 		return modelSpec;
@@ -71,5 +77,18 @@ public class DataSetAnalisysRequest {
 	}
 	public void setAnalzierArgs(HashMap<String, Object> analzierArgs) {
 		this.analzierArgs = analzierArgs;
+	}
+	public String getStage() {
+		return stage;
+	}
+	public void setStage(String stage) {
+		this.stage = stage;
+	}
+	
+	public ArrayList<DataSetFilter> getFilters() {
+		return filters;
+	}
+	public void setFilters(ArrayList<DataSetFilter> filters) {
+		this.filters = filters;
 	}
 }

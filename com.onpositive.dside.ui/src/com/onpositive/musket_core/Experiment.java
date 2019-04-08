@@ -47,6 +47,9 @@ public class Experiment {
 
 	public String getProjectPath() {
 		File file = new File(path);
+		if (new File(file,"experiments").exists()&&new File(file,"experiments").isDirectory()) {
+			return path;
+		}
 		while (true) {
 			if (file.getParentFile() == null) {
 				break;

@@ -1,14 +1,6 @@
 package com.onpositive.dside.ui.editors;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
@@ -16,20 +8,12 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.EditorPart;
-import org.eclipse.ui.part.FileEditorInput;
 
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.Container;
 import com.onpositive.commons.elements.LinkElement;
 import com.onpositive.commons.elements.RootElement;
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.dto.introspection.InstrospectionResult;
-import com.onpositive.dside.tasks.GateWayRelatedTask;
-import com.onpositive.dside.tasks.TaskManager;
-import com.onpositive.dside.tasks.analize.AnalizeDataSet;
-import com.onpositive.dside.ui.DynamicUI;
-import com.onpositive.dside.ui.ExperimentsView;
-import com.onpositive.dside.ui.TaskConfiguration;
 import com.onpositive.dside.ui.editors.yaml.model.INodeListener;
 import com.onpositive.dside.ui.editors.yaml.model.ModelNode;
 import com.onpositive.dside.ui.editors.yaml.model.NodeKind;
@@ -51,12 +35,14 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 	private EditorModel model;
 	private Binding binding;
 	private Experiment exp;
+	private ExperimentMultiPageEditor mainEditor;
 
-	public ExperimentOverivewEditorPart(TextEditor editor, Experiment exp) {
+	public ExperimentOverivewEditorPart(TextEditor editor, Experiment exp,ExperimentMultiPageEditor mainEditor) {
 		this.experiment = editor;
+		this.mainEditor=mainEditor;
 		this.exp = exp;
 		project = ProjectManager.getInstance().getProject(exp);
-		project.refresh(() -> {
+		refreshListener = () -> {
 			InstrospectionResult details = project.getDetails();
 			Display.getDefault().asyncExec(new Runnable() {
 
@@ -66,7 +52,10 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 				}
 			});
 
-		});
+		};
+		project.addRefreshListener(refreshListener);
+		project.refresh(null);
+		
 	}
 
 	boolean disposed;
@@ -76,15 +65,17 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 			return;
 		}
 		this.populateTasks(uiRoot);
+		
 		if (uiRoot!=null) {
 			uiRoot.getContentParent().layout(true, true);
 		}
+		this.mainEditor.validate();
 	}
 
 	@Override
 	public void dispose() {
-		disposed = true;
-		super.dispose();
+		project.removeRefreshListener(refreshListener);
+		disposed = true;		
 	}
 
 	@Override
@@ -172,6 +163,7 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 	boolean dirty;
 	private ProjectWrapper project;
 	private Container uiRoot;
+	private Runnable refreshListener;
 
 	@Override
 	public boolean isDirty() {

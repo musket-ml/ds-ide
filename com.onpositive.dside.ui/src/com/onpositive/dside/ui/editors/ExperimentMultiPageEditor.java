@@ -258,7 +258,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	 */
 	protected void createPages() {
 		createPage0();
-		formEditor = new ExperimentOverivewEditorPart(this.editor, experiment);
+		formEditor = new ExperimentOverivewEditorPart(this.editor, experiment,this);
 //			this.addPage(0, formEditor, getEditorInput());
 //			setPageText(0, "Overview");
 		try {
@@ -358,7 +358,8 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	 */
 	public void dispose() {
 		LaunchConfiguration.removeListener(listener);
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+		formEditor.dispose();
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);		
 		super.dispose();
 	}
 
