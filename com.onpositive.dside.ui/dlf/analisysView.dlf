@@ -1,35 +1,50 @@
 <form xmlns="http://jetface.org/JetFace1.0/" caption="Analisis">
 	<model class="com.onpositive.dside.tasks.analize.AnalistsView" />
-			<hc id="f1"></hc>
-			<hc id="f2" grabHorizontal="true" grabVertical="false"
-				hAlign="left"></hc>
-			<separator vertical="false" />
-			<splitter horizontal="true" id="sl" weights="3,0">
-				<stack grabVertical="true">
-					<vc grabVertical="true" id="empty" vAlign="center">
-						<label caption="Please select visualizer and analizer"
-							id='label' vAlign="center" hAlign="center" grabVertical="true">
-						</label>
-					</vc>
-					<ctab-folder bottom="true">
-						<vc id="stat" grabVertical="true" grabHorizontal="true"
-							caption="Statistics">
-						</vc>
-						<vc id="content" grabVertical="true" grabHorizontal="true"
-							caption="Data">
-						</vc>
-					</ctab-folder>
-				</stack>
-				<vc id="filters" hint="0,-1" grabHorizontal="false">
-				<section  visibility="true" caption="Filters" id="filters_section" expandable="false" grabVertical="true">
-				    <actions toToolbar="true">
-				        <binded-action image="com.onpositive.semantic.ui.add" caption="Add Filter" bindTo="addFilter"/>
-				        <binded-action image="com.onpositive.semantic.ui.delete" caption="Remove Filter" bindTo="removeFilter"/>
-				    </actions>
-					
-				</section>
-				<hc grabVertical="false"><button caption="Apply" hAlign="right" grabHorizontal="true" bindTo="recalcView"/></hc>
+
+
+
+
+	<hc id="f1"></hc>
+	
+	<separator vertical="false" />
+	<splitter horizontal="true" id="sl" weights="3,0">
+		<stack grabVertical="true">
+			<vc grabVertical="true" id="empty" vAlign="center">
+				<label caption="View is disconnected.... Please connect it to experiment."
+					id='label' vAlign="center" hAlign="center" grabVertical="true">
+				</label>
+			</vc>
+			<ctab-folder bottom="true">
+				<vc id="stat" grabVertical="true" grabHorizontal="true"
+					caption="Statistics">
 				</vc>
-			</splitter>
+				<vc id="content" grabVertical="true" grabHorizontal="true"
+					caption="Data">
+				</vc>
+			</ctab-folder>
+		</stack>
+		<vc id="filters" hint="0,-1" grabHorizontal="false">
+		    <section caption="Parameters">
+		      <vc id="f2" grabHorizontal="true" grabVertical="false" hAlign="left"></vc>
+		    </section>
+			<section visibility="true" caption="Filters"
+				id="filters_section" expandable="true" grabVertical="true">
+				<actions toToolbar="true">
+					<binded-action image="com.onpositive.semantic.ui.add"
+						caption="Add Filter" bindTo="addFilter" />
+					<binded-action
+						image="com.onpositive.semantic.ui.delete" caption="Remove Filter"
+						bindTo="removeFilter" />
+				</actions>
+
+			</section>
+			<hc grabVertical="false">
+				<button caption="Apply" hAlign="right" grabHorizontal="true"
+					bindTo="recalcView" />
+			</hc>
+		</vc>
+	</splitter>
+
+
 
 </form>

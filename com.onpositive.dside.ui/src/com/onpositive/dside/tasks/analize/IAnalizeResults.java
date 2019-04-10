@@ -9,4 +9,6 @@ public interface IAnalizeResults {
 	int size();
 
 	String[] names();
+	
+	String visualizationSpec();
 }

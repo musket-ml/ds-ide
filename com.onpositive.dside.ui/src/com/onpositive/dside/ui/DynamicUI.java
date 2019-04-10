@@ -149,7 +149,8 @@ public class DynamicUI {
 		Container cm = new Container();
 		cm.setMargin(new Rectangle(0, 2, 0, 0));
 		cm.getLayoutHints().setGrabHorizontal(true);
-		cm.setLayoutManager(new HorizontalLayouter());
+		//cm.getLayoutHints().setGrabHorizontal(true);
+		cm.setLayoutManager(new OneElementOnLineLayouter());
 		Binding bnd = new Binding(values);
 		ArrayList<IntrospectedParameter> parameters = getParameters();
 		for (IntrospectedParameter p : parameters) {
@@ -171,7 +172,8 @@ public class DynamicUI {
 			SectionEditor ed = new SectionEditor();
 			ed.setCaption(HumanCaption.getHumanCaption(p.getName()));
 			ed.add((AbstractUIElement<?>) createWidget);
-			cm.add(ed);			
+			cm.add(ed);
+			return;
 		}
 		if (p.getDefaultValue() != null) {
 			Object defaultValue = p.getDefaultValue();

@@ -14,6 +14,7 @@ import com.onpositive.musket_core.IProgressReporter;
 import com.onpositive.musket_core.IServer;
 
 import py4j.GatewayServer;
+import py4j.Py4JException;
 
 public class GateWayRelatedTask implements IServerTask<Object> {
 
@@ -62,11 +63,15 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 		delegate.started(this);		
 	}
 	
-	public <T,R> void perform(T data,Class<R>resultClass,Consumer<R>func){
+	public <T,R> void perform(T data,Class<R>resultClass,Consumer<R>func,Consumer<Throwable>error){
+		if (launch.isTerminated()) {
+			
+		}
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
 				Yaml yaml = new Yaml();
+				try {
 				Object performTask = musketServer.performTask(yaml.dump(data), null);
 				if (resultClass.isInstance(performTask)){
 					Display.getDefault().asyncExec(()->func.accept(resultClass.cast(performTask)));
@@ -74,6 +79,9 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 				else {
 					R loadAs = yaml.loadAs(new StringReader((String) performTask), resultClass);
 					Display.getDefault().asyncExec(()->func.accept(loadAs));
+				}
+				}catch (Exception e) {
+					error.accept(e);
 				}
 			}			
 		};

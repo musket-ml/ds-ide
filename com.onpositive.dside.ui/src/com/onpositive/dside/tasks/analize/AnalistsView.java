@@ -5,8 +5,10 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
@@ -21,9 +23,18 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
+import org.jfree.data.general.SeriesDataset;
 import org.jfree.data.statistics.HistogramDataset;
+import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.Container;
@@ -75,39 +86,42 @@ public class AnalistsView extends XMLView {
 	private Image image;
 	private InstrospectedFeature visualizerFeature;
 	private ComboEnumeratedValueSelector<String> stage;
-	
-	protected ArrayList<DataSetFilter>filters=new ArrayList<>();
+
+	protected ArrayList<DataSetFilter> filters = new ArrayList<>();
 	private ArrayList<String> datasetStages;
-	private ArrayList<InstrospectedFeature> filterKinds=new ArrayList<>();
-	
-	private ArrayList<CompositeEditor>filterUIs=new ArrayList<>();
+	private ArrayList<InstrospectedFeature> filterKinds = new ArrayList<>();
+
+	private ArrayList<CompositeEditor> filterUIs = new ArrayList<>();
+	private JFreeChart createChart;
+	private Container element2;
 
 	public AnalistsView() {
 		super("dlf/analisysView.dlf");
 	}
-	
+
 	public void addFilter() {
 		DataSetFilter object = new DataSetFilter();
 		object.setMode("normal");
 		object.getModes().add("normal");
 		object.getModes().add("inverse");
-		object.getKinds().addAll(filterKinds.stream().map(x->x.getName()).collect(Collectors.toList()));
+		object.getKinds().addAll(filterKinds.stream().map(x -> x.getName()).collect(Collectors.toList()));
 		object.getStages().addAll(datasetStages);
-		object.setApplyAt(datasetStages.get(datasetStages.size()-1));
+		object.setApplyAt(datasetStages.get(datasetStages.size() - 1));
 		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(object, null, null);
 		filters.add(object);
 		Binding binding = new Binding(object);
 		AbstractUIElement<?> createWidget = (AbstractUIElement<?>) widgetObject.createWidget(binding);
-		Container c=(Container) getElement("filters_section");
+		Container c = (Container) getElement("filters_section");
 		c.add(createWidget);
 		c.getControl().layout(true, true);
 		filterUIs.add((CompositeEditor) createWidget);
 	}
+
 	public void removeFilter() {
-		Container c=(Container) getElement("filters_section");
+		Container c = (Container) getElement("filters_section");
 		if (!c.getChildren().isEmpty()) {
-			
-			CompositeEditor element = (CompositeEditor) c.getChildren().get(c.getChildren().size()-1);
+
+			CompositeEditor element = (CompositeEditor) c.getChildren().get(c.getChildren().size() - 1);
 			c.remove(element);
 			filters.remove(element.getBinding().getObject());
 			System.out.println(filters);
@@ -118,10 +132,9 @@ public class AnalistsView extends XMLView {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		Container element = (Container) getElement("f1");
-		stage=new ComboEnumeratedValueSelector<>();
+		stage = new ComboEnumeratedValueSelector<>();
 		stage.setCaption("Stage");
-		
-		
+
 		visualizers = new ComboEnumeratedValueSelector<>();
 		visualizers.setCaption("Visualizer");
 		element.add(stage);
@@ -138,9 +151,9 @@ public class AnalistsView extends XMLView {
 		visualizers.getControl().addListener(SWT.Selection, (x) -> {
 			update();
 		});
-		ToolbarElement sl=new ToolbarElement();
-		Action bindedAction = new Action(Action.AS_CHECK_BOX) {
-			
+		ToolbarElement sl = new ToolbarElement();
+		bindedAction = new Action(Action.AS_CHECK_BOX) {
+
 			/**
 			 * 
 			 */
@@ -148,18 +161,16 @@ public class AnalistsView extends XMLView {
 
 			@Override
 			public void run() {
-				
+
 				SashElement element2 = (SashElement) getElement("sl");
 				SashForm control = element2.getControl();
-				
-				
+
 				if (isChecked()) {
-					control.setWeights(new int[] {3,1});
+					control.setWeights(new int[] { 3, 1 });
+				} else {
+					control.setWeights(new int[] { 3, 0 });
 				}
-				else {
-					control.setWeights(new int[] {3,0});
-				}				
-				
+
 			}
 		};
 		bindedAction.setImageId("filter_x");
@@ -172,8 +183,6 @@ public class AnalistsView extends XMLView {
 //		//te.getLayoutHints().setAlignmentHorizontal(Alignment.RIGHT);
 		element.add(sl);
 	}
-
-	
 
 	class AnalizerOrVisualizerUI extends DynamicUI {
 
@@ -211,9 +220,9 @@ public class AnalistsView extends XMLView {
 		Combo s = (Combo) stage.getControl();
 		String visualizer = v.getText();
 		String analizer = a.getText();
-		String stage=s.getText();
-		this.visualizationParams=new HashMap<>();
-		this.analisisParams=new HashMap<>();
+		String stage = s.getText();
+		this.visualizationParams = new HashMap<>();
+		this.analisisParams = new HashMap<>();
 		if (!visualizer.isEmpty() && !analizer.isEmpty()) {
 
 			visualizerFeature = this.options.getVisualizer(visualizer);
@@ -227,20 +236,21 @@ public class AnalistsView extends XMLView {
 			if (vui.requiresConfiguration() || vai.requiresConfiguration()) {
 				createConfig(vui, vai);
 				return;
-			}
-			else {
+			} else {
 				Container element = (Container) getElement("f2");
 				new ArrayList<>(element.getChildren()).forEach(va -> element.remove(va));
 			}
 			getElement("empty").setEnabled(true);
 			getElement("label").setCaption("Initial calculation is performed...");
 			DataSetAnalisysRequest data = new DataSetAnalisysRequest(model, dataset,
-					this.experiment.getPath().toOSString(), visualizer, analizer, this.isData,stage);
+					this.experiment.getPath().toOSString(), visualizer, analizer, this.isData, stage);
 			data.setVisualizerArgs(new HashMap<>());
 			data.setAnalzierArgs(new HashMap<>());
 			data.setFilters(this.filters);
 			task.perform(data, IAnalizeResults.class, (r) -> {
 				display(r);
+			}, (e) -> {
+				onError(e);
 			});
 		} else {
 			cleanContent();
@@ -252,85 +262,204 @@ public class AnalistsView extends XMLView {
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
 		element.add(vui.populateParameters(visualizationParams, experiment));
 		element.add(vai.populateParameters(analisisParams, experiment));
-		ButtonSelector element2 = new ButtonSelector();
-		element2.setCaption("Launch");
-
-		element.add(element2);
-		element2.getControl().addSelectionListener(new SelectionAdapter() {
-
-			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
-				recalcView();
-			};
-		});
+//		ButtonSelector element2 = new ButtonSelector();
+//		element2.setCaption("Launch");
+//
+//		element.add(element2);
+//		element2.getControl().addSelectionListener(new SelectionAdapter() {
+//
+//			public void widgetSelected(org.eclipse.swt.events.SelectionEvent e) {
+//				recalcView();
+//			};
+//		});
 		element.getRoot().getControl().layout(true, true);
 		// element.redraw();
 		// element.getParent().getContentParent().layout();
 		// element.getParent().getParent().getContentParent().layout();
+		if (!bindedAction.isChecked()) {
+			bindedAction.setChecked(true);
+			bindedAction.run();			
+		}
 	}
 
-	private static PieDataset createDataset(IAnalizeResults r) {
+	private static Dataset createDataset(IAnalizeResults r, Object loadAs) {
+		if (loadAs != null) {
+			if (loadAs instanceof Map) {
+				
+				Map mm = (Map<String, Object>) loadAs;
+				Object object = mm.get("values");
+				Object total = mm.get("total");
+				if (mm.get("type").equals("bar")) {
+					ArrayList<Object>vls=(ArrayList<Object>) object;
+					Map<String,Number>blds=(Map<String, Number>) vls.get(0);
+					DefaultCategoryDataset cs=new DefaultCategoryDataset();
+					for (String s:blds.keySet()) {
+						Number number = blds.get(s);
+						cs.addValue(number, s, "");
+					}
+					return cs;
+					
+				}
+				DefaultXYDataset d = createXY(object, total);
+				
+				
+				return d;
+			}
+			System.out.println(loadAs);
+		}
 		DefaultPieDataset dataset = new DefaultPieDataset();
 		int size = r.size();
-		ArrayList<String>names=new ArrayList<>();
-		ArrayList<Double>counts=new ArrayList<>();
-		double sum=0;
-		for (int i=0;i<size;i++) {
+		ArrayList<String> names = new ArrayList<>();
+		ArrayList<Double> counts = new ArrayList<>();
+		double sum = 0;
+		for (int i = 0; i < size; i++) {
 			IDataSet iDataSet = r.get(i);
 			int len = iDataSet.len();
 			String name = iDataSet.name();
 			names.add(name);
-			counts.add((double)len);
-			sum=sum+len;
-			
-		}	
-		for (int i=0;i<size;i++) {
-			dataset.setValue(names.get(i)+"("+counts.get(i).intValue()+" "+NumberFormat.getPercentInstance().format(counts.get(i)/sum)+")",counts.get(i));
+			counts.add((double) len);
+			sum = sum + len;
+
+		}
+		for (int i = 0; i < size; i++) {
+			dataset.setValue(names.get(i) + "(" + counts.get(i).intValue() + " "
+					+ NumberFormat.getPercentInstance().format(counts.get(i) / sum) + ")", counts.get(i));
 		}
 		return dataset;
 	}
+
+	public static DefaultXYDataset createXY(Object object, Object total) {
+		DefaultXYDataset d = new DefaultXYDataset();
+		String[] labels = new String[] { "All", "Positive", "Negative" };
+		if (object instanceof ArrayList) {
+			ArrayList x = (ArrayList) object;
+			int num = 0;
+			for (Object z : x) {
+				Map m = (Map) z;
+
+				double[][] data = new double[2][m.size()];
+				int i = 0;
+				int sum = 0;
+				for (Object o : m.keySet()) {
+					data[0][i] = ((Integer) o).doubleValue();
+					double doubleValue = ((Number) m.get(o)).doubleValue();
+					data[1][i] = doubleValue;
+					i = i + 1;
+					sum += doubleValue;
+				}
+				if (total != null) {
+					i = 0;
+					for (Object o : m.keySet()) {
+						data[1][i] = 1 - data[1][i] / ((Number) total).doubleValue();
+						i = i + 1;
+					}
+				} else {
+					i = 0;
+					double sm = 0;
+					for (Object o : m.keySet()) {
+						sm = sm + data[1][i];
+						data[1][i] = sm / sum;
+						i = i + 1;
+					}
+				}
+				d.addSeries(labels[num], data);
+				num = num + 1;
+			}
+		}
+		return d;
+	}
+
 	private static HistogramDataset createHistDataset(IAnalizeResults r) {
 		HistogramDataset dataset = new HistogramDataset();
 		int size = r.size();
-		ArrayList<String>names=new ArrayList<>();
-		double[] counts=new double[size];
-		double sum=0;
-		for (int i=0;i<size;i++) {
+		ArrayList<String> names = new ArrayList<>();
+		double[] counts = new double[size];
+		double sum = 0;
+		for (int i = 0; i < size; i++) {
 			IDataSet iDataSet = r.get(i);
 			int len = iDataSet.len();
 			String name = iDataSet.name();
-			
-			counts[i]=len;
-			sum=sum+len;
-			
-		}	
-		dataset.addSeries("", counts, counts.length);		
+
+			counts[i] = len;
+			sum = sum + len;
+
+		}
+		dataset.addSeries("", counts, counts.length);
 		return dataset;
 	}
 
-	private static JFreeChart createChart(PieDataset dataset) {
-		JFreeChart chart = ChartFactory.createPieChart("", // chart title
-				dataset, // data
-				true, // include legend
-				true, false);
+	private static JFreeChart createChart(Dataset dataset, Object loadAs) {
+		if (dataset instanceof DefaultCategoryDataset) {
+			String y_axis = "Fraction of samples";
+			String x_axis = "Length";
+			if (loadAs instanceof Map) {
+				Map mp = (Map) loadAs;
+				if (mp.containsKey("x_axis")) {
+					x_axis = mp.get("x_axis").toString();
+				}
+				if (mp.containsKey("y_axis")) {
+					y_axis = mp.get("y_axis").toString();
+				}
+			}
+			JFreeChart chart=ChartFactory.createBarChart(
+			        "", //Chart Title
+			        x_axis, // Category axis
+			        y_axis, // Value axis
+			        (CategoryDataset) dataset,
+			        PlotOrientation.VERTICAL,
+			        true,true,false
+			       );
+			return chart;
+		}
+		if (dataset instanceof PieDataset) {
+			JFreeChart chart = ChartFactory.createPieChart("", // chart title
+					(PieDataset) dataset, // data
+					true, // include legend
+					true, false);
 
-		return chart;
+			return chart;
+		}
+		if (dataset instanceof XYDataset) {
+			String y_axis = "Fraction of samples";
+			String x_axis = "Length";
+			if (loadAs instanceof Map) {
+				Map mp = (Map) loadAs;
+				if (mp.containsKey("x_axis")) {
+					x_axis = mp.get("x_axis").toString();
+				}
+				if (mp.containsKey("y_axis")) {
+					y_axis = mp.get("y_axis").toString();
+				}
+			}
+			JFreeChart chart = ChartFactory.createXYLineChart("", x_axis, y_axis, (XYDataset) dataset);
+
+			return chart;
+		}
+		if (dataset instanceof HistogramDataset) {
+			JFreeChart chart = ChartFactory.createHistogram("", "", "", (HistogramDataset) dataset,
+					PlotOrientation.VERTICAL, false, false, false);
+
+			return chart;
+		}
+		throw new IllegalStateException("Unknown dataset type");
 	}
+
+	boolean initedCharts;
+	private Action bindedAction;
 
 	private void display(IAnalizeResults r) {
 		getElement("empty").setEnabled(false);
 		Container element = (Container) getElement("content");
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
 		String viewer = visualizerFeature.getViewer();
-		VisualizerViewer<?> g =null;
+		VisualizerViewer<?> g = null;
 		if (viewer.equals("html")) {
-			g=new VirtualTable();
+			g = new VirtualTable();
 			g.setHtml(true);
-		}		
-		else if (viewer.equals("image")) {
-			g=new DataSetGallery();
-		}
-		else {
-			g=new VirtualTable();
+		} else if (viewer.equals("image")) {
+			g = new DataSetGallery();
+		} else {
+			g = new VirtualTable();
 		}
 		g.getLayoutHints().setGrabHorizontal(true);
 		g.getLayoutHints().setGrabVertical(true);
@@ -338,25 +467,33 @@ public class AnalistsView extends XMLView {
 		g.setInput(r);
 		element.add(g);
 		element.setEnabled(true);
-		JFreeChart createChart = createChart(createDataset(r));
-		Container element2 = (Container) getElement("stat");
+		String visualizationSpec = r.visualizationSpec();
+		Object loadAs = new Yaml().loadAs(visualizationSpec, Object.class);
+		createChart = createChart(createDataset(r, loadAs), loadAs);
+		element2 = (Container) getElement("stat");
 		update(createChart, element2);
-		element2.getControl().addControlListener(new ControlAdapter() {
-			
-			public void controlResized(org.eclipse.swt.events.ControlEvent e) {
-				update(createChart, element2);
-			}
-		});
+		if (!initedCharts) {
+			ControlAdapter listener = new ControlAdapter() {
+
+				public void controlResized(org.eclipse.swt.events.ControlEvent e) {
+					update(createChart, element2);
+				}
+			};
+			element2.getControl().addControlListener(listener);
+			initedCharts = true;
+		}
+
 	}
 
 	private void update(JFreeChart createChart, Container element2) {
 		Point size = element2.getControl().getSize();
-		BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, size.y-3);
+		BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, size.y - 3);
 		ImageData convertToSWT = ExperimentLogs.convertToSWT(createBufferedImage);
-		if (image!=null) {
+		if (image != null) {
 			image.dispose();
 		}
-		image = new Image(Display.getCurrent(), convertToSWT);	
+		image = new Image(Display.getCurrent(), convertToSWT);
+		element2.getControl().setBackgroundImage(null);
 		element2.getControl().setBackgroundImage(image);
 		element2.getControl().redraw();
 	}
@@ -367,7 +504,7 @@ public class AnalistsView extends XMLView {
 
 	@Override
 	public void dispose() {
-		if (image!=null) {
+		if (image != null) {
 			image.dispose();
 		}
 		if (this.task != null) {
@@ -387,9 +524,10 @@ public class AnalistsView extends XMLView {
 
 	public void setResults(GetPossibleAnalisisResult r, ModelEvaluationSpec model, String dataset,
 			Experiment experiment, GateWayRelatedTask task, boolean isData) {
-		if (this.task!=null) {
+		if (this.task != null) {
 			this.task.terminate();
 		}
+		getElement("label").setText("Please select visualizer and analizer");
 		this.model = model;
 		this.dataset = dataset;
 		this.experiment = experiment;
@@ -399,7 +537,7 @@ public class AnalistsView extends XMLView {
 		this.getBinding().refresh();
 		Realm realm = new Realm(r.getVisualizers());
 		datasetStages = r.getDatasetStages();
-		this.filterKinds=r.getDatasetFilters();
+		this.filterKinds = r.getDatasetFilters();
 		Realm stage = new Realm(datasetStages);
 		this.stage.setRealm(stage);
 		visualizers.setRealm(realm);
@@ -420,24 +558,38 @@ public class AnalistsView extends XMLView {
 		Combo s = (Combo) stage.getControl();
 		String visualizer = v.getText();
 		String analizer = a.getText();
-		if (visualizer==null||visualizer.isEmpty()) {
+		if (visualizer == null || visualizer.isEmpty()) {
 			return;
 		}
-		if (analizer==null||analizer.isEmpty()) {
+		if (analizer == null || analizer.isEmpty()) {
 			return;
 		}
-		if( s.getText()==null||s.getText().isEmpty()) {
+		if (s.getText() == null || s.getText().isEmpty()) {
 			return;
 		}
 		getElement("empty").setEnabled(true);
 		getElement("label").setCaption("Initial calculation is performed...");
-		DataSetAnalisysRequest data = new DataSetAnalisysRequest(model, dataset,
-				experiment.getPath().toOSString(), visualizer, analizer, isData,s.getText());
+		DataSetAnalisysRequest data = new DataSetAnalisysRequest(model, dataset, experiment.getPath().toOSString(),
+				visualizer, analizer, isData, s.getText());
 		data.setVisualizerArgs(new LinkedHashMap<>(visualizationParams));
 		data.setAnalzierArgs(new LinkedHashMap<>(analisisParams));
 		data.setFilters(filters);
+
 		task.perform(data, IAnalizeResults.class, (r) -> {
 			display(r);
+		}, (e) -> {
+			onError(e);
+		});
+	}
+
+	private void onError(Throwable e) {
+		org.eclipse.swt.widgets.Display.getDefault().asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				MessageDialog.openError(org.eclipse.swt.widgets.Display.getCurrent().getActiveShell(), "Error",
+						e.getMessage());
+			}
 		});
 	}
 

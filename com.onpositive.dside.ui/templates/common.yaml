@@ -1,5 +1,6 @@
 # This file stores common configuration settings
 # Please note that you may override this settings in experiment configuration file
+inference_batch: 32
 callbacks:
   EarlyStopping:
     patience: 100

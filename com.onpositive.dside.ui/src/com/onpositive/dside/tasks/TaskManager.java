@@ -22,6 +22,8 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchesListener;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.jface.window.Window;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.FileOrResource;
@@ -116,6 +118,12 @@ public class TaskManager {
 
 	public static void perform(IServerTask<?> task) {
 		task.beforeStart();
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("org.eclipse.ui.console.ConsoleView");
+		} catch (PartInitException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		IProject[] projects = task.getProject();
 
 		LaunchShortcut launchShortcut = new LaunchShortcut() {

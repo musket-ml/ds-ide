@@ -1,4 +1,5 @@
 package com.onpositive.musket_core;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -25,20 +26,22 @@ public class ProjectWrapper {
 	public ProjectWrapper(String projectPath) {
 		this.path = projectPath;
 		String absolutePath = projectMetaPath();
-		if (new File(absolutePath).exists()) {
-			FileReader fileReader;
-			try {
-				fileReader = new FileReader(absolutePath);
+		synchronized (ProjectWrapper.this) {
+			if (new File(absolutePath).exists()) {
+				FileReader fileReader;
 				try {
-					InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
-					this.refreshed(loadAs);
-					}finally {
+					fileReader = new FileReader(absolutePath);
+					try {
+						InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
+						this.refreshed(loadAs);
+					} finally {
 						fileReader.close();
 					}
-			} catch (IOException e) {
-				e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 			}
-			
 		}
 	}
 
@@ -52,10 +55,11 @@ public class ProjectWrapper {
 	public InstrospectionResult getDetails() {
 		return details;
 	}
-	
+
 	public void addRefreshListener(Runnable r) {
 		this.listeners.add(r);
 	}
+
 	public void removeRefreshListener(Runnable r) {
 		this.listeners.remove(r);
 	}
@@ -65,45 +69,46 @@ public class ProjectWrapper {
 	}
 
 	public synchronized void refresh(Runnable r) {
-		if (r!=null) {
-		this.requests.add(r);
+		if (r != null) {
+			this.requests.add(r);
 		}
 		Job create = Job.create("Refreshing project meta", new IJobFunction() {
-			
+
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
 				synchronized (ProjectWrapper.this) {
-				
+
 					String absolutePath = projectMetaPath();
-					ProcessBuilder command = new ProcessBuilder().command("python", "-m", "musket_core.inspectProject", "--project",
-							path, "--out", absolutePath);
+					ProcessBuilder command = new ProcessBuilder().command("python", "-m", "musket_core.inspectProject",
+							"--project", path, "--out", absolutePath);
 					try {
 						command.environment().putAll(System.getenv());
 						File file = new File(getMetaDir() + "/error.log");
 						command.redirectError(file);
 						command.redirectOutput(new File(getMetaDir() + "/output.log"));
 						int waitFor = command.start().waitFor();
-						if (waitFor!=0) {
+						if (waitFor != 0) {
 							List<String> readAllLines = Files.readAllLines(file.toPath());
 							PythonError pythonError = new PythonError(readAllLines);
 							Display.getDefault().asyncExec(new Runnable() {
-								
+
 								@Override
 								public void run() {
-									boolean createObject = WidgetRegistry.createObject(new StackVisualizer(pythonError));
+									boolean createObject = WidgetRegistry
+											.createObject(new StackVisualizer(pythonError));
 									if (createObject) {
 										pythonError.open();
 									}
 								}
 							});
-							return Status.OK_STATUS;						
+							return Status.OK_STATUS;
 						}
 						FileReader fileReader = new FileReader(absolutePath);
 						try {
-						InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
-						refreshed(loadAs);
-						
-						}finally {
+							InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
+							refreshed(loadAs);
+
+						} finally {
 							fileReader.close();
 						}
 						// ServerManager.perform(new IntrospectTask(this));
@@ -112,7 +117,7 @@ public class ProjectWrapper {
 					}
 					return Status.OK_STATUS;
 				}
-				
+
 			}
 		});
 		create.schedule();
@@ -124,7 +129,7 @@ public class ProjectWrapper {
 	}
 
 	private File getMetaDir() {
-		File file = new File(this.path,".meta");
+		File file = new File(this.path, ".meta");
 		file.mkdirs();
 		return file;
 	}
@@ -144,7 +149,7 @@ public class ProjectWrapper {
 		} finally {
 			requests.clear();
 		}
-	} 
+	}
 
 	public List<InstrospectedFeature> getTasks() {
 		return details.getFeatures().stream().filter(x -> x.getKind().equals("task")).collect(Collectors.toList());

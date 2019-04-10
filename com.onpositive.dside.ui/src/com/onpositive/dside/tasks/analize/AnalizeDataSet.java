@@ -1,5 +1,6 @@
 package com.onpositive.dside.tasks.analize;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
@@ -71,8 +72,20 @@ public class AnalizeDataSet implements IGateWayServerTaskDelegate {
 		lastSpec=this.model;
 		task.perform(new GetPossibleAnalisisInfo(model,dataset,this.experiment.getPath().toOSString()), GetPossibleAnalisisResult.class, (r)->{
 			display(r);
+		},(e)->{
+			onError(e);
 		});
 		
+	}
+
+	private void onError(Throwable e) {
+		org.eclipse.swt.widgets.Display.getDefault().asyncExec(new Runnable() {
+			
+			@Override
+			public void run() {
+				MessageDialog.openError(org.eclipse.swt.widgets.Display.getCurrent().getActiveShell(), "Error", e.getMessage());
+			}
+		});
 	}
 
 	private void display(GetPossibleAnalisisResult r) {

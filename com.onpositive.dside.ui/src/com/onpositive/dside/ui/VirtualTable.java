@@ -183,6 +183,12 @@ public class VirtualTable extends VisualizerViewer<Control> {
 			s=s.replace('\n', ' ');
 			s=s.replace('\r', ' ');
 			s=s.replace('\t', ' ');
+			int lastIndexOf = s.lastIndexOf("- [");
+			String end="";
+			if (lastIndexOf!=-1) {
+				end=s.substring(lastIndexOf+1);
+				s=s.substring(0, lastIndexOf);
+			}
 			StringTokenizer stringTokenizer = new StringTokenizer(s, "[],", true);
 			while (stringTokenizer.hasMoreTokens()) {
 				String nextToken = stringTokenizer.nextToken();
@@ -195,6 +201,9 @@ public class VirtualTable extends VisualizerViewer<Control> {
 				else {
 					styledString.append(nextToken,new Style("dark blue", null));
 				}
+			}
+			if (end.length()>0) {
+				styledString.append(end,new Style("dark red", null));
 			}
 		}
 
