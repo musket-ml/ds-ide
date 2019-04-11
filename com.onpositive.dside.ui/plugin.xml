@@ -226,6 +226,11 @@
             image="icons/filter_ps.png"
             name="filter_x">
       </image>
+      <image
+            id="wrap"
+            image="icons/wordwrap.png"
+            name="wrap">
+      </image>
    </extension>
 	 <extension point="org.eclipse.ui.newWizards">
       <category

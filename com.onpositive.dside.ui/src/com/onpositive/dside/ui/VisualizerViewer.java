@@ -96,4 +96,8 @@ public abstract class VisualizerViewer<T extends Control> extends AbstractUIElem
 	public void setHtml(boolean b) {
 		this.html=b;
 	}
+
+	public void setWrap(boolean wrap) {
+		
+	}
 }

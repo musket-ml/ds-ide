@@ -2,6 +2,7 @@ package com.onpositive.dside.ui;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -61,7 +62,17 @@ public class VirtualTable extends VisualizerViewer<Control> {
 	 */
 	private static final long serialVersionUID = 1L;
 	protected IdentityHashMap<IDataSet, Table> tables = new IdentityHashMap<>();
+	private ArrayList<OwnerDrawSupport> ownerDrawSupports=new ArrayList<>();
+	private boolean wrap;
 
+	public void setWrap(boolean wrap) {
+		ownerDrawSupports.forEach(w->{
+			w.setShouldMeasure(wrap);
+			
+		});
+		this.wrap=wrap;
+	}
+	
 	@Override
 	protected Control createControl(Composite conComposite) {
 		final PShelf CTabFolder = new PShelf(conComposite, SWT.NONE);
@@ -99,7 +110,7 @@ public class VirtualTable extends VisualizerViewer<Control> {
 				}
 			});
 			TableViewer tv = new TableViewer(virtualTable);
-			new OwnerDrawSupport(virtualTable, tv) {
+			OwnerDrawSupport ownerDrawSupport = new OwnerDrawSupport(virtualTable, tv) {
 
 				@Override
 				protected void refreshItem(Item item) {
@@ -113,6 +124,7 @@ public class VirtualTable extends VisualizerViewer<Control> {
 
 				@Override
 				public StyledString getColoredLabel(Item item, int index) {
+					System.out.println(index);
 					Integer data = (Integer) item.getData();
 					if (data == null) {
 						data = virtualTable.indexOf((TableItem) item);
@@ -125,6 +137,8 @@ public class VirtualTable extends VisualizerViewer<Control> {
 					return new StyledString("...");
 				}
 			};
+			ownerDrawSupport.setShouldMeasure(wrap);
+			this.ownerDrawSupports.add(ownerDrawSupport);
 			virtualTable.setItemCount(count);
 			pitem.getBody().setLayout(new FillLayout());
 		}

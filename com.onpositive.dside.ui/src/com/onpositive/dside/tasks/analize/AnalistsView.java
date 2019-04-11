@@ -175,15 +175,36 @@ public class AnalistsView extends XMLView {
 		};
 		bindedAction.setImageId("filter_x");
 		bindedAction.setText("Filters");
+
 		sl.getLayoutHints().setGrabHorizontal(true);
 		sl.getLayoutHints().setAlignmentHorizontal(Alignment.RIGHT);
 		sl.addToToolbar(bindedAction);
+		Action bindedAction2 = new Action(Action.AS_CHECK_BOX) {
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			
+
+			@Override
+			public void run() {
+				wrap=isChecked();
+				if  (results!=null) {
+				display(results);
+				}
+
+			}
+		};
+		bindedAction2.setImageId("wrap");
+		bindedAction2.setText("Wrap");
+		sl.addToToolbar(bindedAction2);
 //		filter = new OneLineTextElement<>();
 //		filter.setCaption("Filter");
 //		//te.getLayoutHints().setAlignmentHorizontal(Alignment.RIGHT);
 		element.add(sl);
 	}
-
+	private boolean wrap;
 	class AnalizerOrVisualizerUI extends DynamicUI {
 
 		private ArrayList<IntrospectedParameter> params;
@@ -278,31 +299,30 @@ public class AnalistsView extends XMLView {
 		// element.getParent().getParent().getContentParent().layout();
 		if (!bindedAction.isChecked()) {
 			bindedAction.setChecked(true);
-			bindedAction.run();			
+			bindedAction.run();
 		}
 	}
 
 	private static Dataset createDataset(IAnalizeResults r, Object loadAs) {
 		if (loadAs != null) {
 			if (loadAs instanceof Map) {
-				
+
 				Map mm = (Map<String, Object>) loadAs;
 				Object object = mm.get("values");
 				Object total = mm.get("total");
 				if (mm.get("type").equals("bar")) {
-					ArrayList<Object>vls=(ArrayList<Object>) object;
-					Map<String,Number>blds=(Map<String, Number>) vls.get(0);
-					DefaultCategoryDataset cs=new DefaultCategoryDataset();
-					for (String s:blds.keySet()) {
+					ArrayList<Object> vls = (ArrayList<Object>) object;
+					Map<String, Number> blds = (Map<String, Number>) vls.get(0);
+					DefaultCategoryDataset cs = new DefaultCategoryDataset();
+					for (String s : blds.keySet()) {
 						Number number = blds.get(s);
 						cs.addValue(number, s, "");
 					}
 					return cs;
-					
+
 				}
 				DefaultXYDataset d = createXY(object, total);
-				
-				
+
 				return d;
 			}
 			System.out.println(loadAs);
@@ -401,14 +421,10 @@ public class AnalistsView extends XMLView {
 					y_axis = mp.get("y_axis").toString();
 				}
 			}
-			JFreeChart chart=ChartFactory.createBarChart(
-			        "", //Chart Title
-			        x_axis, // Category axis
-			        y_axis, // Value axis
-			        (CategoryDataset) dataset,
-			        PlotOrientation.VERTICAL,
-			        true,true,false
-			       );
+			JFreeChart chart = ChartFactory.createBarChart("", // Chart Title
+					x_axis, // Category axis
+					y_axis, // Value axis
+					(CategoryDataset) dataset, PlotOrientation.VERTICAL, true, true, false);
 			return chart;
 		}
 		if (dataset instanceof PieDataset) {
@@ -446,20 +462,25 @@ public class AnalistsView extends XMLView {
 
 	boolean initedCharts;
 	private Action bindedAction;
+	private VisualizerViewer<?> g;
+	private IAnalizeResults results;
 
 	private void display(IAnalizeResults r) {
+		this.results=r;
 		getElement("empty").setEnabled(false);
 		Container element = (Container) getElement("content");
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
 		String viewer = visualizerFeature.getViewer();
-		VisualizerViewer<?> g = null;
+		g = null;
 		if (viewer.equals("html")) {
 			g = new VirtualTable();
 			g.setHtml(true);
+			g.setWrap(wrap);
 		} else if (viewer.equals("image")) {
 			g = new DataSetGallery();
 		} else {
 			g = new VirtualTable();
+			g.setWrap(wrap);
 		}
 		g.getLayoutHints().setGrabHorizontal(true);
 		g.getLayoutHints().setGrabVertical(true);
