@@ -126,6 +126,77 @@ public class TaskManager {
 		}
 		IProject[] projects = task.getProject();
 
+		LaunchShortcut launchShortcut = launchShortCut(projects);
+		String dump = new Yaml().dump(task);
+		try {
+			Path absolutePath = null;
+			Path absolutePath1 = null;
+			Path absolutePath2 = Files.createTempFile("aaa", "result").toAbsolutePath();
+			try {
+				absolutePath = Files.createTempFile("aaa", "task").toAbsolutePath();
+				Path write = Files.write(absolutePath, dump.getBytes());
+
+				absolutePath1 = Files.createTempFile("aaa", ".py").toAbsolutePath();
+
+				ArrayList<String> codeToRun = new ArrayList<>();
+				codeToRun.add("import sys\n" + "from musket_core import tools,projects\n" + "import yaml\n"
+						+ "import threading\n" + "from musket_core import utils\n" + "config = sys.argv[1]\n"
+						+ "out = sys.argv[2]\n" + "def main():\n" + "        global config\n"
+						+ "        with open(config,\"r\") as f:\n" + "            config=f.read()\n"
+						+ "        config = config[1:].replace(\"!!com.onpositive\", \"!com.onpositive\")\n"
+						+ "        obj = yaml.load(config)\n" + "        print(obj)\n"
+						+ "        results = obj.perform(projects.Workspace(), tools.ProgressMonitor())\n"
+						+ "        with open(out,\"w\") as f:\n" + "            f.write(yaml.dump(results))\n"
+						+ "main()");
+				Path write1 = Files.write(absolutePath1, codeToRun);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving = launchShortcut
+					.createDefaultLaunchConfigurationWithoutSaving(
+							new FileOrResource[] { new FileOrResource(absolutePath1.toFile()) });
+			HashSet<String> modes = new HashSet<>();
+			modes.add("run");
+			modes.add("debug");
+			if (projects.length > 0) {
+				createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_PROJECT,
+						projects[0].getName());
+			}
+			createDefaultLaunchConfigurationWithoutSaving.setPreferredLaunchDelegate(modes,
+					"org.python.pydev.debug.musketLaunchConfigurationType");
+			ArrayList<String> args = new ArrayList<>();
+			args.add(absolutePath.toString());
+			args.add(absolutePath2.toString());
+			createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,
+					args.stream().collect(Collectors.joining(" ")));
+
+			// createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_WORKING_DIRECTORY,
+			// "D:/");
+			HashMap<String, String> value = new HashMap<>();
+			value.put("PYTHONUNBUFFERED", "1");
+			createDefaultLaunchConfigurationWithoutSaving.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, value);
+			if (task.save()) {
+				createDefaultLaunchConfigurationWithoutSaving.doSave();
+			}
+			ILaunch launch = createDefaultLaunchConfigurationWithoutSaving.launch(task.isDebug() ? "debug" : "run",
+					new NullProgressMonitor());
+			TaskStatus value2 = new TaskStatus((IServerTask<Object>) task, absolutePath2);
+			if (launch.isTerminated()) {
+				value2.report(launch);
+			}
+			tasks.put(launch, value2);
+			task.afterStart(launch);
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public static LaunchShortcut launchShortCut(IProject[] projects) {
 		LaunchShortcut launchShortcut = new LaunchShortcut() {
 
 			@Override
@@ -210,72 +281,6 @@ public class TaskManager {
 				return createdConfiguration;
 			}
 		};
-		String dump = new Yaml().dump(task);
-		try {
-			Path absolutePath = null;
-			Path absolutePath1 = null;
-			Path absolutePath2 = Files.createTempFile("aaa", "result").toAbsolutePath();
-			try {
-				absolutePath = Files.createTempFile("aaa", "task").toAbsolutePath();
-				Path write = Files.write(absolutePath, dump.getBytes());
-
-				absolutePath1 = Files.createTempFile("aaa", ".py").toAbsolutePath();
-
-				ArrayList<String> codeToRun = new ArrayList<>();
-				codeToRun.add("import sys\n" + "from musket_core import tools,projects\n" + "import yaml\n"
-						+ "import threading\n" + "from musket_core import utils\n" + "config = sys.argv[1]\n"
-						+ "out = sys.argv[2]\n" + "def main():\n" + "        global config\n"
-						+ "        with open(config,\"r\") as f:\n" + "            config=f.read()\n"
-						+ "        config = config[1:].replace(\"!!com.onpositive\", \"!com.onpositive\")\n"
-						+ "        obj = yaml.load(config)\n" + "        print(obj)\n"
-						+ "        results = obj.perform(projects.Workspace(), tools.ProgressMonitor())\n"
-						+ "        with open(out,\"w\") as f:\n" + "            f.write(yaml.dump(results))\n"
-						+ "main()");
-				Path write1 = Files.write(absolutePath1, codeToRun);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving = launchShortcut
-					.createDefaultLaunchConfigurationWithoutSaving(
-							new FileOrResource[] { new FileOrResource(absolutePath1.toFile()) });
-			HashSet<String> modes = new HashSet<>();
-			modes.add("run");
-			modes.add("debug");
-			if (projects.length > 0) {
-				createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_PROJECT,
-						projects[0].getName());
-			}
-			createDefaultLaunchConfigurationWithoutSaving.setPreferredLaunchDelegate(modes,
-					"org.python.pydev.debug.musketLaunchConfigurationType");
-			ArrayList<String> args = new ArrayList<>();
-			args.add(absolutePath.toString());
-			args.add(absolutePath2.toString());
-			createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,
-					args.stream().collect(Collectors.joining(" ")));
-
-			// createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_WORKING_DIRECTORY,
-			// "D:/");
-			HashMap<String, String> value = new HashMap<>();
-			value.put("PYTHONUNBUFFERED", "1");
-			createDefaultLaunchConfigurationWithoutSaving.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, value);
-			if (task.save()) {
-				createDefaultLaunchConfigurationWithoutSaving.doSave();
-			}
-			ILaunch launch = createDefaultLaunchConfigurationWithoutSaving.launch(task.isDebug() ? "debug" : "run",
-					new NullProgressMonitor());
-			TaskStatus value2 = new TaskStatus((IServerTask<Object>) task, absolutePath2);
-			if (launch.isTerminated()) {
-				value2.report(launch);
-			}
-			tasks.put(launch, value2);
-			task.afterStart(launch);
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		return launchShortcut;
 	}
 }

@@ -8,17 +8,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobFunction;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.swt.widgets.Display;
+import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
+import org.python.pydev.core.MisconfigurationException;
+import org.python.pydev.debug.ui.launching.FileOrResource;
+import org.python.pydev.debug.ui.launching.InvalidRunException;
+import org.python.pydev.debug.ui.launching.LaunchShortcut;
+import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.dside.dto.PythonError;
 import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.dto.introspection.InstrospectionResult;
+import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class ProjectWrapper {
@@ -40,7 +53,6 @@ public class ProjectWrapper {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-
 			}
 		}
 	}
@@ -77,12 +89,34 @@ public class ProjectWrapper {
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
 				synchronized (ProjectWrapper.this) {
-
+					String pythonPath=null;
 					String absolutePath = projectMetaPath();
+					try {
+						IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
+								.findContainersForLocation(new Path(path));
+						if (findContainersForLocation != null) {
+							IProject project = findContainersForLocation[0].getProject();
+							LaunchShortcut launchShortCut = TaskManager.launchShortCut(new IProject[] {project});
+							ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
+									.createDefaultLaunchConfiguration(new FileOrResource[] {new FileOrResource(project.getFolder("experiments"))});
+							PythonRunnerConfig pythonRunner = new PythonRunnerConfig(createDefaultLaunchConfiguration,
+									"run", "run");
+							String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
+							pythonPath=pythonpathFromConfiguration;
+						}
+						
+					} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
 					ProcessBuilder command = new ProcessBuilder().command("python", "-m", "musket_core.inspectProject",
 							"--project", path, "--out", absolutePath);
 					try {
 						command.environment().putAll(System.getenv());
+						if (pythonPath!=null) {
+							command.environment().put("PYTHONPATH", pythonPath);
+						}
 						File file = new File(getMetaDir() + "/error.log");
 						command.redirectError(file);
 						command.redirectOutput(new File(getMetaDir() + "/output.log"));

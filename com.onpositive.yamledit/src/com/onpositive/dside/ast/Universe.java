@@ -155,6 +155,9 @@ public class Universe extends TypeRegistryImpl {
 						if (type.equals("int")) {
 							type = BuiltIns.INTEGER.name();
 						}
+						if (type.equals("str")) {
+							type = BuiltIns.STRING.name();
+						}
 						if (type.equals("float")) {
 							type = BuiltIns.NUMBER.name();
 						}
@@ -164,6 +167,11 @@ public class Universe extends TypeRegistryImpl {
 					}
 					AbstractType type2 = getType(type);
 					if (type.equals("Layer[]")) {
+						lastLayers=true;
+						type2.addMeta(new HasKey(true));
+						type2.addMeta(new IsRef(true));
+					}
+					if (type.equals("Preprocessor[]")) {
 						lastLayers=true;
 						type2.addMeta(new HasKey(true));
 						type2.addMeta(new IsRef(true));

@@ -73,6 +73,9 @@ public class ExperimentLogs {
 
 	private void add(String metric, DefaultXYDataset dataset, String series1) {
 		int index = -1;
+		if (headers==null) {
+			return;
+		}
 		for (int i = 0; i < this.headers.length; i++) {
 			if (this.headers[i].equals( metric)) {
 				index = i;

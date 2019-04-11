@@ -527,6 +527,14 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 		}
 		if (this.node instanceof MappingNode) {
 			MappingNode s=(MappingNode)this.node;
+			for (NodeTuple t:s.getValue()) {
+				if (t.getKeyNode()instanceof ScalarNode) {
+					ScalarNode sa=(ScalarNode) t.getKeyNode();
+					if (sa.getValue().equals("args")) {
+						return new ASTElement(t.getValueNode(), type, parent).propertyCount();
+					}
+				}
+			}
 			return s.getValue().size();
 		}
 		if (this.node instanceof ScalarNode) {

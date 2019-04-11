@@ -63,6 +63,14 @@ types:
       type: Referencable  
    LayerOrPreprocessor: 
       type: "Layer,Preprocessor"
+      properties:
+         name: 
+           type: string
+         inputs:
+           autoConvertToArray: true
+           type: string[]
+         args:
+           type: any
    EarlyStopping:
      type: Callback
      properties:  
