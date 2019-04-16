@@ -17,6 +17,8 @@ import org.aml.typesystem.Status;
 import org.aml.typesystem.TypeOps;
 import org.aml.typesystem.TypeRegistryImpl;
 import org.aml.typesystem.beans.IProperty;
+import org.aml.typesystem.beans.IPropertyView;
+import org.aml.typesystem.meta.facets.Default;
 import org.aml.typesystem.meta.facets.Description;
 import org.aml.typesystem.meta.facets.HasKey;
 import org.aml.typesystem.meta.facets.IsRef;
@@ -383,9 +385,18 @@ public class Universe extends TypeRegistryImpl {
 				continue;
 			}
 			if (property == null) {
-				property = buildRoot.type.toPropertiesView().property(seq.get(i));
+				IPropertyView propertiesView = buildRoot.type.toPropertiesView();
+				property = propertiesView.property(seq.get(i));
 				if (property == null) {
-					return null;
+					DefaultPropertyMeta oneMeta = buildRoot.getType().oneMeta(DefaultPropertyMeta.class);
+					if (oneMeta!=null) {
+						property=propertiesView.property(oneMeta.value());
+						continue;
+					}
+					
+					if (property==null) {
+						return null;
+					}
 				}
 				i++;
 			}
@@ -400,6 +411,7 @@ public class Universe extends TypeRegistryImpl {
 					Object property2 = buildRoot.getProperty(property.id());
 					if (property2 instanceof IArray) {
 						IArray ass=(IArray) property2;
+						boolean found=false;
 						for (int j=0;j<ass.length();j++) {
 							Object item = ass.item(j);
 							if (item instanceof ASTElement) {
@@ -408,6 +420,7 @@ public class Universe extends TypeRegistryImpl {
 								if (item2.key!=null&&item2.key.equals(seq.get(i))) {
 									buildRoot=item2;
 									property=null;
+									found=true;
 									i++;
 									break;
 								}
@@ -416,12 +429,16 @@ public class Universe extends TypeRegistryImpl {
 								return null;
 							}
 						}
+						if (!found) {
+							return null;
+						}
 					}
 				}
 				else {
 					Object property2 = buildRoot.getProperty(property.id());
 					if (property2 instanceof IArray) {
 						IArray ass=(IArray) property2;
+						boolean found=false;
 						for (int j=0;j<ass.length();j++) {
 							Object item = ass.item(j);
 							if (item instanceof ASTElement) {
@@ -431,6 +448,7 @@ public class Universe extends TypeRegistryImpl {
 									buildRoot=item2;
 									property=null;
 									i++;
+									found=true;
 									break;
 								}
 							}
@@ -438,6 +456,13 @@ public class Universe extends TypeRegistryImpl {
 								return null;
 							}
 						}
+						if (!found) {
+							return null;
+						}
+					}
+					else {
+						return null;
+						//System.out.println("A");
 					}
 				}
 			}

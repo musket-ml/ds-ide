@@ -47,7 +47,7 @@ public class SampleBuilder extends IncrementalProjectBuilder {
 
 	public static final String BUILDER_ID = "com.onpositive.dside.ui.musketBuilder";
 
-	private static final String MARKER_TYPE = "com.onpositive.dside.ui.musketProblem";
+	public static final String MARKER_TYPE = "de.jcup.yamleditor.script.problem";
 
 
 	@Override

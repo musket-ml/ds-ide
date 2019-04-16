@@ -104,6 +104,7 @@
             filenames="config.yaml, config_concrete.yaml"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.editors.ExperimentMultiPageEditor"
+            matchingStrategy="com.onpositive.dside.ui.MatchingStategy"
             name="Experiment">
       </editor>
       <editor
@@ -474,8 +475,8 @@
        </product>
     </extension>
     <extension
-          id="musketBuilder"
-          name="Musket Project Builder"
+          id="com.onpositive.dside.ui.musketBuilder"
+          name="Muster Project Builder"
           point="org.eclipse.core.resources.builders">
        <builder
              hasNature="true">
@@ -485,7 +486,7 @@
        </builder>
     </extension>
     <extension
-          id="musketNature"
+          id="com.onpositive.dside.ui.musketNature"
           name="Musket Project Nature"
           point="org.eclipse.core.resources.natures">
        <runtime>
@@ -563,5 +564,17 @@
              </visibleWhen>
           </command>
        </menuContribution>
+    </extension>
+    <extension
+          id="com.onpositive.musketProblem"
+          name="Musket Problem"
+          point="org.eclipse.core.resources.markers">
+       <super
+             type="org.eclipse.core.resources.problemmarker">
+       </super>
+       <super type="org.eclipse.core.resources.textmarker" />         
+       <persistent
+             value="true">
+       </persistent>
     </extension>
 </plugin>

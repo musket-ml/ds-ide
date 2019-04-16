@@ -19,6 +19,7 @@ public class CompletionContextBuilder {
 			ct.content=document.get();
 			ArrayList<IndentAndName> indents = new ArrayList<>();
 			int lineOfOffset = document.getLineOfOffset(offset);
+			boolean hasColon=false;
 			for (int i = 0; i <= lineOfOffset; i++) {
 				IRegion lineInformation = document.getLineInformation(i);
 				String string = document.get(lineInformation.getOffset(), lineInformation.getLength());
@@ -30,6 +31,9 @@ public class CompletionContextBuilder {
 					String substring = string.substring(0, j);
 					if (substring.indexOf(':')!=-1) {
 						ct.afterKey=true;
+					}
+					if (string.indexOf(':')!=-1) {
+						hasColon=true;
 					}
 					StringBuilder bld=new StringBuilder();
 					for (int a=j-1;a>=0;a--) {
@@ -65,7 +69,7 @@ public class CompletionContextBuilder {
 			}
 			Collections.reverse(str);
 			ct.seq=str;
-			if (!ct.afterKey) {
+			if (!ct.afterKey&&!hasColon) {
 				String substring = ct.content.substring(0, offset);
 				int end=Math.max(substring.lastIndexOf('\r'),substring.lastIndexOf('\n'));
 				substring=substring.substring(0,end);

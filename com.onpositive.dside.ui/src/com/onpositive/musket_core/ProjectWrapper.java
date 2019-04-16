@@ -88,71 +88,34 @@ public class ProjectWrapper {
 
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
-				synchronized (ProjectWrapper.this) {
-					String pythonPath=null;
-					String absolutePath = projectMetaPath();
-					try {
-						IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
-								.findContainersForLocation(new Path(path));
-						if (findContainersForLocation != null) {
-							IProject project = findContainersForLocation[0].getProject();
-							LaunchShortcut launchShortCut = TaskManager.launchShortCut(new IProject[] {project});
-							ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
-									.createDefaultLaunchConfiguration(new FileOrResource[] {new FileOrResource(project.getFolder("experiments"))});
-							PythonRunnerConfig pythonRunner = new PythonRunnerConfig(createDefaultLaunchConfiguration,
-									"run", "run");
-							String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
-							pythonPath=pythonpathFromConfiguration;
-						}
-						
-					} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+
+				String pythonPath = null;
+				String absolutePath = projectMetaPath();
+				try {
+					IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
+							.findContainersForLocation(new Path(path));
+					if (findContainersForLocation != null) {
+						IProject project = findContainersForLocation[0].getProject();
+						LaunchShortcut launchShortCut = TaskManager.launchShortCut(new IProject[] { project });
+						ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
+								.createDefaultLaunchConfiguration(
+										new FileOrResource[] { new FileOrResource(project.getFolder("experiments")) });
+						PythonRunnerConfig pythonRunner = new PythonRunnerConfig(createDefaultLaunchConfiguration,
+								"run", "run");
+						String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(
+								createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
+						pythonPath = pythonpathFromConfiguration;
 					}
 
-					ProcessBuilder command = new ProcessBuilder().command("python", "-m", "musket_core.inspectProject",
-							"--project", path, "--out", absolutePath);
-					try {
-						command.environment().putAll(System.getenv());
-						if (pythonPath!=null) {
-							command.environment().put("PYTHONPATH", pythonPath);
-						}
-						File file = new File(getMetaDir() + "/error.log");
-						command.redirectError(file);
-						command.redirectOutput(new File(getMetaDir() + "/output.log"));
-						int waitFor = command.start().waitFor();
-						if (waitFor != 0) {
-							List<String> readAllLines = Files.readAllLines(file.toPath());
-							PythonError pythonError = new PythonError(readAllLines);
-							Display.getDefault().asyncExec(new Runnable() {
-
-								@Override
-								public void run() {
-									boolean createObject = WidgetRegistry
-											.createObject(new StackVisualizer(pythonError));
-									if (createObject) {
-										pythonError.open();
-									}
-								}
-							});
-							return Status.OK_STATUS;
-						}
-						FileReader fileReader = new FileReader(absolutePath);
-						try {
-							InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
-							refreshed(loadAs);
-
-						} finally {
-							fileReader.close();
-						}
-						// ServerManager.perform(new IntrospectTask(this));
-					} catch (InterruptedException | IOException e) {
-						e.printStackTrace();
-					}
-					return Status.OK_STATUS;
+				} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 
+				innerIntrospect(pythonPath, absolutePath);
+				return Status.OK_STATUS;
 			}
+
 		});
 		create.schedule();
 
@@ -168,7 +131,7 @@ public class ProjectWrapper {
 		return file;
 	}
 
-	protected synchronized void refreshed(InstrospectionResult details) {
+	protected void refreshed(InstrospectionResult details) {
 		try {
 			if (details == null) {
 				return;
@@ -191,5 +154,51 @@ public class ProjectWrapper {
 
 	public String getPath() {
 		return this.path;
+	}
+
+	protected Object mon = new Object();
+
+	public void innerIntrospect(String pythonPath, String absolutePath) {
+		synchronized (mon) {
+			ProcessBuilder command = new ProcessBuilder().command("python", "-m", "musket_core.inspectProject",
+					"--project", path, "--out", absolutePath);
+			try {
+				command.environment().putAll(System.getenv());
+				if (pythonPath != null) {
+					command.environment().put("PYTHONPATH", pythonPath);
+				}
+				File file = new File(getMetaDir() + "/error.log");
+				command.redirectError(file);
+				command.redirectOutput(new File(getMetaDir() + "/output.log"));
+				int waitFor = command.start().waitFor();
+				if (waitFor != 0) {
+					List<String> readAllLines = Files.readAllLines(file.toPath());
+					PythonError pythonError = new PythonError(readAllLines);
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							boolean createObject = WidgetRegistry.createObject(new StackVisualizer(pythonError));
+							if (createObject) {
+								pythonError.open();
+							}
+						}
+					});
+					return;
+				}
+				FileReader fileReader = new FileReader(absolutePath);
+				try {
+					InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
+					refreshed(loadAs);
+
+				} finally {
+					fileReader.close();
+				}
+				// ServerManager.perform(new IntrospectTask(this));
+			} catch (InterruptedException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 }

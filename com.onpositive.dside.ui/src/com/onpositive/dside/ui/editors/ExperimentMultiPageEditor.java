@@ -60,6 +60,7 @@ import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.ui.ExperimentErrorsEditorPart;
 import com.onpositive.dside.ui.ExperimentResultsEditorPart;
 import com.onpositive.dside.ui.LaunchConfiguration;
+import com.onpositive.dside.ui.builder.SampleBuilder;
 import com.onpositive.dside.ui.editors.YamlHyperlinkDetector.FeatureInfo;
 import com.onpositive.dside.ui.editors.outline.OutlineContentProvider;
 import com.onpositive.musket_core.Errors;
@@ -382,6 +383,10 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		this.root=buildRoot;
 		return buildRoot;
 	}
+	@Override
+	public void setFocus() {
+		super.setFocus();
+	}
 
 	/**
 	 * Saves the multi-page editor's document.
@@ -405,9 +410,12 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			IFile file = fl.getFile();
 			
 			try {
-				IMarker[] findMarkers = file.findMarkers("org.eclipse.core.resources.problemmarker", true, 1);
+				IMarker[] findMarkers = file.findMarkers(SampleBuilder.MARKER_TYPE, true, 1);
 				for (IMarker m : findMarkers) {
 					m.delete();
+				}
+				if (!file.getName().equals("config.yaml")) {
+					return;
 				}
 				if( file.getName().equals("common.yaml")) {
 					return;
@@ -455,6 +463,11 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		IFileEditorInput e = (IFileEditorInput) getEditorInput();
 		IPath location = e.getFile().getParent().getLocation();
 		experiment = new Experiment(location.toPortableString());
+	}
+	
+	@Override
+	protected void setInput(IEditorInput input) {
+		super.setInput(input);
 	}
 
 	/*

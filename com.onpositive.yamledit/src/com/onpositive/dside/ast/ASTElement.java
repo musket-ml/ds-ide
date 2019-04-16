@@ -331,6 +331,9 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 							}
 						}
 					}
+					if (s.isEmpty()) {
+						return null;
+					}
 					return s.get(0);
 
 				}

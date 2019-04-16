@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IMarker;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
 import com.onpositive.dside.ast.IHasLocation;
+import com.onpositive.dside.ui.builder.SampleBuilder;
 
 class ErrorVisitor implements IStatusVisitor {
 
@@ -32,7 +33,7 @@ class ErrorVisitor implements IStatusVisitor {
 
 		public void report() {
 			try {
-				IMarker marker = file.createMarker("org.eclipse.core.resources.problemmarker");
+				IMarker marker = file.createMarker("de.jcup.yamleditor.script.problem");
 				int start = 0;
 				int end = 0;
 				if (element != null) {
@@ -164,6 +165,9 @@ class ErrorVisitor implements IStatusVisitor {
 	}
 
 	public int adjustEnd(int start,int end) {
+		if (end>=content.length()) {
+			end=content.length()-1;
+		}
 		while (end>start) {
 			char charAt = content.charAt(end);
 			if (!Character.isWhitespace(charAt)&&charAt!='-') {

@@ -18,7 +18,6 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
@@ -124,7 +123,7 @@ public class ExperimentsView extends XMLView {
 		try {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
 					new FileEditorInput(file), "com.onpositive.dside.ui.editors.ExperimentMultiPageEditor");
-		} catch (PartInitException e1) {
+		} catch (Exception e1) {
 			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", e1.getMessage());
 		}
 	}
