@@ -67,6 +67,9 @@ public class Universe extends TypeRegistryImpl {
 			if (type == null) {
 				type = "string";
 			}
+			if (type.startsWith("if(")) {
+				return getType("condition");
+			}
 			if (type.endsWith("[]")) {
 				AbstractType type2 = getType(type.substring(0,type.length()-2));
 				if (type2!=null) {

@@ -169,6 +169,10 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 			for (NodeTuple t : seq.getValue()) {
 				if (t.getKeyNode() instanceof ScalarNode) {
 					ScalarNode sc = (ScalarNode) t.getKeyNode();
+					if (this.key!=null&&this.key.startsWith("if")&&name.equals("body")) {
+						AbstractType type2 = getRegistry().getType(sc.getValue());
+						return new ASTElement(t.getValueNode(), type2, this);
+					}
 					if (sc.getValue().equals(name)) {
 						Object parseValue = parseValue(range, t.getValueNode(), false);
 						AutoConvertToArray oneMeta = property.range().oneMeta(AutoConvertToArray.class);

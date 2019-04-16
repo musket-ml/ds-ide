@@ -71,6 +71,14 @@ types:
            type: string[]
          args:
            type: any
+   condition:
+       type: LayerOrPreprocessor
+       defaultProperty: body
+       properties:
+          body: 
+            type:  Referencable
+            #reference: true
+            #multivalue: true       
    EarlyStopping:
      type: Callback
      properties:  
