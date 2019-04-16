@@ -243,3 +243,5 @@ types:
         type: integer
       imports:
         type: string[]    
+      verbose:
+        type: integer  
