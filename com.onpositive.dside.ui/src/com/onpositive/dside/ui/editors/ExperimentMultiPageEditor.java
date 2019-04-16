@@ -316,7 +316,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	}
 
 	private void updatePages() {
-		for (int i = 2; i < this.getPageCount(); i++) {
+		for (int i = 1; i < this.getPageCount(); i++) {
 			this.removePage(i);
 		}
 
@@ -352,6 +352,9 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		}
+		if (this.getPageCount()>1) {
+			this.setActivePage(this.getPageCount()-1);
 		}
 	}
 

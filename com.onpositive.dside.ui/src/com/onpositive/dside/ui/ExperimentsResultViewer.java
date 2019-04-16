@@ -156,24 +156,7 @@ public class ExperimentsResultViewer extends TreeViewer {
 					return "";
 				}
 				Object metric = r.getMetric(ms.get(columnIndex));
-				if (metric == null) {
-					return "";
-				}
-				if (metric instanceof java.util.Map) {
-					Double max = (Double) ((java.util.Map) metric).get("max");
-					Double min = (Double) ((java.util.Map) metric).get("min");
-					Double mean = (Double) ((java.util.Map) metric).get("mean");
-					NumberFormat instance = NumberFormat.getInstance();
-					instance.setMaximumFractionDigits(4);
-					return "[" + instance.format(min) + ", " + instance.format(mean) + ", " + instance.format(max)
-							+ "]";
-				}
-				if (metric instanceof Double) {
-					NumberFormat instance = NumberFormat.getInstance();
-					instance.setMaximumFractionDigits(4);
-					return instance.format(metric);
-				}
-				return (String) metric.toString();
+				return metricString(metric);
 			}
 
 			@Override
@@ -183,5 +166,26 @@ public class ExperimentsResultViewer extends TreeViewer {
 		});
 		((Composite) this.getControl().getParent()).setLayout(ll);
 		this.setInput(rs);
+	}
+
+	public static String metricString(Object metric) {
+		if (metric == null) {
+			return "";
+		}
+		if (metric instanceof java.util.Map) {
+			Double max = (Double) ((java.util.Map) metric).get("max");
+			Double min = (Double) ((java.util.Map) metric).get("min");
+			Double mean = (Double) ((java.util.Map) metric).get("mean");
+			NumberFormat instance = NumberFormat.getInstance();
+			instance.setMaximumFractionDigits(4);
+			return "[" + instance.format(min) + ", " + instance.format(mean) + ", " + instance.format(max)
+					+ "]";
+		}
+		if (metric instanceof Double) {
+			NumberFormat instance = NumberFormat.getInstance();
+			instance.setMaximumFractionDigits(4);
+			return instance.format(metric);
+		}
+		return (String) metric.toString();
 	}
 }

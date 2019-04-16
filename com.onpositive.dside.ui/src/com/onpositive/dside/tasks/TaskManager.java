@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchListener;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener;
+import org.eclipse.debug.core.ILaunchesListener2;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.jface.window.Window;
 import org.eclipse.ui.PartInitException;
@@ -77,17 +81,13 @@ public class TaskManager {
 
 	}
 
-	static HashMap<ILaunch, TaskStatus> tasks = new HashMap<>();
+	static IdentityHashMap<ILaunch, TaskStatus> tasks = new IdentityHashMap<>();
 
 	static {
-		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(new ILaunchesListener() {
+		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+		launchManager.addLaunchListener(new ILaunchesListener2() {
 
-			@Override
-			public synchronized void launchesRemoved(ILaunch[] launches) {
-				for (ILaunch l : launches) {
-					perform(l);
-				}
-			}
+			
 
 			private void perform(ILaunch l) {
 				if (tasks.containsKey(l)) {
@@ -99,20 +99,37 @@ public class TaskManager {
 				}
 			}
 
-			@Override
-			public synchronized void launchesChanged(ILaunch[] launches) {
-				for (ILaunch l : launches) {
-					perform(l);
-				}
-
-			}
+			
 
 			@Override
-			public synchronized void launchesAdded(ILaunch[] launches) {
-				for (ILaunch l : launches) {
+			public void launchesRemoved(ILaunch[] launches) {
+				for (ILaunch l:launches) {
 					perform(l);
 				}
 			}
+
+			@Override
+			public void launchesAdded(ILaunch[] launches) {
+				for (ILaunch l:launches) {
+					perform(l);
+				}
+			}
+
+			@Override
+			public void launchesChanged(ILaunch[] launches) {
+				for (ILaunch l:launches) {
+					perform(l);
+				}
+			}
+
+			@Override
+			public void launchesTerminated(ILaunch[] launches) {
+				for (ILaunch l:launches) {
+					perform(l);
+				}
+			}
+
+			
 		});
 	}
 
