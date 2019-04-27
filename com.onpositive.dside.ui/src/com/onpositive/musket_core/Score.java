@@ -37,10 +37,12 @@ public class Score implements Comparable<Score>{
 						Object object = obj.get(primaryMetric);
 						if (object instanceof Map) {
 							initFromMeanMax((Map<String, ?>) object);
+							return ;
 						}
 						else {
 						sc=(Double)object;
 						}
+						
 					}
 					initFromScalar(sc);					
 				}

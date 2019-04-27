@@ -72,7 +72,15 @@ public class CompletionContextBuilder {
 			if (!ct.afterKey&&!hasColon) {
 				String substring = ct.content.substring(0, offset);
 				int end=Math.max(substring.lastIndexOf('\r'),substring.lastIndexOf('\n'));
+				String sm=substring.substring(end);
+				if (!sm.trim().isEmpty()) {
+					if (Character.isJavaIdentifierPart(substring.charAt(substring.length()-1))) {
+						substring=substring+":";
+					}
+				}
+				else {
 				substring=substring.substring(0,end);
+				}
 				substring=substring+ct.content.substring(offset);
 				ct.content=substring;
 			}

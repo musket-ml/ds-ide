@@ -52,7 +52,9 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 //		}
 		
 		this.parent = astElement;
-		
+		if (type==null) {
+			type=BuiltIns.getBuiltInTypes().getType("any");
+		}
 		if (type.name().equals("GenericDeclaration")) {
 			if (node instanceof SequenceNode) {
 				this.oneValue = "body";
@@ -330,6 +332,10 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 								if (parseValue instanceof ASTElement) {
 									ASTElement mm = (ASTElement) parseValue;
 									mm.key = value2;
+								}
+								if (parseValue==null) {
+									ASTElement el=new ASTElement(t.getValueNode(), componentType, this);
+									return el;
 								}
 								s.add(parseValue);
 							}

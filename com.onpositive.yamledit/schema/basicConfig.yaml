@@ -242,7 +242,13 @@ types:
         range: dataset
       extra_train_data:
         type: object
-        range: dataset      
+        range: dataset
+      stratified:
+        type: boolean
+      final_metrics: 
+         type: string[]  
+      validationSplit:
+        type: float          
       datasets:        
                 
         type: DataSetDeclaration

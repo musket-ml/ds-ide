@@ -21,7 +21,7 @@ public class DataSet {
 	}
 	
 	public String getName() {
-		return dataset.name();
+		return dataset.get_name();
 	}
 
 	public Object item(int i) {
@@ -30,6 +30,6 @@ public class DataSet {
 	
 	@Override
 	public String toString() {
-		return dataset.name();
+		return dataset.get_name();
 	}
 }

@@ -156,6 +156,9 @@ public class TaskConfiguration implements IServerTask<Object> {
 			@Override
 			public void run() {
 				ArrayList<Object> rrr = (ArrayList<Object>) result;
+				if (rrr==null) {
+					return;
+				}
 				for (Object o : rrr) {
 					Map<String, Object> mmm = (Map<String, Object>) o;
 					if (mmm.containsKey("results")) {

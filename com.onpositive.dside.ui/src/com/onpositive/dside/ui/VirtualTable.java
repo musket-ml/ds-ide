@@ -83,7 +83,7 @@ public class VirtualTable extends VisualizerViewer<Control> {
 		int size = input2.size();
 		for (int i = 0; i < size; i++) {
 			IDataSet iDataSet = input2.get(i);
-			String name = iDataSet.name();
+			String name = iDataSet.get_name();
 			int count = iDataSet.len();
 			PShelfItem pitem = new PShelfItem(CTabFolder, SWT.NONE);
 			pitem.setText(name + "(" + count + ")");

@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.aml.typesystem.AbstractType;
+import org.aml.typesystem.beans.IPropertyView;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
@@ -75,7 +76,15 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 		ArrayList<ICompletionProposal> ps = new ArrayList<>();
 		if (find != null) {
 			if (find.ts != null) {				
-				for (org.aml.typesystem.beans.IProperty v : find.ts.getType().toPropertiesView().properties()) {
+				AbstractType type = find.ts.getType();
+				if (type==null) {
+					return new ICompletionProposal[0];
+				}
+				IPropertyView propertiesView = type.toPropertiesView();
+				if (propertiesView==null) {
+					return new ICompletionProposal[0];
+				}
+				for (org.aml.typesystem.beans.IProperty v : propertiesView.properties()) {
 					if (!strs.add(v.id().toLowerCase())) {
 						continue;
 					}

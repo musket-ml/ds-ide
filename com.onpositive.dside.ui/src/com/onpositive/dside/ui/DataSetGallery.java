@@ -106,7 +106,7 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 					int len = data.len();
 					item.setItemCount(len);
 					item.setExpanded(true);
-					item.setText(data.name()); // $NON-NLS-1$
+					item.setText(data.get_name()); // $NON-NLS-1$
 					item.setData(data);
 				}
 

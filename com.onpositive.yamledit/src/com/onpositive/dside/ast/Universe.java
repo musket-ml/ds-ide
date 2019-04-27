@@ -189,7 +189,7 @@ public class Universe extends TypeRegistryImpl {
 							type2.addMeta(new HasKey(true));
 						}
 					}
-					if (p.getName().equals("input")) {
+					if (p.getName().equals("input")||p.getName().equals("inp")) {
 						if (derive.isSubTypeOf("Preprocessor") || derive.isSubTypeOf("Layer")) {
 							continue;
 						}

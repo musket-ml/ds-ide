@@ -8,5 +8,5 @@ public interface IDataSet {
 	
 	Object item(int num); 
 
-	String name();
+	String get_name();
 }

@@ -335,7 +335,7 @@ public class AnalistsView extends XMLView {
 		for (int i = 0; i < size; i++) {
 			IDataSet iDataSet = r.get(i);
 			int len = iDataSet.len();
-			String name = iDataSet.name();
+			String name = iDataSet.get_name();
 			names.add(name);
 			counts.add((double) len);
 			sum = sum + len;
@@ -398,7 +398,7 @@ public class AnalistsView extends XMLView {
 		for (int i = 0; i < size; i++) {
 			IDataSet iDataSet = r.get(i);
 			int len = iDataSet.len();
-			String name = iDataSet.name();
+			String name = iDataSet.get_name();
 
 			counts[i] = len;
 			sum = sum + len;
