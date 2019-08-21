@@ -34,7 +34,11 @@ public class ExperimentLogs {
 				} else {
 					Double[] res = new Double[l.length];
 					for (int i = 0; i < res.length; i++) {
+						try {
 						res[i] = Double.parseDouble(l[i]);
+						}catch (Exception e) {
+							// TODO: handle exception
+						}
 					}
 					this.data.add(res);
 				}

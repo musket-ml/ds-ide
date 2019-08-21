@@ -164,7 +164,8 @@ public class TaskManager {
 						+ "        obj = yaml.load(config)\n" + "        print(obj)\n"
 						+ "        results = obj.perform(projects.Workspace(), tools.ProgressMonitor())\n"
 						+ "        with open(out,\"w\") as f:\n" + "            f.write(yaml.dump(results))\n"
-						+ "main()");
+						+ "if __name__ == \"__main__\":"
+						+ "    main()");
 				Path write1 = Files.write(absolutePath1, codeToRun);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

@@ -2,6 +2,9 @@ templates:
    - name: Basic Template
      description: Basic Template
      file: experiment.yaml
-   - name: Another template
-     description: Another Template
-     file: experiment.yaml
+   - name: Image Classification
+     description: Basic image classification template
+     file: classification.yaml
+   - name: Image Segmentation
+     description: Basic image segmentation template
+     file: classification.yaml  

@@ -12,9 +12,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
@@ -27,7 +25,6 @@ import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
 import org.eclipse.jface.text.reconciler.MonoReconciler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -41,7 +38,6 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
@@ -62,7 +58,6 @@ import com.onpositive.dside.ui.ExperimentResultsEditorPart;
 import com.onpositive.dside.ui.LaunchConfiguration;
 import com.onpositive.dside.ui.builder.SampleBuilder;
 import com.onpositive.dside.ui.editors.YamlHyperlinkDetector.FeatureInfo;
-import com.onpositive.dside.ui.editors.outline.OutlineContentProvider;
 import com.onpositive.musket_core.Errors;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ExperimentError;
@@ -70,7 +65,6 @@ import com.onpositive.musket_core.ExperimentLogs;
 import com.onpositive.musket_core.ExperimentResults;
 import com.onpositive.musket_core.IExperimentExecutionListener;
 import com.onpositive.musket_core.ProjectWrapper;
-import com.onpositive.semantic.model.ui.property.editors.SeparatorElement;
 
 import de.jcup.yamleditor.YamlEditor;
 import de.jcup.yamleditor.YamlSourceViewerConfiguration;
@@ -341,6 +335,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			}
 		}
 		Errors errors = experiment.getErrors();
+		if (errors!=null) {
 		ArrayList<ExperimentError> errors2 = errors.getErrors();
 		if (!errors2.isEmpty()) {
 			try {
@@ -352,6 +347,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		}
 		}
 		if (this.getPageCount()>1) {
 			this.setActivePage(this.getPageCount()-1);
@@ -381,7 +377,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		if (this.root!=null) {
 			return root;
 		}
-		Universe registry = TypeRegistryProvider.getRegistry("basicConfig");
+		Universe registry = getRegistry();
 		ASTElement buildRoot = registry.buildRoot(this.editor.getDocument().get(), getProject().getDetails(),experiment.getProjectPath());
 		this.root=buildRoot;
 		return buildRoot;
@@ -405,7 +401,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	}
 
 	public void validate() {
-		Universe registry = TypeRegistryProvider.getRegistry("basicConfig");
+		Universe registry = getRegistry();		
 		
 		IEditorInput editorInput = getEditorInput();
 		if (editorInput instanceof FileEditorInput) {
@@ -433,6 +429,12 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				// TODO: handle exception
 			}
 		}
+	}
+
+	private Universe getRegistry() {
+		String extractFragment = FragmentExtractor.extractFragment(this.editor.getDocument());
+		Universe registry = TypeRegistryProvider.getRegistry(extractFragment==null?"basicConfig":extractFragment.toLowerCase());
+		return registry;
 	}
 
 	/**

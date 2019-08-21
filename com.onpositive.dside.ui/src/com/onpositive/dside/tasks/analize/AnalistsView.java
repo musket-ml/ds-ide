@@ -1,5 +1,6 @@
 package com.onpositive.dside.tasks.analize;
 
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -23,7 +24,15 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Layout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.CategoryItemLabelGenerator;
+import org.jfree.chart.labels.ItemLabelAnchor;
+import org.jfree.chart.labels.ItemLabelPosition;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.Dataset;
@@ -34,6 +43,7 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.ui.TextAnchor;
 import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.commons.elements.AbstractUIElement;
@@ -321,6 +331,17 @@ public class AnalistsView extends XMLView {
 					return cs;
 
 				}
+				if (object instanceof ArrayList) {
+					ArrayList arrayList = (ArrayList) object;
+					if (arrayList.get(0) instanceof Number){
+						DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+						int size = arrayList.size();
+						for (int i = 0; i < size; i++) {
+							dataset.addValue((Number) arrayList.get(i),""+i,"");								
+						}
+						return dataset;
+					}
+				}
 				DefaultXYDataset d = createXY(object, total);
 
 				return d;
@@ -354,7 +375,11 @@ public class AnalistsView extends XMLView {
 		if (object instanceof ArrayList) {
 			ArrayList x = (ArrayList) object;
 			int num = 0;
+			if (x.get(0) instanceof Double) {
+				
+			}
 			for (Object z : x) {
+				
 				Map m = (Map) z;
 
 				double[][] data = new double[2][m.size()];
@@ -425,6 +450,17 @@ public class AnalistsView extends XMLView {
 					x_axis, // Category axis
 					y_axis, // Value axis
 					(CategoryDataset) dataset, PlotOrientation.VERTICAL, true, true, false);
+			CategoryPlot plot = (CategoryPlot) chart.getPlot();
+			BarRenderer renderer = (BarRenderer) plot.getRenderer(0);
+	        CategoryItemLabelGenerator generator 
+	            = new StandardCategoryItemLabelGenerator("{1}", 
+	                    NumberFormat.getInstance());
+//	        renderer.setItemLabelGenerator(generator);
+//	        renderer.setItemLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+//	        renderer.setItemLabelsVisible(true);
+//	        renderer.setPositiveItemLabelPosition(new ItemLabelPosition(
+//	                ItemLabelAnchor.CENTER, TextAnchor.CENTER, TextAnchor.CENTER, 
+//	                - Math.PI / 2));
 			return chart;
 		}
 		if (dataset instanceof PieDataset) {
@@ -432,6 +468,12 @@ public class AnalistsView extends XMLView {
 					(PieDataset) dataset, // data
 					true, // include legend
 					true, false);
+
+			return chart;
+		}
+		if (dataset instanceof HistogramDataset) {
+			JFreeChart chart = ChartFactory.createHistogram("", "", "", (HistogramDataset) dataset,
+					PlotOrientation.VERTICAL, false, false, false);
 
 			return chart;
 		}
@@ -451,12 +493,7 @@ public class AnalistsView extends XMLView {
 
 			return chart;
 		}
-		if (dataset instanceof HistogramDataset) {
-			JFreeChart chart = ChartFactory.createHistogram("", "", "", (HistogramDataset) dataset,
-					PlotOrientation.VERTICAL, false, false, false);
 
-			return chart;
-		}
 		throw new IllegalStateException("Unknown dataset type");
 	}
 

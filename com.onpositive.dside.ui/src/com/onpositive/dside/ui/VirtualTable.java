@@ -194,6 +194,9 @@ public class VirtualTable extends VisualizerViewer<Control> {
 			}
 		}
 		else {
+		    if (s==null) {
+		        s="";
+		    }
 			s=s.replace('\n', ' ');
 			s=s.replace('\r', ' ');
 			s=s.replace('\t', ' ');

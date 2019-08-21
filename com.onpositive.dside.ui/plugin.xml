@@ -577,4 +577,16 @@
              value="true">
        </persistent>
     </extension>
+    <extension
+          id="product1"
+          point="org.eclipse.core.runtime.products">
+       <product
+             application="org.eclipse.ui.ide.workbench"
+             name="x">
+          <property
+                name="appName"
+                value="x">
+          </property>
+       </product>
+    </extension>
 </plugin>

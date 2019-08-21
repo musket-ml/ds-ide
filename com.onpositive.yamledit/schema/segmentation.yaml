@@ -142,10 +142,10 @@ types:
             type: string
          negatives:
             type: number
-         lr:
-           type: number   
          validation_negatives:
             type: number
+         lr:
+           type: number   
          unfreeze_encoder: 
             type: boolean            
          callbacks:
@@ -158,6 +158,23 @@ types:
     root: true    
     customValidator: com.onpositive.dside.ast.RootValidator 
     properties:
+      architecture: 
+         type: string
+      backbone: 
+         type: string
+      augmentation:
+         type: object
+      classes:
+         type: integer
+         min: 1
+         required: true
+      activation:
+         type: string
+         required: true
+      encoder_weights:
+         type: string
+      shape: 
+         type: integer[]                
       metrics:
         #multivalue: true
         reference: true
@@ -219,13 +236,7 @@ types:
         multivalue: true
       stages:
         type: Stage[]
-        required: true
-                  
-      architecture:
-        type: Layer
-        #range: stage  
-        reference: true  
-        multivalue: true
+        required: true                       
       preprocessing:
         type: Preprocessor
         #range: stage  
