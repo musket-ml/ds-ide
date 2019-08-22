@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-Description: YAML 1.1 parser and emitter for Java
+Bundle-License: LICENSE.txt
+Bundle-SymbolicName: org.yaml.snakeyaml
+Built-By: 32kda
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1566472592820
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Tool: Bnd-1.15.0
+Bundle-Version: 1.9.0
+Bundle-Name: SnakeYAML
+Created-By: Apache Maven Bundle Plugin
+Build-Jdk: 1.8.0_191
+
