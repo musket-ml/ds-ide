@@ -15,7 +15,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.workbench,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
- org.python.pydev
+ org.python.pydev,
+ de.jcup.yamleditor,
+ org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.ui
