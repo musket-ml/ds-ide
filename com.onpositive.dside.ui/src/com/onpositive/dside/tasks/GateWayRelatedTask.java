@@ -1,20 +1,17 @@
 package com.onpositive.dside.tasks;
 
 import java.io.StringReader;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.function.Function;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.swt.widgets.Display;
 import org.yaml.snakeyaml.Yaml;
 
-import com.onpositive.musket_core.IProgressReporter;
 import com.onpositive.musket_core.IServer;
 
 import py4j.GatewayServer;
-import py4j.Py4JException;
 
 public class GateWayRelatedTask implements IServerTask<Object> {
 
@@ -33,6 +30,12 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 	protected IServer musketServer;
 	private com.onpositive.musket_core.IProject musketProject;
 	private ILaunch launch;
+	
+	private CompletableFuture<IServer> serverFuture = new CompletableFuture<IServer>();
+	
+	public CompletableFuture<IServer> getServer() {
+		return serverFuture;
+	}
 
 	@Override
 	public Class<Object> resultClass() {
@@ -60,7 +63,9 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 		this.musketServer=server;		
 		com.onpositive.musket_core.IProject project2 = server.project(this.project.getLocation().toOSString());
 		this.musketProject=project2;
-		delegate.started(this);		
+		delegate.started(this);
+		
+		serverFuture.complete(musketServer);
 	}
 	
 	public <T,R> void perform(T data,Class<R>resultClass,Consumer<R>func,Consumer<Throwable>error){

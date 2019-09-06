@@ -1,0 +1,20 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" >
+	<model class="com.onpositive.dside.ui.KaggleDatasetParams"/>
+	
+	<checkbox bindTo="dsEnabled"/>
+	
+	<hc>
+		<string bindTo="dsSearch" visibility="dsEnabled"/>
+		<checkbox bindTo="dsIsMine" visibility="dsEnabled"/>
+		<button bindTo="searchButton" visibility="dsEnabled"/>
+	</hc>
+	
+	<label caption="wait for response..." visibility="dsWaiting"/>
+	
+	<table bindTo="dsSearchResult" visibility="dsEnabled" bindSelectionTo="dsItem" enablement="dsNotWaiting">
+		<columns>
+			<column id="ref"/>
+			<column id="url"/>
+		</columns>
+	</table>
+</composite-editor>
