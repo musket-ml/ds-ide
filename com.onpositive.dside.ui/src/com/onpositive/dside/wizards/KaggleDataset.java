@@ -149,18 +149,20 @@ public class KaggleDataset extends Wizard implements INewWizard {
 	}
 	
 	private void ensure(IFolder folder, IProgressMonitor monitor) throws CoreException {
-		List<IFolder> folders = new ArrayList<IFolder>();
+		List<IContainer> folders = new ArrayList<IContainer>();
 		
-		IFolder currentFolder = folder;
+		IContainer currentFolder = folder;
 		
 		while(!currentFolder.exists()) {
 			folders.add(0, currentFolder);
 			
-			currentFolder = (IFolder) currentFolder.getParent();
+			currentFolder = (IContainer) currentFolder.getParent();
 		}
 		
-		for(IFolder cnt: folders) {
-			cnt.create(true, true, monitor);
+		for(IContainer cnt: folders) {
+			if (cnt instanceof IFolder) {
+				((IFolder) cnt).create(true, true, monitor);
+			}
 		}
 	}
 	
