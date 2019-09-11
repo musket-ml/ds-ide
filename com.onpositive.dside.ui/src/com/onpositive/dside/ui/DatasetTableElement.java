@@ -4,10 +4,10 @@ import com.google.gson.JsonElement;
 
 public class DatasetTableElement {
 	public String ref;
-	public String url;
+	public String size;
 	
 	public DatasetTableElement(JsonElement element) {
 		this.ref = element.getAsJsonObject().get("ref").getAsString();
-		this.url = element.getAsJsonObject().get("url").getAsString();
+		this.size = element.getAsJsonObject().get("size").getAsString();
 	}
 }

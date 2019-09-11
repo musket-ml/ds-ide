@@ -78,7 +78,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 
 			@Override
 			public void createControl(Composite parent) {
-				setImageDescriptor(SWTImageManager.getDescriptor("new_exp_wiz"));
+				setImageDescriptor(SWTImageManager.getDescriptor("dataset_wiz"));
 				RootElement el = new RootElement(parent);
 				setTitle("New Dataset");
 				setMessage("Let's have fun");
@@ -119,7 +119,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 	}
 	
 	private void download(org.eclipse.core.resources.IProject project) {
-		IFolder folder = project.getFolder("datasets/kaggle/" + datasetView.dsItem.ref);
+		IFolder folder = project.getFolder("datasets/kaggle/" + datasetView.getItem().ref);
 		
 		String fullPath = folder.getLocation().toOSString();
 			
@@ -137,7 +137,12 @@ public class KaggleDataset extends Wizard implements INewWizard {
 				
 		serverTask.getServer().thenAcceptAsync((IServer server) -> {
 			try {
-				server.downloadDataset(datasetView.dsItem.ref, fullPath);
+				if(datasetView.isDsDatasetEnabled()) {
+					server.downloadDataset(datasetView.getItem().ref, fullPath);
+				} else {
+					server.downloadCompetitionFiles(datasetView.getItem().ref, fullPath);
+				}
+				
 			} catch(Throwable t) {
 				t.printStackTrace();
 			}
@@ -175,7 +180,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 			protected void execute(IProgressMonitor monitor) throws CoreException {
 				org.eclipse.core.resources.IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(datasetView.project);
 				
-				IFolder folder = project.getFolder("datasets/kaggle/" + datasetView.dsItem.ref);
+				IFolder folder = project.getFolder("datasets/kaggle/" + datasetView.getItem().ref);
 				
 				ensure(folder, monitor);
 				

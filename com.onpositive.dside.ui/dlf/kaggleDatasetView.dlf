@@ -2,7 +2,10 @@
 	<model class="com.onpositive.dside.ui.KaggleDatasetParams"/>
 	
 	<checkbox bindTo="dsEnabled"/>
-	
+	<hc>
+		<radio  bindTo="dsIsDataset" caption="Dataset" visibility="dsEnabled"/>
+ 		<radio  bindTo="dsIsCompetition" caption="Competition" visibility="dsEnabled"/> 
+	</hc>
 	<hc>
 		<string bindTo="dsSearch" visibility="dsEnabled"/>
 		<checkbox bindTo="dsIsMine" visibility="dsEnabled"/>
@@ -11,10 +14,16 @@
 	
 	<label caption="wait for response..." visibility="dsWaiting"/>
 	
-	<table bindTo="dsSearchResult" visibility="dsEnabled" bindSelectionTo="dsItem" enablement="dsNotWaiting">
+	<table bindTo="dsSearchResultDatasets" visibility="DsDatasetEnabled" bindSelectionTo="dsDatsetItem" enablement="dsNotWaiting">
 		<columns>
 			<column id="ref"/>
-			<column id="url"/>
+			<column id="size" hAlign="right"/>
+		</columns>
+	</table>
+	
+	<table bindTo="dsSearchResultCompetitions" visibility="DsCompetitionEnabled" bindSelectionTo="dsCompetitionItem" enablement="dsNotWaiting">
+		<columns>
+			<column id="ref"/>
 		</columns>
 	</table>
 </composite-editor>

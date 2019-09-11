@@ -32,10 +32,14 @@ public class KaggleDatasetParams {
 	@Caption("My Datasets")
 	Boolean dsIsMine = false;
 	
-	@Caption("Available")
-	List<DatasetTableElement> dsSearchResult = new ArrayList<DatasetTableElement>();
+	@Caption("Datasets")
+	List<DatasetTableElement> dsSearchResultDatasets = new ArrayList<DatasetTableElement>();
+	
+	@Caption("Competitions")
+	List<DatasetTableElement> dsSearchResultCompetitions = new ArrayList<DatasetTableElement>();
 		
-	public DatasetTableElement dsItem;
+	public DatasetTableElement dsDatsetItem = null;
+	public DatasetTableElement dsCompetitionItem = null;
 	
 	boolean dsWaiting = false;
 	boolean dsNotWaiting = true;
@@ -45,6 +49,21 @@ public class KaggleDatasetParams {
 		dsNotWaiting = !value;
 	}
 	
+	boolean dsIsDataset = true;
+	boolean dsIsCompetition = false;
+	
+	public boolean isDsDatasetEnabled() {
+		return dsEnabled && dsIsDataset;
+	}
+	
+	public boolean isDsCompetitionEnabled() {
+		return dsEnabled && dsIsCompetition;
+	}
+	
+	public DatasetTableElement getItem() {
+		return isDsDatasetEnabled() ? dsDatsetItem : dsCompetitionItem;
+	}
+		
 	@Caption("Search")
 	public void searchButton() {
 		setWaiting(true);
@@ -69,18 +88,25 @@ public class KaggleDatasetParams {
 		
 		serverTask.getServer().thenAcceptAsync((IServer server) -> {
 			try {
-				String jsonString = server.getDatasets(dsSearch, dsIsMine);
+				String jsonString = isDsDatasetEnabled() ? server.getDatasets(dsSearch, dsIsMine) : server.getCompetitions(dsSearch, dsIsMine);
 				
 				JsonElement jsonTree = jsonParser.parse(jsonString);
 				
 				JsonArray array = jsonTree.getAsJsonArray();
 				
-				dsSearchResult = new ArrayList<DatasetTableElement>();
+				
+				ArrayList<DatasetTableElement> searchResult = new ArrayList<DatasetTableElement>();
 				
 				for(int i = 0; i < array.size(); i++) {
 					DatasetTableElement item = new DatasetTableElement(array.get(i));
 					
-					dsSearchResult.add(new DatasetTableElement(array.get(i)));
+					searchResult.add(new DatasetTableElement(array.get(i)));
+				}
+				
+				if(isDsDatasetEnabled()) {
+					dsSearchResultDatasets = searchResult;
+				} else {
+					dsSearchResultCompetitions = searchResult;
 				}
 			} catch(Throwable t) {
 				t.printStackTrace();

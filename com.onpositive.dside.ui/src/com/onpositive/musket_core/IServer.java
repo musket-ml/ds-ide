@@ -10,5 +10,9 @@ public interface IServer {
 	
 	String getDatasets(String search, Boolean mine);
 	
+	String getCompetitions(String search, Boolean mine);
+	
 	void downloadDataset(String id, String dest);
+	
+	void downloadCompetitionFiles(String id, String dest);
 }
