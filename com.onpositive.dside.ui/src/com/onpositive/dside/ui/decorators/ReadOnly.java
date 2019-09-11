@@ -37,58 +37,74 @@ public class ReadOnly implements ILightweightLabelDecorator {
 	private int quadrant;
 
 	/** The icon image location in the project folder */
-	private String iconPath = "icons/read_only.gif"; //NON-NLS-1
+	private String iconPath = "icons/read_only.gif"; // NON-NLS-1
 
 	/**
-	 * The image description used in
-	 * <code>addOverlay(ImageDescriptor, int)</code>
+	 * The image description used in <code>addOverlay(ImageDescriptor, int)</code>
 	 */
 	private ImageDescriptor descriptor;
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.Object, org.eclipse.jface.viewers.IDecoration)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.ILightweightLabelDecorator#decorate(java.lang.
+	 * Object, org.eclipse.jface.viewers.IDecoration)
 	 */
 	public void decorate(Object element, IDecoration decoration) {
 		/**
-		 * Checks that the element is an IResource with the 'Read-only' attribute
-		 * and adds the decorator based on the specified image description and the
-		 * integer representation of the placement option.
+		 * Checks that the element is an IResource with the 'Read-only' attribute and
+		 * adds the decorator based on the specified image description and the integer
+		 * representation of the placement option.
 		 */
-		IResource resource = (IResource) element;
-		ResourceAttributes attrs = resource.getResourceAttributes();
-		if (attrs.isReadOnly()){
-			URL url = FileLocator.find(
-					Platform.getBundle("com.onpositive.dside.ui"), new Path(iconPath), null); //NON-NLS-1
+		if (element instanceof IResource) {
+			IResource resource = (IResource) element;
+			ResourceAttributes attrs = resource.getResourceAttributes();
+			if (attrs.isReadOnly()) {
+				URL url = FileLocator.find(Platform.getBundle("com.onpositive.dside.ui"), new Path(iconPath), null); // NON-NLS-1
 
-			if (url == null)
-				return;
-			descriptor = ImageDescriptor.createFromURL(url);			
-			quadrant = IDecoration.BOTTOM_RIGHT;
-			decoration.addOverlay(descriptor,quadrant);
+				if (url == null)
+					return;
+				descriptor = ImageDescriptor.createFromURL(url);
+				quadrant = IDecoration.BOTTOM_RIGHT;
+				decoration.addOverlay(descriptor, quadrant);
+			}
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.
+	 * viewers.ILabelProviderListener)
 	 */
 	public void addListener(ILabelProviderListener listener) {
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#dispose()
 	 */
 	public void dispose() {
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.
+	 * Object, java.lang.String)
 	 */
 	public boolean isLabelProperty(Object element, String property) {
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface
+	 * .viewers.ILabelProviderListener)
 	 */
 	public void removeListener(ILabelProviderListener listener) {
 	}

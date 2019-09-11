@@ -526,9 +526,40 @@
              id="com.onpositive.dside.ui.addRemoveMusketNature"
              name="Add/RemoveMusket Project Nature">
        </command>
+       <command
+             defaultHandler="com.onpositive.dside.ui.datasets.CompareCSVDataSets"
+             id="com.onpositive.dside.ui.compare"
+             name="Compare CSV DataSets">
+       </command>
     </extension>
     <extension
           point="org.eclipse.ui.menus">
+        <menuContribution
+             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+             <command
+                   commandId="com.onpositive.dside.ui.compare"
+                   icon="icons/mergesessions.png"
+                   label="Compare CSV DataSets"
+                   style="push">
+             <visibleWhen
+                   checkEnabled="false">
+                <with
+                      variable="selection">
+                   <count
+                         value="2">
+                   </count>
+                   <iterate>
+                      <adapt
+                            type="org.eclipse.core.resources.IFile">
+                         <test
+                                property="matchesName" value="*.csv"/>
+                         
+                      </adapt>
+                   </iterate>
+                </with>
+             </visibleWhen>
+          </command>
+        </menuContribution>  
        <menuContribution
              locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
           <command
@@ -554,6 +585,7 @@
                 </with>
              </visibleWhen>
           </command>
+          
           <command
                 commandId="com.onpositive.dside.ui.addRemoveMusketNature"
                 label="Enable Musket builder"
