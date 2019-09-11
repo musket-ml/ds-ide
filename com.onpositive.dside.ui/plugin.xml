@@ -83,6 +83,11 @@
                id="com.onpositive.dside.ui.action2"
                label="Connect">
          </action>
+         <action
+               class="com.onpositive.dside.ui.navigator.NewKaggleDatasetAction"
+               id="com.onpositive.dside.ui.action4"
+               label="Kaggle Dataset">
+         </action>
       </objectContribution>
    </extension>
    <extension point="org.eclipse.debug.core.launchConfigurationTypes">
@@ -168,6 +173,11 @@
             name="new_exp_wiz">
       </image>
       <image
+            id="dataset_wiz"
+            image="icons/newex_wiz.png"
+            name="dataset_wiz">
+      </image>
+      <image
             id="com.onpositive.dside.ui.group_wiz_image"
             image="icons/newsrcfldr_wiz@2x.png"
             name="name">
@@ -248,7 +258,7 @@
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/experiment.png"
-            id="com.onpositive.dside.ui.musket"
+            id="com.onpositive.dside.ui.kaggle_dataset"
             name="Kaggle Dataset"
             project="false">
       </wizard>
