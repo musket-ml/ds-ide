@@ -1,9 +1,15 @@
 package com.onpositive.datasets.visualisation.ui.views;
+import java.awt.Image;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 
 import javax.inject.Inject;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -11,10 +17,19 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.MultiEditorInput;
+import org.python.pydev.shared_ui.EditorUtils;
 
 import com.onpositive.datasets.engine.AnalisysEngine;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.images.AbstractImageDataSet;
+import com.onpositive.musket.data.images.BinaryClassificationDataSet;
+import com.onpositive.musket.data.images.BinarySegmentationDataSet;
+import com.onpositive.musket.data.images.IImageItem;
+import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
+import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
+import com.onpositive.musket.data.images.MultiClassificationDataset;
 import com.onpositive.musket.data.project.DataProjectAccess;
+import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 
 /**
@@ -47,6 +62,8 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	private File file2;
 
 	private IDataSet ds;
+
+	private IProject project;
 	 
 
 	@Override
@@ -97,6 +114,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	private File fromINput(IEditorInput editorInput) {
 		IFileEditorInput input=(IFileEditorInput) editorInput;
 		IFile file = input.getFile();
+		this.project=file.getProject();
 		File file3 = file.getLocation().toFile();
 		return file3;
 	}
@@ -107,7 +125,63 @@ public class CSVDataSetEditor extends AnalistsEditor {
 		DataProjectAccess.updateMeta(file2,ds);
 	}
 
-
+	@Override
+	public void afterDataSetCreate(String name,IDataSet original) {
+		ExperimentTemplate temp=null;
+		if (original instanceof BinaryClassificationDataSet) {
+			temp=new ClassificationTemplate();
+		}
+		if (original instanceof BinarySegmentationDataSet) {
+			temp=new SegmentationTemplate();
+		}
+		if (original instanceof MultiClassSegmentationDataSet) {
+			temp=new SegmentationTemplate();
+		}
+		if (temp!=null) {
+			boolean openQuestion = MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Please confirm", "Great, you have a dataset now, may be you want to configure an experiment?");
+			if (openQuestion) {
+				ExperimentTemplate classificationTemplate = temp;
+				AbstractImageDataSet<IImageItem>it=(AbstractImageDataSet<IImageItem>) original;
+				Image image = it.item(0).getImage();
+				
+				classificationTemplate.width=image.getWidth(null);
+				classificationTemplate.height=image.getHeight(null);
+				classificationTemplate.activation="sigmoid";
+				classificationTemplate.numClasses=1;
+				if (original instanceof IMulticlassClassificationDataSet) {
+					classificationTemplate.numClasses=((IMulticlassClassificationDataSet) original).classNames().size();
+					if (((IMulticlassClassificationDataSet) original).isExclusive()) {
+						classificationTemplate.activation="softmax";		
+					}
+				}
+				boolean createObject = WidgetRegistry.createObject(classificationTemplate);
+				if (createObject) {
+					String finish = classificationTemplate.finish();
+					finish=finish.replace("{dataset}", "get"+name+": []");
+					IFolder folder = project.getFolder("experiments");
+					IFolder folder2 = folder.getFolder(classificationTemplate.name);
+					try {
+					if (!folder2.exists()) {
+						folder2.create(true, true, new NullProgressMonitor());
+					}
+					IFile file = folder2.getFile("config.yaml");
+					
+					if (file.exists()) {
+						file.setContents(new ByteArrayInputStream(finish.getBytes()), true, true,new NullProgressMonitor());
+					}
+					else {
+						file.create(new ByteArrayInputStream(finish.getBytes()), true, new NullProgressMonitor());
+					}
+					Display.getDefault().asyncExec(()->{
+						EditorUtils.openFile(file);	
+					});
+					}catch (Exception e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+		}		
+	}
 
 	@Override
 	public void setFocus() {		
@@ -116,6 +190,16 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	@Override
 	protected File getActualTarget(String targetFile) {
 		return new File(file2.getParentFile(),targetFile);
+	}
+
+	@Override
+	protected IProject getProject() {
+		return project;
+	}
+
+	@Override
+	public File getInputFile() {
+		return file2;
 	}
 
 }

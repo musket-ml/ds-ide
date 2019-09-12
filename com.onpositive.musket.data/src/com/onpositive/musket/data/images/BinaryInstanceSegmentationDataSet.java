@@ -52,5 +52,10 @@ public class BinaryInstanceSegmentationDataSet extends  AbstractRLEImageDataSet<
 	protected String getKind() {
 		return "Binary Instance Segmentation";
 	}
+
+	@Override
+	public String generatePythonString(String sourcePath) {
+		throw new UnsupportedOperationException();
+	}
 	
 }

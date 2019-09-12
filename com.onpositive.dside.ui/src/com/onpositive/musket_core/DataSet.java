@@ -27,6 +27,9 @@ public class DataSet {
 	public Object item(int i) {
 		return dataset.item(i);
 	}
+	public Object id(int i) {
+		return dataset.id(i);
+	}
 	
 	@Override
 	public String toString() {

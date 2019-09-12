@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IProgressMonitor;
+import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.images.AbstractImageDataSet;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IBinarySegmentationDataSet;
@@ -110,6 +111,14 @@ public class BasicImageDataSetActions {
 		}
 		
 	}
+	
+	public static class GenerateDataSetAction extends ConversionAction{
+
+		public GenerateDataSetAction() {
+			super("Generate Musket wrappers", null);
+		}
+		
+	}
 
 	public static List<ConversionAction> getActions(IDataSet d) {
 		ArrayList<ConversionAction> actions = new ArrayList<>();
@@ -127,6 +136,9 @@ public class BasicImageDataSetActions {
 		}
 		if (d instanceof IImageDataSet) {
 			actions.add(new ConvertResolutionAction());
+		}
+		if (d instanceof IPythonStringGenerator) {
+			actions.add(new GenerateDataSetAction());
 		}
 		return actions;
 	}

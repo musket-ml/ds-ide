@@ -1,0 +1,7 @@
+<dialog xmlns="http://jetface.org/JetFace1.0/widgets" >
+  <composite-editor xmlns="http://jetface.org/JetFace1.0/" >
+  	<model class="com.onpositive.datasets.visualisation.ui.views.DataSetGenerationModel"/>
+  	<string bindTo="datasetName" caption="Name"/>
+  	<checkbox  bindTo="makePrimary" caption="Make default"/>
+  </composite-editor>
+</dialog>

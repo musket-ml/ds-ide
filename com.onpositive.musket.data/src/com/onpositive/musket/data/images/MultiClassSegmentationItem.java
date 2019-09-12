@@ -4,7 +4,6 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.ITabularItem;

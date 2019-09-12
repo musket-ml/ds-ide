@@ -160,6 +160,7 @@ public class DataSetViewer extends EditorPart{
 		tasks.offerLast(()->{	
 			try {
 			String s=dataset.item(data).toString();
+			Object id=dataset.id(data);
 			if (images!=null) {
 				Image image = new Image(Display.getDefault(),s);
 				images.put(data, image);
@@ -176,6 +177,7 @@ public class DataSetViewer extends EditorPart{
 					}
 					if (images.containsKey(data)) {
 						num.setImage(images.get(data));
+						num.setText(""+id);
 					}					
 				}
 			});

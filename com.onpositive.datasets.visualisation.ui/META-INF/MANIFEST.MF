@@ -20,4 +20,5 @@ Require-Bundle: org.eclipse.jface,
  com.onpositive.semantic.model.java,
  jfreechard_repackaged,
  org.eclipse.ui.ide;bundle-version="3.14.0",
- org.eclipse.core.resources;bundle-version="3.13.0"
+ org.eclipse.core.resources;bundle-version="3.13.0",
+ org.python.pydev.shared_ui

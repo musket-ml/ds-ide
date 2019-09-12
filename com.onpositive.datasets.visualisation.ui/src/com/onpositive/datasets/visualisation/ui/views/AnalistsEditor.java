@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -24,6 +25,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
@@ -38,8 +40,10 @@ import com.onpositive.dataset.visualization.internal.Utils;
 import com.onpositive.dataset.visualization.internal.VirtualTable;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
+import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConvertResolutionAction;
+import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.GenerateDataSetAction;
 import com.onpositive.semantic.model.api.realm.Realm;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.actions.Action;
@@ -217,47 +221,69 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				if (createObject) {
 					String targetFile = actionSelection.targetFile();
 					ConversionAction selectedAction = actionSelection.getSelectedAction();
+					if (selectedAction instanceof GenerateDataSetAction) {
+						GenerateDataSetAction fm = (GenerateDataSetAction) selectedAction;
+						String name = targetFile;
+						new DataSetGenerator().generateDataSet(results.getOriginal(), getInputFile(), name, true,
+								getProject());
+						IFile file = getProject().getFile("common.yaml");
+						try {
+							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
+									new FileEditorInput(file),
+									"com.onpositive.dside.ui.editors.ExperimentMultiPageEditor");
+							file = getProject().getFolder("modules").getFile("datasets.py");
+							IEditorDescriptor defaultEditor = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName());
+							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
+									new FileEditorInput(file),
+									defaultEditor.getId());
+							afterDataSetCreate(name,results.getOriginal());
+							return;
+						} catch (PartInitException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 					if (selectedAction instanceof ConvertResolutionAction) {
 						String[] split = targetFile.split(",");
 						try {
-						int width=Integer.parseInt(split[0].trim());
-						int height=Integer.parseInt(split[1].trim());
-							Job s=new Job("Convert images") {
-								
+							int width = Integer.parseInt(split[0].trim());
+							int height = Integer.parseInt(split[1].trim());
+							Job s = new Job("Convert images") {
+
 								@Override
 								protected IStatus run(IProgressMonitor monitor) {
-									
-									selectedAction.perform(results.getOriginal(), width,
-											height, new com.onpositive.musket.data.core.IProgressMonitor() {
-												
+
+									selectedAction.perform(results.getOriginal(), width, height,
+											new com.onpositive.musket.data.core.IProgressMonitor() {
+
 												@Override
 												public boolean onProgress(String message, int passsedTicks) {
 													monitor.worked(passsedTicks);
 													return true;
 												}
-												
+
 												@Override
 												public boolean onDone(String message, int totalTicks) {
 													monitor.done();
 													return true;
 												}
-												
+
 												@Override
 												public boolean onBegin(String message, int totalTicks) {
 													monitor.beginTask("Converting images", totalTicks);
 													return true;
-													
+
 												}
-											});		
+											});
 									return Status.OK_STATUS;
 								}
 							};
 							s.schedule();
-							
-						
-						return;
-						}catch (NumberFormatException e) {
-							MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", "Target should be width, height");
+
+							return;
+						} catch (NumberFormatException e) {
+							MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
+									"Target should be width, height");
 						}
 					}
 					File actualTarget = getActualTarget(targetFile);
@@ -348,6 +374,14 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 			cleanContent();
 		}
 	}
+
+	public void afterDataSetCreate(String name,IDataSet original) {
+		
+	}
+
+	public abstract File getInputFile();
+
+	protected abstract IProject getProject();
 
 	protected abstract File getActualTarget(String targetFile);
 

@@ -1,0 +1,21 @@
+<dialog xmlns="http://jetface.org/JetFace1.0/widgets" title="New Classification Experiment" message="Please check basic image classification experiment settings">
+  <composite-editor xmlns="http://jetface.org/JetFace1.0/" >
+  	<model class="com.onpositive.datasets.visualisation.ui.views.ClassificationTemplate"/>
+  	<string bindTo="name" caption="Experiment name"/>
+  	<string bindTo="architecture"/>
+  	<string bindTo="backbone"/>
+  	<string bindTo="numClasses" />
+  	<combo bindTo="activation"/>
+  	<group caption="Basic Augmentation">
+  		<hc>
+  		<checkbox caption="Horizontal Flip" bindTo="hFlip"/>
+  		<checkbox caption="Vertical Flip" bindTo="vFlip" enablement="hFlip"/>
+  		</hc>
+  		<checkbox caption="Enable Test Time Augmentation"/>  		
+  	</group>
+  	<group caption="Dimension">
+  		<string bindTo="width"/>
+  		<string bindTo="height"/>
+  	</group>
+  </composite-editor>
+</dialog>

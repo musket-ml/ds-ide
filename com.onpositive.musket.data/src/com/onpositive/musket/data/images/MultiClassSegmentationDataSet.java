@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IVisualizerProto;
@@ -163,5 +164,28 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 	protected String getKind() {
 		return "Multi class segmentation";
 	}
+	@Override
+	public String generatePythonString(String sourcePath) {
+		return "image_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
+	}
 
+	protected String getPythonName() {
+		return "MultiClassSegmentationDataSet";
+	}
+
+	protected  ArrayList<String> getDataSetArgs(String sourcePath) {
+		ArrayList<String> arrayList = new ArrayList<>();
+		arrayList.add(getImageDirs());
+		arrayList.add('"'+sourcePath+'"');
+		arrayList.add('"'+getImageIdColumn()+'"');
+		arrayList.add('"'+getRLEColumn()+'"');
+		arrayList.add('"'+this.clazzColumn.caption()+'"');
+		if (this.isRelativeRLE) {
+			arrayList.add("isRel=True");
+		}
+		if (!this.widthFirst) {
+			arrayList.add("rMask=False");
+		}
+		return arrayList;
+	}
 }

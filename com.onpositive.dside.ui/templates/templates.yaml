@@ -7,4 +7,4 @@ templates:
      file: classification.yaml
    - name: Image Segmentation
      description: Basic image segmentation template
-     file: classification.yaml  
+     file: segmentation.yaml  

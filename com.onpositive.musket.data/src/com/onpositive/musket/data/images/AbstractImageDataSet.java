@@ -11,6 +11,7 @@ import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
+import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
@@ -18,7 +19,7 @@ import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ImageRepresenter;
 
-public abstract class AbstractImageDataSet<T extends IImageItem> implements IImageDataSet,Cloneable{
+public abstract class AbstractImageDataSet<T extends IImageItem> implements IImageDataSet,Cloneable,IPythonStringGenerator{
 
 	protected int width;
 	protected int height;
@@ -122,6 +123,18 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	public List<ConversionAction> conversions() {
 		return BasicImageDataSetActions.getActions(this);
 	}
+	protected String getImageIdColumn() {
+		return this.imageColumn.caption();
+	}
+	
+	protected String getTrainCsv() {
+		return null;
+	}
+
+	protected String getImageDirs() {
+		return this.representer.getImageDirsString();
+	}
+	
 	protected void drawOverlays(String item, BufferedImage image) {
 		overlays.forEach(v -> {
 			IImageItem item2 = v.getItem(item);

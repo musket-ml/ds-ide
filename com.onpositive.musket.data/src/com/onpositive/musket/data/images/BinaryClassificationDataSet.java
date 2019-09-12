@@ -2,10 +2,8 @@ package com.onpositive.musket.data.images;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.IColumn;
@@ -50,5 +48,22 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 	@Override
 	protected String getKind() {
 		return "Binary classification";
+	}
+	@Override
+	public String generatePythonString(String sourcePath) {
+		return "image_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
+	}
+
+	protected String getPythonName() {
+		return "BinaryClassificationDataSet";
+	}
+
+	protected  ArrayList<String> getDataSetArgs(String sourcePath) {
+		ArrayList<String> arrayList = new ArrayList<>();
+		arrayList.add(getImageDirs());
+		arrayList.add('"'+sourcePath+'"');
+		arrayList.add('"'+getImageIdColumn()+'"');
+		arrayList.add('"'+clazzColumn.caption()+'"');		
+		return arrayList;
 	}
 }

@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.stream.Collectors;
+
 import javax.imageio.ImageIO;
 
 import com.onpositive.musket.data.core.IDataSet;
@@ -213,5 +215,14 @@ public class ImageRepresenter implements Iterable<String> {
 	@Override
 	public Iterator<String> iterator() {
 		return id2Path.keySet().iterator();
+	}
+
+	public String getImageDirsString() {
+		ArrayList<String>result=new ArrayList<>();
+		this.children.forEach(v->{
+			String string = v.folders.get(0);
+			result.add('"'+string+'"');
+		});
+		return "["+result.stream().collect(Collectors.joining(","))+"]";
 	}
 }

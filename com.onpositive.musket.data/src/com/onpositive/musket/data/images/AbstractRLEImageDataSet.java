@@ -161,6 +161,11 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 		super.fillDescription(entries);
 		entries.add(new DescriptionEntry("Mask encoding",this.maskEncoding()));
 	}
+	protected String getRLEColumn() {
+		return this.rleColumn.caption();
+	}
+
+	
 
 	private String maskEncoding() {
 		String result="";

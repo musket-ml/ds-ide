@@ -1,6 +1,7 @@
 package com.onpositive.musket.data.images;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -15,13 +16,30 @@ import com.onpositive.musket.data.table.ImageRepresenter;
 public class MultiClassificationDataset extends BinaryClassificationDataSet implements IMulticlassClassificationDataSet{
 
 	protected ArrayList<Object> classes;
+	protected boolean multi=false;
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public MultiClassificationDataset(ITabularDataSet base2, IColumn image, IColumn clazzColumn, int width2,
 			int height2, ImageRepresenter rep) {
 		super(base2, image, clazzColumn, width2, height2, rep);
 		Collection<Object> values = clazzColumn.values();
-		classes = new ArrayList(new LinkedHashSet<>(values));
+		LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(values);
+		
+		LinkedHashSet<Object>ac=new LinkedHashSet<>();
+		for (Object o:linkedHashSet) {
+			if (o.toString().indexOf(' ')!=-1) {
+				this.multi=true;
+				ac.addAll(Arrays.asList(o.toString().split(" ")));
+			}
+			if (o.toString().indexOf('|')!=-1) {
+				ac.addAll(Arrays.asList(o.toString().split("|")));
+				this.multi=true;
+			}
+		}
+		classes = new ArrayList(linkedHashSet);
+		if (this.multi) {
+			classes=new ArrayList<>(ac);
+		}
 		try {
 			Collections.sort((List) classes);
 		} catch (Exception e) {
@@ -42,7 +60,14 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 
 	@Override
 	public boolean isExclusive() {
-		return false;
+		return !multi;
+	}
+	
+	protected String getPythonName() {
+		if (this.isExclusive()) {
+			return "CategoryClassificationDataSet";
+		}
+		return "MultiClassClassificationDataSet";
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

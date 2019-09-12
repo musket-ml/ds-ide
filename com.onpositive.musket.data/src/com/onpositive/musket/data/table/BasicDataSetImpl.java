@@ -19,6 +19,8 @@ public class BasicDataSetImpl implements ITabularDataSet{
 	
 	protected ArrayList<? extends ITabularItem>items=new ArrayList<BasicItem>();
 	protected List<? extends IColumn>columns=new ArrayList<IColumn>();
+	
+	
 
 	public BasicDataSetImpl(ArrayList<? extends ITabularItem> items, List<? extends IColumn> cs) {
 		super();

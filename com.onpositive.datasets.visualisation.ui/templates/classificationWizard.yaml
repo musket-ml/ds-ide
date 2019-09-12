@@ -1,0 +1,35 @@
+#%Musket Classification 1.0
+architecture: {architecture} #pre-trained model we are going to use
+pooling: avg
+augmentation: #define some minimal augmentations on images
+{aug}
+classes: {numClasses} #define the number of classes
+activation: {activation} #as we have multilabel classification, the activation for last layer is sigmoid
+weights: imagenet #we would like to start from network pretrained on imagenet dataset
+shape: [{height},{width}, 3] #our desired input image size, everything will be resized to fit
+optimizer: Adam #Adam optimizer is a good default choice
+batch: 8 #our batch size will be 16
+lr: 0.001 
+metrics: #we would like to track some metrics
+  - binary_accuracy
+  - macro_f1
+primary_metric: val_binary_accuracy #the most interesting metric is val_binary_accuracy
+primary_metric_mode: max
+callbacks: #configure some minimal callbacks
+  EarlyStopping:
+    patience: 10
+    monitor: val_macro_f1
+    mode: max
+    verbose: 1
+  ReduceLROnPlateau:
+    patience: 2
+    factor: 0.3
+    monitor: val_binary_accuracy
+    mode: max
+    cooldown: 1
+    verbose: 1
+loss: {loss} 
+stages:
+  - epochs: 30 #let's go for 100 epochs
+dataset:
+   {dataset}  
