@@ -51,6 +51,8 @@ import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
 import com.onpositive.semantic.model.api.status.IStatusChangeListener;
+import com.onpositive.semantic.model.api.validation.IValidationContext;
+import com.onpositive.semantic.model.api.validation.IValidator;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.generic.widgets.IUIElement;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
@@ -76,6 +78,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 		// TODO Auto-generated method stub
 		this.addPage(new WizardPage("Hello") {
 
+			@SuppressWarnings("serial")
 			@Override
 			public void createControl(Composite parent) {
 				setImageDescriptor(SWTImageManager.getDescriptor("dataset_wiz"));
@@ -83,9 +86,9 @@ public class KaggleDataset extends Wizard implements INewWizard {
 				setTitle("New Dataset");
 				setMessage("Let's have fun");
 				datasetView = new KaggleDatasetParams();
-				ISelection selection2 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-						.getSelection();
-				if (selection2 instanceof IStructuredSelection) {
+				ISelection selection2 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getSelection();
+				
+				if(selection2 instanceof IStructuredSelection) {
 					Object firstElement = ((IStructuredSelection) selection2).getFirstElement();
 					
 					if (firstElement instanceof IAdaptable) {
@@ -97,19 +100,32 @@ public class KaggleDataset extends Wizard implements INewWizard {
 						}
 					}
 				}
+				
 				Binding bn = new Binding(datasetView);
 
-				IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(datasetView, null,
-						null);
+				IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(datasetView, null, null);
+				
 				IUIElement<?> createWidget = widgetObject.createWidget(bn);
+				
 				el.add((AbstractUIElement<?>) createWidget);
+				
 				setControl((Control) createWidget.getControl());
-				this.setPageComplete(true);
+				
+				this.setPageComplete(false);
+				
+				bn.addValidator(new IValidator<Object>() {
+					@Override
+					public CodeAndMessage isValid(IValidationContext arg0, Object arg1) {
+						return datasetView.getItem() == null ? new CodeAndMessage(CodeAndMessage.ERROR, "Selection is empty!") : new CodeAndMessage(CodeAndMessage.OK, "");
+					}
+					
+				});
+				
 				bn.addStatusChangeListener(new IStatusChangeListener() {
-
 					@Override
 					public void statusChanged(IHasStatus bnd, CodeAndMessage cm) {
 						setPageComplete(!cm.isError());
+						
 						setErrorMessage(cm.getMessage());
 					}
 				});
@@ -119,7 +135,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 	}
 	
 	private void download(org.eclipse.core.resources.IProject project) {
-		IFolder folder = project.getFolder("datasets/kaggle/" + datasetView.getItem().ref);
+		IFolder folder = project.getFolder("data/" + datasetView.getItem().ref);
 		
 		String fullPath = folder.getLocation().toOSString();
 			
@@ -180,7 +196,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 			protected void execute(IProgressMonitor monitor) throws CoreException {
 				org.eclipse.core.resources.IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(datasetView.project);
 				
-				IFolder folder = project.getFolder("datasets/kaggle/" + datasetView.getItem().ref);
+				IFolder folder = project.getFolder("data/" + datasetView.getItem().ref);
 				
 				ensure(folder, monitor);
 				

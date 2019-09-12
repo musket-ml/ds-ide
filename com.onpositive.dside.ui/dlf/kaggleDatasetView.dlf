@@ -1,14 +1,14 @@
 <composite-editor xmlns="http://jetface.org/JetFace1.0/" >
 	<model class="com.onpositive.dside.ui.KaggleDatasetParams"/>
 	
-	<checkbox bindTo="dsEnabled"/>
 	<hc>
 		<radio  bindTo="dsIsDataset" caption="Dataset" visibility="dsEnabled"/>
  		<radio  bindTo="dsIsCompetition" caption="Competition" visibility="dsEnabled"/> 
 	</hc>
 	<hc>
 		<string bindTo="dsSearch" visibility="dsEnabled"/>
-		<checkbox bindTo="dsIsMine" visibility="dsEnabled"/>
+		<checkbox bindTo="dsMyDatasets" visibility="DsDatasetEnabled" caption="My Datasets"/>
+		<checkbox bindTo="dsMyCompetitions" visibility="DsCompetitionEnabled" caption="Entered Competitions"/>
 		<button bindTo="searchButton" visibility="dsEnabled"/>
 	</hc>
 	
