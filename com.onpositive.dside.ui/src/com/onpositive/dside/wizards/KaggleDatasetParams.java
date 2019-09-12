@@ -27,10 +27,10 @@ public class KaggleDatasetParams {
 	String dsSearch;
 	
 	@Caption("Use Dataset")
-	Boolean dsEnabled = false;
+	Boolean dsEnabled = true;
 	
-	@Caption("My Datasets")
-	Boolean dsIsMine = false;
+	Boolean dsMyDatasets = false;
+	Boolean dsMyCompetitions = false;
 	
 	@Caption("Datasets")
 	List<DatasetTableElement> dsSearchResultDatasets = new ArrayList<DatasetTableElement>();
@@ -88,7 +88,7 @@ public class KaggleDatasetParams {
 		
 		serverTask.getServer().thenAcceptAsync((IServer server) -> {
 			try {
-				String jsonString = isDsDatasetEnabled() ? server.getDatasets(dsSearch, dsIsMine) : server.getCompetitions(dsSearch, dsIsMine);
+				String jsonString = isDsDatasetEnabled() ? server.getDatasets(dsSearch, dsMyDatasets) : server.getCompetitions(dsSearch, dsMyCompetitions);
 				
 				JsonElement jsonTree = jsonParser.parse(jsonString);
 				
