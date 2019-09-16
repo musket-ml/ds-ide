@@ -13,7 +13,7 @@ import com.onpositive.musket.data.table.ImageRepresenter;
 
 public class BinaryClassificationDataSetWithGroundTruth extends BinaryClassificationDataSet implements IDataSetWithGroundTruth{
 
-	private ITabularDataSet predictions;
+	protected ITabularDataSet predictions;
 
 	public BinaryClassificationDataSetWithGroundTruth(ITabularDataSet base, IColumn image, IColumn clazz,
 			ImageRepresenter rep, int width, int height,ITabularDataSet prediction) {

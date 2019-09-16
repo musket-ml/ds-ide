@@ -66,4 +66,9 @@ public class BasicItem implements ITabularItem{
 		return this.id()+":"+Arrays.deepToString(this.values);
 	}
 
+	@Override
+	public int num() {
+		return id;
+	}
+
 }

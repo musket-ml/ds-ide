@@ -10,4 +10,6 @@ public interface ITabularItem extends IItem{
 	public default double doubleValue(String string) {
 		return Double.parseDouble(value(string).toString());
 	}
+
+	public int num();
 }

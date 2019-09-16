@@ -65,7 +65,5 @@ public class BinarySegmentationDataSet extends AbstractRLEImageDataSet<BinarySeg
 		}
 		return arrayList;
 	}
-
-	
 	
 }

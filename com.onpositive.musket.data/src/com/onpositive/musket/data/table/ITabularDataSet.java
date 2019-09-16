@@ -46,6 +46,19 @@ public interface ITabularDataSet extends IDataSet {
 		});
 		return new BasicDataSetImpl(items, this.columns()).as(ITabularDataSet.class);
 	}
+	public default ITabularDataSet map(String column, Function<Object,Object> values) {
+		IColumn column2 = getColumn(column);
+		ArrayList<ITabularItem> items = new ArrayList<ITabularItem>();
+		List<? extends IColumn> columns = this.columns();
+		int m=columns.indexOf(column2);
+		this.items().forEach(v -> {
+			BasicItem z=(BasicItem) v;
+			Object[] clone = z.values.clone();
+			clone[m]=values.apply(clone[m]);
+			items.add(new BasicItem(v.num(), clone));			
+		});		
+		return new BasicDataSetImpl(items, columns).as(ITabularDataSet.class);
+	}
 
 	public ITabularDataSet addColumn(String id, Function<ITabularItem, Object> func);
 

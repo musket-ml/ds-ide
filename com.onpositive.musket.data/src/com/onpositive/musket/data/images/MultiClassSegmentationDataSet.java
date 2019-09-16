@@ -69,7 +69,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return null;
+		return new MultiClassSegmentationDataSetWithGrounTruth(base,imageColumn,rleColumn,width,height,representer,clazzColumn,t2.as(ITabularDataSet.class));
 	}
 
 	@Override
@@ -100,11 +100,15 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 			});
 			items.keySet().forEach(k -> {
-				MultiClassSegmentationItem bi = new MultiClassSegmentationItem(k, this, items.get(k));
+				MultiClassSegmentationItem bi = createItem(items, k);
 				this.items.add(bi);
 			});
 		}
 		return (List) items;
+	}
+
+	protected MultiClassSegmentationItem createItem(LinkedHashMap<String, ArrayList<ITabularItem>> items, String k) {
+		return new MultiClassSegmentationItem(k, this, items.get(k));
 	}
 
 	{
@@ -145,6 +149,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 					nk.name = MASK_COLOR;
 					rs.add(nk);
 				}
+				addExtraParameters(rs);
 				return rs.toArray(new Parameter[rs.size()]);
 			}
 
@@ -158,6 +163,10 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 				return "Image visualizer";
 			}
 		};
+	}
+
+	protected void addExtraParameters(ArrayList<Parameter> rs) {
+		
 	}
 
 	@Override
@@ -187,5 +196,16 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 			arrayList.add("rMask=False");
 		}
 		return arrayList;
+	}
+	protected static ITabularDataSet filter(String clazz, ITabularDataSet base2,String clazzColumn) {
+		ITabularDataSet filter = base2.filter(clazzColumn, x->{
+			return MultiClassClassificationItem.splitByClass(x.toString()).contains(clazz)?true:false;
+		});
+		return filter;
+	}
+
+	@Override
+	public IBinaryClassificationDataSet forClass(String clazz) {
+		return new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.caption()), this.getSettings(), representer);
 	}
 }

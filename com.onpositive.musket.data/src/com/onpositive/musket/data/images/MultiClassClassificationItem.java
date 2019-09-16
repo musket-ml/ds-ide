@@ -21,6 +21,10 @@ public class MultiClassClassificationItem extends BinaryClassificationItem imple
 	@Override
 	public ArrayList<String> classes() {
 		String value = (String) this.base.clazzColumn.getValue(item);
+		return splitByClass(value);
+	}
+
+	protected static ArrayList<String> splitByClass(String value) {
 		ArrayList<String> classes = new ArrayList<>();
 		if (value.indexOf(' ') != -1) {
 			String[] split = value.split(" ");

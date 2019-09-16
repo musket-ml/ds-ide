@@ -14,4 +14,6 @@ public interface IMulticlassClassificationDataSet extends IDataSet{
 	
 	
 	List<String> classNames();
+	
+	IBinaryClassificationDataSet forClass(String clazz);
 }

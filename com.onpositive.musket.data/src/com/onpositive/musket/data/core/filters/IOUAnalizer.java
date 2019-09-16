@@ -6,9 +6,6 @@ import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.images.BinarySegmentationDataSetWithGroundTruth;
 import com.onpositive.musket.data.images.BinarySegmentationItemWithGroundTruth;
-import com.onpositive.musket.data.images.IBinaryClasificationItem;
-import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
-import com.onpositive.musket.data.images.IBinaryClassificationItemWithPrediction;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
 

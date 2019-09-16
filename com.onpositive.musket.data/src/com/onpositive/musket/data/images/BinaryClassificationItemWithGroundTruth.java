@@ -5,7 +5,7 @@ import com.onpositive.musket.data.table.ITabularItem;
 
 public class BinaryClassificationItemWithGroundTruth extends BinaryClassificationItem  implements IBinaryClassificationItemWithPrediction{
 
-	private ITabularItem prediction;
+	protected ITabularItem prediction;
 
 	public BinaryClassificationItemWithGroundTruth(BinaryClassificationDataSet binarySegmentationDataSet,
 			ITabularItem v,ITabularItem prediction) {

@@ -6,15 +6,15 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IAnalizer;
-import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.images.IBinaryClassificationItemWithPrediction;
 import com.onpositive.musket.data.images.IMulticlassClassificationItem;
+import com.onpositive.musket.data.images.MultiClassificationDataSetWithGroundTruth;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
 
-@Caption("Binary confusion matrics")
-public class BinaryConfusionMatrix extends AbstractAnalizer implements IAnalizer<IDataSetWithGroundTruth>{
+@Caption("Multiclass confusion matrics")
+public class ClassConfusionMatrix extends AbstractAnalizer implements IAnalizer<MultiClassificationDataSetWithGroundTruth>{
 
 	@Override
 	protected Object group(IItem v) {
@@ -36,7 +36,7 @@ public class BinaryConfusionMatrix extends AbstractAnalizer implements IAnalizer
 			}
 			Collections.sort(classes);
 			Collections.sort(classes2);
-			return "Has classification errors";
+			return classes.stream().map(x->x.toString()).collect(Collectors.joining(","))+"-"+classes2.stream().map(x->x.toString()).collect(Collectors.joining(","))+";";
 		}
 		if (m1.isPositive()&&m1.isPredictionPositive()) {
 			return "True positive";

@@ -1,7 +1,11 @@
 package com.onpositive.musket.data.images;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -36,6 +40,34 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 		    });
 		}
 		return items;		
+	}
+	
+	protected ArrayList<Object> classes;
+	protected boolean multi=false;
+	
+	protected void initClasses(IColumn clazzColumn) {
+		Collection<Object> values = clazzColumn.values();
+		LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(values);
+		
+		LinkedHashSet<Object>ac=new LinkedHashSet<>();
+		for (Object o:linkedHashSet) {
+			if (o.toString().indexOf(' ')!=-1) {
+				this.multi=true;
+				ac.addAll(Arrays.asList(o.toString().split(" ")));
+			}
+			if (o.toString().indexOf('|')!=-1) {
+				ac.addAll(Arrays.asList(o.toString().split("|")));
+				this.multi=true;
+			}
+		}
+		classes = new ArrayList(linkedHashSet);
+		if (this.multi) {
+			classes=new ArrayList<>(ac);
+		}
+		try {
+			Collections.sort((List) classes);
+		} catch (Exception e) {
+		}
 	}
 
 	protected BinaryClassificationItem createItem(ITabularItem v){return new BinaryClassificationItem(this,v);}

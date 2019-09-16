@@ -27,23 +27,29 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 		BufferedImage image=new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),BufferedImage.TYPE_INT_ARGB);
 		image.getGraphics().drawImage(bufferedImage, 0, 0, null);
 		getMask().drawOn(image,0x777777);
-		int a=0;
 		
 		Object object = base.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_ALPHA);
+		drawMasks(image,object);
+		
+		base.drawOverlays(this.id(),image);
+		return image;
+	}
+
+	protected void drawMasks(BufferedImage image,Object object) {
+		
 		int[] rgbs=new int[base.classes.size()];
 		int num=0;
+		int a=0;
 		for (Object o:base.classes) {
 			String classMaskKey = base.getClassMaskKey(o);
 			Object object2 = base.getSettings().get(classMaskKey);
 			rgbs[num++]=AbstractRLEImageDataSet.parse(object.toString(),object2.toString());
 		}
+		
 		for (IMask m:getMasks()) {
 			m.drawOn(image, rgbs[a]);
 			a++;
 		}
-		
-		base.drawOverlays(this.id(),image);
-		return image;
 	}
 
 	@Override

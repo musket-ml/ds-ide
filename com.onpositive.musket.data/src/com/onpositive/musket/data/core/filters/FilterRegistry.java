@@ -143,6 +143,7 @@ public class FilterRegistry {
 		register(ISPositiveFilter.class);
 		register(HasClassAnalizer.class);
 		register(HasClassesAnalizer.class);
+		register(ClassConfusionMatrix.class);
 	}
 
 	public ArrayList<IFilterProto> getFilters(IDataSet ds) {
