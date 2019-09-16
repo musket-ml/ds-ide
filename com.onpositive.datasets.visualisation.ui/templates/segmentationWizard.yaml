@@ -12,12 +12,12 @@ lr: 0.001
 metrics: #we would like to track some metrics
   - binary_accuracy
   - dice
-primary_metric: val_binary_accuracy #the most interesting metric is val_binary_accuracy
+primary_metric: val_dice #the most interesting metric is val_binary_accuracy
 primary_metric_mode: max
 callbacks: #configure some minimal callbacks
   EarlyStopping:
     patience: 10
-    monitor: val_macro_f1
+    monitor: val_dice
     mode: max
     verbose: 1
   ReduceLROnPlateau:

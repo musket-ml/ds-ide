@@ -16,7 +16,7 @@ public class SegmentationTemplate extends ExperimentTemplate{
 	
 	
 	@Caption("Backbone")
-	protected String backbone="Resnet34";
+	protected String backbone="resnet34";
 	
 	{
 	architecture="Unet";

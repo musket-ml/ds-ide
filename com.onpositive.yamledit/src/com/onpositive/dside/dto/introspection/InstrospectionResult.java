@@ -5,6 +5,9 @@ import java.util.ArrayList;
 public class InstrospectionResult {
 
 	ArrayList<InstrospectedFeature> features=new ArrayList<>();
+	
+	
+	
 
 	public ArrayList<InstrospectedFeature> getFeatures() {
 		return features;

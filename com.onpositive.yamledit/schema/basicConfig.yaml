@@ -195,7 +195,7 @@ types:
       primary_metric:
          type: function
          customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm
-      aggregation_metric:
+      experiment_result:
          type: string
          customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm       
       primary_metric_mode:

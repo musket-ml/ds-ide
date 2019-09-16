@@ -13,7 +13,7 @@ public abstract class ExperimentTemplate {
 	protected  int height=224;
 	
 	@Caption("Architecture")
-	protected String architecture="Xception";
+	protected String architecture="xception";
 	
 	@Caption("Horizontal Flip")
 	protected boolean hFlip=true;
