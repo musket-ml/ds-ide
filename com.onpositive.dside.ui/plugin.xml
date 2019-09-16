@@ -88,6 +88,11 @@
                id="com.onpositive.dside.ui.action4"
                label="Kaggle Dataset">
          </action>
+         <action
+               class="com.onpositive.dside.ui.navigator.RunOnKaggleKernelsAction"
+               id="com.onpositive.dside.ui.action5"
+               label="Run on Kaggle Kernels">
+         </action>
       </objectContribution>
    </extension>
    <extension point="org.eclipse.debug.core.launchConfigurationTypes">
@@ -260,6 +265,16 @@
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.kaggle_dataset"
             name="Kaggle Dataset"
+            project="false">
+      </wizard>
+      <wizard
+            category="org.musket.pydev.PythonCategory"
+            class="com.onpositive.dside.wizards.KaggleRunView"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/experiment.png"
+            id="com.onpositive.dside.ui.kaggle_run"
+            name="Run on Kaggle kernel"
             project="false">
       </wizard>
       

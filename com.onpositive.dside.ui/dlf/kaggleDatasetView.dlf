@@ -1,5 +1,5 @@
 <composite-editor xmlns="http://jetface.org/JetFace1.0/" >
-	<model class="com.onpositive.dside.ui.KaggleDatasetParams"/>
+	<model class="com.onpositive.dside.wizards.KaggleDatasetParams"/>
 	
 	<hc>
 		<radio  bindTo="dsIsDataset" caption="Dataset" visibility="dsEnabled"/>
@@ -26,4 +26,6 @@
 			<column id="ref"/>
 		</columns>
 	</table>
+	
+	<checkbox bindTo="dsSkipDownload"/>
 </composite-editor>
