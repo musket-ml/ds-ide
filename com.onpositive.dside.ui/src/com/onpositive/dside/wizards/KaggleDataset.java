@@ -1,53 +1,47 @@
 package com.onpositive.dside.wizards;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.python.pydev.core.log.Log;
-import org.python.pydev.shared_ui.EditorUtils;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
-import com.onpositive.dside.ui.DatasetTableElement;
-import com.onpositive.dside.ui.navigator.ExperimentGroup;
-import com.onpositive.musket_core.IProject;
 import com.onpositive.musket_core.IServer;
-import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
 import com.onpositive.semantic.model.api.status.IStatusChangeListener;
@@ -61,18 +55,18 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 public class KaggleDataset extends Wizard implements INewWizard {
 
 	private IStructuredSelection selection;
-
+	
+	private KaggleDatasetParams datasetView;
+	
 	public KaggleDataset() {
-
+		
 	}
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
 	}
-
-	private KaggleDatasetParams datasetView;
-
+	
 	@Override
 	public void addPages() {
 		// TODO Auto-generated method stub
@@ -85,7 +79,9 @@ public class KaggleDataset extends Wizard implements INewWizard {
 				RootElement el = new RootElement(parent);
 				setTitle("New Dataset");
 				setMessage("Let's have fun");
+				
 				datasetView = new KaggleDatasetParams();
+				
 				ISelection selection2 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getSelection();
 				
 				if(selection2 instanceof IStructuredSelection) {
@@ -97,6 +93,12 @@ public class KaggleDataset extends Wizard implements INewWizard {
 						if (adapter != null) {
 							org.eclipse.core.resources.IProject prj = adapter.getProject();
 							datasetView.project = prj.getName();
+							
+							try {
+								readConfig(prj, datasetView);
+							} catch (Throwable t) {
+								t.printStackTrace();
+							}
 						}
 					}
 				}
@@ -166,7 +168,65 @@ public class KaggleDataset extends Wizard implements INewWizard {
 			serverTask.terminate();
 		});
 		
-		TaskManager.perform(serverTask);
+		if(!datasetView.dsSkipDownload) {
+			TaskManager.perform(serverTask);
+		}
+		
+		try {
+			writeConfig(project, datasetView);
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+	}
+		
+	public static KaggleDatasetParams readConfig(IProject project, KaggleDatasetParams config) throws IOException, CoreException {
+		IFolder metadata = project.getFolder(".metadata");
+		
+		if(!metadata.exists()) {
+			metadata.create(true, true, null);
+		}
+		
+		IFile metadataFile = project.getFile(".metadata/kaggle-datasource-metadata.json");
+				
+		if(metadataFile.exists()) {
+			InputStreamReader reader = new InputStreamReader(metadataFile.getContents());
+			
+			BufferedReader br = new BufferedReader(reader);
+			
+			String line = br.readLine();
+			
+			String jsonString = "";
+			
+			while(line != null) {
+				jsonString += line + "\n";
+				
+				line = br.readLine();
+			}
+			
+			config.deserializeFromJsonString(jsonString);
+		}
+		
+		return config;
+	}
+	
+	private void writeConfig(IProject project, KaggleDatasetParams config) throws CoreException, IOException {
+		IFolder metadata = project.getFolder(".metadata");
+		
+		if(!metadata.exists()) {
+			metadata.create(true, true, null);
+		}
+		
+		IFile metadataFile = project.getFile(".metadata/kaggle-datasource-metadata.json");
+		
+		if(metadataFile.exists()) {
+			metadataFile.delete(true, null);
+		}
+				
+		String jsonString = config.serializeToJsonString();
+		
+		ByteArrayInputStream bin = new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8));
+		
+		metadataFile.create(bin, true, null);
 	}
 	
 	private void ensure(IFolder folder, IProgressMonitor monitor) throws CoreException {

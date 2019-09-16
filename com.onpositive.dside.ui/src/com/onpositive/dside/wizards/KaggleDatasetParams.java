@@ -52,6 +52,9 @@ public class KaggleDatasetParams {
 	boolean dsIsDataset = true;
 	boolean dsIsCompetition = false;
 	
+	@Caption("Register in project's metadata without downloading")
+	boolean dsSkipDownload = false;
+	
 	public boolean isDsDatasetEnabled() {
 		return dsEnabled && dsIsDataset;
 	}
@@ -63,7 +66,45 @@ public class KaggleDatasetParams {
 	public DatasetTableElement getItem() {
 		return isDsDatasetEnabled() ? dsDatsetItem : dsCompetitionItem;
 	}
+	
+	public void deserializeFromJsonString(String jsonString) {
+		JsonParser parser = new JsonParser();
 		
+		JsonElement root = parser.parse(jsonString);
+		
+		String type = root.getAsJsonObject().get("type").getAsString();
+		
+		if("dataset".equals(type)) {
+			dsDatsetItem = new DatasetTableElement(root);
+			
+			dsSearchResultDatasets.add(dsDatsetItem);
+			
+			dsIsDataset = true;
+			dsIsCompetition = false;
+		} else if("competition".equals(type)) {
+			dsCompetitionItem = new DatasetTableElement(root);
+			
+			dsSearchResultCompetitions.add(dsCompetitionItem);
+			
+			dsIsDataset = false;
+			dsIsCompetition = true;
+		}
+	}
+	
+	public String serializeToJsonString() {
+		JsonParser parser = new JsonParser();
+		
+		JsonElement root = parser.parse("{}");
+		
+		String type = dsIsDataset ? "dataset" : "competition";
+		
+		root.getAsJsonObject().addProperty("type", type);
+		root.getAsJsonObject().addProperty("ref", getItem().ref);
+		root.getAsJsonObject().addProperty("size", getItem().size);
+		
+		return root.toString();
+	}
+			
 	@Caption("Search")
 	public void searchButton() {
 		setWaiting(true);

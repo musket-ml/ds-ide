@@ -1,0 +1,18 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/">
+	<model class="com.onpositive.dside.wizards.KaggleRunConfig"/>
+	
+	<string bindTo="username"/>
+	<string bindTo="project_id"/>
+	<string bindTo="experiment"/>
+	<label caption="Datasource:"/>
+	<hc>
+		<label bindTo="datasourceType"/>
+		<label bindTo="datasource"/>
+	</hc>
+	
+	<checkbox bindTo="split_by_folds"/>
+	<string bindTo="server"/>
+	<string bindTo="port"/>
+	<string bindTo="requests_delay"/>
+	<string bindTo="time"/>
+</composite-editor>
