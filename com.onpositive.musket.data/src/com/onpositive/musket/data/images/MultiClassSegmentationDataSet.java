@@ -199,13 +199,14 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 	}
 	protected static ITabularDataSet filter(String clazz, ITabularDataSet base2,String clazzColumn) {
 		ITabularDataSet filter = base2.filter(clazzColumn, x->{
-			return MultiClassClassificationItem.splitByClass(x.toString()).contains(clazz)?true:false;
+			ArrayList<String> splitByClass = MultiClassClassificationItem.splitByClass(x.toString());
+			return splitByClass.contains(clazz)?true:false;
 		});
 		return filter;
 	}
 
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
-		return new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.caption()), this.getSettings(), representer);
+		return new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.id()), this.getSettings(), representer);
 	}
 }

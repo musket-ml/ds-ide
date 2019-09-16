@@ -29,7 +29,6 @@ public class MultiClassSegmentationDataSetWithGrounTruth extends MultiClassSegme
 		return new MultiClassSegmentationItemWithPrediction(k, this, items.get(k));
 	}
 	
-
 	protected void addExtraParameters(ArrayList<Parameter> rs) {
 		Parameter alpha1=new Parameter();
 		alpha1.defaultValue=parameters.get(BinarySegmentationDataSetWithGroundTruth.PREDICTION_ALPHA).toString();
@@ -46,5 +45,9 @@ public class MultiClassSegmentationDataSetWithGrounTruth extends MultiClassSegme
 	public IItem getPrediction(String id) {
 		return predictionData.getItem(id);		
 	}
-
+	@Override
+	public IBinaryClassificationDataSet forClass(String clazz) {
+		ITabularDataSet filter = filter(clazz,this.predictionData.base,clazzColumn.id());
+		return (IBinaryClassificationDataSet) new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.id()), this.getSettings(), representer).withPredictions(filter);
+	}
 }

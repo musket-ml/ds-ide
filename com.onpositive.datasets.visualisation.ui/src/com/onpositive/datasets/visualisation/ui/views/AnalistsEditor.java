@@ -41,6 +41,7 @@ import com.onpositive.dataset.visualization.internal.VirtualTable;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConvertResolutionAction;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.GenerateDataSetAction;
@@ -194,10 +195,30 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 
 		sl.addToToolbar(bindedAction2);
 		sl.addToToolbar(generatorMenu);
+		
+		focus = new Action(Action.AS_CHECK_BOX) {
+			
+			@Override
+			public void run() {
+				focusOn();				
+			}
+
+			
+		};
+		
+		generatorMenu.setImageId("generic_task");
+		focus.setText("Focus on");
+		focus.setEnabled(false);
+		focus.setImageId("focus_on");
+		sl.addToToolbar(focus);
 //		filter = new OneLineTextElement<>();
 //		filter.setCaption("Filter");
 //		//te.getLayoutHints().setAlignmentHorizontal(Alignment.RIGHT);
 		element.add(sl);
+	}
+
+	protected void focusOn() {
+		
 	}
 
 	private boolean wrap;
@@ -216,6 +237,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		@Override
 		public void run() {
 			if (results != null) {
+				
 				ActionSelection actionSelection = new ActionSelection(results.getOriginal().conversions());
 				boolean createObject = WidgetRegistry.createObject(actionSelection);
 				if (createObject) {
@@ -342,6 +364,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		String analizer = a.getText();
 		this.visualizationParams = new HashMap<>();
 		this.analisisParams = new HashMap<>();
+		
 		if (!visualizer.isEmpty() && !analizer.isEmpty()) {
 			visualizerFeature = this.options.getVisualizer(visualizer);
 			InstrospectedFeature analizerFeature = this.options.getAnalizer(analizer);
@@ -418,6 +441,8 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	private void display(IAnalizeResults r) {
 		this.results = r;
 		getElement("empty").setEnabled(false);
+		boolean b = results.getOriginal() instanceof IMulticlassClassificationDataSet;
+		focus.setEnabled(b||focus.isChecked());
 		Container element = (Container) getElement("content");
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
 		String viewer = visualizerFeature.getViewer();
@@ -534,6 +559,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 
 	IAnalisysEngine task;
 	private Action generatorMenu;
+	protected Action focus;
 
 	public void setEngine(IAnalisysEngine engine) {
 		if (this.task != null) {

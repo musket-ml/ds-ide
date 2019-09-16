@@ -12,8 +12,11 @@ import org.eclipse.core.runtime.IPath;
 import com.onpositive.dside.tasks.IServerTask;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.IExperimentExecutionListener;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.Range;
+import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
+import com.onpositive.semantic.model.api.property.java.annotations.Required;
 
 @Display("dlf/launch.dlf")
 public class LaunchConfiguration implements IServerTask<Object> {
@@ -68,6 +71,25 @@ public class LaunchConfiguration implements IServerTask<Object> {
 	boolean fitFromScratch;
 	
 	boolean debug;
+	
+	@Caption("Please select fold selection strategy")
+	@RealmProvider(EnumRealmProvider.class)
+	@Required
+	FoldSelectionStrategy folds=FoldSelectionStrategy.ALL;
+	
+	public boolean getShowFolds() {
+		return folds==FoldSelectionStrategy.MANUAL;
+	}
+	
+	ArrayList<Integer>folds_numbers=new ArrayList<>();
+	
+	public String getFolds() {
+		return folds_numbers.stream().map(x->x.toString()).collect(Collectors.joining(","));
+	}
+	
+	public void setFolds(String s) {
+		
+	}
 	
 	public boolean save() {return true;}
 

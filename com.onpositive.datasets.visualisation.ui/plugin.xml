@@ -30,5 +30,13 @@
             name="DataSet Editor">
       </editor>
    </extension>
+   <extension
+         point="com.onpositive.semantic.model.images">
+      <image
+            id="focus_on"
+            image="icons/file_expand.gif"
+            name="name">
+      </image>
+   </extension>
 
 </plugin>

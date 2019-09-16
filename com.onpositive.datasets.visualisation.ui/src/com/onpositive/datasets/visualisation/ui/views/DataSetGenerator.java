@@ -120,8 +120,8 @@ public class DataSetGenerator {
 			arrayList.add("datasets:");
 			id=arrayList.size();
 		}
-		arrayList.add(id,"    "+name+":");
-		arrayList.add(id,"      "+"get"+name+": []");
+		arrayList.add(id+1,"    "+name+":");
+		arrayList.add(id+2,"      "+"get"+name+": []");
 		if (!hasDataSet) {
 			arrayList.add("dataset:");
 			arrayList.add("    "+"get"+name+": []");			
