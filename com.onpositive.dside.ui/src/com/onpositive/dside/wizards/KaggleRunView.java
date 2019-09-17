@@ -26,7 +26,11 @@ import org.eclipse.ui.PlatformUI;
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
+import com.onpositive.dside.tasks.GateWayRelatedTask;
+import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
+import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.ui.DatasetTableElement;
+import com.onpositive.musket_core.IServer;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
 import com.onpositive.semantic.model.api.status.IStatusChangeListener;
@@ -54,9 +58,9 @@ public class KaggleRunView extends Wizard implements INewWizard {
 				
 				RootElement el = new RootElement(parent);
 				
-				setTitle("New Dataset");
+				setTitle("Run Configuration");
 				
-				setMessage("Let's have fun");
+				setMessage("");
 				
 				kaggleConfig = new KaggleRunConfig();
 								
@@ -92,15 +96,15 @@ public class KaggleRunView extends Wizard implements INewWizard {
 				
 				setControl((Control) createWidget.getControl());
 				
-				this.setPageComplete(false);
-				
-				bn.addValidator(new IValidator<Object>() {
+				IValidator<Object> validator = new IValidator<Object>() {
 					@Override
 					public CodeAndMessage isValid(IValidationContext arg0, Object arg1) {
 						return kaggleConfig.datasourceType.length() == 0 ? new CodeAndMessage(CodeAndMessage.ERROR, "Datasource is not defined!") : new CodeAndMessage(CodeAndMessage.OK, "");
 					}
-				});
-				
+				};
+								
+				bn.addValidator(validator);
+								
 				bn.addStatusChangeListener(new IStatusChangeListener() {
 					@Override
 					public void statusChanged(IHasStatus bnd, CodeAndMessage cm) {
@@ -110,6 +114,8 @@ public class KaggleRunView extends Wizard implements INewWizard {
 					}
 				});
 				
+				bn.setupStatus(validator.isValid(bn.getValidationContext(), new Object()));
+				
 				setErrorMessage(bn.getStatus().getMessage());
 			}
 		});
@@ -117,7 +123,7 @@ public class KaggleRunView extends Wizard implements INewWizard {
 	
 	private void readConfig(IProject project, KaggleRunConfig config) throws IOException, CoreException {
 		IFile metadataFile = project.getFile(".metadata/kaggle-project-metadata.json");
-				
+		
 		if(metadataFile.exists()) {
 			InputStreamReader reader = new InputStreamReader(metadataFile.getContents());
 			
@@ -151,7 +157,7 @@ public class KaggleRunView extends Wizard implements INewWizard {
 	
 	private void writeConfig(IProject project, KaggleRunConfig config) throws IOException, CoreException {
 		IFile metadataFile = project.getFile(".metadata/kaggle-project-metadata.json");
-				
+		
 		if(metadataFile.exists()) {
 			metadataFile.delete(true, null);
 		}
@@ -163,6 +169,35 @@ public class KaggleRunView extends Wizard implements INewWizard {
 		metadataFile.create(bin, true, null);
 	}
 	
+	private void runOnKaggle(IProject project) {
+		String fullPath = project.getLocation().toOSString();
+			
+		GateWayRelatedTask serverTask = new GateWayRelatedTask(project, new IGateWayServerTaskDelegate() {
+			@Override
+			public void terminated() {
+								
+			}
+			
+			@Override
+			public void started(GateWayRelatedTask task) {
+				
+			}
+		});
+				
+		serverTask.getServer().thenAcceptAsync((IServer server) -> {
+			try {
+				server.runOnKaggle(fullPath);
+				
+			} catch(Throwable t) {
+				t.printStackTrace();
+			}
+			
+			serverTask.terminate();
+		});
+		
+		TaskManager.perform(serverTask);
+	}
+	
 	@Override
 	public boolean performFinish() {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(kaggleConfig.project);
@@ -172,6 +207,8 @@ public class KaggleRunView extends Wizard implements INewWizard {
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
+		
+		runOnKaggle(project);
 		
 		return true;
 	}
