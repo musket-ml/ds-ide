@@ -113,6 +113,9 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	}
 	@Override
 	public IImageItem item(int num) {
+		if (this.items==null) {
+			this.items();
+		}
 		return this.items.get(num);
 	}
 	@Override

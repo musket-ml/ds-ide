@@ -4,7 +4,7 @@
   	<string bindTo="name" caption="Experiment name"/>
   	<string bindTo="architecture"/>
   	<string bindTo="numClasses" />
-  	<string bindTo="activation" />
+  	<combo bindTo="activation" />
   	<group caption="Basic Augmentation">
   		<hc>
   		<checkbox caption="Horizontal Flip" bindTo="hFlip"/>

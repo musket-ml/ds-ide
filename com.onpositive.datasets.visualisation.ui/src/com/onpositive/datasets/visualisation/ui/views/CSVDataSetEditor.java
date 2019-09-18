@@ -183,46 +183,53 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			boolean openQuestion = MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Please confirm",
 					"Great, you have a dataset now, may be you want to configure an experiment?");
 			if (openQuestion) {
-				ExperimentTemplate classificationTemplate = temp;
-				AbstractImageDataSet<IImageItem> it = (AbstractImageDataSet<IImageItem>) original;
-				Image image = it.item(0).getImage();
+				configureFromDataSetAndTemplate(project, "", original, temp,"get" + name + ": []");
+			}
+		}
+	}
 
-				classificationTemplate.width = image.getWidth(null);
-				classificationTemplate.height = image.getHeight(null);
-				classificationTemplate.activation = "sigmoid";
-				classificationTemplate.numClasses = 1;
-				if (original instanceof IMulticlassClassificationDataSet) {
-					classificationTemplate.numClasses = ((IMulticlassClassificationDataSet) original).classNames()
-							.size();
-					if (((IMulticlassClassificationDataSet) original).isExclusive()) {
-						classificationTemplate.activation = "softmax";
-					}
-				}
-				boolean createObject = WidgetRegistry.createObject(classificationTemplate);
-				if (createObject) {
-					String finish = classificationTemplate.finish();
-					finish = finish.replace("{dataset}", "get" + name + ": []");
-					IFolder folder = project.getFolder("experiments");
-					IFolder folder2 = folder.getFolder(classificationTemplate.name);
-					try {
-						if (!folder2.exists()) {
-							folder2.create(true, true, new NullProgressMonitor());
-						}
-						IFile file = folder2.getFile("config.yaml");
+	public static void configureFromDataSetAndTemplate(IProject project, String name, IDataSet original,
+			ExperimentTemplate temp,String dsName) {
+		ExperimentTemplate classificationTemplate = temp;
+		if (original != null) {
+			AbstractImageDataSet<IImageItem> it = (AbstractImageDataSet<IImageItem>) original;
+			Image image = it.item(0).getImage();
 
-						if (file.exists()) {
-							file.setContents(new ByteArrayInputStream(finish.getBytes()), true, true,
-									new NullProgressMonitor());
-						} else {
-							file.create(new ByteArrayInputStream(finish.getBytes()), true, new NullProgressMonitor());
-						}
-						Display.getDefault().asyncExec(() -> {
-							EditorUtils.openFile(file);
-						});
-					} catch (Exception e) {
-						throw new IllegalStateException(e);
-					}
+			classificationTemplate.width = image.getWidth(null);
+			classificationTemplate.height = image.getHeight(null);
+			classificationTemplate.activation = "sigmoid";
+			classificationTemplate.numClasses = 1;
+			classificationTemplate.name=name;
+			if (original instanceof IMulticlassClassificationDataSet) {
+				classificationTemplate.numClasses = ((IMulticlassClassificationDataSet) original).classNames().size();
+				if (((IMulticlassClassificationDataSet) original).isExclusive()) {
+					classificationTemplate.activation = "softmax";
 				}
+			}
+		}
+		boolean createObject = WidgetRegistry.createObject(classificationTemplate);
+		if (createObject) {
+			String finish = classificationTemplate.finish();
+			finish = finish.replace("{dataset}", dsName);
+			IFolder folder = project.getFolder("experiments");
+			IFolder folder2 = folder.getFolder(name);
+			try {
+				if (!folder2.exists()) {
+					folder2.create(true, true, new NullProgressMonitor());
+				}
+				IFile file = folder2.getFile("config.yaml");
+
+				if (file.exists()) {
+					file.setContents(new ByteArrayInputStream(finish.getBytes()), true, true,
+							new NullProgressMonitor());
+				} else {
+					file.create(new ByteArrayInputStream(finish.getBytes()), true, new NullProgressMonitor());
+				}
+				Display.getDefault().asyncExec(() -> {
+					EditorUtils.openFile(file);
+				});
+			} catch (Exception e) {
+				MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", e.getMessage());
 			}
 		}
 	}

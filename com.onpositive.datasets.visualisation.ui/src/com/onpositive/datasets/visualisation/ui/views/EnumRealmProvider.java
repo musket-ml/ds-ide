@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui;
+package com.onpositive.datasets.visualisation.ui.views;
 
 import com.onpositive.semantic.model.api.meta.DefaultMetaKeys;
 import com.onpositive.semantic.model.api.meta.IHasMeta;

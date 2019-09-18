@@ -1,6 +1,7 @@
 package com.onpositive.datasets.visualisation.ui.views;
 
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
+import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 
 public abstract class ExperimentTemplate {
 
@@ -28,6 +29,7 @@ public abstract class ExperimentTemplate {
 	protected boolean enableTestTimeAugmentation=true;
 	
 	@Caption("Activation")
+	@RealmProvider(ActivationRealmProvider.class)
 	protected String activation="sigmoid";
 	
 	@Caption("Classes")

@@ -29,7 +29,7 @@ public class ClassificationTemplate extends ExperimentTemplate{
 	
 	public String finish() {
 		try {
-		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(ClassificationTemplate.class.getResourceAsStream("/templates/classificationWizard.yaml")));
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(ClassificationTemplate.class.getResourceAsStream("/templates/classificationWizard.yaml.txt")));
 		Stream<String> lines = bufferedReader.lines();
 		
 		String result=lines.collect(Collectors.joining(System.lineSeparator()));

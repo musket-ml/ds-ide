@@ -1,6 +1,6 @@
-<dialog xmlns="http://jetface.org/JetFace1.0/widgets" title="New Classification Experiment" message="Please check basic image classification experiment settings">
+<dialog xmlns="http://jetface.org/JetFace1.0/widgets" title="New Segmentation Experiment" message="Please check basic image segmentation experiment settings">
   <composite-editor xmlns="http://jetface.org/JetFace1.0/" >
-  	<model class="com.onpositive.datasets.visualisation.ui.views.ClassificationTemplate"/>
+  	<model class="com.onpositive.datasets.visualisation.ui.views.SegmentationTemplate"/>
   	<string bindTo="name" caption="Experiment name"/>
   	<string bindTo="architecture"/>
   	<string bindTo="backbone"/>
@@ -17,5 +17,17 @@
   		<string bindTo="width"/>
   		<string bindTo="height"/>
   	</group>
+  	<group caption="Experiment Results">
+  		<hc>
+  		<combo bindTo="final_metric" realmExpression="$$.finalmetrics"/>
+  		<combo bindTo="empty_is"/>
+  		</hc>
+  		<checkbox bindTo="optimizeTreshold"/>
+  		
+  	</group>
+  	<hgroup caption="True Negatives">
+  	  <checkbox bindTo="ignoreNegatives"/>
+  	  <checkbox bindTo="append"/>
+  	</hgroup>
   </composite-editor>
 </dialog>

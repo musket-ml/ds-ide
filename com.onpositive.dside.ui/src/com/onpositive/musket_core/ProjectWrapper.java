@@ -1,11 +1,14 @@
 package com.onpositive.musket_core;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
@@ -78,6 +81,152 @@ public class ProjectWrapper {
 
 	public void setDetails(InstrospectionResult details) {
 		this.details = details;
+	}
+
+	public static class BasicDataSetDesc {
+
+		public String name;
+		public String kind;
+		public String origin;
+		public String functionName;
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	public ArrayList<BasicDataSetDesc> getDataSets() {
+
+		try {
+			ArrayList<FunctionDeclaration> introspectModules = introspectModules();
+			LinkedHashMap<String, FunctionDeclaration> maps = new LinkedHashMap<>();
+			introspectModules.forEach(m -> maps.put(m.name, m));
+			FileReader fileReader = new FileReader(new File(path, "common.yaml"));
+			Object loadAs = new Yaml().loadAs(fileReader, Object.class);
+			if (loadAs instanceof Map) {
+				Map<String, Object> m = (Map<String, Object>) loadAs;
+				Object object = m.get("datasets");
+				if (object instanceof Map) {
+					Map<String, Object> vls = (Map<String, Object>) object;
+					ArrayList<BasicDataSetDesc> result = new ArrayList<>();
+					vls.keySet().forEach(v -> {
+						Object rs = vls.get(v);
+						BasicDataSetDesc ds = new BasicDataSetDesc();
+						ds.name = v;
+						if (rs instanceof Map) {
+							Map<String, Object> d = (Map<String, Object>) rs;
+							String decl = d.keySet().iterator().next();
+							FunctionDeclaration functionDeclaration = maps.get(decl);
+							if (functionDeclaration != null) {
+								ds.functionName=functionDeclaration.name;
+								functionDeclaration.annotations.forEach(a -> {
+									if (a.name.indexOf("dataset_provider") != -1) {
+										if (!a.namedParameters.isEmpty()) {
+											Object object2 = a.namedParameters.get("origin");
+											Object object3 = a.namedParameters.get("kind");
+											if (object2 != null) {
+												ds.origin = object2.toString();
+											}
+											if (object3 != null) {
+												ds.kind = object3.toString();
+											}
+											if (ds.origin.charAt(0) == '"') {
+												ds.origin = ds.origin.substring(1, ds.origin.length() - 1);
+											}
+										}
+									}
+								});
+								
+							}
+						}
+						result.add(ds);
+					});
+					return result;
+				}
+			}
+			fileReader.close();
+
+		} catch (FileNotFoundException e) {
+			return new ArrayList<>();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+		return new ArrayList<>();
+	}
+
+	protected static class ParsedAnnotation {
+		String name;
+		ArrayList<String> unnamedParameters = new ArrayList<>();
+		Map<String, Object> namedParameters = new LinkedHashMap<String, Object>();
+	}
+
+	protected static class FunctionDeclaration {
+		ArrayList<ParsedAnnotation> annotations = new ArrayList<>();
+		String name;
+	}
+
+	public ArrayList<FunctionDeclaration> introspectModules() {
+		File fl = new File(path, "modules");
+
+		ArrayList<FunctionDeclaration> declarations = new ArrayList<>();
+		for (File q : fl.listFiles()) {
+			if (q.isFile() && q.getName().endsWith(".py")) {
+				try {
+					List<String> readAllLines = Files.readAllLines(q.toPath());
+					ArrayList<ParsedAnnotation> annotations = new ArrayList<>();
+					for (String s : readAllLines) {
+						s = s.trim();
+						if (s.isEmpty()) {
+							continue;
+						}
+						if (s.startsWith("@")) {
+
+							String annotationName = s.substring(1);
+							int indexOf = annotationName.indexOf('(');
+							ParsedAnnotation parsedAnnotation = new ParsedAnnotation();
+							if (indexOf != -1) {
+								int indexOf2 = annotationName.indexOf(')');
+								if (indexOf2 != -1) {
+									String parList = annotationName.substring(indexOf + 1, indexOf2);
+									System.out.println(parList);
+									String[] split = parList.split(",");
+									for (String par : split) {
+										int indexOf3 = par.indexOf("=");
+										if (indexOf3 != -1) {
+											String pName = par.substring(0, indexOf3).trim();
+											String pValue = par.substring(indexOf3 + 1).trim();
+											parsedAnnotation.namedParameters.put(pName, pValue);
+										} else {
+											parsedAnnotation.unnamedParameters.add(par.trim());
+										}
+									}
+								}
+								annotationName = annotationName.substring(0, indexOf);
+
+							}
+							parsedAnnotation.name = annotationName;
+							annotations.add(parsedAnnotation);
+						} else if (s.startsWith("def")) {
+							s = s.substring(3).trim();
+							int ps = s.indexOf('(');
+							if (ps != -1) {
+								String name = s.substring(0, ps).trim();
+								FunctionDeclaration decl = new FunctionDeclaration();
+								decl.name = name;
+								decl.annotations.addAll(annotations);
+								declarations.add(decl);
+							}
+						} else {
+							annotations.clear();
+						}
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return declarations;
 	}
 
 	public synchronized void refresh(Runnable r) {

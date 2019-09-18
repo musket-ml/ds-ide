@@ -93,7 +93,7 @@ public class DataSetGenerator {
 			arrayList.add(0, "from musket_core import image_datasets,datasets");
 		}
 		arrayList.add("");
-		arrayList.add("@datasets.dataset_provider");
+		arrayList.add("@datasets.dataset_provider"+"(origin=\""+inputFile.getName()+"\",kind=\""+this.ds.getClass().getSimpleName()+"\""+")");
 		arrayList.add("def get" + this.name + "():");
 		File root=inputFile;
 		while (!root.getName().equals("data")) {
@@ -119,6 +119,9 @@ public class DataSetGenerator {
 		if (id==-1) {
 			arrayList.add("datasets:");
 			id=arrayList.size();
+		}
+		if (id>=arrayList.size()) {
+			id=arrayList.size()-1;
 		}
 		arrayList.add(id+1,"    "+name+":");
 		arrayList.add(id+2,"      "+"get"+name+": []");

@@ -108,11 +108,11 @@ public class ImageDataSetFactories {
 						if (!multipleObjects) {
 							BufferedImage bufferedImage = images.get(images.iterator().next());
 							return new BinarySegmentationDataSet(t, imageColumn, maskColumn, images,
-									bufferedImage.getWidth(), bufferedImage.getHeight());
+									bufferedImage.getHeight(), bufferedImage.getWidth());
 						} else {
 							BufferedImage bufferedImage = images.get(images.iterator().next());
 							return new BinaryInstanceSegmentationDataSet(t, imageColumn, maskColumn, images,
-									bufferedImage.getWidth(), bufferedImage.getHeight());
+									bufferedImage.getHeight(), bufferedImage.getWidth());
 						}
 					}
 				}

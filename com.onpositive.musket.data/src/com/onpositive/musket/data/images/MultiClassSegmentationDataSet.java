@@ -207,6 +207,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
-		return new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.id()), this.getSettings(), representer);
+		Map<String, Object> settings = this.getSettings();
+		return new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.id()), settings, representer);
 	}
 }

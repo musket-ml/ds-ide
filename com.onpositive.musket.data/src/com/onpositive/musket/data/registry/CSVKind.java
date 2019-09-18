@@ -16,8 +16,10 @@ import com.onpositive.musket.data.table.Column;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
+import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
+import com.opencsv.ICSVParser;
 public class CSVKind implements IDataSetIO{
 
 	@Override
@@ -25,7 +27,9 @@ public class CSVKind implements IDataSetIO{
 		String url=memento.getUrl();
 		String path=url.substring(url.indexOf("://")+3);
 		try {
-			CSVReader csvReader = new CSVReader(new FileReader(new File(path)));
+			CSVReader csvReader = new CSVReader(new FileReader(new File(path)),',','"' ,false);
+			
+			csvReader.setMultilineLimit(100000);
 			try {
 				List<String[]> readAll = csvReader.readAll();
 				ArrayList<Column>cs=new ArrayList<>();

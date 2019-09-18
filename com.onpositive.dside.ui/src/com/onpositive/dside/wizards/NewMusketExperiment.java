@@ -1,6 +1,8 @@
 package com.onpositive.dside.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -18,11 +20,9 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -34,8 +34,15 @@ import org.python.pydev.shared_ui.EditorUtils;
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
+import com.onpositive.datasets.visualisation.ui.views.CSVDataSetEditor;
+import com.onpositive.datasets.visualisation.ui.views.ClassificationTemplate;
+import com.onpositive.datasets.visualisation.ui.views.ExperimentTemplate;
+import com.onpositive.datasets.visualisation.ui.views.SegmentationTemplate;
 import com.onpositive.dside.ui.navigator.ExperimentGroup;
-import com.onpositive.musket_core.IProject;
+import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.project.DataProjectAccess;
+import com.onpositive.musket_core.ProjectManager;
+import com.onpositive.musket_core.ProjectWrapper.BasicDataSetDesc;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
 import com.onpositive.semantic.model.api.status.IStatusChangeListener;
@@ -58,6 +65,10 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 	}
 
 	private ExperimentParams experimentParams;
+
+	private org.eclipse.core.resources.IProject prj;
+
+	IFile dataSetFile;
 
 	@Override
 	public void addPages() {
@@ -83,10 +94,17 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 						IAdaptable mm = (IAdaptable) firstElement;
 						IResource adapter = mm.getAdapter(IResource.class);
 						if (adapter != null) {
-							org.eclipse.core.resources.IProject prj = adapter.getProject();
+							prj = adapter.getProject();
 							experimentParams.project = prj.getName();
 						}
 					}
+				}
+				if (prj != null) {
+					ArrayList<BasicDataSetDesc> dataSets = ProjectManager.getInstance(prj).getDataSets();
+					experimentParams.possibleDataSets = new ArrayList<>(
+							dataSets.stream().map(x -> x.name).collect(Collectors.toList()));
+					experimentParams.datasets = dataSets;
+					// System.out.println(dataSets);
 				}
 				Binding bn = new Binding(experimentParams);
 
@@ -111,6 +129,67 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 
 	@Override
 	public boolean performFinish() {
+		IFile fl = null;
+		String dsName="myDataset: []";
+		if (experimentParams.dataset != null && experimentParams.dataset.trim().length() > 0) {
+			for (BasicDataSetDesc d : experimentParams.datasets) {
+				if (d.name.equals(experimentParams.dataset)) {
+					IFile file = prj.getFolder("data").getFile(d.origin);
+					if (file != null && file.exists()) {
+						dataSetFile = file;
+					}
+					if (dataSetFile != null) {
+
+					}
+					if (d.origin != null && d.kind != null) {
+						if (prj != null) {
+							fl = prj.getFolder("data").getFile(d.origin);
+						}
+						// Now we can modify our wizard;
+					}
+					if (d.functionName!=null) {
+						dsName=d.functionName+": []";
+					}
+					else {
+						dsName="get"+d.name+": []";
+					}
+				}
+			}
+		}
+		Template template = TemplatesList.getTemplatesList().getTemplates().stream()
+				.filter(x -> x.name.equals(experimentParams.template)).findFirst().get();
+		ExperimentTemplate rs = null;
+
+		if (template.kind.equals("classification")) {
+			rs = new ClassificationTemplate();
+		}
+		if (template.kind.equals("segmentation")) {
+			rs = new SegmentationTemplate();
+		}
+		ExperimentTemplate ft=rs;
+		if (rs != null) {
+			IFile x=fl;
+			String fDName=dsName;
+			Display.getCurrent().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					IDataSet ds = null;
+					try {
+						if (x != null && x.exists()) {
+							ds=DataProjectAccess.getDataSet(x.getLocation().toFile());
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					CSVDataSetEditor.configureFromDataSetAndTemplate(prj, experimentParams.name, ds, ft,fDName);
+					
+					
+				}
+			});
+			return true;
+			
+		}
 		// define the operation to create a new project
 		WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 			@Override
@@ -122,12 +201,12 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 					folder.create(true, true, monitor);
 				}
 				String group = experimentParams.group;
-				if (group==null) {
-					group="";
+				if (group == null) {
+					group = "";
 				}
 				Path path = new Path(group);
-				IFolder folder2=folder;
-				if (!path.isEmpty()) {					
+				IFolder folder2 = folder;
+				if (!path.isEmpty()) {
 					folder2 = folder.getFolder(path);
 					if (!folder2.exists()) {
 						folder2.create(true, true, monitor);
@@ -138,12 +217,14 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 					folder3.create(true, true, monitor);
 				}
 				IFile file = folder3.getFile("config.yaml");
-				Template template = TemplatesList.getTemplatesList().getTemplates().stream().filter(x->x.name.equals(experimentParams.template)).findFirst().get();
-				file.create(NewMusketExperiment.class.getResourceAsStream("/templates/"+template.file), true, monitor);
-				Display.getDefault().asyncExec(()->{
-					EditorUtils.openFile(file);	
+				Template template = TemplatesList.getTemplatesList().getTemplates().stream()
+						.filter(x -> x.name.equals(experimentParams.template)).findFirst().get();
+				file.create(NewMusketExperiment.class.getResourceAsStream("/templates/" + template.file), true,
+						monitor);
+				Display.getDefault().asyncExec(() -> {
+					EditorUtils.openFile(file);
 				});
-				
+
 			}
 		};
 
@@ -171,7 +252,7 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 		}
 		CommonNavigator activePart = (CommonNavigator) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 				.getActivePage().findView("org.python.pydev.navigator.view");
-		if (activePart!=null) {
+		if (activePart != null) {
 			activePart.getCommonViewer().refresh();
 		}
 		return true;
