@@ -1,9 +1,14 @@
 <composite-editor xmlns="http://jetface.org/JetFace1.0/">
 	<model class="com.onpositive.dside.wizards.KaggleRunConfig"/>
-	
-	<string bindTo="username"/>
+	<hc>
+		<label caption="username: "/>
+		<label bindTo="username"/>
+	</hc>
 	<string bindTo="project_id"/>
-	<string bindTo="experiment"/>
+	<hc>
+		<label caption="experiment: "/>
+		<label bindTo="experiment"/>
+	</hc>
 	<label caption="Datasource:"/>
 	<hc>
 		<label bindTo="datasourceType"/>

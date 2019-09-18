@@ -2,6 +2,8 @@ package com.onpositive.dside.wizards;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -13,6 +15,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -23,6 +27,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
+import com.google.gson.JsonParser;
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
@@ -30,6 +35,7 @@ import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.ui.DatasetTableElement;
+import com.onpositive.dside.ui.navigator.ExperimentNode;
 import com.onpositive.musket_core.IServer;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
@@ -69,6 +75,14 @@ public class KaggleRunView extends Wizard implements INewWizard {
 				if(selection instanceof IStructuredSelection) {
 					Object firstElement = ((IStructuredSelection) selection).getFirstElement();
 					
+					if(firstElement instanceof ExperimentNode) {
+						ExperimentNode experiment = (ExperimentNode) firstElement;
+						
+						kaggleConfig.experiment = experiment.experimentName();
+					} else {
+						kaggleConfig.experiment = "";
+					}
+					
 					if (firstElement instanceof IAdaptable) {
 						IAdaptable firstElementAsAdaptable = (IAdaptable) firstElement;
 						
@@ -99,12 +113,14 @@ public class KaggleRunView extends Wizard implements INewWizard {
 				IValidator<Object> validator = new IValidator<Object>() {
 					@Override
 					public CodeAndMessage isValid(IValidationContext arg0, Object arg1) {
+						if(kaggleConfig.username.length() == 0) {
+							return new CodeAndMessage(CodeAndMessage.ERROR, "Kaggle user is not registered on your OS! See details: http://kaggle.com");
+						}
+						
 						return kaggleConfig.datasourceType.length() == 0 ? new CodeAndMessage(CodeAndMessage.ERROR, "Datasource is not defined!") : new CodeAndMessage(CodeAndMessage.OK, "");
 					}
 				};
-								
-				bn.addValidator(validator);
-								
+				
 				bn.addStatusChangeListener(new IStatusChangeListener() {
 					@Override
 					public void statusChanged(IHasStatus bnd, CodeAndMessage cm) {
@@ -114,9 +130,7 @@ public class KaggleRunView extends Wizard implements INewWizard {
 					}
 				});
 				
-				bn.setupStatus(validator.isValid(bn.getValidationContext(), new Object()));
-				
-				setErrorMessage(bn.getStatus().getMessage());
+				bn.addValidator(validator);
 			}
 		});
 	}
@@ -153,6 +167,8 @@ public class KaggleRunView extends Wizard implements INewWizard {
 			
 			config.datasource = datasource.ref;
 		}
+		
+		config.username = Utils.kaggleUserName();
 	}
 	
 	private void writeConfig(IProject project, KaggleRunConfig config) throws IOException, CoreException {

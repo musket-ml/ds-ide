@@ -88,11 +88,16 @@
                id="com.onpositive.dside.ui.action4"
                label="Kaggle Dataset">
          </action>
-         <action
+      </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="com.onpositive.dside.ui.objectContribution3"
+            objectClass="com.onpositive.dside.ui.navigator.ExperimentNode">
+            <action
                class="com.onpositive.dside.ui.navigator.RunOnKaggleKernelsAction"
                id="com.onpositive.dside.ui.action5"
                label="Run on Kaggle Kernels">
-         </action>
+         	</action>
       </objectContribution>
    </extension>
    <extension point="org.eclipse.debug.core.launchConfigurationTypes">

@@ -22,4 +22,8 @@ public class ExperimentNode implements IAdaptable,IExperimentContribution{
 		}
 		return null;
 	}
+	
+	public String experimentName() {
+		return folder.getName();
+	}
 }

@@ -15,7 +15,7 @@ public class KaggleRunConfig {
 	
 	@Caption("Kaggle Username")
 	@Required
-	String username = "username";
+	String username = "";
 	
 	@Caption("Kagle kernels name prefix")
 	@Required
@@ -93,7 +93,7 @@ public class KaggleRunConfig {
 				
 		this.username = root.getAsJsonObject().get("username").getAsString();
 		this.project_id = root.getAsJsonObject().get("project_id").getAsString();
-		this.experiment = root.getAsJsonObject().get("experiment").getAsString();
+		
 		this.kernels = root.getAsJsonObject().get("kernels").getAsInt();
 		this.split_by_folds = root.getAsJsonObject().get("split_by_folds").getAsBoolean();
 		this.server = root.getAsJsonObject().get("server").getAsString();
