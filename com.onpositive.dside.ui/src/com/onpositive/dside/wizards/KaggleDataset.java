@@ -137,7 +137,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 	}
 	
 	private void download(org.eclipse.core.resources.IProject project) {
-		IFolder folder = project.getFolder("data/" + datasetView.getItem().ref);
+		IFolder folder = project.getFolder("data");
 		
 		String fullPath = folder.getLocation().toOSString();
 			
@@ -256,7 +256,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 			protected void execute(IProgressMonitor monitor) throws CoreException {
 				org.eclipse.core.resources.IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(datasetView.project);
 				
-				IFolder folder = project.getFolder("data/" + datasetView.getItem().ref);
+				IFolder folder = project.getFolder("data");
 				
 				ensure(folder, monitor);
 				
