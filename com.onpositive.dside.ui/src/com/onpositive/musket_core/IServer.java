@@ -15,4 +15,6 @@ public interface IServer {
 	void downloadDataset(String id, String dest);
 	
 	void downloadCompetitionFiles(String id, String dest);
+	
+	void runOnKaggle(String projectPath);
 }

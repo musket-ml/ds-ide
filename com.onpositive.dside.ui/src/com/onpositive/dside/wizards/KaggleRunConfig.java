@@ -1,12 +1,5 @@
 package com.onpositive.dside.wizards;
 
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.eclipse.core.resources.IFile;
-
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -19,21 +12,6 @@ public class KaggleRunConfig {
 	@Caption("Project")
 	@Required
 	String project;
-	
-//	{
-//		  "username": "dreamflyer",
-//		  "project_id": "test-project-60",
-//		  "experiment":  "test",
-//		  "server": "43434bac.ngrok.io",
-//		  "port": 9393,
-//		  "kernels": 2,
-//		  "dataset_sources": [],
-//		  "competition_sources": ["freesound-audio-tagging-2019"],
-//		  "kernel_sources": [],
-//		  "split_by_folds": false,
-//		  "requests_delay": 10,
-//		  "time": 600
-//		}
 	
 	@Caption("Kaggle Username")
 	@Required

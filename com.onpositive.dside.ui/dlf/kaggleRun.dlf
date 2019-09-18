@@ -9,7 +9,7 @@
 		<label bindTo="datasourceType"/>
 		<label bindTo="datasource"/>
 	</hc>
-	
+	<string bindTo="kernels"/>
 	<checkbox bindTo="split_by_folds"/>
 	<string bindTo="server"/>
 	<string bindTo="port"/>
