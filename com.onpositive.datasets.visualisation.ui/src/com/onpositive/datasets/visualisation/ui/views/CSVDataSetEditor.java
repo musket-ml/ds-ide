@@ -185,6 +185,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			temp = new TextClassificationTemplate();
 		}
 		if (temp != null) {
+			temp.projectPath=project.getLocation().toFile().getAbsolutePath();
 			boolean openQuestion = MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Please confirm",
 					"Great, you have a dataset now, may be you want to configure an experiment?");
 			if (openQuestion) {
@@ -196,6 +197,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	public static void configureFromDataSetAndTemplate(IProject project, String name, IDataSet original,
 			GenericExperimentTemplate temp, String dsName) {
 		GenericExperimentTemplate classificationTemplate = temp;
+		temp.projectPath=project.getLocation().toFile().getAbsolutePath();
 		if (original != null) {
 			
 			

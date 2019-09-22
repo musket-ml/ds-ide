@@ -3,11 +3,14 @@ package com.onpositive.datasets.visualisation.ui.views;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
+import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
 
 @Display("dlf/textClassificationTemplate.dlf")
@@ -15,6 +18,7 @@ public class TextClassificationTemplate extends GenericExperimentTemplate {
 
 	@Caption("Commas separated list of word embeddings to use")
 	@Required
+	@RealmProvider(EmbeddingsRealmProvider.class)
 	ArrayList<String> embeddings;
 
 	@Caption("Maximum number of words to process")
@@ -27,6 +31,13 @@ public class TextClassificationTemplate extends GenericExperimentTemplate {
 	protected boolean add_random_words;
 	@Caption("Swap random words")
 	protected boolean replace_random_words;
+
+	
+	
+	public Collection<String>getEmbeddings(){
+		ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("dice","iou","map10"));
+		return arrayList;
+	}
 
 	@Override
 	public String finish() {

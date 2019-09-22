@@ -18,7 +18,7 @@ public abstract class GenericExperimentTemplate {
 	public GenericExperimentTemplate() {
 		super();
 	}
-
+	public String projectPath;
 	public abstract String finish() ;
 
 }
