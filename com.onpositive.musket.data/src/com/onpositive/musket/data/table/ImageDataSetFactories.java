@@ -75,6 +75,8 @@ public class ImageDataSetFactories {
 		List<? extends IColumn> columns = t.columns();
 
 		IColumn imageColumn = null;
+		
+		
 		for (IColumn c : columns) {
 			if (images.like(c)) {
 				if (imageColumn == null) {
@@ -85,6 +87,16 @@ public class ImageDataSetFactories {
 			}
 		}
 		if (imageColumn == null) {
+			IColumn textColumn=null;
+			for (IColumn c : columns) {
+				if (isText(c)) {
+					textColumn=c;
+					break;
+				}
+			}
+			if (textColumn!=null) {
+				return TextDataSetFactories.create(t,textColumn);
+			}
 			return null;
 		}
 		ArrayList<IColumn> arrayList = new ArrayList<IColumn>(t.columns());
@@ -96,7 +108,7 @@ public class ImageDataSetFactories {
 		}
 		IColumn maskColumn = null;
 
-		IColumn clazzColumn = null;
+		
 		for (IColumn c : arrayList) {
 			if (c != imageColumn) {
 				boolean like = new RLERepresenter().like(c);
@@ -121,20 +133,7 @@ public class ImageDataSetFactories {
 		if (maskColumn != null) {
 			arrayList.remove(maskColumn);
 		}
-		for (IColumn m : arrayList) {
-			if (m.caption().toLowerCase().contains("class") || m.caption().toLowerCase().contains("clazz")
-					|| m.caption().toLowerCase().contains("classes")) {
-				clazzColumn = m;
-				break;
-			}
-			LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(m.values());
-			if (linkedHashSet.size() < 1000) {
-				if (isAllInt(linkedHashSet) || isAllString(linkedHashSet) || isBool(linkedHashSet)) {
-					clazzColumn = m;
-					break;
-				}
-			}
-		}
+		IColumn clazzColumn = findClassColumn(arrayList);
 		if (clazzColumn != null && maskColumn != null) {
 			if (!multipleObjects || true) {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
@@ -157,14 +156,58 @@ public class ImageDataSetFactories {
 		return t;
 	}
 
-	private boolean isBool(LinkedHashSet<Object> linkedHashSet) {
+	protected static IColumn findClassColumn(ArrayList<IColumn> arrayList) {
+		IColumn clazzColumn = null;
+		for (IColumn m : arrayList) {
+			if (m.caption().toLowerCase().contains("class") || m.caption().toLowerCase().contains("clazz")
+					|| m.caption().toLowerCase().contains("classes")) {
+				clazzColumn = m;
+				break;
+			}
+			LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(m.values());
+			if (linkedHashSet.size() < 1000) {
+				if (isAllInt(linkedHashSet) || isAllString(linkedHashSet) || isBool(linkedHashSet)) {
+					clazzColumn = m;
+					break;
+				}
+			}
+		}
+		return clazzColumn;
+	}
+	
+	protected static ArrayList<IColumn> findClassColumns(ArrayList<IColumn> arrayList) {
+		ArrayList<IColumn> clazzColumns = new ArrayList<>();
+		for (IColumn m : arrayList) {
+			if (m.caption().toLowerCase().contains("class") || m.caption().toLowerCase().contains("clazz")
+					|| m.caption().toLowerCase().contains("classes")) {
+				clazzColumns.add( m);
+				continue;
+			}
+			LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(m.values());
+			if (linkedHashSet.size() < 1000) {
+				
+				if (isAllInt(linkedHashSet) || isAllString(linkedHashSet) || isBool(linkedHashSet)) {
+					if(clazzColumns.isEmpty()) {
+						clazzColumns.add( m);
+					}
+					else if (linkedHashSet.size()<100) {
+						clazzColumns.add( m);
+					}
+					
+				}
+			}
+		}
+		return clazzColumns;
+	}
+
+	private static boolean isBool(LinkedHashSet<Object> linkedHashSet) {
 		if (linkedHashSet.size() == 2) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isAllString(LinkedHashSet<Object> linkedHashSet) {
+	private static boolean isAllString(LinkedHashSet<Object> linkedHashSet) {
 		for (Object s0 : linkedHashSet) {
 			String s = s0.toString();
 			if (!Character.isJavaIdentifierStart(s.charAt(0))) {
@@ -178,8 +221,59 @@ public class ImageDataSetFactories {
 		}
 		return true;
 	}
+	
+	public static boolean isText(IColumn c) {
+		return isText(c.values());
+	}
+	
+	public static boolean isText(Collection<Object>linkedHashSet) {
+		int textCount=0;
+		for (Object o : linkedHashSet) {
+			try {
+				String string = o.toString();
+				if (looksLikeText(string)) {
+					textCount++;
+				}
+			} catch (NumberFormatException e) {
+				return false;
+			}
+		}
+		return textCount>linkedHashSet.size()/2;
+	}
 
-	private boolean isAllInt(LinkedHashSet<Object> linkedHashSet) {
+	private static boolean looksLikeText(String string) {
+		String[] split = string.split(" ");
+		int words=0;
+		if (split.length>2) {
+			for (String m:split) {
+				if (isWord(m)) {
+					words++;
+				}
+			}
+		}
+		return words>3;
+	}
+	
+	public static boolean isNumber(String m) {
+		try {
+			Double.parseDouble(m);
+			return true;
+		}catch (NumberFormatException e) {
+			return false;
+		}
+	}
+	
+	private static boolean isWord(String m) {
+		for (int i=0;i<m.length();i++) {
+			char charAt = m.charAt(i);
+			if (!Character.isLetter(charAt)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static boolean isAllInt(LinkedHashSet<Object> linkedHashSet) {
 		for (Object o : linkedHashSet) {
 			try {
 				Integer.parseInt(o.toString());

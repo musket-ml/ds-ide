@@ -433,7 +433,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 
 	private Universe getRegistry() {
 		String extractFragment = FragmentExtractor.extractFragment(this.editor.getDocument());
-		Universe registry = TypeRegistryProvider.getRegistry(extractFragment==null?"basicConfig":extractFragment.toLowerCase());
+		Universe registry = TypeRegistryProvider.getRegistry((extractFragment==null||extractFragment.equals("Generic"))?"basicConfig":extractFragment.toLowerCase());
 		return registry;
 	}
 

@@ -36,8 +36,10 @@ import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
 import com.onpositive.datasets.visualisation.ui.views.CSVDataSetEditor;
 import com.onpositive.datasets.visualisation.ui.views.ClassificationTemplate;
-import com.onpositive.datasets.visualisation.ui.views.ExperimentTemplate;
+import com.onpositive.datasets.visualisation.ui.views.ImageExperimentTemplate;
+import com.onpositive.datasets.visualisation.ui.views.GenericExperimentTemplate;
 import com.onpositive.datasets.visualisation.ui.views.SegmentationTemplate;
+import com.onpositive.datasets.visualisation.ui.views.TextClassificationTemplate;
 import com.onpositive.dside.ui.navigator.ExperimentGroup;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.project.DataProjectAccess;
@@ -158,7 +160,7 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 		}
 		Template template = TemplatesList.getTemplatesList().getTemplates().stream()
 				.filter(x -> x.name.equals(experimentParams.template)).findFirst().get();
-		ExperimentTemplate rs = null;
+		GenericExperimentTemplate rs = null;
 
 		if (template.kind.equals("classification")) {
 			rs = new ClassificationTemplate();
@@ -166,7 +168,10 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 		if (template.kind.equals("segmentation")) {
 			rs = new SegmentationTemplate();
 		}
-		ExperimentTemplate ft=rs;
+		if (template.kind.equals("text_classification")) {
+			rs = new TextClassificationTemplate();
+		}
+		GenericExperimentTemplate ft=rs;
 		if (rs != null) {
 			IFile x=fl;
 			String fDName=dsName;

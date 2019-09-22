@@ -49,6 +49,11 @@ public abstract class AbstractMultiSplitAnalizer {
 			public IDataSet getOriginal() {
 				return ds;
 			}
+
+			@Override
+			public IDataSet getFiltered() {
+				return ds;
+			}
 		};
 	}
 

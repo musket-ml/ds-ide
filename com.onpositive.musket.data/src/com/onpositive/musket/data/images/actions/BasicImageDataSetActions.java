@@ -20,6 +20,9 @@ import com.onpositive.musket.data.registry.CSVKind;
 import com.onpositive.musket.data.table.BasicDataSetImpl;
 import com.onpositive.musket.data.table.BasicItem;
 import com.onpositive.musket.data.table.Column;
+import com.onpositive.musket.data.table.ICSVOVerlay;
+import com.onpositive.musket.data.table.ITabularItem;
+import com.onpositive.musket.data.text.TextClassificationDataSet;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
 
 public class BasicImageDataSetActions {
@@ -69,6 +72,16 @@ public class BasicImageDataSetActions {
 	}
 	
 	
+	public static BasicDataSetImpl saveWithCurrentFilters(IDataSet ds) {		
+		ICSVOVerlay ov=(ICSVOVerlay) ds;
+		ArrayList<ITabularItem>bi=new ArrayList<>();
+		ds.items().forEach(v->{
+			bi.addAll(ov.represents(v));
+		});
+		return (BasicDataSetImpl) ov.original().subDataSet("",bi);
+	}
+	
+	
 
 	@Image("")
 	public static class ConversionAction {
@@ -83,7 +96,15 @@ public class BasicImageDataSetActions {
 		public String getCaption() {
 			return caption;
 		}
+		
+		protected boolean usesCurrentFilters;
 
+		public boolean isUsesCurrentFilters() {
+			return usesCurrentFilters;
+		}
+		public void setUsesCurrentFilters(boolean usesCurrentFilters) {
+			this.usesCurrentFilters = usesCurrentFilters;
+		}
 		public void run(IDataSet v, File target) {
 			@SuppressWarnings("unchecked")
 			BasicDataSetImpl ds = ((Function<IDataSet, BasicDataSetImpl>) this.func).apply(v);
@@ -93,6 +114,7 @@ public class BasicImageDataSetActions {
 				throw new IllegalStateException();
 			}
 		}
+		
 		@Override
 		public String toString() {
 			return this.caption;
@@ -113,15 +135,26 @@ public class BasicImageDataSetActions {
 	}
 	
 	public static class GenerateDataSetAction extends ConversionAction{
-
 		public GenerateDataSetAction() {
 			super("Generate Musket wrappers", null);
-		}
-		
+		}		
 	}
 
 	public static List<ConversionAction> getActions(IDataSet d) {
+		
 		ArrayList<ConversionAction> actions = new ArrayList<>();
+		ConversionAction conversionAction = new ConversionAction("Save with current filters", BasicImageDataSetActions::saveWithCurrentFilters);
+		conversionAction.setUsesCurrentFilters(true);
+		actions.add(conversionAction);
+		if (d instanceof IPythonStringGenerator) {
+			actions.add(new GenerateDataSetAction());
+		}
+		if (d instanceof TextClassificationDataSet) {
+			TextClassificationDataSet td=(TextClassificationDataSet) d;
+			
+			return actions;
+		}
+		
 		if (d instanceof IBinaryClassificationDataSet) {
 			Function<IBinaryClassificationDataSet, BasicDataSetImpl> v = BasicImageDataSetActions::toBinaryClassification;
 			actions.add(new ConversionAction("Convert to Binary Classification", v));
@@ -137,9 +170,7 @@ public class BasicImageDataSetActions {
 		if (d instanceof IImageDataSet) {
 			actions.add(new ConvertResolutionAction());
 		}
-		if (d instanceof IPythonStringGenerator) {
-			actions.add(new GenerateDataSetAction());
-		}
+		
 		return actions;
 	}
 

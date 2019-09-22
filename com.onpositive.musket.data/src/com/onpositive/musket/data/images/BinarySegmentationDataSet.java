@@ -2,12 +2,16 @@ package com.onpositive.musket.data.images;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
+import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageRepresenter;
 
 public class BinarySegmentationDataSet extends AbstractRLEImageDataSet<BinarySegmentationItem> implements IBinarySegmentationDataSet,Cloneable{
@@ -64,6 +68,12 @@ public class BinarySegmentationDataSet extends AbstractRLEImageDataSet<BinarySeg
 			arrayList.add("rMask=False");
 		}
 		return arrayList;
+	}
+
+	@Override
+	public List<ITabularItem> represents(IItem i) {
+		BinarySegmentationItem ti=(BinarySegmentationItem) i;
+		return Collections.singletonList(ti.item);
 	}
 	
 }

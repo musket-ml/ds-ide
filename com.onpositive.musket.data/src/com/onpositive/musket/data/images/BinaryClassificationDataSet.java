@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
@@ -97,5 +98,11 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 		arrayList.add('"'+getImageIdColumn()+'"');
 		arrayList.add('"'+clazzColumn.caption()+'"');		
 		return arrayList;
+	}
+
+	@Override
+	public List<ITabularItem> represents(IItem i) {
+		BinaryClassificationItem bi=(BinaryClassificationItem) i;
+		return Collections.singletonList(bi.item);
 	}
 }

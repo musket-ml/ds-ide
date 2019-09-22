@@ -29,6 +29,15 @@ types:
                    
         with: 
            type: any
+   Hyper:
+     type: object  
+     properties:
+        type:  
+           type: string
+        range: 
+           type: number[]
+        enum: 
+           type: string[]     
    DataSetDeclaration:
      polimophic: true
      closed: true
@@ -158,6 +167,9 @@ types:
     root: true    
     customValidator: com.onpositive.dside.ast.RootValidator 
     properties:
+      hyperparameters:
+        multivalue: true
+        type: Hyper
       architecture: 
          type: string
       backbone: 
@@ -171,6 +183,8 @@ types:
       activation:
          type: string
          required: true
+      max_evals:
+         type: number   
       encoder_weights:
          type: string
       shape: 
@@ -184,7 +198,7 @@ types:
         reference: true  
         #multivalue: true   
       lr:
-        type: float
+        type: string
         defaultValue: 0.001
         min: 0  
       folds_count:

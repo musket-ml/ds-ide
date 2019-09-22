@@ -14,7 +14,7 @@ import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
 
 @Display("dlf/segmentationTemplate.dlf")
-public class SegmentationTemplate extends ExperimentTemplate{
+public class SegmentationTemplate extends ImageExperimentTemplate{
 	
 	@Caption("Backbone")
 	protected String backbone="resnet34";

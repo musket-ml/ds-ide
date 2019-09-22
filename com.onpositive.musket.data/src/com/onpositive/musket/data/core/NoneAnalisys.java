@@ -29,4 +29,9 @@ public class NoneAnalisys implements IAnalizeResults{
 		return dataset;
 	}
 
+	@Override
+	public IDataSet getFiltered() {
+		return dataset;
+	}
+
 }

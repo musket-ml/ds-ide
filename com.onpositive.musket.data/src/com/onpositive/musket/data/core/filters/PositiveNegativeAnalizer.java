@@ -14,7 +14,7 @@ public class PositiveNegativeAnalizer extends AbstractAnalizer implements IAnali
 
 	protected Object group(IItem v) {
 		IBinaryClasificationItem bi=(IBinaryClasificationItem) v;
-		return bi.isPositive();
+		return bi.binaryLabel();
 	}
 
 }

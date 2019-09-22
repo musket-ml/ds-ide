@@ -34,6 +34,7 @@ import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassificationDataset;
 import com.onpositive.musket.data.project.DataProjectAccess;
+import com.onpositive.musket.data.text.TextClassificationDataSet;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 /**
@@ -76,7 +77,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			File file3 = fromINput(editorInput);
 			file2 = file3;
 			ds = DataProjectAccess.getDataSet(file2);
-
+			this.setPartName(file3.getName());
 			init();
 
 		}
@@ -89,6 +90,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			ds = dataSet.withPredictions(f2);
 			setPartName(f1.getName() + "-" + f2.getName());
 			init();
+
 		}
 	}
 
@@ -169,7 +171,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 
 	@Override
 	public void afterDataSetCreate(String name, IDataSet original) {
-		ExperimentTemplate temp = null;
+		GenericExperimentTemplate temp = null;
 		if (original instanceof BinaryClassificationDataSet) {
 			temp = new ClassificationTemplate();
 		}
@@ -179,27 +181,33 @@ public class CSVDataSetEditor extends AnalistsEditor {
 		if (original instanceof MultiClassSegmentationDataSet) {
 			temp = new SegmentationTemplate();
 		}
+		if (original instanceof TextClassificationDataSet) {
+			temp = new TextClassificationTemplate();
+		}
 		if (temp != null) {
 			boolean openQuestion = MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Please confirm",
 					"Great, you have a dataset now, may be you want to configure an experiment?");
 			if (openQuestion) {
-				configureFromDataSetAndTemplate(project, "", original, temp,"get" + name + ": []");
+				configureFromDataSetAndTemplate(project, "", original, temp, "get" + name + ": []");
 			}
 		}
 	}
 
 	public static void configureFromDataSetAndTemplate(IProject project, String name, IDataSet original,
-			ExperimentTemplate temp,String dsName) {
-		ExperimentTemplate classificationTemplate = temp;
+			GenericExperimentTemplate temp, String dsName) {
+		GenericExperimentTemplate classificationTemplate = temp;
 		if (original != null) {
-			AbstractImageDataSet<IImageItem> it = (AbstractImageDataSet<IImageItem>) original;
-			Image image = it.item(0).getImage();
-
-			classificationTemplate.width = image.getWidth(null);
-			classificationTemplate.height = image.getHeight(null);
+			
+			
+			if (classificationTemplate instanceof ImageExperimentTemplate) {
+				AbstractImageDataSet<IImageItem> it = (AbstractImageDataSet<IImageItem>) original;
+				Image image = it.item(0).getImage();				
+				((ImageExperimentTemplate)classificationTemplate).width = image.getWidth(null);
+				((ImageExperimentTemplate)classificationTemplate).height = image.getHeight(null);
+			}
 			classificationTemplate.activation = "sigmoid";
 			classificationTemplate.numClasses = 1;
-			classificationTemplate.name=name;
+			classificationTemplate.name = name;
 			if (original instanceof IMulticlassClassificationDataSet) {
 				classificationTemplate.numClasses = ((IMulticlassClassificationDataSet) original).classNames().size();
 				if (((IMulticlassClassificationDataSet) original).isExclusive()) {

@@ -1,6 +1,10 @@
 package com.onpositive.musket.data.table;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 public interface IColumn {
 
@@ -19,4 +23,12 @@ public interface IColumn {
 	public Collection<Object> values();
 
 	public IColumn clone();
+	
+	@SuppressWarnings("unchecked")
+	public default ArrayList<Object>uniqueValues(){
+		LinkedHashSet<Object>vl=new LinkedHashSet<>(this.values());
+		ArrayList<Object>result=new ArrayList<>(vl);
+		Collections.sort((List)result);
+		return result;
+	}
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.core.Parameter;
 import com.onpositive.musket.data.table.IColumn;
@@ -209,5 +210,11 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 	public IBinaryClassificationDataSet forClass(String clazz) {
 		Map<String, Object> settings = this.getSettings();
 		return new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.id()), settings, representer);
+	}
+
+	@Override
+	public List<ITabularItem> represents(IItem i) {
+		MultiClassSegmentationItem it=(MultiClassSegmentationItem) i;
+		return it.items;
 	}
 }

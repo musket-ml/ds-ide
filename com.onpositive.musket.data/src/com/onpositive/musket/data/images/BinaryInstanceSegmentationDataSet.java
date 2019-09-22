@@ -2,9 +2,11 @@ package com.onpositive.musket.data.images;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
@@ -56,6 +58,12 @@ public class BinaryInstanceSegmentationDataSet extends  AbstractRLEImageDataSet<
 	@Override
 	public String generatePythonString(String sourcePath) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<ITabularItem> represents(IItem i) {
+		BinaryInstanceSegmentationItem bit=(BinaryInstanceSegmentationItem) i;
+		return bit.items;
 	}
 	
 }

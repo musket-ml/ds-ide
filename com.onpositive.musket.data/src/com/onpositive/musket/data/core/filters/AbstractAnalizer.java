@@ -47,6 +47,11 @@ public abstract class AbstractAnalizer {
 			public IDataSet getOriginal() {
 				return ds;
 			}
+
+			@Override
+			public IDataSet getFiltered() {
+				return ds;
+			}
 		};
 	}
 

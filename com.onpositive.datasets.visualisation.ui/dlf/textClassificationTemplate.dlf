@@ -1,0 +1,18 @@
+<dialog xmlns="http://jetface.org/JetFace1.0/widgets" title="New Classification Experiment" message="Please check basic image classification experiment settings">
+  <composite-editor xmlns="http://jetface.org/JetFace1.0/" >
+  	<model class="com.onpositive.datasets.visualisation.ui.views.TextClassificationTemplate"/>
+  	<string bindTo="name" caption="Experiment name"/>
+  	<string bindTo="embeddings" />
+  	<string bindTo="numClasses" />
+  	<string bindTo="maxLen" />
+  	<combo bindTo="activation" />
+  	<group caption="Basic Augmentation">
+  		
+  		<checkbox caption="Remove Random Words" bindTo="remove_random_words"/>
+  		<checkbox caption="Add Random Words" bindTo="add_random_words"/>
+  		<checkbox caption="Swap Random Words" bindTo="replace_random_words"/>
+  		  		
+  	</group>
+  	
+  </composite-editor>
+</dialog>

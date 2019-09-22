@@ -144,6 +144,8 @@ public class FilterRegistry {
 		register(HasClassAnalizer.class);
 		register(HasClassesAnalizer.class);
 		register(ClassConfusionMatrix.class);
+		register(HasTextFilter.class);
+		register(HasClassFilter.class);
 	}
 
 	public ArrayList<IFilterProto> getFilters(IDataSet ds) {

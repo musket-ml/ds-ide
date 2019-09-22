@@ -12,4 +12,6 @@ public interface IAnalizeResults {
 	default String visualizationSpec() {return "";}
 
 	IDataSet getOriginal();
+
+	IDataSet getFiltered();
 }

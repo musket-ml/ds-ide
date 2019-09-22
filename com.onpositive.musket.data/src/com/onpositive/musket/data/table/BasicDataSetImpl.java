@@ -15,7 +15,7 @@ import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 
-public class BasicDataSetImpl implements ITabularDataSet{
+public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 	
 	protected ArrayList<? extends ITabularItem>items=new ArrayList<BasicItem>();
 	protected List<? extends IColumn>columns=new ArrayList<IColumn>();
@@ -189,16 +189,10 @@ public class BasicDataSetImpl implements ITabularDataSet{
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public IDataSet subDataSet(String string, List<? extends IItem> arrayList) {
-		try {
-			BasicDataSetImpl rs=(BasicDataSetImpl) this.clone();
-			rs.items=(ArrayList)arrayList;
-			rs.name=string;
-			return rs;
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		BasicDataSetImpl rs=(BasicDataSetImpl) this.clone();
+		rs.items=(ArrayList)arrayList;
+		rs.name=string;
+		return rs;
 	}
 
 	@Override
@@ -222,6 +216,24 @@ public class BasicDataSetImpl implements ITabularDataSet{
 	@Override
 	public List<ConversionAction> conversions() {
 		return Collections.emptyList();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public ITabularDataSet addColumn(IColumn func) {
+		Column func2 = (Column)func;
+		func2.owner=this;
+		((List)this.columns).add(func2);
+		return this;
+	}
+	
+	@Override
+	public ITabularDataSet clone(){
+		try {
+			return (ITabularDataSet) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new IllegalStateException();
+		}
 	}
 
 }

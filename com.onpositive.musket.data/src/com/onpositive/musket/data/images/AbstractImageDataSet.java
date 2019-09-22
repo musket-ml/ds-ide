@@ -15,11 +15,12 @@ import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
+import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ImageRepresenter;
 
-public abstract class AbstractImageDataSet<T extends IImageItem> implements IImageDataSet,Cloneable,IPythonStringGenerator{
+public abstract class AbstractImageDataSet<T extends IImageItem> implements IImageDataSet,Cloneable,IPythonStringGenerator,ICSVOVerlay{
 
 	protected int width;
 	protected int height;
@@ -148,5 +149,15 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	@Override
 	public String name() {
 		return name;
+	}
+	
+	@Override
+	public ITabularDataSet original() {
+		return base;
+	}
+	
+	@Override
+	public String getImportString() {
+		return "from musket_core import image_datasets,datasets";
 	}
 }

@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 import com.onpositive.musket.data.core.IDataSet;
 
-public interface ITabularDataSet extends IDataSet {
+public interface ITabularDataSet extends IDataSet,Cloneable {
 
 	public List<? extends IColumn> columns();
 
@@ -35,6 +35,7 @@ public interface ITabularDataSet extends IDataSet {
 	}
 
 	Collection<? extends ITabularItem> items();
+		
 
 	public default ITabularDataSet filter(String column, Predicate<Object> values) {
 		IColumn column2 = getColumn(column);
@@ -50,6 +51,18 @@ public interface ITabularDataSet extends IDataSet {
 		IColumn column2 = getColumn(column);
 		ArrayList<ITabularItem> items = new ArrayList<ITabularItem>();
 		List<? extends IColumn> columns = this.columns();
+		if (column2 instanceof ComputableColumn) {
+			ComputableColumn map = ((ComputableColumn) column2).map(values);
+			List<IColumn> list = new ArrayList<>(columns);
+			list.remove(column2);
+			list.add((IColumn)map);
+			this.items().forEach(v -> {
+				BasicItem z=(BasicItem) v;
+				Object[] clone = z.values.clone();
+				items.add(new BasicItem(v.num(), clone));			
+			});
+			return new BasicDataSetImpl(items, list).as(ITabularDataSet.class);
+		}
 		int m=columns.indexOf(column2);
 		this.items().forEach(v -> {
 			BasicItem z=(BasicItem) v;
@@ -61,6 +74,8 @@ public interface ITabularDataSet extends IDataSet {
 	}
 
 	public ITabularDataSet addColumn(String id, Function<ITabularItem, Object> func);
+	
+	public ITabularDataSet addColumn(IColumn func);
 
 	public ITabularDataSet removeColumn(IColumn cl);
 
@@ -77,5 +92,7 @@ public interface ITabularDataSet extends IDataSet {
 	public default ITabularDataSet mergeBy(String cln) {
 		return mergeBy(this.getColumn(cln));
 	}
+
+	public ITabularDataSet clone();
 
 }

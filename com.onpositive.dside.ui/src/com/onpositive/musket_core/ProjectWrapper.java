@@ -243,7 +243,7 @@ public class ProjectWrapper {
 				try {
 					IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
 							.findContainersForLocation(new Path(path));
-					if (findContainersForLocation != null) {
+					if (findContainersForLocation != null&&findContainersForLocation.length>0) {
 						IProject project = findContainersForLocation[0].getProject();
 						LaunchShortcut launchShortCut = TaskManager.launchShortCut(new IProject[] { project });
 						ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut

@@ -11,8 +11,10 @@ import java.util.stream.Collectors;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -45,11 +47,10 @@ import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConvertResolutionAction;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.GenerateDataSetAction;
+import com.onpositive.musket.data.text.AbstractTextDataSet;
 import com.onpositive.semantic.model.api.realm.Realm;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.actions.Action;
-import com.onpositive.semantic.model.ui.actions.IContributionItem;
-import com.onpositive.semantic.model.ui.actions.IContributionManager;
 import com.onpositive.semantic.model.ui.property.editors.CompositeEditor;
 import com.onpositive.semantic.model.ui.property.editors.FormEditor;
 import com.onpositive.semantic.model.ui.property.editors.FormTextElement;
@@ -309,14 +310,23 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 						}
 					}
 					File actualTarget = getActualTarget(targetFile);
-					selectedAction.run(results.getOriginal(), actualTarget);
+					if (selectedAction.isUsesCurrentFilters()) {
+						selectedAction.run(results.getFiltered(), actualTarget);
+					}
+					else {
+						selectedAction.run(results.getOriginal(), actualTarget);
+					}
 					IFile[] findFilesForLocationURI = ResourcesPlugin.getWorkspace().getRoot()
 							.findFilesForLocationURI(actualTarget.toURI());
 					for (IFile f : findFilesForLocationURI) {
 						try {
+							f.getParent().refreshLocal(0, new NullProgressMonitor());
 							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
 									new FileEditorInput(f), "com.onpositive.datasets.visualisation.ui.datasetEditor");
 						} catch (PartInitException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (CoreException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
@@ -448,6 +458,9 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		String viewer = visualizerFeature.getViewer();
 		if (viewer == null) {
 			viewer = "image";
+		}
+		if (results.getOriginal() instanceof AbstractTextDataSet) {
+			viewer="text";
 		}
 		g = null;
 		if (viewer.equals("html")) {

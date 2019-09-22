@@ -24,7 +24,7 @@ public class MultiClassClassificationItem extends BinaryClassificationItem imple
 		return splitByClass(value);
 	}
 
-	protected static ArrayList<String> splitByClass(String value) {
+	public static ArrayList<String> splitByClass(String value) {
 		ArrayList<String> classes = new ArrayList<>();
 		if (value.indexOf(' ') != -1) {
 			String[] split = value.split(" ");

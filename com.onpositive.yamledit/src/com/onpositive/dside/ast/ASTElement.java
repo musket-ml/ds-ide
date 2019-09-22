@@ -1,7 +1,6 @@
 package com.onpositive.dside.ast;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.aml.typesystem.BuiltIns;
 import org.aml.typesystem.ITypeRegistry;
 import org.aml.typesystem.beans.IProperty;
 import org.aml.typesystem.beans.IPropertyView;
-import org.aml.typesystem.meta.IHasType;
 import org.aml.typesystem.meta.facets.HasKey;
 import org.aml.typesystem.meta.facets.IsRef;
 import org.aml.typesystem.meta.restrictions.DefaultPropertyMeta;
@@ -22,7 +20,6 @@ import org.aml.typesystem.values.IArray;
 import org.aml.typesystem.values.IKnowsPropertyCount;
 import org.aml.typesystem.values.IObject;
 import org.aml.typesystem.values.ITypedObject;
-import org.yaml.snakeyaml.Dumper;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
@@ -47,9 +44,7 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 		super();
 		this.node = node;
 		this.type = type;
-//		if (this.type.name().startsWith("Data")) {
-//			System.out.println("A");
-//		}
+		
 		
 		this.parent = astElement;
 		if (type==null) {
@@ -62,7 +57,14 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 			try {
 				Object property = this.getProperty("body");
 				if (property instanceof IArray) {
-					Object item = ((IArray) property).item(0);
+					IArray iArray = (IArray) property;
+					if (iArray.length()==0) {
+						return;
+					}
+					Object item = iArray.item(0);
+					if (item instanceof ErrorElement) {
+						return;
+					}
 					if (item instanceof ITypedObject) {
 						ITypedObject t = (ITypedObject) item;
 						AbstractType range = t.getType();
@@ -74,6 +76,9 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 								return;
 							}
 						}
+					}
+					if (item==null) {
+						return;
 					}
 				}
 				this.type = getRegistry().getType("PreprocessorDeclaration");

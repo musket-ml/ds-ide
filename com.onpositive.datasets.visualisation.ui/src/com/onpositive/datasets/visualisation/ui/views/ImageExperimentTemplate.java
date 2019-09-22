@@ -3,11 +3,8 @@ package com.onpositive.datasets.visualisation.ui.views;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 
-public abstract class ExperimentTemplate {
+public abstract class ImageExperimentTemplate extends GenericExperimentTemplate {
 
-	@Caption("Name")
-	protected String name="newExperiment";
-	
 	@Caption("Width")
 	protected  int width=224;
 	@Caption("Height")
@@ -28,14 +25,7 @@ public abstract class ExperimentTemplate {
 	@Caption("Enable Test Time Augmentation")
 	protected boolean enableTestTimeAugmentation=true;
 	
-	@Caption("Activation")
-	@RealmProvider(ActivationRealmProvider.class)
-	protected String activation="sigmoid";
 	
-	@Caption("Classes")
-	protected int numClasses=1;
 	
 	public abstract String finish();
-	
-	protected String loss="binary_crossentropy";
 }

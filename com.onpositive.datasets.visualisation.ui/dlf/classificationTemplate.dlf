@@ -4,6 +4,7 @@
   	<string bindTo="name" caption="Experiment name"/>
   	<string bindTo="architecture"/>
   	<string bindTo="numClasses" />
+  	
   	<combo bindTo="activation" />
   	<group caption="Basic Augmentation">
   		<hc>

@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -166,6 +167,11 @@ public class KaggleDataset extends Wizard implements INewWizard {
 			}
 			
 			serverTask.terminate();
+			try {
+				folder.refreshLocal(1, new NullProgressMonitor());
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
 		});
 		
 		if(!datasetView.dsSkipDownload) {

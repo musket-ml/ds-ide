@@ -10,7 +10,7 @@ import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 
 @Display("dlf/classificationTemplate.dlf")
-public class ClassificationTemplate extends ExperimentTemplate{
+public class ClassificationTemplate extends ImageExperimentTemplate{
 
 
 	

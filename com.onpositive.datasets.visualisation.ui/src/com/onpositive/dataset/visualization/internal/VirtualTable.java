@@ -37,6 +37,7 @@ import org.xml.sax.SAXException;
 
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.text.ITextItem;
 import com.onpositive.semantic.model.ui.richtext.StyledString;
 import com.onpositive.semantic.model.ui.richtext.StyledString.Style;
 import com.onpositive.viewer.extension.coloring.IItemPaintParticipant;
@@ -151,8 +152,14 @@ public class VirtualTable extends VisualizerViewer<Control> {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
-				String s = item != null ? item.toString() : null;
+				String s=null;
+				if (item instanceof ITextItem) {
+					s=((ITextItem) item).getText();
+				}
+				else {
+					s = item != null ? item.toString() : null;
+				}
+				
 				texts.put(key, parseString(s));
 
 				Display.getDefault().asyncExec(new Runnable() {

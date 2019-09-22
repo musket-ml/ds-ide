@@ -83,14 +83,15 @@ public class DataSetGenerator {
 
 	private void addDataSet(ArrayList<String> arrayList) {
 		boolean found = false;
+		IPythonStringGenerator as = this.ds.as(IPythonStringGenerator.class);
 		for (String s : arrayList) {
-			if (s.trim().equals("from musket_core import image_datasets,datasets")) {
+			if (s.trim().equals(as.getImportString())) {
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			arrayList.add(0, "from musket_core import image_datasets,datasets");
+			arrayList.add(0, as.getImportString());
 		}
 		arrayList.add("");
 		arrayList.add("@datasets.dataset_provider"+"(origin=\""+inputFile.getName()+"\",kind=\""+this.ds.getClass().getSimpleName()+"\""+")");
@@ -100,7 +101,8 @@ public class DataSetGenerator {
 			root=root.getParentFile();
 		}
 		String substring = inputFile.getAbsolutePath().substring(root.getAbsolutePath().length()+1);
-		arrayList.add("    return " + this.ds.as(IPythonStringGenerator.class).generatePythonString(substring));
+		
+		arrayList.add("    return " + as.generatePythonString(substring));
 	}
 
 	private void addDataDeclaration(ArrayList<String> arrayList) {
