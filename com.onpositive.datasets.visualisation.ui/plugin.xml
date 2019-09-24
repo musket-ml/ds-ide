@@ -37,6 +37,11 @@
             image="icons/file_expand.gif"
             name="name">
       </image>
+      <image
+            id="com.onpositive.datasets.visualisation.ui.chart"
+            image="icons/report_obj.gif"
+            name="name">
+      </image>
    </extension>
 
 </plugin>

@@ -1,15 +1,26 @@
 package com.onpositive.dside.tasks.analize;
 
+import java.io.File;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.part.FileEditorInput;
+import org.python.pydev.shared_ui.EditorUtils;
 
+import com.onpositive.dside.dto.ExportDataSet;
 import com.onpositive.dside.dto.GetPossibleAnalisisInfo;
 import com.onpositive.dside.dto.GetPossibleAnalisisResult;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.ui.ModelEvaluationSpec;
+import com.onpositive.dside.ui.datasets.CompareCSVDataSets;
+import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.project.DataProjectAccess;
 import com.onpositive.musket_core.Experiment;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
@@ -51,6 +62,12 @@ public class AnalizeDataSet implements IGateWayServerTaskDelegate {
 	private AnalistsView showView;
 	private GateWayRelatedTask task;
 	public boolean data=false;
+	
+	@Caption("Export to CSV")
+	protected boolean exportToCSV;
+	
+	@Caption("Export Ground Truth to CSV")
+	protected boolean exportGroundTruthToCSV;
 
 	@Override
 	public void terminated() {
@@ -70,6 +87,35 @@ public class AnalizeDataSet implements IGateWayServerTaskDelegate {
 		this.task=task;
 		lastDataSet=dataset;
 		lastSpec=this.model;
+		if (this.exportToCSV||this.exportGroundTruthToCSV) {
+			task.perform(new ExportDataSet(model,dataset,this.experiment.getPath().toOSString(),this.exportGroundTruthToCSV), String.class, (r)->{
+				System.out.println(r);
+				String[] split = r.split("::::");
+				if (split.length==2) {
+					IFile iFile = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(new File(split[1]).toURI())[0];
+					IFile iFile1 = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(new File(split[0]).toURI())[0];
+					CompareCSVDataSets.open(iFile, iFile1);
+				}
+				else {
+					File file = new File(split[0]);
+					IFile iFile1 = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(file.toURI())[0];
+					try {
+					IDataSet dataSet2 = DataProjectAccess.getDataSet(file);
+					if (dataSet2!=null) {
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(new FileEditorInput(iFile1), "com.onpositive.datasets.visualisation.ui.datasetEditor");
+					}
+					}catch (Exception e) {
+						EditorUtils.openFile(file);
+						// TODO: handle exception
+					}
+				}
+				task.terminate();
+			},(e)->{
+				onError(e);
+				task.terminate();
+			});
+			return;
+		}
 		task.perform(new GetPossibleAnalisisInfo(model,dataset,this.experiment.getPath().toOSString()), GetPossibleAnalisisResult.class, (r)->{
 			display(r);
 		},(e)->{

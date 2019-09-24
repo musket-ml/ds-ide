@@ -8,8 +8,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
@@ -25,6 +28,7 @@ import org.eclipse.swt.widgets.Display;
 import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.dside.ui.ModelEvaluationSpec;
+import com.onpositive.musket_core.ProjectWrapper.BasicDataSetDesc;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
 import com.onpositive.semantic.model.api.property.java.annotations.TextLabel;
 import com.onpositive.semantic.model.api.realm.Realm;
@@ -60,6 +64,56 @@ public class Experiment {
 			}
 		}
 		return file.getAbsolutePath();
+	}
+	public static class PredictionPair{
+		public File groundTruth;
+		public File prediction;
+		public String name;
+		@Override
+		public String toString() {
+			return groundTruth.getName()+"-"+prediction.getName();
+		}
+	}
+	
+	public List<PredictionPair>getPredictions(){
+		File file = new File(path, "predictions");
+		ArrayList<PredictionPair>ps=new ArrayList<>();
+		HashMap<String, PredictionPair>psm=new HashMap<>(); 
+		for (File f:file.listFiles()) {
+			if (f.getName().endsWith("-gt.csv")) {
+				
+				PredictionPair predictionPair = getName(psm, f);
+				predictionPair.groundTruth=f;
+				
+			}
+			if (f.getName().endsWith("-pr.csv")) {
+				
+				PredictionPair predictionPair = getName(psm, f);
+				predictionPair.prediction=f;
+			}
+		}
+		ps.addAll(psm.values());
+		Collections.sort(ps,(x,y)->x.prediction.getName().compareTo(y.prediction.getName()));
+		return ps;
+	}
+
+	protected PredictionPair getName(HashMap<String, PredictionPair> psm, File f) {
+		String name = f.getName();
+		if (name.startsWith("holdout")) {
+			name="holdout";
+			
+		}
+		else {
+			name= name.substring(0, name.length()-7);
+			
+		}
+		PredictionPair predictionPair = psm.get(name);
+		if (predictionPair==null) {
+			predictionPair=new PredictionPair();
+			predictionPair.name=name;
+			psm.put(name,predictionPair);
+		}
+		return predictionPair;
 	}
 
 	@Override
@@ -327,8 +381,21 @@ public class Experiment {
 			datasets.add("holdout");
 		}
 		Object object = getConfig().get("datasets");
+		LinkedHashSet<String>existing=new LinkedHashSet<>();
 		if (object instanceof Map) {
-			datasets.addAll(((Map) object).keySet());
+			Set keySet = ((Map) object).keySet();
+			existing.addAll(keySet);
+			datasets.addAll(keySet);
+		}
+		try {
+		ArrayList<BasicDataSetDesc> dataSets2 = ProjectManager.getInstance().getProject(this).getDataSets();
+		dataSets2.forEach(v->{
+			if (!existing.contains(v.name)) {
+				datasets.add(v.name);
+			}
+		});
+		}catch (Exception e) {
+			// TODO: handle exception
 		}
 		return datasets;
 	}

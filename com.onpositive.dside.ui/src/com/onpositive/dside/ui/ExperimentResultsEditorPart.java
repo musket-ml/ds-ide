@@ -1,7 +1,10 @@
 package com.onpositive.dside.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.FontRegistry;
@@ -17,9 +20,17 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.events.IHyperlinkListener;
+import org.eclipse.ui.forms.widgets.Hyperlink;
+import org.eclipse.ui.forms.widgets.ImageHyperlink;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.MultiEditorInput;
 
+import com.onpositive.commons.SWTImageManager;
+import com.onpositive.dside.ui.datasets.CompareCSVDataSets;
 import com.onpositive.musket_core.Experiment;
+import com.onpositive.musket_core.Experiment.PredictionPair;
 import com.onpositive.musket_core.ExperimentResults;
 
 public class ExperimentResultsEditorPart extends EditorPart {
@@ -48,7 +59,7 @@ public class ExperimentResultsEditorPart extends EditorPart {
 //		CTabItem i1=new CTabItem(f, SWT.NONE);
 //		i1.setText("Configuration");
 //		i1.setControl(comp);
-
+		List<PredictionPair> predictions = experiment.getPredictions();
 		CTabItem i0 = new CTabItem(f, SWT.NONE);
 		i0.setText("Attempts");
 		Composite pm = new Composite(f, SWT.NONE);
@@ -57,27 +68,64 @@ public class ExperimentResultsEditorPart extends EditorPart {
 		ArrayList<ExperimentResults> results = experiment.results();
 		pm.setLayout(new GridLayout(1, false));
 		if (results.size() == 1) {
-			Composite ca=new Composite(c, SWT.NONE);
-			
-			GridLayout layout = new GridLayout(2,false);
-			Label ll=new Label(ca, SWT.NONE);
+			Composite ca = new Composite(c, SWT.NONE);
+
+			GridLayout layout = new GridLayout(2, false);
+			Label ll = new Label(ca, SWT.NONE);
 			ll.setFont(JFaceResources.getHeaderFont());
-			ll.setText("Primary result: "+experiment.getScore().toString());
-			
+			ll.setText("Primary result: " + experiment.getScore().toString());
+
 			ll.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).hint(-1, 20).create());
-			Label lla=new Label(ca, SWT.SEPARATOR|SWT.HORIZONTAL);
+			Label lla = new Label(ca, SWT.SEPARATOR | SWT.HORIZONTAL);
 			lla.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).grab(true, false).create());
-			layout.verticalSpacing=8;
-			layout.horizontalSpacing=12;
+			layout.verticalSpacing = 8;
+			layout.horizontalSpacing = 12;
 			ca.setLayout(layout);
 			ArrayList<String> metrics = results.get(0).getMetrics();
-			for (String s:metrics) {
-				Label ls=new Label(ca, SWT.NONE);
+			for (String s : metrics) {
+				Label ls = new Label(ca, SWT.NONE);
 				ls.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
-				ls.setText(s+":");
+				ls.setText(s + ":");
 				Object metric = results.get(0).getMetric(s);
-				Label lsa=new Label(ca, SWT.NONE);
+				Label lsa = new Label(ca, SWT.NONE);
 				lsa.setText(ExperimentsResultViewer.metricString(metric));
+			}
+			if (!predictions.isEmpty()) {
+				Label h=new Label(ca, SWT.None);
+				h.setText("Predictions:");
+				h.setFont(JFaceResources.getHeaderFont());
+				h.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).indent(0, 20).create());
+				h=new Label(ca, SWT.SEPARATOR|SWT.HORIZONTAL);
+				h.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).indent(0, 0).create());
+				for (PredictionPair p : predictions) {
+					ImageHyperlink hl = new ImageHyperlink(ca, SWT.NONE);
+					hl.setText(p.name);
+					hl.setUnderlined(true);
+					hl.setImage(SWTImageManager.getImage("stage"));
+					hl.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).create());
+					hl.addHyperlinkListener(new IHyperlinkListener() {
+
+						@Override
+						public void linkExited(HyperlinkEvent e) {
+							// TODO Auto-generated method stub
+
+						}
+
+						@Override
+						public void linkEntered(HyperlinkEvent e) {
+							// TODO Auto-generated method stub
+
+						}
+
+						@Override
+						public void linkActivated(HyperlinkEvent e) {
+							IFile iFile = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(p.groundTruth.toURI())[0];
+							IFile iFile1 = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(p.prediction.toURI())[0];
+							CompareCSVDataSets.open(iFile, iFile1);
+						}
+					});
+					;
+				}
 			}
 			i0.setText("Results");
 			pm.setLayout(new FillLayout());
@@ -99,7 +147,7 @@ public class ExperimentResultsEditorPart extends EditorPart {
 		for (ExperimentResults ea : results) {
 			ea.getMetrics();
 		}
-		
+
 		f.setSelection(0);
 	}
 

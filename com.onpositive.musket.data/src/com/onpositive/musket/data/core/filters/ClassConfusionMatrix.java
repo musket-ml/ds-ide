@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.images.IBinaryClassificationItemWithPrediction;
+import com.onpositive.musket.data.images.IMultiClassificationWithGroundTruth;
 import com.onpositive.musket.data.images.IMulticlassClassificationItem;
-import com.onpositive.musket.data.images.MultiClassificationDataSetWithGroundTruth;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
 
 @Caption("Multiclass confusion matrics")
-public class ClassConfusionMatrix extends AbstractAnalizer implements IAnalizer<MultiClassificationDataSetWithGroundTruth>{
+public class ClassConfusionMatrix extends AbstractAnalizer implements IAnalizer<IMultiClassificationWithGroundTruth>{
 
 	@Override
 	protected Object group(IItem v) {

@@ -41,19 +41,23 @@ public class CompareCSVDataSets implements IHandler {
 			List list = sm.toList();
 			IFile fl1 = (IFile) ((IAdaptable)list.get(0)).getAdapter(IFile.class);
 			IFile fl2 = (IFile)  ((IAdaptable)list.get(1)).getAdapter(IFile.class);
-			IEditorInput[] inputs = new IEditorInput[] { new FileEditorInput(fl1), new FileEditorInput(fl2) };
-			MultiEditorInput mi = new MultiEditorInput(
-					new String[] { "com.onpositive.datasets.visualisation.ui.datasetEditor",
-							"com.onpositive.datasets.visualisation.ui.datasetEditor" },
-					inputs);
-			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(mi,
-						"com.onpositive.datasets.visualisation.ui.datasetEditor", true);
-			} catch (PartInitException e) {
-				e.printStackTrace();
-			}
+			open(fl1, fl2);
 		}
 		return null;
+	}
+
+	public static void open(IFile fl1, IFile fl2) {
+		IEditorInput[] inputs = new IEditorInput[] { new FileEditorInput(fl1), new FileEditorInput(fl2) };
+		MultiEditorInput mi = new MultiEditorInput(
+				new String[] { "com.onpositive.datasets.visualisation.ui.datasetEditor",
+						"com.onpositive.datasets.visualisation.ui.datasetEditor" },
+				inputs);
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(mi,
+					"com.onpositive.datasets.visualisation.ui.datasetEditor", true);
+		} catch (PartInitException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

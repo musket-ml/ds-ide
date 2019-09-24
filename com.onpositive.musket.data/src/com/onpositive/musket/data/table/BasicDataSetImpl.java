@@ -230,7 +230,9 @@ public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 	@Override
 	public ITabularDataSet clone(){
 		try {
-			return (ITabularDataSet) super.clone();
+			BasicDataSetImpl clone = (BasicDataSetImpl) super.clone();
+			clone.columns=new ArrayList<>(this.columns);
+			return clone;
 		} catch (CloneNotSupportedException e) {
 			throw new IllegalStateException();
 		}

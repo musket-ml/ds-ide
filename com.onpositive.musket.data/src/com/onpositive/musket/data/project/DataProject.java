@@ -60,8 +60,8 @@ public class DataProject {
 		}
 	}
 
-	private File getMetaFile(File file2) {
-		return new File(file2.getAbsolutePath() + ".dataset_desc");
+	static File getMetaFile(File file2) {
+		return new File(file2.getParentFile(),"."+file2.getName() + ".dataset_desc");
 	}
 
 }

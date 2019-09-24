@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -99,7 +98,7 @@ public class FilterRegistry {
 			return an.analize(dataset);
 		}
 
-		private Object createItem(HashMap<String, Object> analzierArgs) {
+		protected Object createItem(HashMap<String, Object> analzierArgs) {
 			Constructor<?>[] constructors = clazz.getConstructors();
 			for (Constructor<?> c : constructors) {
 				if (Modifier.isPublic(c.getModifiers())) {
@@ -128,8 +127,55 @@ public class FilterRegistry {
 			throw new IllegalStateException();
 		}
 	}
+	public static class FilterPredicateFilterFactory extends FilterFactory{
+
+		private boolean mode;
+
+		public FilterPredicateFilterFactory(Class<?> clazz, boolean b) {
+			super(clazz);
+			this.mode=b;
+		}
+		@Override
+		public String name() {
+			ProvidesFilter annotation = clazz.getAnnotation(ProvidesFilter.class);
+			if (mode) {
+				return annotation.value()+" is more then";
+			}
+			else {
+				return annotation.value()+" is less then";
+			}			
+		}
+		
+		
+		@Override
+		public boolean isAnalizer() {
+			return false;
+		}
+		@Override
+		public Predicate<IItem> apply(IDataSet original, Map<String, Object> parameters) {
+			Object vs=parameters.values().iterator().next();
+			Double vvv=Double.parseDouble(vs.toString());
+			AbstractAnalizer createItem = (AbstractAnalizer) createItem(new HashMap<>());
+			return (Predicate<IItem>) v->{
+				Number group = (Number) createItem.group(v);
+				if (mode) {
+					boolean b = group.doubleValue()>=vvv.doubleValue();
+					return b;
+				}
+				else {
+					return group.doubleValue()<vvv.doubleValue();
+				}
+			};
+		}
+		
+	}
 
 	public static void register(Class<?> clazz) {
+		ProvidesFilter annotation = clazz.getAnnotation(ProvidesFilter.class);
+		if (annotation!=null) {
+			factories.put(annotation.value()+" is less then", new FilterPredicateFilterFactory(clazz,false));			
+			factories.put(annotation.value()+" is more then", new FilterPredicateFilterFactory(clazz,true));
+		}
 		factories.put(clazz.getName(), new FilterFactory(clazz));
 	}
 
@@ -146,6 +192,9 @@ public class FilterRegistry {
 		register(ClassConfusionMatrix.class);
 		register(HasTextFilter.class);
 		register(HasClassFilter.class);
+		register(WordCountAnalizer.class);
+		register(TextLengthAnalizer.class);
+		register(SentenceCountAnalizer.class);
 	}
 
 	public ArrayList<IFilterProto> getFilters(IDataSet ds) {

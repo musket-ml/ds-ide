@@ -9,6 +9,7 @@ import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.images.IBinaryClassificationItemWithPrediction;
+import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationItem;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
@@ -22,7 +23,10 @@ public class BinaryConfusionMatrix extends AbstractAnalizer implements IAnalizer
 		if (m1 instanceof IMulticlassClassificationItem) {
 			IMulticlassClassificationItem item=(IMulticlassClassificationItem) m1;
 			ArrayList<String> classes = item.classes();
-			
+			IMulticlassClassificationDataSet iMulticlassClassificationDataSet = (IMulticlassClassificationDataSet)item.getDataSet();
+			if (iMulticlassClassificationDataSet.classNames().size()==2&&iMulticlassClassificationDataSet.isExclusive()) {
+				return new ClassConfusionMatrix().group(v);
+			}
 			IMulticlassClassificationItem prediction=(IMulticlassClassificationItem) m1.getPrediction();
 			ArrayList<String> classes2 = prediction.classes();			
 			HashSet<String> gt = new HashSet<>(classes);

@@ -1,5 +1,7 @@
 package com.onpositive.musket.data.core;
 
+import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
+
 public class NoneAnalisys implements IAnalizeResults{
 
 	protected IDataSet dataset;
@@ -32,6 +34,11 @@ public class NoneAnalisys implements IAnalizeResults{
 	@Override
 	public IDataSet getFiltered() {
 		return dataset;
+	}
+
+	@Override
+	public VisualizationSpec visualizationSpec() {
+		return new VisualizationSpec("", "", ChartType.BAR);
 	}
 
 }

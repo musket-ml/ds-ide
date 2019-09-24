@@ -153,11 +153,17 @@ types:
             type: Callback         
          extra_callbacks:
             multivalue: true
-            type: Callback               
+            type: Callback
+   Hyper:
+      type: object                            
    BasicConfig:   
     root: true    
     customValidator: com.onpositive.dside.ast.RootValidator 
     properties:
+      hyperparameters:
+         type: Hyper[]
+      dumpPredictionsToCSV:
+        type: boolean  
       metrics:
         #multivalue: true
         reference: true

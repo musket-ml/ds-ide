@@ -33,6 +33,8 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	protected ArrayList<String> classes = new ArrayList<>();
 
 	private boolean isMulti;
+	
+	
 
 	@SuppressWarnings("unchecked")
 	public TextClassificationDataSet(ITabularDataSet base, IColumn textColumn, ArrayList<IColumn> clazzColumns) {
@@ -40,7 +42,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		int tS = 0;
 		for (IColumn c:new ArrayList<>(base.columns())) {
 			if (c instanceof ComputableColumn) {
-				base.columns().remove(c);
+				this.base.columns().remove(c);
 			}
 		}
 		LinkedHashSet<Object> allValues = new LinkedHashSet<>();
@@ -114,7 +116,8 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return null;
+		TextClassificationDataSet ts=new TextClassificationDataSet(t2.as(ITabularDataSet.class),this.textColumn, this.clazzColumns);
+		return new TextClassificationDataSetWithPredictions(base, textColumn, clazzColumns, ts);
 	}
 
 	@Override

@@ -1,8 +1,17 @@
 package com.onpositive.dside.ui.navigator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import com.onpositive.commons.SWTImageManager;
@@ -12,7 +21,7 @@ import com.onpositive.commons.SWTImageManager;
  *
  * @author Fabio
  */
-public class MusketLabelProvider implements ILabelProvider {
+public class MusketLabelProvider extends LabelProvider implements ILabelProvider {
 
     private WorkbenchLabelProvider provider;
 
@@ -23,10 +32,13 @@ public class MusketLabelProvider implements ILabelProvider {
     public MusketLabelProvider() {
         provider = new WorkbenchLabelProvider();
     }
+     
 
     /**
      * @see org.eclipse.jface.viewers.ILabelProvider#getImage(java.lang.Object)
      */
+    
+    protected HashSet<IFile>ff=new HashSet<>();
     @Override
     public Image getImage(Object element) {
        if (element instanceof ExperimentsNode) {
@@ -37,6 +49,25 @@ public class MusketLabelProvider implements ILabelProvider {
        }
        if (element instanceof ExperimentGroup) {
     	   return SWTImageManager.getImage("experiment_group");
+       }
+       if (element instanceof IFile) {
+    	   IFile f=(IFile) element;
+    	   if (f.getName().endsWith(".csv")||f.getName().endsWith(".tsv")) {
+    		   try {
+				String persistentProperty = f.getPersistentProperty(IDE.EDITOR_KEY);
+				
+				if (persistentProperty!=null&&persistentProperty.equals("com.onpositive.datasets.visualisation.ui.datasetEditor")) {
+						Image image = SWTImageManager.getImage("com.onpositive.dside.ui.dataset");
+						if (ff.add(f)) {
+							fireLabelProviderChanged(new LabelProviderChangedEvent(this, f));
+						}
+						return image;
+				   }
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	   }
        }
        return provider.getImage(element);
     }
@@ -71,6 +102,7 @@ public class MusketLabelProvider implements ILabelProvider {
     @Override
     public void addListener(ILabelProviderListener listener) {
         provider.addListener(listener);
+        super.addListener(listener);
     }
 
     @Override
@@ -86,6 +118,7 @@ public class MusketLabelProvider implements ILabelProvider {
     @Override
     public void removeListener(ILabelProviderListener listener) {
         provider.removeListener(listener);
+        super.removeListener(listener);
     }
 
 }

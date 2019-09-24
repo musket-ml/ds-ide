@@ -16,7 +16,14 @@
 			</vc>
 			<ctab-folder bottom="true">
 				<vc id="gm" grabVertical="true" grabHorizontal="true" caption="Statistics">
-					<label id="info" richContent="true"/>
+					<hc margin="0,0,0,0"><label id="info" richContent="true"/>
+					<toolbar >
+						<binded-action caption="Switch mode"  image="com.onpositive.datasets.visualisation.ui.chart"  bindTo="$$.changeChartMode" style="drop-down"/>
+						<binded-action caption="Copy chart"  image="com.onpositive.semantic.ui.copy" bindTo="$$.copyChart" />
+					</toolbar> 
+					
+					
+					</hc>
 					
 					<vc id="stat" grabVertical="true" grabHorizontal="true"
 						>
