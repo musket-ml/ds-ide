@@ -1,0 +1,31 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" >
+	<model class="com.onpositive.dside.wizards.KaggleDatasetParams"/>
+	
+	<hc>
+		<radio  bindTo="dsIsDataset" caption="Dataset" visibility="dsEnabled"/>
+ 		<radio  bindTo="dsIsCompetition" caption="Competition" visibility="dsEnabled"/> 
+	</hc>
+	<hc>
+		<string bindTo="dsSearch" visibility="dsEnabled"/>
+		<checkbox bindTo="dsMyDatasets" visibility="DsDatasetEnabled" caption="My Datasets"/>
+		<checkbox bindTo="dsMyCompetitions" visibility="DsCompetitionEnabled" caption="Entered Competitions"/>
+		<button bindTo="searchButton" visibility="dsEnabled"/>
+	</hc>
+	
+	<label caption="wait for response..." visibility="dsWaiting"/>
+	
+	<table bindTo="dsSearchResultDatasets" visibility="DsDatasetEnabled" bindSelectionTo="dsDatsetItem" enablement="dsNotWaiting">
+		<columns>
+			<column id="ref"/>
+			<column id="size" hAlign="right"/>
+		</columns>
+	</table>
+	
+	<table bindTo="dsSearchResultCompetitions" visibility="DsCompetitionEnabled" bindSelectionTo="dsCompetitionItem" enablement="dsNotWaiting">
+		<columns>
+			<column id="ref"/>
+		</columns>
+	</table>
+	
+	<checkbox bindTo="dsSkipDownload"/>
+</composite-editor>

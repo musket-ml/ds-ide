@@ -1,0 +1,6 @@
+<dialog xmlns="http://jetface.org/JetFace1.0/widgets" title="Conversion" message="Please select conversion and target">
+    <vc xmlns="http://jetface.org/JetFace1.0/">
+    <string  bindTo="target" caption="Target"/>
+	<list xmlns="http://jetface.org/JetFace1.0/" bindTo="items" bindSelectionTo="selection"/>
+	</vc>
+</dialog>

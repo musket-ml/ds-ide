@@ -2,6 +2,7 @@ package com.onpositive.dside.ui;
 
 import java.util.ArrayList;
 
+import com.onpositive.datasets.visualisation.ui.views.EnumRealmProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;

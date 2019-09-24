@@ -1,5 +1,7 @@
-<composite-editor xmlns="http://jetface.org/JetFace1.0/" caption="Please specify launch settings">
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" caption="Please specify launch settings" >
+    
  	<model class="com.onpositive.dside.ui.LaunchConfiguration"/>
+ 	
  	<list bindTo="experiment"/>
  	<spinner bindTo="gpusPerNet" caption="Number of GPUS per one network"/>
  	<spinner bindTo="numGpus" caption="Number of GPUs to use"/>
@@ -8,6 +10,13 @@
  	<radio  bindTo="fitFromScratch" caption="Fit from start"/>
  	<radio  bindTo="allowResume" caption="Resume incomplete experiments"/>
  	<radio  bindTo="onlyReports" caption="Only generate reports"/>
+ 	<vc hint="-1,100">
+ 	
+ 	<combo bindTo="folds"/>
+ 	<string bindTo="folds_numbers"
+			visibility="ShowFolds" caption="Fold Numbers" />
+	</vc>		
  	<separator vertical="false"/>
  	<checkbox bindTo="debug" caption="Launch in debug mode?"/>
+ 	
 </composite-editor>

@@ -1,6 +1,5 @@
 package com.onpositive.dside.tasks.analize;
 
-import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -13,37 +12,27 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Layout;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.CategoryItemLabelGenerator;
-import org.jfree.chart.labels.ItemLabelAnchor;
-import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.general.PieDataset;
-import org.jfree.data.general.SeriesDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.ui.TextAnchor;
 import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.commons.elements.AbstractUIElement;
@@ -67,16 +56,12 @@ import com.onpositive.musket_core.IDataSet;
 import com.onpositive.semantic.model.api.realm.Realm;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.actions.Action;
-import com.onpositive.semantic.model.ui.generic.widgets.IUIElement;
-import com.onpositive.semantic.model.ui.property.editors.ButtonSelector;
 import com.onpositive.semantic.model.ui.property.editors.CompositeEditor;
 import com.onpositive.semantic.model.ui.property.editors.FormEditor;
-import com.onpositive.semantic.model.ui.property.editors.OneLineTextElement;
 import com.onpositive.semantic.model.ui.property.editors.structured.ComboEnumeratedValueSelector;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 import com.onpositive.semantic.ui.core.Alignment;
-import com.onpositive.semantic.ui.core.GenericLayoutHints;
 import com.onpositive.semantic.ui.core.Rectangle;
 import com.onpositive.semantic.ui.workbench.elements.XMLView;
 
@@ -585,7 +570,7 @@ public class AnalistsView extends XMLView {
 		if (this.task != null) {
 			this.task.terminate();
 		}
-		getElement("label").setText("Please select visualizer and analizer");
+		getElement("label").setText("");
 		this.model = model;
 		this.dataset = dataset;
 		this.experiment = experiment;

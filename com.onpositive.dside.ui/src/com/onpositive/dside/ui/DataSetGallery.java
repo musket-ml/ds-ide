@@ -228,11 +228,13 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 		tasks.offerLast(() -> {
 			try {
 				Object item = null;
+				Object id=null;
 				try {
 					item = ds.item(data);
+					id=ds.id(data);
 				} catch (Exception e) {
 				}
-
+				final String lid=""+id;
 				String s = item != null ? item.toString() : null;
 				if (images != null) {
 
@@ -263,6 +265,7 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 						}
 						if (images.containsKey(key)) {
 							num.setImage(images.get(key));
+							num.setText(lid);
 						}
 					}
 				});

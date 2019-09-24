@@ -6,7 +6,9 @@ public interface IDataSet {
 
 	String config();
 	
-	Object item(int num); 
+	Object item(int num);
+	
+	Object id(int num);
 
 	String get_name();
 }

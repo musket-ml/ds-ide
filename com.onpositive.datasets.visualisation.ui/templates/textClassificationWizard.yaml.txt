@@ -1,0 +1,43 @@
+#%Musket Generic 1.0
+declarations: 
+   lstm2: 
+      parameters: [count]
+      body:       
+       - bidirectional:             
+           - cuDNNLSTM: [count, true]           
+       - bidirectional:    
+           - cuDNNLSTM: [count/2, false]            
+   net:
+       - word_indexes_embedding:  [ {embeddings} ]
+       - lstm2: [100]       
+       - dense: [{classes},{activation}]
+folds_count: 5       
+preprocessing: 
+  - tokenize:    
+  - tokens_to_indexes:
+       maxLen: {maxLen} 
+  - disk-cache:
+{aug}          
+architecture: net 
+optimizer: adam  
+batch: 512 
+stages:
+  - epochs: 4  
+loss: binary_crossentropy      
+stratified: true 
+primary_metric: val_binary_accuracy
+callbacks:
+  EarlyStopping:
+    patience: 100
+    monitor: val_binary_accuracy
+    verbose: 1
+  ReduceLROnPlateau: 
+    patience: 8
+    factor: 0.5
+    monitor: val_binary_accuracy
+    mode: auto  
+    cooldown: 5
+    verbose: 1     
+metrics: [binary_accuracy ]    
+dataset: 
+    {dataset}

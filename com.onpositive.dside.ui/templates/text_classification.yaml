@@ -1,0 +1,43 @@
+#%Musket Generic 1.0
+declarations: 
+   lstm2: 
+      parameters: [count]
+      body:       
+       - bidirectional:             
+           - cuDNNLSTM: [count, true]           
+       - bidirectional:    
+           - cuDNNLSTM: [count/2, false]            
+   net:
+       - word_indexes_embedding:  [ glove.6B.100d.txt ]
+       - lstm2: [100]       
+       - dense: [1,"sigmoid"]
+folds_count: 5       
+preprocessing: 
+  - tokenize:    
+  - tokens_to_indexes:
+       maxLen: 160 
+  - disk-cache:        
+architecture: net 
+optimizer: adam  
+batch: 512 
+stages:
+  - epochs: 4  
+loss: binary_crossentropy      
+stratified: true 
+primary_metric: val_binary_accuracy
+inference_batch: 32
+callbacks:
+  EarlyStopping:
+    patience: 100
+    monitor: val_binary_accuracy
+    verbose: 1
+  ReduceLROnPlateau: 
+    patience: 8
+    factor: 0.5
+    monitor: val_binary_accuracy
+    mode: auto  
+    cooldown: 5
+    verbose: 1     
+metrics: [binary_accuracy, matthews_correlation ]    
+dataset: 
+    getIMDB: []

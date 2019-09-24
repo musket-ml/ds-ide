@@ -1,0 +1,7 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" >
+    <label caption="Expression"/>
+    <text caption="Value" bindTo="FilterArgs" hint="-1,70"/>
+    <model class="com.onpositive.dside.dto.DataSetFilter"/>
+    <combo caption="Kind" bindTo="FilterKind" realmExpression="$$.Kinds"/>
+    <combo caption="Mode" bindTo="Mode" realmExpression="$$.Modes"/>    
+</composite-editor>

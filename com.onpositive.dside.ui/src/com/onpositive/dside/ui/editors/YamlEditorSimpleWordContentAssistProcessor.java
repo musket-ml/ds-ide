@@ -71,6 +71,9 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 
 		ArrayList<InstrospectedFeature> features = editor.getProject().getDetails().getFeatures();
 		String extractFragment = FragmentExtractor.extractFragment(document);
+		if (extractFragment.equals("Generic")) {
+			extractFragment=null;
+		}
 		CompletionSuggestions find = TypeRegistryProvider.getRegistry(extractFragment==null?"basicConfig":extractFragment).find(completionContext,
 				editor.getProject().getDetails(),editor.getProject().getPath());
 		LinkedHashSet<String> strs = new LinkedHashSet<>();

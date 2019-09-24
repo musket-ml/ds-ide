@@ -1,10 +1,18 @@
 templates:
    - name: Basic Template
      description: Basic Template
+     kind: generic
      file: experiment.yaml
    - name: Image Classification
      description: Basic image classification template
+     kind: classification
      file: classification.yaml
    - name: Image Segmentation
+     kind: segmentation
      description: Basic image segmentation template
-     file: classification.yaml  
+     file: segmentation.yaml  
+   - name: Text Classification
+     kind: segmentation
+     description: Basic text classification template
+     kind: text_classification
+     file: text_classification.yaml   

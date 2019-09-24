@@ -83,6 +83,21 @@
                id="com.onpositive.dside.ui.action2"
                label="Connect">
          </action>
+         <action
+               class="com.onpositive.dside.ui.navigator.NewKaggleDatasetAction"
+               id="com.onpositive.dside.ui.action4"
+               label="Kaggle Dataset">
+         </action>
+      </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="com.onpositive.dside.ui.objectContribution3"
+            objectClass="com.onpositive.dside.ui.navigator.ExperimentNode">
+            <action
+               class="com.onpositive.dside.ui.navigator.RunOnKaggleKernelsAction"
+               id="com.onpositive.dside.ui.action5"
+               label="Run on Kaggle Kernels">
+         	</action>
       </objectContribution>
    </extension>
    <extension point="org.eclipse.debug.core.launchConfigurationTypes">
@@ -168,6 +183,11 @@
             name="new_exp_wiz">
       </image>
       <image
+            id="dataset_wiz"
+            image="icons/newex_wiz.png"
+            name="dataset_wiz">
+      </image>
+      <image
             id="com.onpositive.dside.ui.group_wiz_image"
             image="icons/newsrcfldr_wiz@2x.png"
             name="name">
@@ -237,6 +257,32 @@
       <category
             id="org.musket.pydev.PythonCategory"
             name="Musket"/>
+      
+      <category
+            id="org.musket.pydev.KaggleCategory"
+            name="Kaggle"/>
+      
+      <wizard
+            category="org.musket.pydev.PythonCategory"
+            class="com.onpositive.dside.wizards.KaggleDataset"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/experiment.png"
+            id="com.onpositive.dside.ui.kaggle_dataset"
+            name="Kaggle Dataset"
+            project="false">
+      </wizard>
+      <wizard
+            category="org.musket.pydev.PythonCategory"
+            class="com.onpositive.dside.wizards.KaggleRunView"
+            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            hasPages="true"
+            icon="icons/experiment.png"
+            id="com.onpositive.dside.ui.kaggle_run"
+            name="Run on Kaggle kernel"
+            project="false">
+      </wizard>
+      
       <wizard
             canFinishEarly="false"
             category="org.musket.pydev.PythonCategory"
@@ -510,9 +556,40 @@
              id="com.onpositive.dside.ui.addRemoveMusketNature"
              name="Add/RemoveMusket Project Nature">
        </command>
+       <command
+             defaultHandler="com.onpositive.dside.ui.datasets.CompareCSVDataSets"
+             id="com.onpositive.dside.ui.compare"
+             name="Compare CSV DataSets">
+       </command>
     </extension>
     <extension
           point="org.eclipse.ui.menus">
+        <menuContribution
+             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+             <command
+                   commandId="com.onpositive.dside.ui.compare"
+                   icon="icons/mergesessions.png"
+                   label="Compare CSV DataSets"
+                   style="push">
+             <visibleWhen
+                   checkEnabled="false">
+                <with
+                      variable="selection">
+                   <count
+                         value="2">
+                   </count>
+                   <iterate>
+                      <adapt
+                            type="org.eclipse.core.resources.IFile">
+                         <test
+                                property="matchesName" value="*.csv"/>
+                         
+                      </adapt>
+                   </iterate>
+                </with>
+             </visibleWhen>
+          </command>
+        </menuContribution>  
        <menuContribution
              locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
           <command
@@ -538,6 +615,7 @@
                 </with>
              </visibleWhen>
           </command>
+          
           <command
                 commandId="com.onpositive.dside.ui.addRemoveMusketNature"
                 label="Enable Musket builder"

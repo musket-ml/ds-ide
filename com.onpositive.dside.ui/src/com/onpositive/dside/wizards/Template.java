@@ -5,6 +5,7 @@ public class Template {
 	public String name;
 	public String description;
 	public String file;
+	public String kind;
 	public String getName() {
 		return name;
 	}

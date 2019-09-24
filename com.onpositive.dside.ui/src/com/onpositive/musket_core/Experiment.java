@@ -262,7 +262,7 @@ public class Experiment {
 		if (object == null) {
 			object = "none";
 		}
-		Object aMetric = getConfig().get("aggregation_metric");
+		Object aMetric = getConfig().get("experiment_result");
 		if (aMetric != null) {
 			return aMetric.toString();
 		}
