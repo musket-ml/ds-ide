@@ -3,16 +3,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.onpositive.dside</groupId>
 	<artifactId>com.onpositive.dside.product</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
+	
 	<parent>
-		<groupId>com.osm2xp</groupId>
-		<artifactId>com.osm2xp.parent</artifactId>
-		<version>4.1.0</version>
+		<version>1.0.0</version>
 		<relativePath>../releng-app/pom.xml</relativePath>
+		<groupId>com.onpositive.dside</groupId>
+		<artifactId>com.onpositive.dside.parent</artifactId>
 	</parent>
+	
 	<name>com.onpositive.dside.product</name>
 	<url>http://maven.apache.org</url>
 
