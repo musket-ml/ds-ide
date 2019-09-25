@@ -21,6 +21,11 @@
 	<section caption="Dataset">
 		<combo bindTo="dataset" grabHorizontal="true" realmExpression="$$.experiment.DataSets" />
 	</section>
+	<section caption="Export">
+		<label caption="This options only works for datasets that support exporting to CSV:"/>
+		<checkbox bindTo="exportToCSV" />
+		<checkbox bindTo="exportGroundTruthToCSV" enablement="exportToCSV"/>		
+	</section>
 	</vc>
 	<separator vertical="false" />
 	<checkbox bindTo="debug" caption="Launch in debug mode?" />

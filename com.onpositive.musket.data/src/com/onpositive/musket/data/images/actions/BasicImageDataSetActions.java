@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+
+
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IProgressMonitor;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
@@ -110,6 +112,8 @@ public class BasicImageDataSetActions {
 			BasicDataSetImpl ds = ((Function<IDataSet, BasicDataSetImpl>) this.func).apply(v);
 			try {
 				CSVKind.writeCSV(ds, target.getAbsolutePath());
+				
+				
 			} catch (IOException e) {
 				throw new IllegalStateException();
 			}

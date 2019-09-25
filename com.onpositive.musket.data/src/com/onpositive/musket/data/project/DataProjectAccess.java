@@ -43,7 +43,7 @@ public class DataProjectAccess {
 
 	public static void updateMeta(File file2, IDataSet ds) {
 		try {
-			FileWriter fileWriter = new FileWriter(getMetaFile(file2));
+			FileWriter fileWriter = new FileWriter(DataProject.getMetaFile(file2));
 			Map<String, Object> settings = ds.getSettings();
 			HashMap<String, Object>ns=new HashMap<>();
 			settings.keySet().forEach(v->{
@@ -57,7 +57,5 @@ public class DataProjectAccess {
 		}
 	}
 
-	private static File getMetaFile(File file2) {
-		return new File(file2.getAbsolutePath() + ".dataset_desc");
-	}
+	
 }

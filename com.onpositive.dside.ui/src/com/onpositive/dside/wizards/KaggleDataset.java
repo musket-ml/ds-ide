@@ -15,12 +15,14 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -34,6 +36,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.python.pydev.core.log.Log;
 import com.onpositive.commons.SWTImageManager;
@@ -42,6 +45,8 @@ import com.onpositive.commons.elements.RootElement;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
+import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.project.DataProjectAccess;
 import com.onpositive.musket_core.IServer;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
@@ -56,18 +61,18 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 public class KaggleDataset extends Wizard implements INewWizard {
 
 	private IStructuredSelection selection;
-	
+
 	private KaggleDatasetParams datasetView;
-	
+
 	public KaggleDataset() {
-		
+
 	}
 
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
 	}
-	
+
 	@Override
 	public void addPages() {
 		// TODO Auto-generated method stub
@@ -80,21 +85,22 @@ public class KaggleDataset extends Wizard implements INewWizard {
 				RootElement el = new RootElement(parent);
 				setTitle("New Dataset");
 				setMessage("Let's have fun");
-				
+
 				datasetView = new KaggleDatasetParams();
-				
-				ISelection selection2 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getSelection();
-				
-				if(selection2 instanceof IStructuredSelection) {
+
+				ISelection selection2 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+						.getSelection();
+
+				if (selection2 instanceof IStructuredSelection) {
 					Object firstElement = ((IStructuredSelection) selection2).getFirstElement();
-					
+
 					if (firstElement instanceof IAdaptable) {
 						IAdaptable mm = (IAdaptable) firstElement;
 						IResource adapter = mm.getAdapter(IResource.class);
 						if (adapter != null) {
 							org.eclipse.core.resources.IProject prj = adapter.getProject();
 							datasetView.project = prj.getName();
-							
+
 							try {
 								readConfig(prj, datasetView);
 							} catch (Throwable t) {
@@ -103,32 +109,34 @@ public class KaggleDataset extends Wizard implements INewWizard {
 						}
 					}
 				}
-				
+
 				Binding bn = new Binding(datasetView);
 
 				IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(datasetView, null, null);
-				
+
 				IUIElement<?> createWidget = widgetObject.createWidget(bn);
-				
+
 				el.add((AbstractUIElement<?>) createWidget);
-				
+
 				setControl((Control) createWidget.getControl());
-				
+
 				this.setPageComplete(false);
-				
+
 				bn.addValidator(new IValidator<Object>() {
 					@Override
 					public CodeAndMessage isValid(IValidationContext arg0, Object arg1) {
-						return datasetView.getItem() == null ? new CodeAndMessage(CodeAndMessage.ERROR, "Selection is empty!") : new CodeAndMessage(CodeAndMessage.OK, "");
+						return datasetView.getItem() == null
+								? new CodeAndMessage(CodeAndMessage.ERROR, "Selection is empty!")
+								: new CodeAndMessage(CodeAndMessage.OK, "");
 					}
-					
+
 				});
-				
+
 				bn.addStatusChangeListener(new IStatusChangeListener() {
 					@Override
 					public void statusChanged(IHasStatus bnd, CodeAndMessage cm) {
 						setPageComplete(!cm.isError());
-						
+
 						setErrorMessage(cm.getMessage());
 					}
 				});
@@ -136,139 +144,169 @@ public class KaggleDataset extends Wizard implements INewWizard {
 			}
 		});
 	}
-	
+
 	private void download(org.eclipse.core.resources.IProject project) {
 		IFolder folder = project.getFolder("data");
-		
+
 		String fullPath = folder.getLocation().toOSString();
-			
+
 		GateWayRelatedTask serverTask = new GateWayRelatedTask(project, new IGateWayServerTaskDelegate() {
 			@Override
 			public void terminated() {
-								
+
 			}
-			
+
 			@Override
 			public void started(GateWayRelatedTask task) {
-				
+
 			}
 		});
-				
+
 		serverTask.getServer().thenAcceptAsync((IServer server) -> {
 			try {
-				if(datasetView.isDsDatasetEnabled()) {
+				if (datasetView.isDsDatasetEnabled()) {
 					server.downloadDataset(datasetView.getItem().ref, fullPath);
 				} else {
 					server.downloadCompetitionFiles(datasetView.getItem().ref, fullPath);
 				}
-				
-			} catch(Throwable t) {
+
+			} catch (Throwable t) {
 				t.printStackTrace();
 			}
-			
+
 			serverTask.terminate();
 			try {
+				folder.refreshLocal(1, new NullProgressMonitor());
+				folder.accept(new IResourceVisitor() {
+
+					@Override
+					public boolean visit(IResource resource) throws CoreException {
+						if (resource instanceof IFile && resource.getName().endsWith(".csv")) {
+							String persistentProperty = resource.getPersistentProperty(IDE.EDITOR_KEY);
+							if (persistentProperty != null) {
+								return false;
+							}
+							try {
+								IDataSet dataSet = DataProjectAccess.getDataSet(resource.getLocation().toFile());
+								if (dataSet != null) {
+									resource.setPersistentProperty(IDE.EDITOR_KEY,
+											"com.onpositive.datasets.visualisation.ui.datasetEditor");
+									resource.refreshLocal(0, new NullProgressMonitor());
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+								// TODO: handle exception
+							}
+						}
+						if (resource.equals(folder)) {
+							return true;
+						}
+						return false;
+					}
+				});
 				folder.refreshLocal(1, new NullProgressMonitor());
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
 		});
-		
-		if(!datasetView.dsSkipDownload) {
+
+		if (!datasetView.dsSkipDownload) {
 			TaskManager.perform(serverTask);
 		}
-		
+
 		try {
 			writeConfig(project, datasetView);
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
 	}
-		
-	public static KaggleDatasetParams readConfig(IProject project, KaggleDatasetParams config) throws IOException, CoreException {
+
+	public static KaggleDatasetParams readConfig(IProject project, KaggleDatasetParams config)
+			throws IOException, CoreException {
 		IFolder metadata = project.getFolder(".metadata");
-		
-		if(!metadata.exists()) {
+
+		if (!metadata.exists()) {
 			metadata.create(true, true, null);
 		}
-		
+
 		IFile metadataFile = project.getFile(".metadata/kaggle-datasource-metadata.json");
-				
-		if(metadataFile.exists()) {
+
+		if (metadataFile.exists()) {
 			InputStreamReader reader = new InputStreamReader(metadataFile.getContents());
-			
+
 			BufferedReader br = new BufferedReader(reader);
-			
+
 			String line = br.readLine();
-			
+
 			String jsonString = "";
-			
-			while(line != null) {
+
+			while (line != null) {
 				jsonString += line + "\n";
-				
+
 				line = br.readLine();
 			}
-			
+
 			config.deserializeFromJsonString(jsonString);
 		}
-		
+
 		return config;
 	}
-	
+
 	private void writeConfig(IProject project, KaggleDatasetParams config) throws CoreException, IOException {
 		IFolder metadata = project.getFolder(".metadata");
-		
-		if(!metadata.exists()) {
+
+		if (!metadata.exists()) {
 			metadata.create(true, true, null);
 		}
-		
+
 		IFile metadataFile = project.getFile(".metadata/kaggle-datasource-metadata.json");
-		
-		if(metadataFile.exists()) {
+
+		if (metadataFile.exists()) {
 			metadataFile.delete(true, null);
 		}
-				
+
 		String jsonString = config.serializeToJsonString();
-		
+
 		ByteArrayInputStream bin = new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8));
-		
+
 		metadataFile.create(bin, true, null);
 	}
-	
+
 	private void ensure(IFolder folder, IProgressMonitor monitor) throws CoreException {
 		List<IContainer> folders = new ArrayList<IContainer>();
-		
+
 		IContainer currentFolder = folder;
-		
-		while(!currentFolder.exists()) {
+
+		while (!currentFolder.exists()) {
 			folders.add(0, currentFolder);
-			
+
 			currentFolder = (IContainer) currentFolder.getParent();
 		}
-		
-		for(IContainer cnt: folders) {
+
+		for (IContainer cnt : folders) {
 			if (cnt instanceof IFolder) {
 				((IFolder) cnt).create(true, true, monitor);
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean performFinish() {
 		Display currentDisplay = Display.getCurrent();
-		
+
 		WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 			@Override
 			protected void execute(IProgressMonitor monitor) throws CoreException {
-				org.eclipse.core.resources.IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(datasetView.project);
-				
+				org.eclipse.core.resources.IProject project = ResourcesPlugin.getWorkspace().getRoot()
+						.getProject(datasetView.project);
+
 				IFolder folder = project.getFolder("data");
-				
+
 				ensure(folder, monitor);
-				
+
 				currentDisplay.asyncExec(new Runnable() {
 					public void run() {
-						download(project);						
+						download(project);
 					}
 				});
 			}
@@ -297,7 +335,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 		}
 		CommonNavigator activePart = (CommonNavigator) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
 				.getActivePage().findView("org.python.pydev.navigator.view");
-		if (activePart!=null) {
+		if (activePart != null) {
 			activePart.getCommonViewer().refresh();
 		}
 		return true;

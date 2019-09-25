@@ -9,7 +9,7 @@ public interface IAnalizeResults {
 
 	String[] names();
 
-	default String visualizationSpec() {return "";}
+	VisualizationSpec visualizationSpec();
 
 	IDataSet getOriginal();
 

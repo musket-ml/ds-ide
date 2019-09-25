@@ -22,10 +22,11 @@ import org.jfree.data.xy.XYDataset;
 
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.VisualizationSpec;
 
 public class ChartUtils {
 	
-	static Dataset createDataset(IAnalizeResults r, Object loadAs) {
+	static Dataset createDataset(IAnalizeResults r, VisualizationSpec loadAs) {
 		if (loadAs != null) {
 			if (loadAs instanceof Map) {
 
@@ -59,6 +60,28 @@ public class ChartUtils {
 				return d;
 			}
 			System.out.println(loadAs);
+		}
+		if (loadAs.type==VisualizationSpec.ChartType.BAR) {
+			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+			int size = r.size();
+			ArrayList<String> names = new ArrayList<>();
+			ArrayList<Double> counts = new ArrayList<>();
+			double sum = 0;
+			for (int i = 0; i < size; i++) {
+				IDataSet iDataSet = r.get(i);
+				int len = iDataSet.length();
+				String name = iDataSet.name();
+				names.add(name);
+				counts.add((double) len);
+				sum = sum + len;
+
+			}
+			for (int i = 0; i < size; i++) {
+				String string = names.get(i) + "(" + counts.get(i).intValue() + " "
+						+ NumberFormat.getPercentInstance().format(counts.get(i) / sum) + ")";
+				dataset.addValue(counts.get(i),string, "");
+			}
+			return dataset;
 		}
 		DefaultPieDataset dataset = new DefaultPieDataset();
 		int size = r.size();
@@ -145,10 +168,10 @@ public class ChartUtils {
 		return dataset;
 	}
 	
-	public static JFreeChart createChart(Dataset dataset, Object loadAs) {
+	public static JFreeChart createChart(Dataset dataset, VisualizationSpec loadAs) {
 		if (dataset instanceof DefaultCategoryDataset) {
-			String y_axis = "Fraction of samples";
-			String x_axis = "Length";
+			String y_axis = loadAs.yName;
+			String x_axis = loadAs.xName;
 			if (loadAs instanceof Map) {
 				Map mp = (Map) loadAs;
 				if (mp.containsKey("x_axis")) {

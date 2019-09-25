@@ -33,6 +33,11 @@ public class TextClassificationTemplate extends GenericExperimentTemplate {
 	protected boolean replace_random_words;
 
 	
+	@Caption("CNN")
+	protected boolean cnn_classifier;
+	
+	@Caption("RNN")
+	protected boolean rnn_classifier=true;
 	
 	public Collection<String>getEmbeddings(){
 		ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("dice","iou","map10"));
@@ -42,8 +47,12 @@ public class TextClassificationTemplate extends GenericExperimentTemplate {
 	@Override
 	public String finish() {
 		try {
+			String string = "/templates/textClassificationWizard.yaml.txt";
+			if (this.cnn_classifier) {
+				string = "/templates/textClassificationWizard2.yaml.txt";
+			}
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
-					ClassificationTemplate.class.getResourceAsStream("/templates/textClassificationWizard.yaml.txt")));
+					ClassificationTemplate.class.getResourceAsStream(string)));
 			Stream<String> lines = bufferedReader.lines();
 
 			String result = lines.collect(Collectors.joining(System.lineSeparator()));

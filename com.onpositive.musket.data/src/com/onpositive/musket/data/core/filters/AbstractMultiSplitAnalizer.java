@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
+import com.onpositive.musket.data.core.VisualizationSpec;
+import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
 
 public abstract class AbstractMultiSplitAnalizer {
 
@@ -53,6 +55,11 @@ public abstract class AbstractMultiSplitAnalizer {
 			@Override
 			public IDataSet getFiltered() {
 				return ds;
+			}
+
+			@Override
+			public VisualizationSpec visualizationSpec() {
+				return new VisualizationSpec("","",ChartType.BAR);
 			}
 		};
 	}

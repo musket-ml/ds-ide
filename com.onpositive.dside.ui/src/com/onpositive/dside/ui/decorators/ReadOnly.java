@@ -3,6 +3,7 @@ package com.onpositive.dside.ui.decorators;
 import java.net.URL;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourceAttributes;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -10,6 +11,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
+import org.eclipse.ui.ide.IDE;
 
 /**
  * An example showing how to control when an element is decorated. This example
@@ -67,6 +69,14 @@ public class ReadOnly implements ILightweightLabelDecorator {
 				descriptor = ImageDescriptor.createFromURL(url);
 				quadrant = IDecoration.BOTTOM_RIGHT;
 				decoration.addOverlay(descriptor, quadrant);
+			}
+			try {
+				if (resource.getPersistentProperty(IDE.EDITOR_KEY).equals("com.onpositive.datasets.visualisation.ui.datasetEditor")) {
+					
+				}
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}

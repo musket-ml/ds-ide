@@ -170,6 +170,8 @@ types:
       hyperparameters:
         multivalue: true
         type: Hyper
+      dumpPredictionsToCSV:
+        type: boolean  
       architecture: 
          type: string
       backbone: 

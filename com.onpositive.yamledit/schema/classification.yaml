@@ -162,6 +162,8 @@ types:
     properties:
       hyperparameters:
          type: Hyper[]
+      dumpPredictionsToCSV:
+        type: boolean   
       architecture: 
          type: string
       backbone: 

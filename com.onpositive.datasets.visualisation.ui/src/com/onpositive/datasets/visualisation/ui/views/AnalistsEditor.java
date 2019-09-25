@@ -20,6 +20,9 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.ImageTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -30,6 +33,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.jfree.chart.JFreeChart;
 
@@ -43,11 +47,13 @@ import com.onpositive.dataset.visualization.internal.VirtualTable;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConvertResolutionAction;
 import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.GenerateDataSetAction;
 import com.onpositive.musket.data.text.AbstractTextDataSet;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.realm.Realm;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.actions.Action;
@@ -82,8 +88,36 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	private JFreeChart createChart;
 	private Container element2;
 
+	boolean isPieChart;
+
+	public void changeChartMode() {
+		if (visualizationSpec == null) {
+			visualizationSpec = this.results.visualizationSpec();
+		}
+		if (visualizationSpec.type == VisualizationSpec.ChartType.BAR) {
+			visualizationSpec.type = VisualizationSpec.ChartType.PIE;
+		} else {
+			visualizationSpec.type = VisualizationSpec.ChartType.BAR;
+		}
+		createChart = ChartUtils.createChart(ChartUtils.createDataset(this.results, visualizationSpec),
+				visualizationSpec);
+		update(createChart, element2);
+
+	}
+
 	public AnalistsEditor() {
 		super();
+	}
+
+	@Caption("Copy chart")
+	public void copyChart() {
+		if (image != null && !image.isDisposed()) {
+			if (clipboard == null) {
+				clipboard = new org.eclipse.swt.dnd.Clipboard(Display.getDefault());
+				clipboard.setContents(new Object[] { image.getImageData() },
+						new Transfer[] { ImageTransfer.getInstance() }, DND.CLIPBOARD | DND.SELECTION_CLIPBOARD);
+			}
+		}
 	}
 
 	@Override
@@ -196,17 +230,16 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 
 		sl.addToToolbar(bindedAction2);
 		sl.addToToolbar(generatorMenu);
-		
+
 		focus = new Action(Action.AS_CHECK_BOX) {
-			
+
 			@Override
 			public void run() {
-				focusOn();				
+				focusOn();
 			}
 
-			
 		};
-		
+
 		generatorMenu.setImageId("generic_task");
 		focus.setText("Focus on");
 		focus.setEnabled(false);
@@ -219,7 +252,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	}
 
 	protected void focusOn() {
-		
+
 	}
 
 	private boolean wrap;
@@ -238,7 +271,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		@Override
 		public void run() {
 			if (results != null) {
-				
+
 				ActionSelection actionSelection = new ActionSelection(results.getOriginal().conversions());
 				boolean createObject = WidgetRegistry.createObject(actionSelection);
 				if (createObject) {
@@ -255,11 +288,11 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 									new FileEditorInput(file),
 									"com.onpositive.dside.ui.editors.ExperimentMultiPageEditor");
 							file = getProject().getFolder("modules").getFile("datasets.py");
-							IEditorDescriptor defaultEditor = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName());
-							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
-									new FileEditorInput(file),
-									defaultEditor.getId());
-							afterDataSetCreate(name,results.getOriginal());
+							IEditorDescriptor defaultEditor = PlatformUI.getWorkbench().getEditorRegistry()
+									.getDefaultEditor(file.getName());
+							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+									.openEditor(new FileEditorInput(file), defaultEditor.getId());
+							afterDataSetCreate(name, results.getOriginal());
 							return;
 						} catch (PartInitException e) {
 							// TODO Auto-generated catch block
@@ -312,15 +345,19 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 					File actualTarget = getActualTarget(targetFile);
 					if (selectedAction.isUsesCurrentFilters()) {
 						selectedAction.run(results.getFiltered(), actualTarget);
-					}
-					else {
+					} else {
 						selectedAction.run(results.getOriginal(), actualTarget);
 					}
 					IFile[] findFilesForLocationURI = ResourcesPlugin.getWorkspace().getRoot()
 							.findFilesForLocationURI(actualTarget.toURI());
 					for (IFile f : findFilesForLocationURI) {
 						try {
-							f.getParent().refreshLocal(0, new NullProgressMonitor());
+							f.getParent().refreshLocal(1, new NullProgressMonitor());
+							if (f.getName().endsWith(".csv") || f.getName().endsWith(".tsv")) {
+								f.setPersistentProperty(IDE.EDITOR_KEY,
+										"com.onpositive.datasets.visualisation.ui.datasetEditor");
+								f.refreshLocal(0, new NullProgressMonitor());
+							}
 							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
 									new FileEditorInput(f), "com.onpositive.datasets.visualisation.ui.datasetEditor");
 						} catch (PartInitException e) {
@@ -374,7 +411,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		String analizer = a.getText();
 		this.visualizationParams = new HashMap<>();
 		this.analisisParams = new HashMap<>();
-		
+
 		if (!visualizer.isEmpty() && !analizer.isEmpty()) {
 			visualizerFeature = this.options.getVisualizer(visualizer);
 			InstrospectedFeature analizerFeature = this.options.getAnalizer(analizer);
@@ -408,8 +445,8 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		}
 	}
 
-	public void afterDataSetCreate(String name,IDataSet original) {
-		
+	public void afterDataSetCreate(String name, IDataSet original) {
+
 	}
 
 	public abstract File getInputFile();
@@ -452,7 +489,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		this.results = r;
 		getElement("empty").setEnabled(false);
 		boolean b = results.getOriginal() instanceof IMulticlassClassificationDataSet;
-		focus.setEnabled(b||focus.isChecked());
+		focus.setEnabled(b || focus.isChecked());
 		Container element = (Container) getElement("content");
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
 		String viewer = visualizerFeature.getViewer();
@@ -460,7 +497,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 			viewer = "image";
 		}
 		if (results.getOriginal() instanceof AbstractTextDataSet) {
-			viewer="text";
+			viewer = "text";
 		}
 		g = null;
 		if (viewer.equals("html")) {
@@ -482,9 +519,9 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		g.setInput(r);
 		element.add(g);
 		element.setEnabled(true);
-		String visualizationSpec = r.visualizationSpec();
+		VisualizationSpec visualizationSpec = r.visualizationSpec();
 		// Object loadAs = new Yaml().loadAs(visualizationSpec, Object.class);
-		createChart = ChartUtils.createChart(ChartUtils.createDataset(r, null), null);
+		createChart = ChartUtils.createChart(ChartUtils.createDataset(r, visualizationSpec), visualizationSpec);
 		element2 = (Container) getElement("stat");
 
 		FormTextElement<?> labels = (FormTextElement) getElement("info");
@@ -558,6 +595,9 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		if (this.task != null) {
 			this.task.terminate();
 		}
+		if (clipboard!=null) {
+			clipboard.dispose();
+		}
 		super.dispose();
 	}
 
@@ -573,6 +613,8 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	IAnalisysEngine task;
 	private Action generatorMenu;
 	protected Action focus;
+	private org.eclipse.swt.dnd.Clipboard clipboard;
+	private VisualizationSpec visualizationSpec;
 
 	public void setEngine(IAnalisysEngine engine) {
 		if (this.task != null) {
@@ -620,6 +662,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		data.setFilters(filters);
 
 		task.perform(data, (r) -> {
+			visualizationSpec = null;
 			display(r);
 		}, (e) -> {
 			onError(e);

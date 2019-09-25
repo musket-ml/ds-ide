@@ -1,29 +1,32 @@
 #%Musket Generic 1.0
 imports: [musket_text.preprocessors]
 declarations: 
-   lstm2: 
+   cnnBlock: 
       parameters: [count]
       body:       
-       - bidirectional:             
-           - cuDNNLSTM: [count, true]           
-       - bidirectional:    
-           - cuDNNLSTM: [count/2, false]            
+       - conv1D: [ count, 3, tanh ]
+       - conv1D: [ count, 3, relu ]
+       - conv1D: [ count, 3, relu ]
+       - averagePooling1D: 2            
    net:
        - word_indexes_embedding:  [ {embeddings} ]
-       - lstm2: [100]       
+       - cnnBlock: [100]
+       - cnnBlock: [100]
+       - cnnBlock: [100]
+       - globalAveragePooling1D:
        - dense: [{classes},{activation}]
-folds_count: 5       
+folds_count: 5 
 preprocessing: 
   - tokenize:    
   - tokens_to_indexes:
        maxLen: {maxLen} 
   - disk-cache:
-{aug}          
+{aug}
 architecture: net 
 optimizer: adam  
 batch: 512 
 stages:
-  - epochs: 4  
+  - epochs: 30  
 loss: binary_crossentropy      
 stratified: true 
 primary_metric: val_binary_accuracy

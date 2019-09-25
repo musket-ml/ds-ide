@@ -10,7 +10,7 @@ import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageRepresenter;
 
-public class MultiClassificationDataSetWithGroundTruth extends BinaryClassificationDataSetWithGroundTruth implements IMulticlassClassificationDataSet{
+public class MultiClassificationDataSetWithGroundTruth extends BinaryClassificationDataSetWithGroundTruth implements IMultiClassificationWithGroundTruth{
 
 	public MultiClassificationDataSetWithGroundTruth(ITabularDataSet base, IColumn image, IColumn clazz,
 			ImageRepresenter rep, int width, int height, ITabularDataSet prediction) {

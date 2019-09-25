@@ -185,7 +185,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			temp = new TextClassificationTemplate();
 		}
 		if (temp != null) {
-			temp.projectPath=project.getLocation().toFile().getAbsolutePath();
+			temp.projectPath = project.getLocation().toFile().getAbsolutePath();
 			boolean openQuestion = MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Please confirm",
 					"Great, you have a dataset now, may be you want to configure an experiment?");
 			if (openQuestion) {
@@ -197,23 +197,25 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	public static void configureFromDataSetAndTemplate(IProject project, String name, IDataSet original,
 			GenericExperimentTemplate temp, String dsName) {
 		GenericExperimentTemplate classificationTemplate = temp;
-		temp.projectPath=project.getLocation().toFile().getAbsolutePath();
+		temp.projectPath = project.getLocation().toFile().getAbsolutePath();
 		if (original != null) {
-			
-			
+
 			if (classificationTemplate instanceof ImageExperimentTemplate) {
 				AbstractImageDataSet<IImageItem> it = (AbstractImageDataSet<IImageItem>) original;
-				Image image = it.item(0).getImage();				
-				((ImageExperimentTemplate)classificationTemplate).width = image.getWidth(null);
-				((ImageExperimentTemplate)classificationTemplate).height = image.getHeight(null);
+				Image image = it.item(0).getImage();
+				((ImageExperimentTemplate) classificationTemplate).width = image.getWidth(null);
+				((ImageExperimentTemplate) classificationTemplate).height = image.getHeight(null);
 			}
 			classificationTemplate.activation = "sigmoid";
 			classificationTemplate.numClasses = 1;
 			classificationTemplate.name = name;
 			if (original instanceof IMulticlassClassificationDataSet) {
-				classificationTemplate.numClasses = ((IMulticlassClassificationDataSet) original).classNames().size();
-				if (((IMulticlassClassificationDataSet) original).isExclusive()) {
-					classificationTemplate.activation = "softmax";
+				int size = ((IMulticlassClassificationDataSet) original).classNames().size();
+				if (size > 2 && !(((IMulticlassClassificationDataSet) original).isExclusive())) {
+					classificationTemplate.numClasses = size;
+					if (((IMulticlassClassificationDataSet) original).isExclusive()) {
+						classificationTemplate.activation = "softmax";
+					}
 				}
 			}
 		}
@@ -222,7 +224,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			String finish = classificationTemplate.finish();
 			finish = finish.replace("{dataset}", dsName);
 			IFolder folder = project.getFolder("experiments");
-			IFolder folder2 = folder.getFolder(name);
+			IFolder folder2 = folder.getFolder(classificationTemplate.name);
 			try {
 				if (!folder2.exists()) {
 					folder2.create(true, true, new NullProgressMonitor());
