@@ -11,6 +11,8 @@
       </vmArgsMac>
    </launcherArgs>
 
+   <splash
+      location="com.onpositive.dside.ui" />
    <plugins>
       <plugin id="com.ibm.icu"/>
       <plugin id="com.jcraft.jsch"/>

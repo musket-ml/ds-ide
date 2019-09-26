@@ -493,7 +493,7 @@
              name="DS Ide">
           <property
                 name="windowImages"
-                value="./icons/experiment.png">
+                value="./icons/app/net_16.png,./icons/app/net_32.png,./icons/app/net_64.png,./icons/app/net_128.png">
           </property>
           <property
                 name="aboutText"
@@ -501,7 +501,7 @@
           </property>
           <property
                 name="aboutImage"
-                value="eclipse_lg.png">
+                value="./icons/app/net_128.png">
           </property>
           <property
                 name="startupForegroundColor"
