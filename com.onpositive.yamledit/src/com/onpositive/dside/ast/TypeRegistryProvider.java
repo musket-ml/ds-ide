@@ -1,18 +1,27 @@
 package com.onpositive.dside.ast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.aml.typesystem.AbstractType;
 import org.aml.typesystem.BuiltIns;
+import org.aml.typesystem.IAnnotation;
+import org.aml.typesystem.ITypeLibrary;
 import org.aml.typesystem.ITypeRegistry;
 import org.aml.typesystem.InheritedType;
+import org.aml.typesystem.Status;
 import org.aml.typesystem.TypeOps;
 import org.aml.typesystem.TypeRegistryImpl;
+import org.aml.typesystem.UnionType;
 import org.aml.typesystem.meta.facets.HasKey;
 import org.aml.typesystem.meta.facets.IsRef;
+import org.aml.typesystem.meta.restrictions.AbstractRestricton;
 import org.aml.typesystem.meta.restrictions.DefaultPropertyMeta;
+import org.aml.typesystem.meta.restrictions.Enum;
 
 import com.onpositive.dside.ui.editors.yaml.model.CustomValidatorRestriction;
 import com.onpositive.dside.ui.editors.yaml.model.NodeType;
@@ -88,6 +97,49 @@ public class TypeRegistryProvider {
 				type="integer";
 			}
 			AbstractType type3 = reg.getType(type);
+			if (s.equals("negatives")||s.equals("validation_negatives")) {
+				AbstractType derive = TypeOps.derive("number",BuiltIns.STRING);
+				derive.addMeta(new AbstractRestricton() {
+					
+					@Override
+					public Status validate(ITypeRegistry arg0) {
+						return Status.OK_STATUS;
+					}
+					
+					@Override
+					public AbstractType requiredType() {
+						return BuiltIns.STRING;
+					}
+					
+					@Override
+					public String facetName() {
+						return "ht";
+					}
+					
+					@Override
+					protected AbstractRestricton composeWith(AbstractRestricton arg0) {
+						return this;
+					}
+					
+					@Override
+					public Status check(Object arg0) {
+						if (arg0!=null) {
+							String str=arg0.toString();
+							if (str.equals("real")||str.equals("none")) {
+								return Status.OK_STATUS;
+							}
+							try {
+								Double.parseDouble(str);
+							}catch (NumberFormatException e) {
+								return error(s+" should be number or real or none");
+								
+							}
+						}
+						return Status.OK_STATUS;
+					}
+				});
+				type3=derive;
+			}
 			if (type3==null) {
 				if (type.endsWith("[]")) {
 					type3=reg.getType(type.substring(0,type.length()-2));

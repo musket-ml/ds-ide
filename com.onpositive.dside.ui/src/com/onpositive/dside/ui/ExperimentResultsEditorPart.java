@@ -133,10 +133,36 @@ public class ExperimentResultsEditorPart extends EditorPart {
 			i0.setControl(pm);
 			c.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).create());
 		} else {
-			ExperimentsResultViewer experimentsResultViewer = new ExperimentsResultViewer(c);
+			ExperimentResults summary = experiment.getSummary();
+			ArrayList<String> metrics = summary.getMetrics();
+			Composite ca = new Composite(c, SWT.NONE);
+
+			GridLayout layout = new GridLayout(4, false);
+			Label ll = new Label(ca, SWT.NONE);
+			ll.setFont(JFaceResources.getHeaderFont());
+			ll.setText("Best Parameters: ");
+
+			ll.setLayoutData(GridDataFactory.fillDefaults().span(4, 1).hint(-1, 20).create());
+			for (String s : metrics) {
+				if (s.equals("min")||s.equals("max")||s.equals("mean")) {
+					continue;
+				}
+				Label ls = new Label(ca, SWT.NONE);
+				ls.setFont(JFaceResources.getFontRegistry().getBold(JFaceResources.DEFAULT_FONT));
+				ls.setText(s + ":");
+				Object metric = results.get(0).getMetric(s);
+				Label lsa = new Label(ca, SWT.NONE);
+				lsa.setText(ExperimentsResultViewer.metricString(metric));
+			}
+			ca.setLayout(layout);
+			Composite c1=new Composite(c, SWT.NONE);
+			ExperimentsResultViewer experimentsResultViewer = new ExperimentsResultViewer(c1);
 			experimentsResultViewer.setResults(results);
 			Control tree = experimentsResultViewer.getControl();
 			i0.setControl(pm);
+			c.setLayout(new GridLayout(1, false));
+			ca.setLayoutData(GridDataFactory.fillDefaults().grab(true, false).create());
+			c1.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).create());
 			c.setLayoutData(GridDataFactory.fillDefaults().grab(true, true).create());
 		}
 

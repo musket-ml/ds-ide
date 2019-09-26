@@ -195,6 +195,9 @@ public class FilterRegistry {
 		register(WordCountAnalizer.class);
 		register(TextLengthAnalizer.class);
 		register(SentenceCountAnalizer.class);
+		register(F1Analizer.class);
+		register(RecallAnalizer.class);
+		register(PrecisionAnalizer.class);
 	}
 
 	public ArrayList<IFilterProto> getFilters(IDataSet ds) {

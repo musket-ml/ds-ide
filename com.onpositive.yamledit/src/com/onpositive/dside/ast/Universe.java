@@ -225,6 +225,10 @@ public class Universe extends TypeRegistryImpl {
 	public Status validate(String content, InstrospectionResult instrospectionResult,String path) {
 		ASTElement obj = buildRoot(content, instrospectionResult,path);
 		Status validate = root.validate(obj);
+		if (content.indexOf("hyperparameters:")!=-1) {
+			return Status.OK_STATUS;
+		}
+		
 		return validate;
 	}
 

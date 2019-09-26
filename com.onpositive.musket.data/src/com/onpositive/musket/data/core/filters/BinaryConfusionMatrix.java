@@ -3,7 +3,6 @@ package com.onpositive.musket.data.core.filters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IDataSetWithGroundTruth;

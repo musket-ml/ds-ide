@@ -15,6 +15,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TreeColumn;
 
+import com.onpositive.commons.SWTImageManager;
 import com.onpositive.musket_core.ExperimentResults;
 import com.onpositive.musket_core.Result;
 
@@ -42,6 +43,7 @@ public class ExperimentsResultViewer extends TreeViewer {
 			c.dispose();
 		}
 		ArrayList<String> ms = new ArrayList<>(metrics);
+		
 		Collections.sort(ms);
 		ms.add(0, "Attempt");
 		ArrayList<String> msa = new ArrayList<>();
@@ -161,6 +163,9 @@ public class ExperimentsResultViewer extends TreeViewer {
 
 			@Override
 			public Image getColumnImage(Object element, int columnIndex) {
+				if (columnIndex==0) {
+					return SWTImageManager.getImage("stage");
+				}
 				return null;
 			}
 		});

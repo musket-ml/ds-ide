@@ -12,6 +12,7 @@ public class VisualizationSpec {
 	public final String xName;
 	
 	public ChartType type;
+	public ChartData chart;
 	
 	public VisualizationSpec(String yName, String xName, ChartType type) {
 		super();
@@ -19,4 +20,5 @@ public class VisualizationSpec {
 		this.xName = xName;
 		this.type = type;
 	}
+	
 }
