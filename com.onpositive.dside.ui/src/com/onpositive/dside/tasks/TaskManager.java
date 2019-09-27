@@ -161,7 +161,7 @@ public class TaskManager {
 						+ "out = sys.argv[2]\n" + "def main():\n" + "        global config\n"
 						+ "        with open(config,\"r\") as f:\n" + "            config=f.read()\n"
 						+ "        config = config[1:].replace(\"!!com.onpositive\", \"!com.onpositive\")\n"
-						+ "        obj = yaml.load(config)\n" + "        print(obj)\n"
+						+ "        obj = yaml.load(config, Loader=yaml.Loader)\n" + "        print(obj)\n"
 						+ "        results = obj.perform(projects.Workspace(), tools.ProgressMonitor())\n"
 						+ "        with open(out,\"w\") as f:\n" + "            f.write(yaml.dump(results))\n"
 						+ "if __name__ == \"__main__\":"
