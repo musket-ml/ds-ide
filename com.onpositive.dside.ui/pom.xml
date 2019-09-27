@@ -8,7 +8,7 @@
 	<packaging>eclipse-plugin</packaging>
 	
 	<parent>
-		<version>1.0.0</version>
+		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../releng-app/pom.xml</relativePath>
 		<groupId>com.onpositive.dside</groupId>
 		<artifactId>com.onpositive.dside.parent</artifactId>

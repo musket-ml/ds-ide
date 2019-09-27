@@ -10,7 +10,6 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>com.onpositive.dside.parent</artifactId>
-	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<name>DS-IDE</name>
 	<organization>
@@ -108,7 +107,7 @@
 				<target.platform.name>${target.platform.name.default}</target.platform.name>
 				<build.folder.type>release/${build.version}/${TRAVIS_BUILD_NUMBER}</build.folder.type>
 				<build.qualifier>'r'yyyyMMddHHmm</build.qualifier>
-				<build.file>OSM2XP_Release_${build.version}_${TRAVIS_BUILD_NUMBER}</build.file>
+				<build.file>DSIDE_Release_${build.version}_${TRAVIS_BUILD_NUMBER}</build.file>
 			</properties>
 		</profile>
 	</profiles>
