@@ -7,7 +7,9 @@ import java.util.List;
 
 import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.IAnalizeResults;
+import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
@@ -18,7 +20,7 @@ import com.onpositive.musket.data.images.IMulticlassClassificationItem;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
 @Caption("Multiclass F1")
-public class F1Analizer extends BinaryConfusionMatrix{
+public class F1Analizer extends BinaryConfusionMatrix implements IAnalizer<IDataSetWithGroundTruth>{
 
 	private List<String> classes;
 	
