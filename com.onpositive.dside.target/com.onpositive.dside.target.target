@@ -5,32 +5,53 @@
 			<repository location="http://eclipse.py4j.org/"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<unit id="ds_deps.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature1.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature2.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature3.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature4.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature5.feature.group" version="1.0.0.201909261804"/>
-			<unit id="sui_feature.feature.group" version="1.0.0.201909261804"/>
-			<repository location="file:/F:/tmp/ds_ide_site/"/>
-		</location>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/releases/photon/"/>
-			<unit id="org.eclipse.cvs.feature.group" version="1.4.500.v20180611-0500"/>
-			<unit id="org.eclipse.jgit.http.apache.feature.group" version="5.0.0.201806131550-r"/>
-			<unit id="org.eclipse.wst.xml_ui.feature.feature.group" version="3.10.0.v201804210200"/>
-			<unit id="org.eclipse.emf.common.feature.group" version="2.14.0.v20180527-1134"/>
-			<unit id="org.eclipse.emf.feature.group" version="2.14.0.v20180529-1144"/>
-			<unit id="org.eclipse.equinox.executable.feature.group" version="3.8.0.v20180518-2029"/>
-			<unit id="org.eclipse.equinox.p2.extras.feature.source.feature.group" version="1.4.0.v20180515-1348"/>
-			<unit id="org.eclipse.equinox.p2.rcp.feature.feature.group" version="1.4.0.v20180515-1348"/>
-			<unit id="org.eclipse.equinox.p2.user.ui.feature.group" version="2.4.0.v20180515-1348"/>
-			<unit id="org.eclipse.equinox.sdk.feature.group" version="3.14.0.v20180518-2029"/>
-		</location>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.python.pydev.feature.feature.group" version="7.3.0.201908161924"/>
 			<unit id="org.python.pydev.feature.source.feature.group" version="7.3.0.201908161924"/>
 			<repository location="http://www.pydev.org/updates/"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="ds_deps.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature1.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature2.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature3.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature4.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature5.feature.group" version="1.0.0.201909271900"/>
+			<unit id="sui_feature.feature.group" version="1.0.0.201909271900"/>
+			<repository location="file:/F:/tmp/update-site12/"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="org.eclipse.collections.feature.source.feature.group" version="9.2.0.v20180518-1448"/>
+			<unit id="org.eclipse.egf.sdk.feature.feature.group" version="1.6.0.201805151014"/>
+			<unit id="org.eclipse.emf.cdo.epp.feature.group" version="4.7.0.v20180530-1201"/>
+			<unit id="org.eclipse.emf.ecore.xcore.sdk.feature.group" version="1.6.0.v20180527-1213"/>
+			<unit id="org.eclipse.emf.sdk.feature.group" version="2.14.0.v20180529-1157"/>
+			<unit id="org.eclipse.graphiti.export.feature.feature.group" version="0.15.0.201806050830"/>
+			<unit id="org.eclipse.graphiti.export.feature.source.feature.group" version="0.15.0.201806050830"/>
+			<unit id="org.eclipse.graphiti.feature.feature.group" version="0.15.0.201806050830"/>
+			<unit id="org.eclipse.graphiti.feature.source.feature.group" version="0.15.0.201806050830"/>
+			<unit id="org.eclipse.pmf.core.feature.feature.group" version="0.4.0.201705201427"/>
+			<unit id="org.eclipse.pmf.xwt.feature.feature.group" version="0.4.0.201705201427"/>
+			<unit id="org.eclipse.sdk.feature.group" version="4.8.0.v20180611-0826"/>
+			<repository location="https://download.eclipse.org/releases/photon/"/>
+			<unit id="org.eclipse.cvs.feature.group" version="1.4.500.v20180611-0500"/>
+			<unit id="org.eclipse.ecf.core.feature.group" version="3.14.0.v20180302-2126"/>
+			<unit id="org.eclipse.ecf.core.source.feature.group" version="3.14.0.v20180302-2126"/>
+			<unit id="org.eclipse.ecf.remoteservice.sdk.feature.feature.group" version="3.14.0.v20180518-0149"/>
+			<unit id="org.eclipse.ecf.remoteservice.sdk.feature.source.feature.group" version="3.14.0.v20180518-0149"/>
+			<unit id="org.eclipse.egit.feature.group" version="5.0.0.201806131550-r"/>
+			<unit id="org.eclipse.egit.gitflow.feature.feature.group" version="5.0.0.201806131550-r"/>
+			<unit id="org.eclipse.egit.mylyn.feature.group" version="5.0.0.201806131550-r"/>
+			<unit id="org.eclipse.mylyn.github.feature.feature.group" version="5.0.0.201806131550-r"/>
+			<unit id="org.eclipse.mylyn.ide_feature.feature.group" version="3.24.0.v20170629-2230"/>
+			<unit id="org.eclipse.sapphire.java.jdt.feature.group" version="9.1.0.201609301330"/>
+			<unit id="org.eclipse.sapphire.platform.feature.group" version="9.1.0.201609301330"/>
+			<unit id="org.eclipse.scout.sdk-feature.feature.group" version="8.0.0.010_Photon"/>
+			<unit id="org.eclipse.userstorage.sdk.feature.group" version="1.1.0.v20170526-1605"/>
+			<unit id="org.eclipse.jst.enterprise_ui.feature.feature.group" version="3.9.100.v201804120404"/>
+			<unit id="org.eclipse.jst.web_ui.feature.feature.group" version="3.9.0.v201802222200"/>
+			<unit id="org.eclipse.libra.framework.feature.feature.group" version="0.3.1.201609011955"/>
+			<unit id="org.eclipse.wst.web_ui.feature.feature.group" version="3.10.0.v201805161856"/>
+			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="4.4.0.201806112243"/>
 		</location>
 	</locations>
 </target>
