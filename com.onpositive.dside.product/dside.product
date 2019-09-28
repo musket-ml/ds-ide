@@ -4,7 +4,7 @@
 <product name="DS IDE" uid="dside" id="com.onpositive.dside.ui.product" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
-      <image path="./icons/app/net_128.png"/>
+      <image path="/com.onpositive.dside.ui/icons/app/net_128.png"/>
       <text>
          %productBlurb
       </text>
@@ -18,7 +18,7 @@
       </vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="./icons/app/net_16.png" i32="./icons/app/net_32.png" i64="./icons/app/net_64.png" i128="./icons/app/net_128.png"/>
+   <windowImages i16="/com.onpositive.dside.ui/icons/app/net_16.png" i32="/com.onpositive.dside.ui/icons/app/net_32.png" i64="/com.onpositive.dside.ui/icons/app/net_64.png" i128="/com.onpositive.dside.ui/icons/app/net_128.png"/>
 
    <splash
       location="com.onpositive.dside.ui"
@@ -30,6 +30,7 @@
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
       <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
