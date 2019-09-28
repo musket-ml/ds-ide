@@ -48,10 +48,6 @@
       <plugin id="com.onpositive.datasets.visualisation.ui"/>
       <plugin id="com.onpositive.dside.ui"/>
       <plugin id="com.onpositive.musket.data"/>
-      <plugin id="com.onpositive.pictureviewer"/>
-      <plugin id="com.onpositive.richtext.model"/>
-      <plugin id="com.onpositive.richtext.wikitext.model"/>
-      <plugin id="com.onpositive.richtexteditor"/>
       <plugin id="com.onpositive.semantic.model"/>
       <plugin id="com.onpositive.semantic.model.bindings"/>
       <plugin id="com.onpositive.semantic.model.core"/>
@@ -65,12 +61,10 @@
       <plugin id="com.onpositive.semantic.ui.appmodel.wizard"/>
       <plugin id="com.onpositive.semantic.ui.swt"/>
       <plugin id="com.onpositive.semantic.ui.workbench"/>
-      <plugin id="com.onpositive.semantic.ui.workbench.ide"/>
       <plugin id="com.onpositive.yamledit"/>
       <plugin id="com.python.pydev.analysis"/>
       <plugin id="com.python.pydev.debug"/>
       <plugin id="com.python.pydev.refactoring"/>
-      <plugin id="com.python.pydev.runalltests"/>
       <plugin id="com.sun.el"/>
       <plugin id="com.sun.el.source"/>
       <plugin id="com.sun.jna"/>

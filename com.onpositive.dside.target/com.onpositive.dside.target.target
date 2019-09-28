@@ -53,5 +53,13 @@
 			<unit id="org.eclipse.wst.web_ui.feature.feature.group" version="3.10.0.v201805161856"/>
 			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="4.4.0.201806112243"/>
 		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="de.jcup.yamleditor.feature.group" version="1.5.0"/>
+			<repository location="https://dl.bintray.com/de-jcup/yamleditor"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<unit id="org.fhsolution.eclipse.feature.csvedit.feature.group" version="1.2.0"/>
+			<repository location="https://raw.githubusercontent.com/SegFaultError/CsvEdit/master/csvedit.update/"/>
+		</location>
 	</locations>
 </target>

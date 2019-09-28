@@ -23,13 +23,13 @@
 		<relativePath>../releng</relativePath>
 	</parent>
 
-	<!-- <repositories>
+	<repositories>
 		<repository>
 		   <id>eclipse-photon</id>
 		   <url>https://download.eclipse.org/releases/photon/</url>
 		   <layout>p2</layout>
 		</repository>
-	</repositories> -->
+	</repositories>
 
 	<properties>
 		<tycho-extras-version>1.2.0</tycho-extras-version>
@@ -46,6 +46,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<build.folder.application>DS-IDE</build.folder.application>
 		<build.folder.fullpath>${build.folder.target.bin}/</build.folder.fullpath>
+		<project.directory>${project.artifactId}</project.directory>
 <!-- 		<build.file.win32.fullpath>${build.folder.target.bin}/${build.folder.type}/${build.file}.zip</build.file.win32.fullpath> -->
 <!-- 		<build.file.linux.fullpath>${build.folder.target.bin}/${build.folder.type}/${build.file}.tar.gz</build.file.linux.fullpath> -->
 		<build.file.win32.fullpath>${build.folder.target.bin}/${build.file}.zip</build.file.win32.fullpath>
