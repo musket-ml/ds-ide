@@ -51,7 +51,7 @@ public class Experiment {
 
 	public String getProjectPath() {
 		File file = new File(path);
-		if (new File(file,"experiments").exists()&&new File(file,"experiments").isDirectory()) {
+		if (new File(file, "experiments").exists() && new File(file, "experiments").isDirectory()) {
 			return path;
 		}
 		while (true) {
@@ -65,53 +65,51 @@ public class Experiment {
 		}
 		return file.getAbsolutePath();
 	}
-	public static class PredictionPair{
+
+	public static class PredictionPair {
 		public File groundTruth;
 		public File prediction;
 		public String name;
+
 		@Override
 		public String toString() {
-			return groundTruth.getName()+"-"+prediction.getName();
+			return groundTruth.getName() + "-" + prediction.getName();
 		}
 	}
-	
-	public List<PredictionPair>getPredictions(){
+
+	public List<PredictionPair> getPredictions() {
 		File file = new File(path, "predictions");
-		ArrayList<PredictionPair>ps=new ArrayList<>();
-		HashMap<String, PredictionPair>psm=new HashMap<>(); 
-		for (File f:file.listFiles()) {
-			if (f.getName().endsWith("-gt.csv")) {
-				
-				PredictionPair predictionPair = getName(psm, f);
-				predictionPair.groundTruth=f;
-				
+		ArrayList<PredictionPair> ps = new ArrayList<>();
+		HashMap<String, PredictionPair> psm = new HashMap<>();
+		if (file.exists() && file.isDirectory()) {
+			for (File f : file.listFiles()) {
+				if (f.getName().endsWith("-gt.csv")) {
+
+					PredictionPair predictionPair = getName(psm, f);
+					predictionPair.groundTruth = f;
+
+				}
+				if (f.getName().endsWith("-pt.csv") || f.getName().endsWith("-pr.csv")) {
+
+					PredictionPair predictionPair = getName(psm, f);
+					predictionPair.prediction = f;
+				}
 			}
-			if (f.getName().endsWith("-pr.csv")) {
-				
-				PredictionPair predictionPair = getName(psm, f);
-				predictionPair.prediction=f;
-			}
+			ps.addAll(psm.values());
+			Collections.sort(ps, (x, y) -> x.groundTruth.getName().compareTo(y.groundTruth.getName()));
 		}
-		ps.addAll(psm.values());
-		Collections.sort(ps,(x,y)->x.prediction.getName().compareTo(y.prediction.getName()));
 		return ps;
 	}
 
 	protected PredictionPair getName(HashMap<String, PredictionPair> psm, File f) {
 		String name = f.getName();
-		if (name.startsWith("holdout")) {
-			name="holdout";
-			
-		}
-		else {
-			name= name.substring(0, name.length()-7);
-			
-		}
+		// name=name.replace(" ", "");
+		name = name.substring(0, name.length() - 7);
 		PredictionPair predictionPair = psm.get(name);
-		if (predictionPair==null) {
-			predictionPair=new PredictionPair();
-			predictionPair.name=name;
-			psm.put(name,predictionPair);
+		if (predictionPair == null) {
+			predictionPair = new PredictionPair();
+			predictionPair.name = name;
+			psm.put(name, predictionPair);
 		}
 		return predictionPair;
 	}
@@ -381,20 +379,20 @@ public class Experiment {
 			datasets.add("holdout");
 		}
 		Object object = getConfig().get("datasets");
-		LinkedHashSet<String>existing=new LinkedHashSet<>();
+		LinkedHashSet<String> existing = new LinkedHashSet<>();
 		if (object instanceof Map) {
 			Set keySet = ((Map) object).keySet();
 			existing.addAll(keySet);
 			datasets.addAll(keySet);
 		}
 		try {
-		ArrayList<BasicDataSetDesc> dataSets2 = ProjectManager.getInstance().getProject(this).getDataSets();
-		dataSets2.forEach(v->{
-			if (!existing.contains(v.name)) {
-				datasets.add(v.name);
-			}
-		});
-		}catch (Exception e) {
+			ArrayList<BasicDataSetDesc> dataSets2 = ProjectManager.getInstance().getProject(this).getDataSets();
+			dataSets2.forEach(v -> {
+				if (!existing.contains(v.name)) {
+					datasets.add(v.name);
+				}
+			});
+		} catch (Exception e) {
 			// TODO: handle exception
 		}
 		return datasets;
@@ -418,4 +416,18 @@ public class Experiment {
 		Number orDefault = (Number) this.getConfig().getOrDefault("folds_count", 5);
 		return orDefault.intValue() > 1;
 	}
+
+	public ExperimentResults getSummary() {
+		File summary=new File(this.path,"summary.yaml");
+		if (summary.exists()) {
+			ExperimentResults experimentResults = new ExperimentResults("summary", summary.getAbsolutePath());
+			return experimentResults;
+		} 
+		return null;
+	}
+
+	public void readConfig() {
+		this.config=null;
+	}
+
 }

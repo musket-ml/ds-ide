@@ -20,12 +20,14 @@ import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
 
+import com.onpositive.musket.data.core.ChartData;
+import com.onpositive.musket.data.core.ChartData.BasicChartData;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.VisualizationSpec;
 
 public class ChartUtils {
-	
+
 	static Dataset createDataset(IAnalizeResults r, VisualizationSpec loadAs) {
 		if (loadAs != null) {
 			if (loadAs instanceof Map) {
@@ -46,11 +48,11 @@ public class ChartUtils {
 				}
 				if (object instanceof ArrayList) {
 					ArrayList arrayList = (ArrayList) object;
-					if (arrayList.get(0) instanceof Number){
+					if (arrayList.get(0) instanceof Number) {
 						DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 						int size = arrayList.size();
 						for (int i = 0; i < size; i++) {
-							dataset.addValue((Number) arrayList.get(i),""+i,"");								
+							dataset.addValue((Number) arrayList.get(i), "" + i, "");
 						}
 						return dataset;
 					}
@@ -61,25 +63,33 @@ public class ChartUtils {
 			}
 			System.out.println(loadAs);
 		}
-		if (loadAs.type==VisualizationSpec.ChartType.BAR) {
-			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-			int size = r.size();
-			ArrayList<String> names = new ArrayList<>();
-			ArrayList<Double> counts = new ArrayList<>();
-			double sum = 0;
-			for (int i = 0; i < size; i++) {
-				IDataSet iDataSet = r.get(i);
-				int len = iDataSet.length();
-				String name = iDataSet.name();
-				names.add(name);
-				counts.add((double) len);
-				sum = sum + len;
+		if (loadAs.type == VisualizationSpec.ChartType.BAR) {
 
-			}
-			for (int i = 0; i < size; i++) {
-				String string = names.get(i) + "(" + counts.get(i).intValue() + " "
-						+ NumberFormat.getPercentInstance().format(counts.get(i) / sum) + ")";
-				dataset.addValue(counts.get(i),string, "");
+			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+			if (loadAs.chart != null) {
+				ChartData.BasicChartData bd = (BasicChartData) loadAs.chart;
+				bd.values.keySet().forEach(k -> {
+					dataset.addValue(bd.values.get(k), k, "");
+				});
+			} else {
+				int size = r.size();
+				ArrayList<String> names = new ArrayList<>();
+				ArrayList<Double> counts = new ArrayList<>();
+				double sum = 0;
+				for (int i = 0; i < size; i++) {
+					IDataSet iDataSet = r.get(i);
+					int len = iDataSet.length();
+					String name = iDataSet.name();
+					names.add(name);
+					counts.add((double) len);
+					sum = sum + len;
+
+				}
+				for (int i = 0; i < size; i++) {
+					String string = names.get(i) + "(" + counts.get(i).intValue() + " "
+							+ NumberFormat.getPercentInstance().format(counts.get(i) / sum) + ")";
+					dataset.addValue(counts.get(i), string, "");
+				}
 			}
 			return dataset;
 		}
@@ -111,10 +121,10 @@ public class ChartUtils {
 			ArrayList x = (ArrayList) object;
 			int num = 0;
 			if (x.get(0) instanceof Double) {
-				
+
 			}
 			for (Object z : x) {
-				
+
 				Map m = (Map) z;
 
 				double[][] data = new double[2][m.size()];
@@ -167,7 +177,7 @@ public class ChartUtils {
 		dataset.addSeries("", counts, counts.length);
 		return dataset;
 	}
-	
+
 	public static JFreeChart createChart(Dataset dataset, VisualizationSpec loadAs) {
 		if (dataset instanceof DefaultCategoryDataset) {
 			String y_axis = loadAs.yName;
@@ -187,9 +197,8 @@ public class ChartUtils {
 					(CategoryDataset) dataset, PlotOrientation.VERTICAL, true, true, false);
 			CategoryPlot plot = (CategoryPlot) chart.getPlot();
 			BarRenderer renderer = (BarRenderer) plot.getRenderer(0);
-	        CategoryItemLabelGenerator generator 
-	            = new StandardCategoryItemLabelGenerator("{1}", 
-	                    NumberFormat.getInstance());
+			CategoryItemLabelGenerator generator = new StandardCategoryItemLabelGenerator("{1}",
+					NumberFormat.getInstance());
 //	        renderer.setItemLabelGenerator(generator);
 //	        renderer.setItemLabelFont(new Font("SansSerif", Font.PLAIN, 12));
 //	        renderer.setItemLabelsVisible(true);

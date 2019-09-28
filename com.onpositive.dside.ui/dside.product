@@ -31,11 +31,9 @@
       </win>
    </launcher>
 
-
    <vm>
       <windows include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</windows>
    </vm>
-
 
    <plugins>
       <plugin id="com.google.gerrit.common"/>
@@ -61,8 +59,10 @@
       <plugin id="com.onpositive.commons.ide.core"/>
       <plugin id="com.onpositive.commons.platform"/>
       <plugin id="com.onpositive.commons.platform.equinox"/>
+      <plugin id="com.onpositive.datasets.visualisation.ui"/>
       <plugin id="com.onpositive.dside.ui"/>
       <plugin id="com.onpositive.ide.ui"/>
+      <plugin id="com.onpositive.musket.data"/>
       <plugin id="com.onpositive.pictureviewer"/>
       <plugin id="com.onpositive.richtext.model"/>
       <plugin id="com.onpositive.richtext.wikitext.model"/>

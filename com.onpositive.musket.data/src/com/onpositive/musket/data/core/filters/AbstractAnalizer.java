@@ -66,7 +66,7 @@ public abstract class AbstractAnalizer {
 
 			@Override
 			public VisualizationSpec visualizationSpec() {
-				return new VisualizationSpec("", "", ChartType.PIE);
+				return getVisualizationSpec();
 			}
 		};
 	}
@@ -175,4 +175,8 @@ public abstract class AbstractAnalizer {
 	}
 
 	protected abstract Object group(IItem v);
+
+	protected VisualizationSpec getVisualizationSpec() {
+		return new VisualizationSpec("", "", ChartType.PIE);
+	}
 }
