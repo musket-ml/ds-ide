@@ -25,7 +25,7 @@ batch: 512
 stages:
   - epochs: 4  
 loss: binary_crossentropy      
-stratified: true 
+stratified: false 
 primary_metric: val_binary_accuracy
 callbacks:
   EarlyStopping:

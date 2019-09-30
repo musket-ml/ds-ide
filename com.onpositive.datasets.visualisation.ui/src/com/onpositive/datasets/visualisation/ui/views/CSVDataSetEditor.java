@@ -23,6 +23,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.part.MultiEditorInput;
 import org.python.pydev.shared_ui.EditorUtils;
 
+import com.onpositive.commons.elements.Container;
 import com.onpositive.datasets.engine.AnalisysEngine;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.AbstractImageDataSet;
@@ -133,6 +134,10 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	boolean isFocused;
 
 	private void init() {
+		if (ds==null) {
+			((Container)getUIRoot()).getElement("sl").setEnabled(false);
+			return;
+		}
 		AnalisysEngine engine = new AnalisysEngine(ds);
 
 		initWithEngine(engine);
