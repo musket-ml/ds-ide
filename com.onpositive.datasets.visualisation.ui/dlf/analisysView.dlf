@@ -7,7 +7,8 @@
 	<hc id="f1"></hc>
 	
 	<separator vertical="false" />
-	<splitter horizontal="true" id="sl" weights="3,0">
+	<stack>
+	<splitter horizontal="true" id="sl" weights="3,0" >
 		<stack grabVertical="true">
 			<vc grabVertical="true" id="empty" vAlign="center">
 				<label caption="View is disconnected.... Please connect it to experiment."
@@ -55,7 +56,8 @@
 			</hc>
 		</vc>
 	</splitter>
-
-
-
+	<vc id="v">
+		<label caption="Sorry, but we are not able to understand this kind of dataset yet..."/>
+	</vc>
+	</stack>
 </form>

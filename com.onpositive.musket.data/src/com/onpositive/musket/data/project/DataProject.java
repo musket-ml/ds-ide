@@ -29,7 +29,11 @@ public class DataProject {
 
 	@SuppressWarnings("unchecked")
 	public IDataSet getDataSet(File file2) {
-		ITabularDataSet t1 = DataSetIO.load("file://" + file2.getAbsolutePath()).as(ITabularDataSet.class);
+		IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath());
+		if (load==null) {
+			return null;
+		}
+		ITabularDataSet t1 = load.as(ITabularDataSet.class);
 		if (getMetaFile(file2).exists()) {
 			try {
 			FileReader fileReader = new FileReader(getMetaFile(file2));
