@@ -29,9 +29,7 @@ import org.yaml.snakeyaml.nodes.SequenceNode;
 public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPropertyCount {
 
 	protected Node node;
-	
-	
-	
+		
 	protected AbstractType type;
 	protected String key;
 	protected ASTElement parent;
@@ -106,12 +104,12 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 
 	public NodeTuple findInKey(String key) {
 		if (this.node instanceof MappingNode) {
-			MappingNode ms = (MappingNode) this.node;
-			for (NodeTuple t : ms.getValue()) {
-				if (t.getKeyNode() instanceof ScalarNode) {
-					ScalarNode sc = (ScalarNode) t.getKeyNode();
-					if (sc.getValue().equals(key)) {
-						return t;
+			MappingNode mappingNode = (MappingNode) this.node;
+			for (NodeTuple tuple : mappingNode.getValue()) {
+				if (tuple.getKeyNode() instanceof ScalarNode) {
+					ScalarNode node = (ScalarNode) tuple.getKeyNode();
+					if (node.getValue().equals(key)) {
+						return tuple;
 					}
 				}
 			}

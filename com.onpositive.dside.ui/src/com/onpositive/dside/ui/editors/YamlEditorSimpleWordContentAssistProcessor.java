@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.aml.typesystem.AbstractType;
 import org.aml.typesystem.beans.IPropertyView;
@@ -44,8 +43,6 @@ import com.onpositive.dside.ast.TypeRegistryProvider;
 import com.onpositive.dside.ast.Universe.CompletionSuggestions;
 import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.ui.editors.outline.OutlineLabelProvider;
-import com.onpositive.semantic.model.api.property.IProperty;
-import com.onpositive.semantic.model.api.property.java.annotations.Description;
 
 import de.jcup.yamleditor.YamlEditorUtil;
 
@@ -74,13 +71,13 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 		if ("Generic".equals(extractFragment)) {
 			extractFragment=null;
 		}
-		CompletionSuggestions find = TypeRegistryProvider.getRegistry(extractFragment==null?"basicConfig":extractFragment).find(completionContext,
+		CompletionSuggestions suggestions = TypeRegistryProvider.getRegistry(extractFragment==null?"basicConfig":extractFragment).find(completionContext,
 				editor.getProject().getDetails(),editor.getProject().getPath());
 		LinkedHashSet<String> strs = new LinkedHashSet<>();
-		ArrayList<ICompletionProposal> ps = new ArrayList<>();
-		if (find != null) {
-			if (find.ts != null) {				
-				AbstractType type = find.ts.getType();
+		ArrayList<ICompletionProposal> proposals = new ArrayList<>();
+		if (suggestions != null) {
+			if (suggestions.element != null) {				
+				AbstractType type = suggestions.element.getType();
 				if (type==null) {
 					return new ICompletionProposal[0];
 				}
@@ -88,21 +85,21 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 				if (propertiesView==null) {
 					return new ICompletionProposal[0];
 				}
-				for (org.aml.typesystem.beans.IProperty v : propertiesView.properties()) {
-					if (!strs.add(v.id().toLowerCase())) {
+				for (org.aml.typesystem.beans.IProperty curProperty : propertiesView.properties()) {
+					if (!strs.add(curProperty.id().toLowerCase())) {
 						continue;
 					}
-					if (find.ts.findInKey(v.id())!=null) {
+					if (suggestions.element.findInKey(curProperty.id())!=null) {
 						continue;
 					}
-					if (v.id().toLowerCase().startsWith(completionContext.completionStart.toLowerCase())) {
-					ps.add(new SimpleWordProposal(document, offset,
-							v.id()+":",
-							completionContext.completionStart, v.description(),"property"));
+					if (curProperty.id().toLowerCase().startsWith(completionContext.completionStart.toLowerCase())) {
+					proposals.add(new SimpleWordProposal(document, offset,
+							curProperty.id()+":",
+							completionContext.completionStart, curProperty.description(),"property"));
 					}
 				}
 			} else {
-				for (AbstractType v : find.values) {
+				for (AbstractType v : suggestions.values) {
 					if (!strs.add(v.name().toLowerCase())) {
 						continue;
 					}
@@ -125,7 +122,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 							word,
 							completionContext.completionStart, description,v.name());
 							e.setImage(imageFromType);
-							ps.add(e);
+							proposals.add(e);
 					}
 				}
 			}
@@ -159,7 +156,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 						doc=f.getSource();
 					}
 					//return feature.getSource();
-					ps.add(new SimpleWordProposal(document, offset,
+					proposals.add(new SimpleWordProposal(document, offset,
 							f.getName().substring(0, 1).toLowerCase() + f.getName().substring(1),
 							completionContext.completionStart, doc,null));
 				}
@@ -172,10 +169,10 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 //		for (String word : words) {
 //			result[i++] = new SimpleWordProposal(document, offset, word);
 //		}
-		Collections.sort(ps, (x,y)->{
+		Collections.sort(proposals, (x,y)->{
 			return x.getDisplayString().compareTo(y.getDisplayString());
 		});
-		return ps.toArray(new ICompletionProposal[ps.size()]);
+		return proposals.toArray(new ICompletionProposal[proposals.size()]);
 	}
 
 	@Override
