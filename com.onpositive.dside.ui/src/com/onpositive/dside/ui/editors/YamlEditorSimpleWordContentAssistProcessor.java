@@ -71,7 +71,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 
 		ArrayList<InstrospectedFeature> features = editor.getProject().getDetails().getFeatures();
 		String extractFragment = FragmentExtractor.extractFragment(document);
-		if (extractFragment.equals("Generic")) {
+		if ("Generic".equals(extractFragment)) {
 			extractFragment=null;
 		}
 		CompletionSuggestions find = TypeRegistryProvider.getRegistry(extractFragment==null?"basicConfig":extractFragment).find(completionContext,

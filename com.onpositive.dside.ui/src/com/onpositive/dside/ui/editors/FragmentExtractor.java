@@ -3,7 +3,8 @@ package com.onpositive.dside.ui.editors;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.ITextViewer;
+
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 
 public class FragmentExtractor {
 
@@ -26,8 +27,7 @@ public class FragmentExtractor {
 			}
 			
 		} catch (BadLocationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			DSIDEUIPlugin.log(e);
 		}
 		return null;
 	}

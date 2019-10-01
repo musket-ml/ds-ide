@@ -21,7 +21,7 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -32,7 +32,6 @@ import org.python.pydev.core.log.Log;
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
-import com.onpositive.dside.ui.navigator.ExperimentGroup;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
 import com.onpositive.semantic.model.api.status.IStatusChangeListener;
@@ -55,15 +54,14 @@ public class NewMusketGroupWizard extends Wizard implements INewWizard {
 
 	@Override
 	public void addPages() {
-		// TODO Auto-generated method stub
-		this.addPage(new WizardPage("Hello") {
+		this.addPage(new WizardPage("New Experiment Group") {
 
 			@Override
 			public void createControl(Composite parent) {
 				setImageDescriptor(SWTImageManager.getDescriptor("new_exp_wiz"));
 				RootElement el = new RootElement(parent);
 				setTitle("New Experiment Group");
-				setMessage("Let's have fun");
+				setMessage("Create new experiment group");
 				experimentParams = new ExperimentGroupParams();
 				ISelection selection2 = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 						.getSelection();
@@ -85,7 +83,10 @@ public class NewMusketGroupWizard extends Wizard implements INewWizard {
 						null);
 				IUIElement<?> createWidget = widgetObject.createWidget(bn);
 				el.add((AbstractUIElement<?>) createWidget);
-				setControl((Control) createWidget.getControl());
+				Control control = (Control) createWidget.getControl();
+				control.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+				parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+				setControl(control);
 				this.setPageComplete(false);
 				bn.addStatusChangeListener(new IStatusChangeListener() {
 
@@ -96,6 +97,7 @@ public class NewMusketGroupWizard extends Wizard implements INewWizard {
 					}
 				});
 				setErrorMessage(bn.getStatus().getMessage());
+				((Composite) control).layout(true, true);
 			}
 		});
 	}
@@ -129,7 +131,7 @@ public class NewMusketGroupWizard extends Wizard implements INewWizard {
 					folder3.create(true, true, monitor);
 				}
 				IFile file = folder3.getFile("config.yaml");
-				file.create(NewMusketExperiment.class.getResourceAsStream("/templates/experiment.yaml"), true, monitor);
+				file.create(NewMusketExperimentWizard.class.getResourceAsStream("/templates/experiment.yaml"), true, monitor);
 			}
 		};
 
