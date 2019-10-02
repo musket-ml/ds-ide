@@ -1,5 +1,11 @@
 package com.onpositive.musket_core;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.function.Function;
 
@@ -44,6 +50,40 @@ public class Utils {
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public static void copyDir(File source,File target) {
+		if (source.isDirectory()) {
+			File[] listFiles = source.listFiles();
+			if (!target.exists()) {
+				target.mkdirs();
+			}
+			for (File f:listFiles) {
+				
+				copyDir(f, new File(target,f.getName()));
+			}
+		}
+		else {			
+			FileOutputStream fileOutputStream;
+			try {
+				fileOutputStream = new FileOutputStream(target);
+				try {
+					Files.copy(source.toPath(), fileOutputStream);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+					finally {
+						try {
+							fileOutputStream.close();
+						} catch (IOException e) {
+							throw new RuntimeException(e);	
+						}
+					}
+			} catch (FileNotFoundException e1) {
+				throw new IllegalStateException(e1);
+			}
+			
 		}
 	}
 }

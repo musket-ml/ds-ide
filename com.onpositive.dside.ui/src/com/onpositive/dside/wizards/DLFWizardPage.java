@@ -25,6 +25,7 @@ public abstract class DLFWizardPage extends WizardPage{
 		recustively(el.getContentParent(), visible);
 		
 	}
+	
 	void recustively(Control c,boolean visible) {
 		if (c instanceof Composite) {
 			Composite cm=(Composite) c;
