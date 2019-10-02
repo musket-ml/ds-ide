@@ -29,11 +29,12 @@ public class CompletionContextBuilder {
 					int preffixLen = offset-lineInformation.getOffset();
 					indent.indent=Math.min(preffixLen, indent.indent);
 					String preffix = line.substring(0, preffixLen);
-					if (preffix.indexOf(':')!=-1) {
-						context.afterKey=true;
-					}
-					if (line.indexOf(':')!=-1) {
+					int idx = line.indexOf(':');
+					if (idx >=  0) {
 						hasColon=true;
+						if (idx < preffixLen) {
+							context.afterKey=true;
+						}
 					}
 					StringBuilder bld=new StringBuilder();
 					for (int j=preffixLen-1;j>=0;j--) {

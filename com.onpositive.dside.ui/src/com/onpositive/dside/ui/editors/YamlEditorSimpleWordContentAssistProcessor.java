@@ -15,6 +15,7 @@
  */
 package com.onpositive.dside.ui.editors;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,7 +73,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 			extractFragment=null;
 		}
 		CompletionSuggestions suggestions = TypeRegistryProvider.getRegistry(extractFragment==null?"basicConfig":extractFragment).find(completionContext,
-				editor.getProject().getDetails(),editor.getProject().getPath());
+				editor.getProject().getDetails(),editor.getAdapter(File.class));
 		LinkedHashSet<String> strs = new LinkedHashSet<>();
 		ArrayList<ICompletionProposal> proposals = new ArrayList<>();
 		if (suggestions != null) {
@@ -93,7 +94,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 						continue;
 					}
 					if (curProperty.id().toLowerCase().startsWith(completionContext.completionStart.toLowerCase())) {
-					proposals.add(new SimpleWordProposal(document, offset,
+						proposals.add(new SimpleWordProposal(document, offset,
 							curProperty.id()+":",
 							completionContext.completionStart, curProperty.description(),"property"));
 					}

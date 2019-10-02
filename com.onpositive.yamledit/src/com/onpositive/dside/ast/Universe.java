@@ -38,6 +38,8 @@ import com.onpositive.dside.dto.introspection.IntrospectedParameter;
 
 public class Universe extends TypeRegistryImpl {
 
+	private static final String COMMONS_FILE_NAME = "common.yaml";
+
 	private final class InnerRegistry implements ITypeRegistry {
 		private final HashMap<String, InstrospectedFeature> rs;
 		HashMap<String, AbstractType> types = new HashMap<>();
@@ -221,8 +223,8 @@ public class Universe extends TypeRegistryImpl {
 		this.root = root;
 	}
 
-	public Status validate(String content, InstrospectionResult instrospectionResult,String path) {
-		ASTElement obj = buildRoot(content, instrospectionResult,path);
+	public Status validate(String content, InstrospectionResult instrospectionResult,File file) {
+		ASTElement obj = buildRoot(content, instrospectionResult,file);
 		Status validate = root.validate(obj);
 		if (content.indexOf("hyperparameters:")!=-1) {
 			return Status.OK_STATUS;
@@ -231,7 +233,7 @@ public class Universe extends TypeRegistryImpl {
 		return validate;
 	}
 
-	public ASTElement buildRoot(String content, InstrospectionResult instrospectionResult,String path) {
+	public ASTElement buildRoot(String content, InstrospectionResult instrospectionResult,File inputFile) {
 		HashMap<String, InstrospectedFeature> rs = new HashMap<>();
 		
 		
@@ -246,20 +248,7 @@ public class Universe extends TypeRegistryImpl {
 			rs.put(v.getName().substring(0, 1).toLowerCase() + v.getName().substring(1), v);
 		});
 		Node compose = new Yaml().compose(new StringReader(content));
-		File file = new File(path,"common.yaml");
-		if(file.exists()) {
-			try (FileReader fileReader = new FileReader(file)){
-				Node root = new Yaml().compose(fileReader);
-				if (root instanceof MappingNode) {
-					merge(compose,(MappingNode) root);
-				}
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (IOException e2) {
-				e2.printStackTrace();
-			} 
-			
-		}
+		injectCommons(inputFile, compose);
 		ASTElement obj = new ASTElement((MappingNode) compose, root, null);
 		obj.setRegistry(new InnerRegistry(rs));
 		Object property = obj.getProperty("declarations");
@@ -293,6 +282,27 @@ public class Universe extends TypeRegistryImpl {
 			}
 		}
 		return obj;
+	}
+
+	private void injectCommons(File inputFile, Node compose) {
+		if (COMMONS_FILE_NAME.equals(inputFile.getName())) {
+			return;
+		}
+		File file = new File(inputFile.getParent(),COMMONS_FILE_NAME);
+		if(file.exists()) {
+			try (FileReader fileReader = new FileReader(file)){
+				Node root = new Yaml().compose(fileReader);
+				if (root instanceof MappingNode) {
+					merge(compose,(MappingNode) root);
+				}
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			} catch (IOException e2) {
+				e2.printStackTrace();
+			} catch (Exception e) {
+				// Best effort
+			}
+		}
 	}
 
 	private void merge(Node compose, MappingNode root2) {
@@ -360,11 +370,11 @@ public class Universe extends TypeRegistryImpl {
 		}
 	}
 
-	public CompletionSuggestions find(CompletionContext completionContext, InstrospectionResult details,String path) {
+	public CompletionSuggestions find(CompletionContext completionContext, InstrospectionResult details,File inputFile) {
 		String content = completionContext.content;
 		
 		
-		ASTElement buildRoot = buildRoot(content, details,path);
+		ASTElement buildRoot = buildRoot(content, details,inputFile);
 		ArrayList<String> seq = completionContext.getSeq();
 		if (seq.isEmpty()) {
 			return new CompletionSuggestions(buildRoot, true);
