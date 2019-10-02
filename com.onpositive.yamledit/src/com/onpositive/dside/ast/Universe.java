@@ -278,6 +278,15 @@ public class Universe extends TypeRegistryImpl {
 							}
 						}
 					}
+					IntrospectedParameter introspectedParameter = new IntrospectedParameter();
+					introspectedParameter.setName("name");
+					introspectedParameter.setDefaultValue("");
+					rr.getParameters().add(introspectedParameter);
+					introspectedParameter = new IntrospectedParameter();
+					introspectedParameter.setName("inputs");
+					introspectedParameter.setType("any");
+					introspectedParameter.setDefaultValue("");
+					rr.getParameters().add(introspectedParameter);
 				}
 			}
 		}
