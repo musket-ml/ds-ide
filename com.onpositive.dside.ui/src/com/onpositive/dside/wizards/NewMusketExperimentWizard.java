@@ -53,11 +53,11 @@ import com.onpositive.semantic.model.ui.generic.widgets.IUIElement;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
-public class NewMusketExperiment extends Wizard implements INewWizard {
+public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 
 	private IStructuredSelection selection;
 
-	public NewMusketExperiment() {
+	public NewMusketExperimentWizard() {
 
 	}
 
@@ -224,7 +224,7 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 				IFile file = folder3.getFile("config.yaml");
 				Template template = TemplatesList.getTemplatesList().getTemplates().stream()
 						.filter(x -> x.name.equals(experimentParams.template)).findFirst().get();
-				file.create(NewMusketExperiment.class.getResourceAsStream("/templates/" + template.file), true,
+				file.create(NewMusketExperimentWizard.class.getResourceAsStream("/templates/" + template.file), true,
 						monitor);
 				Display.getDefault().asyncExec(() -> {
 					EditorUtils.openFile(file);

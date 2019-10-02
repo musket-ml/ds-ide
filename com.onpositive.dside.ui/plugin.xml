@@ -301,7 +301,7 @@
             project="true"/>
       <wizard
             category="org.musket.pydev.PythonCategory"
-            class="com.onpositive.dside.wizards.NewMusketExperiment"
+            class="com.onpositive.dside.wizards.NewMusketExperimentWizard"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/experiment.png"

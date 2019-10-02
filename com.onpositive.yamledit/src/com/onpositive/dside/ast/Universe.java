@@ -18,7 +18,6 @@ import org.aml.typesystem.TypeOps;
 import org.aml.typesystem.TypeRegistryImpl;
 import org.aml.typesystem.beans.IProperty;
 import org.aml.typesystem.beans.IPropertyView;
-import org.aml.typesystem.meta.facets.Default;
 import org.aml.typesystem.meta.facets.Description;
 import org.aml.typesystem.meta.facets.HasKey;
 import org.aml.typesystem.meta.facets.IsRef;
@@ -38,6 +37,8 @@ import com.onpositive.dside.dto.introspection.InstrospectionResult;
 import com.onpositive.dside.dto.introspection.IntrospectedParameter;
 
 public class Universe extends TypeRegistryImpl {
+
+	private static final String COMMONS_FILE_NAME = "common.yaml";
 
 	private final class InnerRegistry implements ITypeRegistry {
 		private final HashMap<String, InstrospectedFeature> rs;
@@ -222,8 +223,8 @@ public class Universe extends TypeRegistryImpl {
 		this.root = root;
 	}
 
-	public Status validate(String content, InstrospectionResult instrospectionResult,String path) {
-		ASTElement obj = buildRoot(content, instrospectionResult,path);
+	public Status validate(String content, InstrospectionResult instrospectionResult,File file) {
+		ASTElement obj = buildRoot(content, instrospectionResult,file);
 		Status validate = root.validate(obj);
 		if (content.indexOf("hyperparameters:")!=-1) {
 			return Status.OK_STATUS;
@@ -232,7 +233,7 @@ public class Universe extends TypeRegistryImpl {
 		return validate;
 	}
 
-	public ASTElement buildRoot(String content, InstrospectionResult instrospectionResult,String path) {
+	public ASTElement buildRoot(String content, InstrospectionResult instrospectionResult,File inputFile) {
 		HashMap<String, InstrospectedFeature> rs = new HashMap<>();
 		
 		
@@ -247,32 +248,7 @@ public class Universe extends TypeRegistryImpl {
 			rs.put(v.getName().substring(0, 1).toLowerCase() + v.getName().substring(1), v);
 		});
 		Node compose = new Yaml().compose(new StringReader(content));
-		File file = new File(path,"common.yaml");
-		if(file.exists()) {
-			FileReader fileReader=null;
-			try {
-				fileReader = new FileReader(file);
-				try {
-					Node root = new Yaml().compose(fileReader);
-					if (root instanceof MappingNode) {
-						merge(compose,(MappingNode) root);
-					}
-					}catch (Exception e) {
-						// TODO: handle exception
-					}
-			} catch (FileNotFoundException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} finally {
-				try {
-					fileReader.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-		}
+		injectCommons(inputFile, compose);
 		ASTElement obj = new ASTElement((MappingNode) compose, root, null);
 		obj.setRegistry(new InnerRegistry(rs));
 		Object property = obj.getProperty("declarations");
@@ -306,6 +282,27 @@ public class Universe extends TypeRegistryImpl {
 			}
 		}
 		return obj;
+	}
+
+	private void injectCommons(File inputFile, Node compose) {
+		if (COMMONS_FILE_NAME.equals(inputFile.getName())) {
+			return;
+		}
+		File file = new File(inputFile.getParent(),COMMONS_FILE_NAME);
+		if(file.exists()) {
+			try (FileReader fileReader = new FileReader(file)){
+				Node root = new Yaml().compose(fileReader);
+				if (root instanceof MappingNode) {
+					merge(compose,(MappingNode) root);
+				}
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			} catch (IOException e2) {
+				e2.printStackTrace();
+			} catch (Exception e) {
+				// Best effort
+			}
+		}
 	}
 
 	private void merge(Node compose, MappingNode root2) {
@@ -356,28 +353,28 @@ public class Universe extends TypeRegistryImpl {
 	}
 
 	public static class CompletionSuggestions {
-		public final ASTElement ts;
+		public final ASTElement element;
 		public Collection<AbstractType> values;
 		public final boolean suggestProperties;
 
-		public CompletionSuggestions(ASTElement ts, boolean suggestProperties) {
+		public CompletionSuggestions(ASTElement element, boolean suggestProperties) {
 			super();
-			this.ts = ts;
+			this.element = element;
 			this.suggestProperties = suggestProperties;
 		}
 		public CompletionSuggestions(Collection<AbstractType>vals) {
 			super();
-			this.ts = null;
+			this.element = null;
 			this.values=vals;
 			this.suggestProperties =false;
 		}
 	}
 
-	public CompletionSuggestions find(CompletionContext completionContext, InstrospectionResult details,String path) {
+	public CompletionSuggestions find(CompletionContext completionContext, InstrospectionResult details,File inputFile) {
 		String content = completionContext.content;
 		
 		
-		ASTElement buildRoot = buildRoot(content, details,path);
+		ASTElement buildRoot = buildRoot(content, details,inputFile);
 		ArrayList<String> seq = completionContext.getSeq();
 		if (seq.isEmpty()) {
 			return new CompletionSuggestions(buildRoot, true);
@@ -506,11 +503,11 @@ public class Universe extends TypeRegistryImpl {
 				if (findInKey!=null) {
 					Node valueNode = findInKey.getValueNode();
 					if (valueNode instanceof SequenceNode) {
-						SequenceNode sc=(SequenceNode) valueNode;
-						for (Node n:sc.getValue()) {
-							if (n.getStartMark().getIndex()<completionContext.completionOffset) {
-								if (n.getStartMark().getIndex()>completionContext.completionOffset) {
-									return new CompletionSuggestions(new ASTElement(n, range2.componentType(), buildRoot), true);			
+						SequenceNode sequenceNode=(SequenceNode) valueNode;
+						for (Node node:sequenceNode.getValue()) {
+							if (node.getStartMark().getIndex()<completionContext.completionOffset) {
+								if (node.getStartMark().getIndex()>completionContext.completionOffset) {
+									return new CompletionSuggestions(new ASTElement(node, range2.componentType(), buildRoot), true);			
 								}
 							}
 						}

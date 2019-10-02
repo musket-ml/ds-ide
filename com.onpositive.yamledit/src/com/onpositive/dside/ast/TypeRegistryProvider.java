@@ -1,27 +1,20 @@
 package com.onpositive.dside.ast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.aml.typesystem.AbstractType;
 import org.aml.typesystem.BuiltIns;
-import org.aml.typesystem.IAnnotation;
-import org.aml.typesystem.ITypeLibrary;
 import org.aml.typesystem.ITypeRegistry;
 import org.aml.typesystem.InheritedType;
 import org.aml.typesystem.Status;
 import org.aml.typesystem.TypeOps;
 import org.aml.typesystem.TypeRegistryImpl;
-import org.aml.typesystem.UnionType;
 import org.aml.typesystem.meta.facets.HasKey;
 import org.aml.typesystem.meta.facets.IsRef;
 import org.aml.typesystem.meta.restrictions.AbstractRestricton;
 import org.aml.typesystem.meta.restrictions.DefaultPropertyMeta;
-import org.aml.typesystem.meta.restrictions.Enum;
 
 import com.onpositive.dside.ui.editors.yaml.model.CustomValidatorRestriction;
 import com.onpositive.dside.ui.editors.yaml.model.NodeType;

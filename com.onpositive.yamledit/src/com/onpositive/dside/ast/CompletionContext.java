@@ -77,4 +77,8 @@ public class CompletionContext {
 		return contexts;
 	}
 
+	public void setSeq(ArrayList<String> seq) {
+		this.seq = seq;
+	}
+
 }

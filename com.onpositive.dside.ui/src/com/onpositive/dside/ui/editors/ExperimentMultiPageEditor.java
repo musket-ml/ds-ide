@@ -1,5 +1,6 @@
 package com.onpositive.dside.ui.editors;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -43,6 +45,7 @@ import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.ImageHyperlink;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -224,6 +227,17 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			}
 			return null;
 		}
+		if (File.class.equals(adapter)) {
+			IEditorInput input = getEditorInput();
+			if (input instanceof IFileEditorInput) {
+				IFileEditorInput feditorInput = (IFileEditorInput) input;
+				return (T) new File(feditorInput.getFile().getLocation().toOSString());
+			}
+			if (input instanceof IURIEditorInput) {
+				return (T) new File(((FileStoreEditorInput) input).getURI());
+			}
+			return null;
+		}
 //		if (ISourceViewer.class.equals(adapter)) {
 //			return (T) getSourceViewer();
 //		}
@@ -378,7 +392,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			return root;
 		}
 		Universe registry = getRegistry();
-		ASTElement buildRoot = registry.buildRoot(this.editor.getDocument().get(), getProject().getDetails(),experiment.getProjectPath());
+		ASTElement buildRoot = registry.buildRoot(this.editor.getDocument().get(), getProject().getDetails(),getAdapter(File.class));
 		this.root=buildRoot;
 		return buildRoot;
 	}
@@ -420,10 +434,9 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 					return;
 				}
 				String string = editor.getDocument().get();
-				Status validate = registry.validate(string, getProject().getDetails(),experiment.getProjectPath());
+				Status validate = registry.validate(string, getProject().getDetails(),getAdapter(File.class));
 				ErrorVisitor st = new ErrorVisitor(file,string);
 				validate.visitErrors(st);
-				System.out.println(st);
 			} catch (Exception e) {
 				e.printStackTrace();
 				// TODO: handle exception
