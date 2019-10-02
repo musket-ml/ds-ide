@@ -13,16 +13,18 @@ public abstract class AbstractMultiSplitAnalizer {
 
 	public IAnalizeResults analize(IDataSet ds) {
 		LinkedHashMap<Object, ArrayList<IItem>> maps = new LinkedHashMap<Object, ArrayList<IItem>>();
-		ds.items().forEach(v -> {
+		ds.items().parallelStream().forEach(v -> {
 			ArrayList<Object> group = group(v);
-			for (Object o : group) {
-				ArrayList<IItem> arrayList = maps.get(o.toString());
-				if (arrayList == null) {
-					arrayList = new ArrayList<IItem>();
-					maps.put(o.toString(), arrayList);
-				}
-				arrayList.add(v);
-			}
+			synchronized (AbstractMultiSplitAnalizer.this) {
+				for (Object o : group) {
+					ArrayList<IItem> arrayList = maps.get(o.toString());
+					if (arrayList == null) {
+						arrayList = new ArrayList<IItem>();
+						maps.put(o.toString(), arrayList);
+					}
+					arrayList.add(v);
+				}	
+			}			
 		});
 		ArrayList<IDataSet> results = new ArrayList<IDataSet>();
 
@@ -30,6 +32,7 @@ public abstract class AbstractMultiSplitAnalizer {
 			results.add(ds.subDataSet(v.toString(), maps.get(v)));
 
 		});
+		
 		return new IAnalizeResults() {
 
 			@Override

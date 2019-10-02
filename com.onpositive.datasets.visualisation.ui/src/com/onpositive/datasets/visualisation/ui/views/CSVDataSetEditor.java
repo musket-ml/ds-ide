@@ -77,7 +77,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 		if (editorInput instanceof IFileEditorInput) {
 			File file3 = fromINput(editorInput);
 			file2 = file3;
-			ds = DataProjectAccess.getDataSet(file2);
+			ds = DataProjectAccess.getDataSet(file2,new BasicQuestionAnswerer());
 			this.setPartName(file3.getName());
 			init();
 
@@ -87,7 +87,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			File f1 = fromINput(input[0]);
 			File f2 = fromINput(input[1]);
 			file2 = f1;
-			IDataSet dataSet = DataProjectAccess.getDataSet(f1);
+			IDataSet dataSet = DataProjectAccess.getDataSet(f1,new BasicQuestionAnswerer());
 			ds = dataSet.withPredictions(f2);
 			setPartName(f1.getName() + "-" + f2.getName());
 			init();

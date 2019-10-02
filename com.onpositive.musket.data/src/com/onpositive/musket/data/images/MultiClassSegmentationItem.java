@@ -1,6 +1,7 @@
 package com.onpositive.musket.data.images;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 		if (this.rleMasks==null) {
 			ArrayList<IMask>mssk=new ArrayList<IMask>();
 			this.items.forEach(v->{
-				RLEMask createMask = base.createMask(base.rleColumn.getValueAsString(v), base.height, base.width);
+				RLEMask createMask = base.createMask(base.rleColumn.getValueAsString(v), base.height, base.width,this);
 				createMask.setClazz(base.clazzColumn.getValue(v).toString());
 				mssk.add( createMask);
 			});
@@ -90,7 +91,7 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 			}
 		}
 		if (r==null) {
-			return base.createMask("-1", base.height, base.width);
+			return base.createMask("-1", base.height, base.width,this);
 		}
 		return r;
 	}
@@ -148,6 +149,11 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 			
 		}
 		return new BinarySegmentationItem(this.base, new RLEMask("-1", this.base.width, this.base.height));
+	}
+
+	@Override
+	public Point getImageDimensions() {
+		return base.representer.getDimensions(id());
 	}
 
 }

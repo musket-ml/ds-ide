@@ -10,6 +10,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 import org.python.pydev.shared_ui.EditorUtils;
 
+import com.onpositive.datasets.visualisation.ui.views.BasicQuestionAnswerer;
 import com.onpositive.dside.dto.ExportDataSet;
 import com.onpositive.dside.dto.GetPossibleAnalisisInfo;
 import com.onpositive.dside.dto.GetPossibleAnalisisResult;
@@ -100,7 +101,7 @@ public class AnalizeDataSet implements IGateWayServerTaskDelegate {
 					File file = new File(split[0]);
 					IFile iFile1 = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(file.toURI())[0];
 					try {
-					IDataSet dataSet2 = DataProjectAccess.getDataSet(file);
+					IDataSet dataSet2 = DataProjectAccess.getDataSet(file,new BasicQuestionAnswerer());
 					if (dataSet2!=null) {
 						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(new FileEditorInput(iFile1), "com.onpositive.datasets.visualisation.ui.datasetEditor");
 					}

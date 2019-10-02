@@ -187,7 +187,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 								return false;
 							}
 							try {
-								IDataSet dataSet = DataProjectAccess.getDataSet(resource.getLocation().toFile());
+								IDataSet dataSet = DataProjectAccess.getDataSet(resource.getLocation().toFile(),null);
 								if (dataSet != null) {
 									resource.setPersistentProperty(IDE.EDITOR_KEY,
 											"com.onpositive.datasets.visualisation.ui.datasetEditor");

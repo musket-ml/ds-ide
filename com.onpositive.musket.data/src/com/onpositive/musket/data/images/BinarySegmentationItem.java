@@ -1,6 +1,7 @@
 package com.onpositive.musket.data.images;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,7 +67,7 @@ public class BinarySegmentationItem implements ISegmentationItem,IBinarySegmenta
 	@Override
 	public IMask getMask() {
 		if (this.rleMask==null) {
-			rleMask = base.createMask(base.rleColumn.getValueAsString(item), base.height, base.width);
+			rleMask = base.createMask(base.rleColumn.getValueAsString(item), base.height, base.width,this);
 		}
 		return this.rleMask;
 	}
@@ -82,5 +83,10 @@ public class BinarySegmentationItem implements ISegmentationItem,IBinarySegmenta
 	@Override
 	public void drawOverlay(Image image, int color) {
 		getMask().drawOn(image,color);
+	}
+
+	@Override
+	public Point getImageDimensions() {
+		return base.representer.getDimensions(id());
 	}
 }

@@ -17,14 +17,16 @@ public abstract class AbstractAnalizer {
 
 	public IAnalizeResults analize(IDataSet ds) {
 		LinkedHashMap<Object, ArrayList<IItem>> maps = new LinkedHashMap<Object, ArrayList<IItem>>();
-		ds.items().forEach(v -> {
+		ds.items().parallelStream().forEach(v -> {
 			Object group = group(v);
-			ArrayList<IItem> arrayList = maps.get(group);
-			if (arrayList == null) {
-				arrayList = new ArrayList<IItem>();
-				maps.put(group, arrayList);
-			}
-			arrayList.add(v);
+			synchronized (AbstractAnalizer.this) {
+				ArrayList<IItem> arrayList = maps.get(group);
+				if (arrayList == null) {
+					arrayList = new ArrayList<IItem>();
+					maps.put(group, arrayList);
+				}
+				arrayList.add(v);	
+			}			
 		});
 		LinkedHashMap<Object, ArrayList<IItem>> mapsNew = optimize(maps);
 		return toDs(ds, mapsNew);

@@ -182,7 +182,7 @@ public class NewMusketExperiment extends Wizard implements INewWizard {
 					IDataSet ds = null;
 					try {
 						if (x != null && x.exists()) {
-							ds=DataProjectAccess.getDataSet(x.getLocation().toFile());
+							ds=DataProjectAccess.getDataSet(x.getLocation().toFile(),null);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

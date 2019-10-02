@@ -9,6 +9,7 @@ import java.util.Map;
 import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.table.IQuestionAnswerer;
 
 public class DataProjectAccess {
 
@@ -18,14 +19,14 @@ public class DataProjectAccess {
 		return new DataProject(file);		
 	}
 	
-	public static IDataSet getDataSet(File file) {
+	public static IDataSet getDataSet(File file,IQuestionAnswerer answerer) {
 		File dataRoot=findDataRoot(file);
 		if (dataRoot==null) {
 			dataRoot=file.getParentFile();
 		}
 		if (dataRoot!=null) {
 			DataProject project = getProject(dataRoot);
-			return project.getDataSet(file);
+			return project.getDataSet(file,answerer);
 		}
 		return null;		
 	}
@@ -56,6 +57,5 @@ public class DataProjectAccess {
 			e.printStackTrace();
 		}
 	}
-
 	
 }

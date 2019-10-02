@@ -1,5 +1,6 @@
 package com.onpositive.musket.data.table;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +16,8 @@ import java.util.Iterator;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IProgressMonitor;
@@ -150,29 +153,14 @@ public class ImageRepresenter implements Iterable<String> {
 
 	public BufferedImage get(String id) {
 		try {
-			File file = id2Path.get(id);
-			if (file == null) {
-				int lastIndexOf = id.lastIndexOf('.');
-				if (lastIndexOf != -1) {
-					file = id2Path.get(id.substring(0, lastIndexOf));
-				}
-			}
+			File file =getFile(id);
 			BufferedImage read = ImageIO.read(file);
 			return read;
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
 	}
-
-	public static void main(String[] args) {
-		ImageRepresenter imageRepresenter = new ImageRepresenter("D:/sw2/data");
-		imageRepresenter.configure();
-		ITabularDataSet t1 = DataSetIO.load("file://D:\\sw2\\data\\stage_2_train.csv").as(ITabularDataSet.class);
-		IDataSet create = new ImageDataSetFactories(imageRepresenter).create(t1);
-		if (create instanceof IBinarySegmentationDataSet) {
-			System.out.println(((IBinarySegmentationDataSet) create).balance());
-		}
-	}
+	
 
 	public void configure() {
 		File file = new File(this.root);
@@ -224,5 +212,44 @@ public class ImageRepresenter implements Iterable<String> {
 			result.add('"'+string+'"');
 		});
 		return "["+result.stream().collect(Collectors.joining(","))+"]";
+	}
+	protected HashMap<String, Point>dims=new HashMap<>();
+
+	public Point getDimensions(String valueAsString) {
+		if (dims.containsKey(valueAsString)) {
+			return dims.get(valueAsString);
+		}
+		File file = getFile(valueAsString);
+		
+		try(ImageInputStream in = ImageIO.createImageInputStream(file)){
+		    final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
+		    if (readers.hasNext()) {
+		        ImageReader reader = readers.next();
+		        try {
+		            reader.setInput(in);
+		            Point point = new Point(reader.getWidth(0), reader.getHeight(0));
+		            synchronized (dims) {
+		            	dims.put(valueAsString, point);	
+					}		            
+					return point;
+		        } finally {
+		            reader.dispose();
+		        }
+		    }
+		} catch (IOException e) {
+			throw new IllegalStateException();
+		} 
+		return null;
+	}
+
+	protected File getFile(String valueAsString) {
+		File file = id2Path.get(valueAsString);
+		if (file == null) {
+			int lastIndexOf = valueAsString.lastIndexOf('.');
+			if (lastIndexOf != -1) {
+				file = id2Path.get(valueAsString.substring(0, lastIndexOf));
+			}
+		}
+		return file;
 	}
 }
