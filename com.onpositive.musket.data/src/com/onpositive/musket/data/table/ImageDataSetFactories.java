@@ -7,13 +7,19 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.AbstractRLEImageDataSet;
 import com.onpositive.musket.data.images.BinaryClassificationDataSet;
 import com.onpositive.musket.data.images.BinaryInstanceSegmentationDataSet;
 import com.onpositive.musket.data.images.BinarySegmentationDataSet;
+import com.onpositive.musket.data.images.IMultiClassSegmentationItem;
+import com.onpositive.musket.data.images.MultiClassClassificationItem;
+import com.onpositive.musket.data.images.MultiClassInstanceSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
+import com.onpositive.musket.data.images.MultiClassSegmentationItem;
 import com.onpositive.musket.data.images.MultiClassificationDataset;
 
 public class ImageDataSetFactories {
@@ -141,22 +147,31 @@ public class ImageDataSetFactories {
 		if (clazzColumn != null && maskColumn != null) {
 			if (!multipleObjects || true) {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
-				return new MultiClassSegmentationDataSet(t, imageColumn, maskColumn, bufferedImage.getHeight(),
+				MultiClassSegmentationDataSet multiClassSegmentationDataSet = new MultiClassSegmentationDataSet(t, imageColumn, maskColumn, bufferedImage.getHeight(),
 						bufferedImage.getWidth(), images, clazzColumn);
+				Stream<IMultiClassSegmentationItem> filter = multiClassSegmentationDataSet.items().stream().parallel().filter(x->{
+					return ((MultiClassSegmentationItem) x).hasSameClass();
+				});
+				Optional<IMultiClassSegmentationItem> findAny = filter.findAny();
+				if (findAny.isPresent()) {
+					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(t,multiClassSegmentationDataSet.getSettings(),images);
+				}
+				return multiClassSegmentationDataSet;
 			}
 		}
 		if (clazzColumn != null) {
 			Collection<Object> values2 = new LinkedHashSet<>(clazzColumn.values());
+			
 			if (values2.size() == 2) {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
 				return new BinaryClassificationDataSet(t, imageColumn, clazzColumn, bufferedImage.getHeight(),
 						bufferedImage.getWidth(), images);
 			} else {
-
+				
 				BufferedImage bufferedImage = images.get(images.iterator().next());
 				MultiClassificationDataset multiClassificationDataset = new MultiClassificationDataset(t, imageColumn,
 						clazzColumn, bufferedImage.getHeight(), bufferedImage.getWidth(), images);
-
+				
 				return multiClassificationDataset;
 			}
 		}

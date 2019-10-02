@@ -1,10 +1,13 @@
 package com.onpositive.musket.data.images;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
@@ -44,7 +47,12 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 		for (Object o:base.classes) {
 			String classMaskKey = base.getClassMaskKey(o);
 			Object object2 = base.getSettings().get(classMaskKey);
+			if (classMaskKey==null||object2==null) {
+				rgbs[num++]=new Color(new Random().nextInt(255), new Random().nextInt(255), new Random().nextInt(255)).getRGB();
+			}
+			else {
 			rgbs[num++]=AbstractRLEImageDataSet.parse(object.toString(),object2.toString());
+			}
 		}
 		
 		for (IMask m:getMasks()) {
@@ -154,6 +162,17 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 	@Override
 	public Point getImageDimensions() {
 		return base.representer.getDimensions(id());
+	}
+
+	public boolean hasSameClass() {
+		HashSet<String>classes=new HashSet<>();
+		for (ITabularItem i:this.items) {
+			String string = base.clazzColumn.getValue(i).toString();
+			if (!classes.add(string)) {
+				return true;
+			}
+		}		
+		return false;
 	}
 
 }
