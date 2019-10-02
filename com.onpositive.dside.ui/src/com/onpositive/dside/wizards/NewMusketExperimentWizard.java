@@ -75,12 +75,15 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 	@Override
 	public void addPages() {
 		// TODO Auto-generated method stub
-		this.addPage(new WizardPage("Hello") {
+		this.addPage(new DLFWizardPage("Hello") {
 
+			
+			
 			@Override
 			public void createControl(Composite parent) {
 				setImageDescriptor(SWTImageManager.getDescriptor("new_exp_wiz"));
-				RootElement el = new RootElement(parent);
+				el = new RootElement(parent);
+				
 				setTitle("New Experiment");
 				setMessage("Let's have fun");
 				experimentParams = new ExperimentParams();

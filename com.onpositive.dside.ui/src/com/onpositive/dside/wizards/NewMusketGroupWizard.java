@@ -54,12 +54,14 @@ public class NewMusketGroupWizard extends Wizard implements INewWizard {
 
 	@Override
 	public void addPages() {
-		this.addPage(new WizardPage("New Experiment Group") {
+		this.addPage(new DLFWizardPage("New Experiment Group") {
 
+			
+			
 			@Override
 			public void createControl(Composite parent) {
 				setImageDescriptor(SWTImageManager.getDescriptor("new_exp_wiz"));
-				RootElement el = new RootElement(parent);
+				el = new RootElement(parent);
 				setTitle("New Experiment Group");
 				setMessage("Create new experiment group");
 				experimentParams = new ExperimentGroupParams();
@@ -84,8 +86,8 @@ public class NewMusketGroupWizard extends Wizard implements INewWizard {
 				IUIElement<?> createWidget = widgetObject.createWidget(bn);
 				el.add((AbstractUIElement<?>) createWidget);
 				Control control = (Control) createWidget.getControl();
-				control.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
-				parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
+				//control.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+				//parent.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GREEN));
 				setControl(control);
 				this.setPageComplete(false);
 				bn.addStatusChangeListener(new IStatusChangeListener() {
