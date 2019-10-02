@@ -3,6 +3,7 @@ package com.onpositive.dside.ui.builder;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
@@ -16,43 +17,48 @@ import com.onpositive.musket_core.ProjectManager;
 public class SampleBuilder extends IncrementalProjectBuilder {
 
 	class SampleDeltaVisitor implements IResourceDeltaVisitor {
-		
-		HashSet<IProject>projects=new HashSet<>();
-		
+
+		HashSet<IProject> projects = new HashSet<>();
+
 		@Override
 		public boolean visit(IResourceDelta delta) throws CoreException {
 			IResource resource = delta.getResource();
-			switch (delta.getKind()) {
-			case IResourceDelta.ADDED:
-				// handle added resource
-				projects.add(resource.getProject());
-				break;
-			case IResourceDelta.REMOVED:
-				projects.add(resource.getProject());
-				// handle removed resource
-				break;
-			case IResourceDelta.CHANGED:
-				projects.add(resource.getProject());
-				
-				break;
+			if (resource instanceof IProject) {
+				return true;
 			}
-			//return true to continue visiting children.
-			return true;
+			if (resource instanceof IFolder) {
+				if (resource.getName().equals("modules")) {
+					return true;
+				}
+			}
+			if (resource.getName().endsWith(".py")) {
+
+				switch (delta.getKind()) {
+				case IResourceDelta.ADDED:
+					// handle added resource
+					projects.add(resource.getProject());
+					break;
+				case IResourceDelta.REMOVED:
+					projects.add(resource.getProject());
+					// handle removed resource
+					break;
+				case IResourceDelta.CHANGED:
+					projects.add(resource.getProject());
+
+					break;
+				}
+			}
+			// return true to continue visiting children.
+			return false;
 		}
 	}
-
-	
-
-	
 
 	public static final String BUILDER_ID = "com.onpositive.dside.ui.musketBuilder";
 
 	public static final String MARKER_TYPE = "de.jcup.yamleditor.script.problem";
 
-
 	@Override
-	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor)
-			throws CoreException {
+	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
 		if (kind == FULL_BUILD) {
 			fullBuild(monitor);
 		} else {
@@ -71,27 +77,22 @@ public class SampleBuilder extends IncrementalProjectBuilder {
 		getProject().deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
 	}
 
-
-
-	protected void fullBuild(final IProgressMonitor monitor)
-			throws CoreException {
+	protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
 		IProject project = getProject();
 		ProjectManager.getInstance(project).refresh(null);
 	}
 
-
-	protected void incrementalBuild(IResourceDelta delta,
-			IProgressMonitor monitor) throws CoreException {
+	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
 		// the visitor does the work.
 		SampleDeltaVisitor visitor = new SampleDeltaVisitor();
 		delta.accept(visitor);
-		visitor.projects.forEach(v->{
+		visitor.projects.forEach(v -> {
 			try {
-			ProjectManager.getInstance(v).refresh(null);
-			}catch (Exception e) {
+				ProjectManager.getInstance(v).refresh(null);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		});
-		
+
 	}
 }

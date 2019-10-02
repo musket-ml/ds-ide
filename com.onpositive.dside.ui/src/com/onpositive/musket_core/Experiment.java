@@ -421,6 +421,7 @@ public class Experiment {
 	}
 
 	public void readConfig() {
+		this._score=null;
 		this.config = null;
 	}
 
