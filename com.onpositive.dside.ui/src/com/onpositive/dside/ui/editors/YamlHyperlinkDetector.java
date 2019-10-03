@@ -36,9 +36,9 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.python.pydev.editorinput.PyOpenEditor;
 import org.python.pydev.shared_core.io.FileUtils;
 
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
-import com.onpositive.dside.dto.introspection.InstrospectionResult;
 import com.onpositive.musket_core.ProjectWrapper;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
+import com.onpositive.yamledit.introspection.InstrospectionResult;
 
 import de.jcup.yamleditor.script.YamlNode;
 

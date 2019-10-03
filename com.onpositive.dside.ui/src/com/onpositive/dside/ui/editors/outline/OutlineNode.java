@@ -7,7 +7,7 @@ import java.util.Collections;
 import org.aml.typesystem.AbstractType;
 import org.aml.typesystem.beans.IPropertyView;
 
-import com.onpositive.dside.ast.ASTElement;
+import com.onpositive.yamledit.ast.ASTElement;
 
 public class OutlineNode {
 

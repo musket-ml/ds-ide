@@ -32,10 +32,11 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.dside.dto.PythonError;
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
-import com.onpositive.dside.dto.introspection.InstrospectionResult;
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
+import com.onpositive.yamledit.introspection.InstrospectionResult;
+import com.onpositive.yamledit.project.IProjectContext;
 
 public class ProjectWrapper {
 
@@ -67,6 +68,8 @@ public class ProjectWrapper {
 
 	private InstrospectionResult details = new InstrospectionResult();
 
+	protected Object mon = new Object();
+
 	public InstrospectionResult getDetails() {
 		return details;
 	}
@@ -82,7 +85,17 @@ public class ProjectWrapper {
 	public void setDetails(InstrospectionResult details) {
 		this.details = details;
 	}
-
+	
+	public IProjectContext getProjectContext()	{
+		return new IProjectContext() {
+			
+			@Override
+			public File[] getAdditionalFiles() {
+				return new File[] {new File(path, "common.yaml")};
+			}
+		};
+	}
+	
 	public static class BasicDataSetDesc {
 
 		public String name;
@@ -304,8 +317,6 @@ public class ProjectWrapper {
 	public String getPath() {
 		return this.path;
 	}
-
-	protected Object mon = new Object();
 
 	public void innerIntrospect(String pythonPath, String absolutePath) {
 		synchronized (mon) {

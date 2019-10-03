@@ -4,7 +4,7 @@ public interface IServer {
 
 	String hello();
 	
-	IProject project(String path);
+	IMusketProject project(String path);
 	
 	Object performTask(String taskConfig, IProgressReporter reporter);
 	

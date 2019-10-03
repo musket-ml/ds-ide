@@ -7,8 +7,8 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 
-import com.onpositive.dside.ast.CompletionContext;
-import com.onpositive.dside.ast.CompletionContext.IndentAndName;
+import com.onpositive.yamledit.ast.CompletionContext;
+import com.onpositive.yamledit.ast.CompletionContext.IndentAndName;
 
 public class CompletionContextBuilder {
 

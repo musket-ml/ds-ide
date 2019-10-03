@@ -51,7 +51,7 @@ types:
            #items: Element   
    Callback:
       type: Referencable  
-      customValidator: com.onpositive.dside.ast.CallbackValidator                 
+      customValidator: com.onpositive.yamledit.ast.CallbackValidator                 
    Referencable:
       type: object  
       properties:
@@ -125,7 +125,7 @@ types:
            
    NetworkBlockDeclaration:
       type: GenericDeclaration
-      customValidator: com.onpositive.dside.ast.LayerValidator
+      customValidator: com.onpositive.yamledit.ast.LayerValidator
       closed: true
       properties:               
          body:
@@ -165,7 +165,7 @@ types:
             type: Callback               
    BasicConfig:   
     root: true    
-    customValidator: com.onpositive.dside.ast.RootValidator 
+    customValidator: com.onpositive.yamledit.ast.RootValidator 
     properties:
       hyperparameters:
         multivalue: true

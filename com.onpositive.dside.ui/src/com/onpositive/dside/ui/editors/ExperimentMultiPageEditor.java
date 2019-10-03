@@ -52,10 +52,6 @@ import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.editor.hover.AbstractPyEditorTextHover;
 
 import com.onpositive.commons.SWTImageManager;
-import com.onpositive.dside.ast.ASTElement;
-import com.onpositive.dside.ast.TypeRegistryProvider;
-import com.onpositive.dside.ast.Universe;
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.ui.ExperimentErrorsEditorPart;
 import com.onpositive.dside.ui.ExperimentResultsEditorPart;
 import com.onpositive.dside.ui.LaunchConfiguration;
@@ -68,6 +64,10 @@ import com.onpositive.musket_core.ExperimentLogs;
 import com.onpositive.musket_core.ExperimentResults;
 import com.onpositive.musket_core.IExperimentExecutionListener;
 import com.onpositive.musket_core.ProjectWrapper;
+import com.onpositive.yamledit.ast.ASTElement;
+import com.onpositive.yamledit.ast.TypeRegistryProvider;
+import com.onpositive.yamledit.ast.Universe;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
 
 import de.jcup.yamleditor.YamlEditor;
 import de.jcup.yamleditor.YamlSourceViewerConfiguration;
@@ -444,9 +444,10 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		}
 	}
 
-	private Universe getRegistry() {
+	public Universe getRegistry() {
 		String extractFragment = FragmentExtractor.extractFragment(this.editor.getDocument());
 		Universe registry = TypeRegistryProvider.getRegistry((extractFragment==null||extractFragment.equals("Generic"))?"basicConfig":extractFragment.toLowerCase());
+		registry.setProjectContext(getProject().getProjectContext());
 		return registry;
 	}
 

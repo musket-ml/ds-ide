@@ -10,8 +10,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import com.onpositive.dside.ast.IHasLocation;
 import com.onpositive.dside.ui.builder.SampleBuilder;
+import com.onpositive.yamledit.ast.IHasLocation;
 
 class ErrorVisitor implements IStatusVisitor {
 

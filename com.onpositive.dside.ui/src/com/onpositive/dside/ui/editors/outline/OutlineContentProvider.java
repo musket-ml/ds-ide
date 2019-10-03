@@ -3,7 +3,7 @@ package com.onpositive.dside.ui.editors.outline;
 import org.aml.typesystem.beans.IPropertyView;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
-import com.onpositive.dside.ast.ASTElement;
+import com.onpositive.yamledit.ast.ASTElement;
 
 public class OutlineContentProvider implements ITreeContentProvider {
 

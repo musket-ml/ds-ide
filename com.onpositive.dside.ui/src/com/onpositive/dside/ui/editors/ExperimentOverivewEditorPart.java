@@ -13,10 +13,6 @@ import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.Container;
 import com.onpositive.commons.elements.LinkElement;
 import com.onpositive.commons.elements.RootElement;
-import com.onpositive.dside.dto.introspection.InstrospectionResult;
-import com.onpositive.dside.ui.editors.yaml.model.INodeListener;
-import com.onpositive.dside.ui.editors.yaml.model.ModelNode;
-import com.onpositive.dside.ui.editors.yaml.model.NodeKind;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ProjectManager;
 import com.onpositive.musket_core.ProjectWrapper;
@@ -26,6 +22,10 @@ import com.onpositive.semantic.model.ui.generic.IHyperlinkListener;
 import com.onpositive.semantic.model.ui.property.editors.SectionEditor;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
+import com.onpositive.yamledit.introspection.InstrospectionResult;
+import com.onpositive.yamledit.model.INodeListener;
+import com.onpositive.yamledit.model.ModelNode;
+import com.onpositive.yamledit.model.NodeKind;
 
 import de.jcup.yamleditor.YamlEditor;
 
