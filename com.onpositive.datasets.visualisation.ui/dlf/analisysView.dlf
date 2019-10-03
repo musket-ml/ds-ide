@@ -7,7 +7,6 @@
 	<hc id="f1"></hc>
 	
 	<separator vertical="false" />
-	<stack>
 	<splitter horizontal="true" id="sl" weights="3,0" >
 		<stack grabVertical="true">
 			<vc grabVertical="true" id="empty" vAlign="center">
@@ -56,8 +55,5 @@
 			</hc>
 		</vc>
 	</splitter>
-	<vc id="v">
-		<label caption="Sorry, but we are not able to understand this kind of dataset yet..."/>
-	</vc>
-	</stack>
+	
 </form>

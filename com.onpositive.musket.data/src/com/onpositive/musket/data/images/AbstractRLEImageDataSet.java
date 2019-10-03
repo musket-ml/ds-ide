@@ -1,15 +1,20 @@
 package com.onpositive.musket.data.images;
 
 import java.awt.Color;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Map;
 
 import com.onpositive.musket.data.core.DescriptionEntry;
+import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.core.Parameter;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
+import com.onpositive.musket.data.table.ImageDataSetFactories;
 import com.onpositive.musket.data.table.ImageRepresenter;
 
 public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends AbstractImageDataSet<T> implements IImageDataSet, Cloneable {
@@ -19,6 +24,7 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 	
 	private static final String RLE_COLUMN = "rle_column";
 	private static final String WIDTH_FIRST = "width_first";
+	private static final String MASK_IS_SAME_AS_IMAGE = "mask_is_same_as_image";
 	
 	
 	{
@@ -32,6 +38,21 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 		this.base = base2;
 		this.imageColumn = image;
 		this.rleColumn = rle;
+		if (this.isMultiResolution) {
+			MaskModel model = new MaskModel();
+			boolean askQuestion = ImageDataSetFactories.getAnswerer().askQuestion("Mask size",model);
+			if (!askQuestion) {
+				throw new NotEnoughParametersException("Can not determine mask resolution");
+			}
+			else {
+				width2=model.height;
+				height2=model.width;		
+				maskIsSameAsImage=model.sameAsImage;
+				getSettings().put(WIDTH, width2);
+				getSettings().put(HEIGHT, height2);
+				
+			}
+		}
 		this.width = width2;
 		this.height = height2;
 		this.representer = rep;
@@ -40,7 +61,7 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 
 		
 		getSettings().put(RLE_COLUMN, rle.id());
-		
+		getSettings().put(MASK_IS_SAME_AS_IMAGE, maskIsSameAsImage);
 		
 		//here we should load from meta if we can!!!!;
 		if (!checkValidity(false,true)) {
@@ -54,15 +75,21 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 		}
 		getSettings().put(RELATIVE_RLE, isRelativeRLE);
 		getSettings().put(WIDTH_FIRST, widthFirst);
+		getSettings().put(WIDTH_FIRST, widthFirst);
 		
 	}
+	protected boolean maskIsSameAsImage=false;
 	
 	public AbstractRLEImageDataSet(ITabularDataSet base,Map<String,Object>settings,ImageRepresenter rep) {
 		super(base,settings,rep);		
 		this.rleColumn=base.getColumn((String) settings.get(RLE_COLUMN));		
 		this.isRelativeRLE=Boolean.parseBoolean(settings.get(RELATIVE_RLE).toString());
 		this.widthFirst=Boolean.parseBoolean(settings.get(WIDTH_FIRST).toString());
-		
+		Object object = settings.get(MASK_IS_SAME_AS_IMAGE);
+		if (object==null) {
+			object="false";
+		}
+		this.maskIsSameAsImage=Boolean.parseBoolean(object.toString());
 	}
 	
 
@@ -72,7 +99,33 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 		this.widthFirst=c;
 		try {
 		for (ITabularItem v:this.base.items()){
-			RLEMask createMask = (RLEMask) this.createMask(this.rleColumn.getValueAsString(v), this.width, this.height);
+			RLEMask createMask = (RLEMask) this.createMask(this.rleColumn.getValueAsString(v), this.width, this.height,new IImageItem() {
+				
+				@Override
+				public String id() {
+					return v.id();
+				}
+				
+				@Override
+				public IDataSet getDataSet() {
+					return AbstractRLEImageDataSet.this;
+				}
+				
+				@Override
+				public Image getImage() {
+					return representer.get(imageColumn.getValueAsString(v));
+				}
+				
+				@Override
+				public void drawOverlay(Image image, int color) {
+					
+				}
+
+				@Override
+				public Point getImageDimensions() {
+					return representer.getDimensions(imageColumn.getValueAsString(v));
+				}
+			});
 			if (!createMask.checkValid()) {
 				return false;
 			}
@@ -92,8 +145,13 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 	
 	
 
-	public RLEMask createMask(String valueAsString, int height, int width) {
+	public RLEMask createMask(String valueAsString, int height, int width,IImageItem item) {
 		valueAsString=valueAsString.trim();
+		if (this.maskIsSameAsImage) {
+			Point p= item.getImageDimensions();
+			height=p.x;
+			width=p.y;
+		}
 		if (widthFirst) {
 			if (isRelativeRLE) {
 				return new RelativeRLEMask(valueAsString, width, height);

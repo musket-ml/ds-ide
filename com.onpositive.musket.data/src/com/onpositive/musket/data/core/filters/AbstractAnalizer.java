@@ -3,6 +3,7 @@ package com.onpositive.musket.data.core.filters;
 import java.awt.geom.Point2D;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -17,14 +18,16 @@ public abstract class AbstractAnalizer {
 
 	public IAnalizeResults analize(IDataSet ds) {
 		LinkedHashMap<Object, ArrayList<IItem>> maps = new LinkedHashMap<Object, ArrayList<IItem>>();
-		ds.items().forEach(v -> {
+		ds.items().parallelStream().forEach(v -> {
 			Object group = group(v);
-			ArrayList<IItem> arrayList = maps.get(group);
-			if (arrayList == null) {
-				arrayList = new ArrayList<IItem>();
-				maps.put(group, arrayList);
-			}
-			arrayList.add(v);
+			synchronized (AbstractAnalizer.this) {
+				ArrayList<IItem> arrayList = maps.get(group);
+				if (arrayList == null) {
+					arrayList = new ArrayList<IItem>();
+					maps.put(group, arrayList);
+				}
+				arrayList.add(v);	
+			}			
 		});
 		LinkedHashMap<Object, ArrayList<IItem>> mapsNew = optimize(maps);
 		return toDs(ds, mapsNew);
@@ -170,8 +173,43 @@ public abstract class AbstractAnalizer {
 				}				
 				return bitems;
 			}
+			else {
+				ArrayList<Entry>entr=new ArrayList<>();
+				maps.keySet().forEach(k->{
+					entr.add(new Entry(k, maps.get(k)));
+				});
+				Collections.sort(entr);
+				LinkedHashMap<Object, ArrayList<IItem>> bitems = new LinkedHashMap<>();
+				
+				for (int i=0;i<20;i++) {
+					Entry entry = entr.get(i);
+					bitems.put(entry.clazz, entry.items);
+				}
+				ArrayList<IItem>allOthers=new ArrayList<>();
+				for (int i=20;i<entr.size();i++) {
+					allOthers.addAll(entr.get(i).items);
+				}
+				bitems.put("Others "+(entr.size()-20), allOthers);
+				return bitems;
+			}
 		}
 		return maps;
+	}
+	
+	static class Entry implements Comparable<Entry>{
+		Object clazz;
+		ArrayList<IItem>items;
+		
+		public Entry(Object clazz, ArrayList<IItem> items) {
+			super();
+			this.clazz = clazz;
+			this.items = items;
+		}
+		@Override
+
+		public int compareTo(Entry arg0) {
+			return arg0.items.size()-this.items.size();
+		}
 	}
 
 	protected abstract Object group(IItem v);

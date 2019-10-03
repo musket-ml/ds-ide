@@ -28,6 +28,9 @@ public class RLEMask implements IMask{
 	public String clazz() {
 		return clazz;
 	}
+	public boolean isEmpty() {
+		return rle.length()==0||rle.equals("-1");
+	}
 	
 	@Override
 	public int hashCode() {
@@ -82,7 +85,7 @@ public class RLEMask implements IMask{
 	protected Rectangle bounds;
 	
 	public RLEMask(String mask,int height,int width) {
-		this.rle=mask;
+		this.rle=mask.trim();
 		this.width=width;
 		this.height=height;
 	}

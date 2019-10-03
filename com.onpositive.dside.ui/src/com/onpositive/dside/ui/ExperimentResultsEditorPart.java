@@ -73,6 +73,7 @@ public class ExperimentResultsEditorPart extends EditorPart {
 			GridLayout layout = new GridLayout(2, false);
 			Label ll = new Label(ca, SWT.NONE);
 			ll.setFont(JFaceResources.getHeaderFont());
+			experiment.readConfig();
 			ll.setText("Primary result: " + experiment.getScore().toString());
 
 			ll.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).hint(-1, 20).create());

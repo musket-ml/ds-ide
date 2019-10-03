@@ -1,6 +1,7 @@
 package com.onpositive.musket.data.images;
 
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import com.onpositive.musket.data.core.IDataSet;
@@ -52,5 +53,10 @@ public class BinaryClassificationItem implements IBinaryClasificationItem,IImage
 	@Override
 	public void drawOverlay(Image image, int color) {
 		
+	}
+
+	@Override
+	public Point getImageDimensions() {
+		return base.representer.getDimensions(id());
 	}
 }

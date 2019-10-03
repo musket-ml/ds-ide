@@ -56,6 +56,16 @@ public class LaunchConfiguration implements IServerTask<Object> {
 	public void setGpusPerNet(int gpusPerNet) {
 		this.gpusPerNet = gpusPerNet;
 	}
+	@Caption("Initialize data splits from scrach")
+	protected boolean cleanSplits=true;
+
+	public boolean isCleanSplits() {
+		return cleanSplits;
+	}
+
+	public void setCleanSplits(boolean cleanSplits) {
+		this.cleanSplits = cleanSplits;
+	}
 
 	@Range(min = 1, max = 16)
 	int numGpus = 1;

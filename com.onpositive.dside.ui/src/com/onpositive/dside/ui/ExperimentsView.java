@@ -1,5 +1,6 @@
 package com.onpositive.dside.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -139,6 +140,15 @@ public class ExperimentsView extends XMLView {
 		LaunchConfiguration cfg=new LaunchConfiguration(collection);
 		boolean createObject = WidgetRegistry.createObject(cfg);
 		if (createObject) {
+			for (Experiment e:cfg.experiment) {
+				e.backup(true);
+				if (cfg.cleanSplits&&!cfg.onlyReports) {
+					new File(e.getPath().toFile(),"config.yaml.folds_split").delete();
+					new File(e.getPath().toFile(),"config.yaml.holdout_split").delete();					
+				}
+				new File(e.getPath().toFile(),"error.yaml").delete();
+			}
+			
 			//String collect = collection.stream().map(x->x.toString()).collect(Collectors.joining(","));
 			TaskManager.perform(cfg);
 		}

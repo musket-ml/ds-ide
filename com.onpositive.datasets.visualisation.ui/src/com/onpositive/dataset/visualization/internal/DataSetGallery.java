@@ -69,6 +69,8 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 			(String) "/icons/expandall.gif");
 	private com.onpositive.dataset.visualization.internal.GalleryTooltip tt;
 
+	boolean hasExpanded;
+	
 	@Override
 	public Control createControl(Composite conComposite) {
 		images = new LinkedHashMap<>();
@@ -112,7 +114,11 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 					IDataSet data = input.get(index);
 					int len = data.size();
 					item.setItemCount(len);
-					item.setExpanded(true);
+					if (!hasExpanded) {
+						hasExpanded=true;
+						item.setExpanded(true);
+						
+					}
 					item.setText(data.name()); // $NON-NLS-1$
 					item.setData(data);
 				}

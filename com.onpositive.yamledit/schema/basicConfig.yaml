@@ -50,7 +50,7 @@ types:
            type: string
          inputs:
            autoConvertToArray: true
-           type: string[]
+           type: any
          args:
            type: any
    DatasetFactory: 
@@ -67,7 +67,7 @@ types:
            type: string
          inputs:
            autoConvertToArray: true
-           type: string[]
+           type: any
          args:
            type: any
    condition:

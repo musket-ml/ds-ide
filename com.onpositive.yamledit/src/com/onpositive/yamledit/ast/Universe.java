@@ -65,6 +65,53 @@ public class Universe extends TypeRegistryImpl {
 			this.rs = rs;
 		}
 
+		@Override
+		public Iterator<AbstractType> iterator() {
+			return null;
+		}
+
+		@Override
+		public Collection<AbstractType> types() {
+			ArrayList<AbstractType>t=new ArrayList<>();
+			for (String s:rs.keySet()) {
+				t.add(getType(s));
+			}
+			return t;
+		}
+
+		@Override
+		public AbstractType getType(String type) {
+			
+			if (type == null) {
+				type = "string";
+			}
+			if (type.startsWith("if(")) {
+				return getType("condition");
+			}
+			if (type.endsWith("[]")) {
+				AbstractType type2 = getType(type.substring(0,type.length()-2));
+				if (type2!=null) {
+					return TypeOps.array(type2);
+				}
+			}
+			if (types.containsKey(type)) {
+				return types.get(type);
+			}
+			AbstractType type2 = Universe.this.getType(type);
+			if (type2 != null) {
+				return type2;
+			}
+			InstrospectedFeature instrospectedFeature = rs.get(type);
+
+			if (instrospectedFeature != null) {
+				AbstractType t = featureToType(this, instrospectedFeature);
+				types.put(type, t);
+				return t;
+			}
+
+			return null;
+		}
+
 		private AbstractType featureToType(ITypeRegistry iTypeRegistry, InstrospectedFeature instrospectedFeature) {
 //			if (instrospectedFeature.getName().startsWith("split")) {
 //				System.out.println("A");
@@ -177,53 +224,6 @@ public class Universe extends TypeRegistryImpl {
 			derive.closeUnknownProperties();
 			return derive;
 		}
-
-		@Override
-		public AbstractType getType(String type) {
-			
-			if (type == null) {
-				type = "string";
-			}
-			if (type.startsWith("if(")) {
-				return getType("condition");
-			}
-			if (type.endsWith("[]")) {
-				AbstractType type2 = getType(type.substring(0,type.length()-2));
-				if (type2!=null) {
-					return TypeOps.array(type2);
-				}
-			}
-			if (types.containsKey(type)) {
-				return types.get(type);
-			}
-			AbstractType type2 = Universe.this.getType(type);
-			if (type2 != null) {
-				return type2;
-			}
-			InstrospectedFeature instrospectedFeature = rs.get(type);
-
-			if (instrospectedFeature != null) {
-				AbstractType t = featureToType(this, instrospectedFeature);
-				types.put(type, t);
-				return t;
-			}
-
-			return null;
-		}
-
-		@Override
-		public Iterator<AbstractType> iterator() {
-			return null;
-		}
-
-		@Override
-		public Collection<AbstractType> types() {
-			ArrayList<AbstractType>t=new ArrayList<>();
-			for (String s:rs.keySet()) {
-				t.add(getType(s));
-			}
-			return t;
-		}
 	}
 
 	protected AbstractType root;
@@ -279,6 +279,15 @@ public class Universe extends TypeRegistryImpl {
 							}
 						}
 					}
+					IntrospectedParameter introspectedParameter = new IntrospectedParameter();
+					introspectedParameter.setName("name");
+					introspectedParameter.setDefaultValue("");
+					rr.getParameters().add(introspectedParameter);
+					introspectedParameter = new IntrospectedParameter();
+					introspectedParameter.setName("inputs");
+					introspectedParameter.setType("any");
+					introspectedParameter.setDefaultValue("");
+					rr.getParameters().add(introspectedParameter);
 				}
 			}
 		}

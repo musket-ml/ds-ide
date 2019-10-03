@@ -7,7 +7,7 @@ import com.onpositive.musket.data.text.TextClassificationDataSet;
 
 public class TextDataSetFactories {
 
-	public static IDataSet create(ITabularDataSet t, IColumn textColumn) {
+	public static IDataSet create(ITabularDataSet t, IColumn textColumn,IQuestionAnswerer question_answerer) {
 		ArrayList<IColumn>columns=new ArrayList<>(t.columns());
 		columns.remove(textColumn);
 		ArrayList<IColumn> findClassColumn = ImageDataSetFactories.findClassColumns(columns);

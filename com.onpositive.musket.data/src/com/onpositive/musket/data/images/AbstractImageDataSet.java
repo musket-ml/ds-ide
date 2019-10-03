@@ -3,6 +3,7 @@ package com.onpositive.musket.data.images;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	public static final String HEIGHT = "height";
 	public static final String IMAGE_COLUMN = "IMAGE_COLUMN";
 	protected String name = "";
+	protected boolean isMultiResolution;
 	
 	public AbstractImageDataSet(ITabularDataSet base, IColumn imageColumn,int width, int height, ImageRepresenter rep) {
 		super();
@@ -48,6 +50,17 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 		getSettings().put(IMAGE_COLUMN, imageColumn.id());
 		getSettings().put(WIDTH, width);
 		getSettings().put(HEIGHT, height);
+		
+		HashSet<String>strs=new HashSet<>();
+		for (int i=0;i<40;i++) {
+			String value = imageColumn.getValueAsString(base.get(i));
+			BufferedImage bufferedImage = rep.get(value);
+			String str=bufferedImage.getWidth()+","+bufferedImage.getHeight();
+			strs.add(str);
+		}
+		if (strs.size()>1) {
+			this.isMultiResolution=true;
+		}
 	}
 	protected ArrayList<T> items;
 	protected HashMap<String, IImageItem> itemsMap;

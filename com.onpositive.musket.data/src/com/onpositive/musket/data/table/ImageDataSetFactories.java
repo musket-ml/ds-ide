@@ -7,17 +7,24 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.AbstractRLEImageDataSet;
 import com.onpositive.musket.data.images.BinaryClassificationDataSet;
 import com.onpositive.musket.data.images.BinaryInstanceSegmentationDataSet;
 import com.onpositive.musket.data.images.BinarySegmentationDataSet;
+import com.onpositive.musket.data.images.IMultiClassSegmentationItem;
+import com.onpositive.musket.data.images.MultiClassClassificationItem;
+import com.onpositive.musket.data.images.MultiClassInstanceSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
+import com.onpositive.musket.data.images.MultiClassSegmentationItem;
 import com.onpositive.musket.data.images.MultiClassificationDataset;
 
 public class ImageDataSetFactories {
 
+	private static IQuestionAnswerer answerer;
 	protected ImageRepresenter images;
 
 	public ImageDataSetFactories(ImageRepresenter images) {
@@ -43,11 +50,13 @@ public class ImageDataSetFactories {
 			}
 			// }
 		}
-		return create(t);
+		return create(t, (IQuestionAnswerer) null);
 	}
 
-	public IDataSet create(ITabularDataSet t) {
-		IDataSet innerCreate = innerCreate(t);
+	public IDataSet create(ITabularDataSet t,IQuestionAnswerer answerer) {
+		try{
+		ImageDataSetFactories.answerer=answerer;
+		IDataSet innerCreate = innerCreate(t,answerer);
 		if (innerCreate == null) {
 			List<? extends IColumn> columns = t.columns();
 			ArrayList<IColumn> mm = new ArrayList<>();
@@ -66,17 +75,19 @@ public class ImageDataSetFactories {
 				}
 			});
 			BasicDataSetImpl newDs = new BasicDataSetImpl((ArrayList<? extends ITabularItem>) t.items(), mm);
-			return innerCreate(newDs);
+			return innerCreate(newDs,answerer);
 		}
 		return innerCreate;
+		}finally {
+			answerer=null;
+		}
 	}
 
-	private IDataSet innerCreate(ITabularDataSet t) {
+	private IDataSet innerCreate(ITabularDataSet t, IQuestionAnswerer a) {
 		List<? extends IColumn> columns = t.columns();
 
 		IColumn imageColumn = null;
-		
-		
+
 		for (IColumn c : columns) {
 			if (images.like(c)) {
 				if (imageColumn == null) {
@@ -87,15 +98,15 @@ public class ImageDataSetFactories {
 			}
 		}
 		if (imageColumn == null) {
-			IColumn textColumn=null;
+			IColumn textColumn = null;
 			for (IColumn c : columns) {
 				if (isText(c)) {
-					textColumn=c;
+					textColumn = c;
 					break;
 				}
 			}
-			if (textColumn!=null) {
-				return TextDataSetFactories.create(t,textColumn);
+			if (textColumn != null) {
+				return TextDataSetFactories.create(t, textColumn, a);
 			}
 			return null;
 		}
@@ -108,7 +119,6 @@ public class ImageDataSetFactories {
 		}
 		IColumn maskColumn = null;
 
-		
 		for (IColumn c : arrayList) {
 			if (c != imageColumn) {
 				boolean like = new RLERepresenter().like(c);
@@ -137,20 +147,32 @@ public class ImageDataSetFactories {
 		if (clazzColumn != null && maskColumn != null) {
 			if (!multipleObjects || true) {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
-				return new MultiClassSegmentationDataSet(t, imageColumn, maskColumn, bufferedImage.getHeight(),
+				MultiClassSegmentationDataSet multiClassSegmentationDataSet = new MultiClassSegmentationDataSet(t, imageColumn, maskColumn, bufferedImage.getHeight(),
 						bufferedImage.getWidth(), images, clazzColumn);
+				Stream<IMultiClassSegmentationItem> filter = multiClassSegmentationDataSet.items().stream().parallel().filter(x->{
+					return ((MultiClassSegmentationItem) x).hasSameClass();
+				});
+				Optional<IMultiClassSegmentationItem> findAny = filter.findAny();
+				if (findAny.isPresent()) {
+					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(t,multiClassSegmentationDataSet.getSettings(),images);
+				}
+				return multiClassSegmentationDataSet;
 			}
 		}
 		if (clazzColumn != null) {
 			Collection<Object> values2 = new LinkedHashSet<>(clazzColumn.values());
+			
 			if (values2.size() == 2) {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
 				return new BinaryClassificationDataSet(t, imageColumn, clazzColumn, bufferedImage.getHeight(),
 						bufferedImage.getWidth(), images);
 			} else {
+				
 				BufferedImage bufferedImage = images.get(images.iterator().next());
-				return new MultiClassificationDataset(t, imageColumn, clazzColumn, bufferedImage.getHeight(),
-						bufferedImage.getWidth(), images);
+				MultiClassificationDataset multiClassificationDataset = new MultiClassificationDataset(t, imageColumn,
+						clazzColumn, bufferedImage.getHeight(), bufferedImage.getWidth(), images);
+				
+				return multiClassificationDataset;
 			}
 		}
 		return t;
@@ -174,26 +196,25 @@ public class ImageDataSetFactories {
 		}
 		return clazzColumn;
 	}
-	
+
 	protected static ArrayList<IColumn> findClassColumns(ArrayList<IColumn> arrayList) {
 		ArrayList<IColumn> clazzColumns = new ArrayList<>();
 		for (IColumn m : arrayList) {
 			if (m.caption().toLowerCase().contains("class") || m.caption().toLowerCase().contains("clazz")
 					|| m.caption().toLowerCase().contains("classes")) {
-				clazzColumns.add( m);
+				clazzColumns.add(m);
 				continue;
 			}
 			LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(m.values());
 			if (linkedHashSet.size() < 1000) {
-				
+
 				if (isAllInt(linkedHashSet) || isAllString(linkedHashSet) || isBool(linkedHashSet)) {
-					if(clazzColumns.isEmpty()) {
-						clazzColumns.add( m);
+					if (clazzColumns.isEmpty()) {
+						clazzColumns.add(m);
+					} else if (linkedHashSet.size() < 100) {
+						clazzColumns.add(m);
 					}
-					else if (linkedHashSet.size()<100) {
-						clazzColumns.add( m);
-					}
-					
+
 				}
 			}
 		}
@@ -221,13 +242,13 @@ public class ImageDataSetFactories {
 		}
 		return true;
 	}
-	
+
 	public static boolean isText(IColumn c) {
 		return isText(c.values());
 	}
-	
-	public static boolean isText(Collection<Object>linkedHashSet) {
-		int textCount=0;
+
+	public static boolean isText(Collection<Object> linkedHashSet) {
+		int textCount = 0;
 		for (Object o : linkedHashSet) {
 			try {
 				String string = o.toString();
@@ -238,33 +259,33 @@ public class ImageDataSetFactories {
 				return false;
 			}
 		}
-		return textCount>linkedHashSet.size()/2;
+		return textCount > linkedHashSet.size() / 2;
 	}
 
 	private static boolean looksLikeText(String string) {
 		String[] split = string.split(" ");
-		int words=0;
-		if (split.length>2) {
-			for (String m:split) {
+		int words = 0;
+		if (split.length > 2) {
+			for (String m : split) {
 				if (isWord(m)) {
 					words++;
 				}
 			}
 		}
-		return words>3;
+		return words > 3;
 	}
-	
+
 	public static boolean isNumber(String m) {
 		try {
 			Double.parseDouble(m);
 			return true;
-		}catch (NumberFormatException e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 	}
-	
+
 	private static boolean isWord(String m) {
-		for (int i=0;i<m.length();i++) {
+		for (int i = 0; i < m.length(); i++) {
 			char charAt = m.charAt(i);
 			if (!Character.isLetter(charAt)) {
 				return false;
@@ -282,5 +303,9 @@ public class ImageDataSetFactories {
 			}
 		}
 		return true;
+	}
+
+	public static IQuestionAnswerer getAnswerer() {
+		return answerer;
 	}
 }

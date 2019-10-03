@@ -54,7 +54,6 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 			}
 		}
-
 	}
 
 	public MultiClassSegmentationDataSet(ITabularDataSet base, Map<String, Object> settings, ImageRepresenter rep) {

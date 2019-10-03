@@ -50,7 +50,7 @@ public class BinarySegmentationItemWithGroundTruth extends BinarySegmentationIte
 	
 	public IMask getPredictionMask() {
 		if (this.prleMask==null) {
-			prleMask = base.createMask(base.rleColumn.getValueAsString(prediction), base.height, base.width);
+			prleMask = base.createMask(base.rleColumn.getValueAsString(prediction), base.height, base.width,this);
 		}
 		return this.prleMask;
 	}

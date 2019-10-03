@@ -1,9 +1,12 @@
 package com.onpositive.musket_core;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -317,13 +320,41 @@ public class ProjectWrapper {
 	public String getPath() {
 		return this.path;
 	}
+	
+	private String runProcess(Process process) throws Throwable {
+		process.waitFor();
+		
+		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		
+		StringBuilder builder = new StringBuilder();
+		
+		String line = null;
+		
+		while((line = reader.readLine()) != null) {
+			builder.append(line);
+			
+			builder.append(System.getProperty("line.separator"));
+		}
+		
+		return builder.toString();
+	}
 
 	public void innerIntrospect(String pythonPath, String absolutePath) {
 		synchronized (mon) {
-			ProcessBuilder command = new ProcessBuilder().command("python", "-m", "musket_core.inspectProject",
-					"--project", path, "--out", absolutePath);
+			String whichResult = "";
+			
 			try {
-				command.environment().putAll(System.getenv());
+				whichResult = runProcess(new ProcessBuilder().command("which", "python3").start());
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+			
+			ProcessBuilder command = new ProcessBuilder().command(whichResult.isEmpty() ? "python" : "python3", "-m", "musket_core.inspectProject", "--project", path, "--out", absolutePath);
+			
+			try {
+				Map<String, String> envs = System.getenv();
+				
+				command.environment().putAll(envs);
 				if (pythonPath != null) {
 					command.environment().put("PYTHONPATH", pythonPath);
 				}
@@ -331,6 +362,7 @@ public class ProjectWrapper {
 				command.redirectError(file);
 				command.redirectOutput(new File(getMetaDir() + "/output.log"));
 				int waitFor = command.start().waitFor();
+				
 				if (waitFor != 0) {
 					List<String> readAllLines = Files.readAllLines(file.toPath());
 					PythonError pythonError = new PythonError(readAllLines);

@@ -19,7 +19,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -36,7 +35,6 @@ import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
 import com.onpositive.datasets.visualisation.ui.views.CSVDataSetEditor;
 import com.onpositive.datasets.visualisation.ui.views.ClassificationTemplate;
-import com.onpositive.datasets.visualisation.ui.views.ImageExperimentTemplate;
 import com.onpositive.datasets.visualisation.ui.views.GenericExperimentTemplate;
 import com.onpositive.datasets.visualisation.ui.views.SegmentationTemplate;
 import com.onpositive.datasets.visualisation.ui.views.TextClassificationTemplate;
@@ -75,12 +73,15 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 	@Override
 	public void addPages() {
 		// TODO Auto-generated method stub
-		this.addPage(new WizardPage("Hello") {
+		this.addPage(new DLFWizardPage("Hello") {
 
+			
+			
 			@Override
 			public void createControl(Composite parent) {
 				setImageDescriptor(SWTImageManager.getDescriptor("new_exp_wiz"));
-				RootElement el = new RootElement(parent);
+				el = new RootElement(parent);
+				
 				setTitle("New Experiment");
 				setMessage("Let's have fun");
 				experimentParams = new ExperimentParams();
@@ -182,7 +183,7 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 					IDataSet ds = null;
 					try {
 						if (x != null && x.exists()) {
-							ds=DataProjectAccess.getDataSet(x.getLocation().toFile());
+							ds=DataProjectAccess.getDataSet(x.getLocation().toFile(),null);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

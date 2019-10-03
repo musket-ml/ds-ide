@@ -6,7 +6,7 @@
  	<spinner bindTo="gpusPerNet" caption="Number of GPUS per one network"/>
  	<spinner bindTo="numGpus" caption="Number of GPUs to use"/>
  	<spinner bindTo="numWorkers" caption="Total number of workers"/>
- 	
+ 	 
  	<radio  bindTo="fitFromScratch" caption="Fit from start"/>
  	<radio  bindTo="allowResume" caption="Resume incomplete experiments"/>
  	<radio  bindTo="onlyReports" caption="Only generate reports"/>
@@ -18,5 +18,5 @@
 	</vc>		
  	<separator vertical="false"/>
  	<checkbox bindTo="debug" caption="Launch in debug mode?"/>
- 	
+ 	<checkbox bindTo="CleanSplits" caption="Always initialize data splits from scratch"/>
 </composite-editor>

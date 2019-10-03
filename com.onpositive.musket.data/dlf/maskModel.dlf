@@ -1,0 +1,9 @@
+<composite-editor
+	xmlns="http://jetface.org/JetFace1.0/" caption="Please define mask resolution" description="This dataset uses images with different resolutions,please let us know what is the resolution of rle masks">
+	<model class="com.onpositive.musket.data.images.MaskModel" />
+	<checkbox bindTo="sameAsImage" />
+	<hc>
+		<string bindTo="width" enablement="!sameAsImage" />
+		<string bindTo="height" enablement="!sameAsImage" />
+	</hc>
+</composite-editor>
