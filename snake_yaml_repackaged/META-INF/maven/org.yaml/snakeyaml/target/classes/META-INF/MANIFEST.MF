@@ -4,11 +4,7 @@ Bundle-License: LICENSE.txt
 Bundle-SymbolicName: org.yaml.snakeyaml
 Built-By: 32kda
 Bundle-ManifestVersion: 2
-<<<<<<< HEAD
-Bnd-LastModified: 1569664508267
-=======
-Bnd-LastModified: 1569404048809
->>>>>>> refs/heads/maven_migration
+Bnd-LastModified: 1570089470410
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Tool: Bnd-1.15.0
 Bundle-Version: 1.9.0
