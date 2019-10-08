@@ -39,11 +39,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 
 import com.onpositive.commons.SWTImageManager;
-import com.onpositive.dside.ast.CompletionContext;
-import com.onpositive.dside.ast.TypeRegistryProvider;
-import com.onpositive.dside.ast.Universe.CompletionSuggestions;
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.ui.editors.outline.OutlineLabelProvider;
+import com.onpositive.yamledit.ast.CompletionContext;
+import com.onpositive.yamledit.ast.TypeRegistryProvider;
+import com.onpositive.yamledit.ast.Universe.CompletionSuggestions;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
 
 import de.jcup.yamleditor.YamlEditorUtil;
 
@@ -72,7 +72,7 @@ public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssis
 		if ("Generic".equals(extractFragment)) {
 			extractFragment=null;
 		}
-		CompletionSuggestions suggestions = TypeRegistryProvider.getRegistry(extractFragment==null?"basicConfig":extractFragment).find(completionContext,
+		CompletionSuggestions suggestions = editor.getRegistry().find(completionContext,
 				editor.getProject().getDetails(),editor.getAdapter(File.class));
 		LinkedHashSet<String> strs = new LinkedHashSet<>();
 		ArrayList<ICompletionProposal> proposals = new ArrayList<>();

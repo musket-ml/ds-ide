@@ -19,5 +19,4 @@ Export-Package: com.onpositive.musket.data.column.analisys,
  com.onpositive.musket.data.project,
  com.onpositive.musket.data.registry,
  com.onpositive.musket.data.table,
- com.onpositive.musket.data.tests,
  com.onpositive.musket.data.text

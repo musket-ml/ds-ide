@@ -2,7 +2,7 @@ package com.onpositive.dside.dto;
 
 import java.util.ArrayList;
 
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
 
 public class GetPossibleAnalisisResult {
 

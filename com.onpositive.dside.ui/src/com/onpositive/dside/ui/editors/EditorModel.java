@@ -2,9 +2,9 @@ package com.onpositive.dside.ui.editors;
 
 import org.eclipse.ui.editors.text.TextEditor;
 
-import com.onpositive.dside.ui.editors.yaml.model.ModelNode;
-import com.onpositive.dside.ui.editors.yaml.model.NodeKind;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
+import com.onpositive.yamledit.model.ModelNode;
+import com.onpositive.yamledit.model.NodeKind;
 
 import de.jcup.yamleditor.YamlEditor;
 

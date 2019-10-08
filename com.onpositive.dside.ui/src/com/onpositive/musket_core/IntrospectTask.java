@@ -1,7 +1,7 @@
 package com.onpositive.musket_core;
 
-import com.onpositive.dside.dto.introspection.InstrospectionResult;
 import com.onpositive.dside.tasks.IServerTask;
+import com.onpositive.yamledit.introspection.InstrospectionResult;
 
 public class IntrospectTask implements IServerTask<InstrospectionResult>{
 

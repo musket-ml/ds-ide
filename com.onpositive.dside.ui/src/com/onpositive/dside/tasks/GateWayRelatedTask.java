@@ -28,7 +28,7 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 	private int listeningPort;
 	private GatewayServer server;
 	protected IServer musketServer;
-	private com.onpositive.musket_core.IProject musketProject;
+	private com.onpositive.musket_core.IMusketProject musketProject;
 	private ILaunch launch;
 	
 	private CompletableFuture<IServer> serverFuture = new CompletableFuture<IServer>();
@@ -61,7 +61,7 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 
 	public void created(IServer server) {
 		this.musketServer=server;		
-		com.onpositive.musket_core.IProject project2 = server.project(this.project.getLocation().toOSString());
+		com.onpositive.musket_core.IMusketProject project2 = server.project(this.project.getLocation().toOSString());
 		this.musketProject=project2;
 		delegate.started(this);
 		

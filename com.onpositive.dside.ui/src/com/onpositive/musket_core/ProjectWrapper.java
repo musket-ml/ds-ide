@@ -1,12 +1,9 @@
 package com.onpositive.musket_core;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -25,7 +22,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobFunction;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.swt.widgets.Display;
 import org.python.pydev.ast.interpreter_managers.InterpreterManagersAPI;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.debug.ui.launching.FileOrResource;
@@ -34,13 +30,16 @@ import org.python.pydev.debug.ui.launching.LaunchShortcut;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.yaml.snakeyaml.Yaml;
 
-import com.onpositive.dside.dto.PythonError;
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
-import com.onpositive.dside.dto.introspection.InstrospectionResult;
 import com.onpositive.dside.tasks.TaskManager;
-import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
+import com.onpositive.dside.ui.introspection.IIntrospector;
+import com.onpositive.dside.ui.introspection.ShellIntrospector;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
+import com.onpositive.yamledit.introspection.InstrospectionResult;
+import com.onpositive.yamledit.project.IProjectContext;
 
 public class ProjectWrapper {
+	
+	protected IIntrospector projectIntrospector;
 
 	public ProjectWrapper(String projectPath) {
 		this.path = projectPath;
@@ -61,6 +60,11 @@ public class ProjectWrapper {
 				}
 			}
 		}
+		projectIntrospector = createIntrospector();
+	}
+
+	protected IIntrospector createIntrospector() {
+		return new ShellIntrospector();
 	}
 
 	protected String path;
@@ -69,6 +73,8 @@ public class ProjectWrapper {
 	protected ArrayList<Runnable> listeners = new ArrayList<>();
 
 	private InstrospectionResult details = new InstrospectionResult();
+
+	protected Object mon = new Object();
 
 	public InstrospectionResult getDetails() {
 		return details;
@@ -85,7 +91,17 @@ public class ProjectWrapper {
 	public void setDetails(InstrospectionResult details) {
 		this.details = details;
 	}
-
+	
+	public IProjectContext getProjectContext()	{
+		return new IProjectContext() {
+			
+			@Override
+			public File[] getAdditionalFiles() {
+				return new File[] {new File(path, "common.yaml")};
+			}
+		};
+	}
+	
 	public static class BasicDataSetDesc {
 
 		public String name;
@@ -232,9 +248,9 @@ public class ProjectWrapper {
 		return declarations;
 	}
 
-	public synchronized void refresh(Runnable r) {
-		if (r != null) {
-			this.requests.add(r);
+	public synchronized void refresh(Runnable request) {
+		if (request != null) {
+			this.requests.add(request);
 		}
 		Job create = Job.create("Refreshing project meta", new IJobFunction() {
 
@@ -307,78 +323,12 @@ public class ProjectWrapper {
 	public String getPath() {
 		return this.path;
 	}
-
-	protected Object mon = new Object();
 	
-	private String runProcess(Process process) throws Throwable {
-		process.waitFor();
-		
-		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		
-		StringBuilder builder = new StringBuilder();
-		
-		String line = null;
-		
-		while((line = reader.readLine()) != null) {
-			builder.append(line);
-			
-			builder.append(System.getProperty("line.separator"));
-		}
-		
-		return builder.toString();
-	}
+	
 
 	public void innerIntrospect(String pythonPath, String absolutePath) {
 		synchronized (mon) {
-			String whichResult = "";
-			
-			try {
-				whichResult = runProcess(new ProcessBuilder().command("which", "python3").start());
-			} catch (Throwable t) {
-				t.printStackTrace();
-			}
-			
-			ProcessBuilder command = new ProcessBuilder().command(whichResult.isEmpty() ? "python" : "python3", "-m", "musket_core.inspectProject", "--project", path, "--out", absolutePath);
-			
-			try {
-				Map<String, String> envs = System.getenv();
-				
-				command.environment().putAll(envs);
-				if (pythonPath != null) {
-					command.environment().put("PYTHONPATH", pythonPath);
-				}
-				File file = new File(getMetaDir() + "/error.log");
-				command.redirectError(file);
-				command.redirectOutput(new File(getMetaDir() + "/output.log"));
-				int waitFor = command.start().waitFor();
-				
-				if (waitFor != 0) {
-					List<String> readAllLines = Files.readAllLines(file.toPath());
-					PythonError pythonError = new PythonError(readAllLines);
-					Display.getDefault().asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-							boolean createObject = WidgetRegistry.createObject(new StackVisualizer(pythonError));
-							if (createObject) {
-								pythonError.open();
-							}
-						}
-					});
-					return;
-				}
-				FileReader fileReader = new FileReader(absolutePath);
-				try {
-					InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
-					refreshed(loadAs);
-
-				} finally {
-					fileReader.close();
-				}
-				// ServerManager.perform(new IntrospectTask(this));
-			} catch (InterruptedException | IOException e) {
-				e.printStackTrace();
-			}
+			projectIntrospector.introspect(path, pythonPath, absolutePath);
 		}
 
 	}

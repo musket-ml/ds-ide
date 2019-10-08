@@ -62,6 +62,8 @@
 	<modules>
 		<module>../com.onpositive.dside.target</module>
 		<module>../com.onpositive.yamledit</module>
+		<module>../com.onpositive.musket.data</module>
+		<module>../com.onpositive.datasets.visualisation.ui</module>
 		<module>../com.onpositive.dside.ui</module>
 		<module>../com.onpositive.dside.product</module>
 	</modules>

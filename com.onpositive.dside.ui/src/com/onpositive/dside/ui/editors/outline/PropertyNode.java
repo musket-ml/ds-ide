@@ -7,7 +7,7 @@ import java.util.Collections;
 import org.aml.typesystem.beans.IProperty;
 import org.aml.typesystem.values.IArray;
 
-import com.onpositive.dside.ast.ASTElement;
+import com.onpositive.yamledit.ast.ASTElement;
 
 public class PropertyNode extends OutlineNode implements Comparable<PropertyNode>{
 

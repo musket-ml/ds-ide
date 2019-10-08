@@ -11,8 +11,6 @@ import com.onpositive.commons.elements.Container;
 import com.onpositive.commons.ui.appearance.HorizontalLayouter;
 import com.onpositive.commons.ui.appearance.OneElementOnLineLayouter;
 import com.onpositive.commons.ui.dialogs.FormDialog;
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
-import com.onpositive.dside.dto.introspection.IntrospectedParameter;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.semantic.model.api.meta.BaseMeta;
 import com.onpositive.semantic.model.api.meta.DefaultMetaKeys;
@@ -32,6 +30,8 @@ import com.onpositive.semantic.model.ui.property.editors.structured.ComboEnumera
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 import com.onpositive.semantic.ui.core.Rectangle;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
+import com.onpositive.yamledit.introspection.IntrospectedParameter;
 
 public class DynamicUI {
 

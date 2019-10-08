@@ -7,7 +7,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.part.FileEditorInput;
 
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.tasks.analize.AnalizeData;
@@ -19,6 +18,7 @@ import com.onpositive.dside.ui.TaskConfiguration;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ValidateTask;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
 
 public class EditorTasks {
 

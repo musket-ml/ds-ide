@@ -42,8 +42,6 @@ import com.onpositive.commons.elements.ToolbarElement;
 import com.onpositive.dside.dto.DataSetAnalisysRequest;
 import com.onpositive.dside.dto.DataSetFilter;
 import com.onpositive.dside.dto.GetPossibleAnalisisResult;
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
-import com.onpositive.dside.dto.introspection.IntrospectedParameter;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.ui.DataSetGallery;
 import com.onpositive.dside.ui.DynamicUI;
@@ -64,6 +62,8 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 import com.onpositive.semantic.ui.core.Alignment;
 import com.onpositive.semantic.ui.core.Rectangle;
 import com.onpositive.semantic.ui.workbench.elements.XMLView;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
+import com.onpositive.yamledit.introspection.IntrospectedParameter;
 
 public class AnalistsView extends XMLView {
 

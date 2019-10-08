@@ -1,6 +1,6 @@
 package com.onpositive.dside.tasks;
 
-import com.onpositive.musket_core.IProject;
+import com.onpositive.musket_core.IMusketProject;
 import com.onpositive.musket_core.IServer;
 
 public interface IGateWayServerTaskDelegate {
