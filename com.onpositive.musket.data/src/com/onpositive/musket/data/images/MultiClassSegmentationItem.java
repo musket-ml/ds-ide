@@ -109,8 +109,10 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 		if (this.items.isEmpty()) {
 			return false;
 		}
-		if (this.getMask().isEmpty()) {
-			return false;
+		for (IMask m:getMasks()) {
+			if (!m.isEmpty()) {
+				return true;
+			}
 		}
 		return true;
 	}
