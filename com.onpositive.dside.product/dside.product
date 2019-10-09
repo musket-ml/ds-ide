@@ -22,7 +22,7 @@
 
    <splash
       location="com.onpositive.dside.ui"
-      startupProgressRect="2,248,450,10"
+      startupProgressRect="2,250,450,10"
       startupMessageRect="7,235,320,15"
       startupForegroundColor="e6e8ff" />
    <launcher name="ds-ide">
@@ -242,6 +242,12 @@
       <plugin id="org.eclipse.ecf.provider.filetransfer.httpclient4.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.provider.filetransfer.ssl" fragment="true"/>
       <plugin id="org.eclipse.ecf.ssl" fragment="true"/>
+      <plugin id="org.eclipse.egit"/>
+      <plugin id="org.eclipse.egit.core"/>
+      <plugin id="org.eclipse.egit.doc"/>
+      <plugin id="org.eclipse.egit.gitflow"/>
+      <plugin id="org.eclipse.egit.gitflow.ui"/>
+      <plugin id="org.eclipse.egit.ui"/>
       <plugin id="org.eclipse.emf.common"/>
       <plugin id="org.eclipse.emf.ecore"/>
       <plugin id="org.eclipse.emf.ecore.change"/>
