@@ -136,6 +136,8 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	private void init() {
 		if (ds==null) {
 			((Container)getUIRoot()).getElement("sl").setEnabled(false);
+			((Container)getUIRoot()).getElement("label").setText("Sorry, we do not understand this kind of dataset yet");
+			
 			return;
 		}
 		AnalisysEngine engine = new AnalisysEngine(ds);
