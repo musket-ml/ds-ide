@@ -15,4 +15,8 @@ templates:
      kind: segmentation
      description: Basic text classification template
      kind: text_classification
-     file: text_classification.yaml   
+     file: text_classification.yaml
+   - name: Instance Segmentation
+     kind: instance_segmentation
+     description: Basic instance segmentation template
+     file: instance_segmentation.yaml

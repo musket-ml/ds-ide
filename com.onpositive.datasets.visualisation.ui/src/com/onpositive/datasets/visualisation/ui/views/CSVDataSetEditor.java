@@ -205,6 +205,10 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			GenericExperimentTemplate temp, String dsName) {
 		GenericExperimentTemplate classificationTemplate = temp;
 		temp.projectPath = project.getLocation().toFile().getAbsolutePath();
+
+		classificationTemplate.activation = "sigmoid";
+		classificationTemplate.numClasses = 1;
+		classificationTemplate.name = name;
 		if (original != null) {
 
 			if (classificationTemplate instanceof ImageExperimentTemplate) {
@@ -213,9 +217,6 @@ public class CSVDataSetEditor extends AnalistsEditor {
 				((ImageExperimentTemplate) classificationTemplate).width = image.getWidth(null);
 				((ImageExperimentTemplate) classificationTemplate).height = image.getHeight(null);
 			}
-			classificationTemplate.activation = "sigmoid";
-			classificationTemplate.numClasses = 1;
-			classificationTemplate.name = name;
 			if (original instanceof IMulticlassClassificationDataSet) {
 				int size = ((IMulticlassClassificationDataSet) original).classNames().size();
 				if (size > 2 && !(((IMulticlassClassificationDataSet) original).isExclusive())) {

@@ -1,0 +1,33 @@
+#%Musket Segmentation 1.0
+backbone: mobilenetv2 #let's select classifier backbone for our network 
+architecture: DeepLabV3 #let's select segmentation architecture that we would like to use
+augmentation: 
+ Fliplr: 0.5 #let's define some minimal augmentations on images
+ Flipud: 0.5 
+classes: 1 #we have just one class (mask or no mask) 
+activation: sigmoid #one class means that our last layer should use sigmoid activation
+encoder_weights: pascal_voc #we would like to start from network pretrained on pascal_voc dataset
+shape: [320, 320, 3] #This is our desired input image and mask size, everything will be resized to fit. 
+optimizer: Adam #Adam optimizer is a good default choice
+batch: 16 #Our batch size will be 16 
+metrics: #We would like to track some metrics 
+  - binary_accuracy    
+  - dice  
+primary_metric: val_binary_accuracy #and the most interesting metric is val_binary_accuracy
+callbacks: #Let's configure some minimal callbacks  
+  EarlyStopping:
+    patience: 15
+    monitor: val_binary_accuracy
+    verbose: 1 
+  ReduceLROnPlateau:
+    patience: 4
+    factor: 0.5
+    monitor: val_binary_accuracy  
+    mode: auto
+    cooldown: 5
+    verbose: 1
+loss: binary_crossentropy #We use simple binary_crossentropy loss
+stages:
+  - epochs: 100 #Let's go for 100 epochs
+dataset:
+   getData: []  

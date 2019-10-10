@@ -36,6 +36,7 @@ import com.onpositive.commons.elements.RootElement;
 import com.onpositive.datasets.visualisation.ui.views.CSVDataSetEditor;
 import com.onpositive.datasets.visualisation.ui.views.ClassificationTemplate;
 import com.onpositive.datasets.visualisation.ui.views.GenericExperimentTemplate;
+import com.onpositive.datasets.visualisation.ui.views.InstanceSegmentationTemplate;
 import com.onpositive.datasets.visualisation.ui.views.SegmentationTemplate;
 import com.onpositive.datasets.visualisation.ui.views.TextClassificationTemplate;
 import com.onpositive.dside.ui.navigator.ExperimentGroup;
@@ -166,11 +167,14 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 		if (template.kind.equals("classification")) {
 			rs = new ClassificationTemplate();
 		}
-		if (template.kind.equals("segmentation")) {
+		else if (template.kind.equals("segmentation")) {
 			rs = new SegmentationTemplate();
 		}
-		if (template.kind.equals("text_classification")) {
+		else if (template.kind.equals("text_classification")) {
 			rs = new TextClassificationTemplate();
+		}
+		else if(template.kind.equals("instance_segmentation")){
+			rs = new InstanceSegmentationTemplate();
 		}
 		GenericExperimentTemplate ft=rs;
 		if (rs != null) {

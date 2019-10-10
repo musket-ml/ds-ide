@@ -1,0 +1,19 @@
+#%Musket MMDetection 1.0
+
+classes: {numClasses}
+shape: {shape}
+imagesPerGpu: {imagesPerGpu}
+
+inference_batch: 1
+stages:
+  - epochs: 15
+
+stages:
+  - epochs: 30 #let's go for 100 epochs
+    {negatives}
+{secondStage}    
+dataset:
+   {dataset}
+
+configPath: {configPath}
+weightsPath: {weightsPath}
