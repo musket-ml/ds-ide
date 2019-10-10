@@ -32,9 +32,11 @@ import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 import org.yaml.snakeyaml.nodes.Tag;
 
-import com.onpositive.dside.dto.introspection.InstrospectedFeature;
-import com.onpositive.dside.dto.introspection.InstrospectionResult;
-import com.onpositive.dside.dto.introspection.IntrospectedParameter;
+import com.onpositive.yamledit.ast.ASTElement;
+import com.onpositive.yamledit.ast.CompletionContext;
+import com.onpositive.yamledit.introspection.InstrospectedFeature;
+import com.onpositive.yamledit.introspection.InstrospectionResult;
+import com.onpositive.yamledit.introspection.IntrospectedParameter;
 
 public class Universe extends TypeRegistryImpl {
 

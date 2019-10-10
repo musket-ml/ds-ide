@@ -130,13 +130,8 @@ public class TypeRegistryProvider {
 				type3=derive;
 			}
 			if (type3==null) {
-				if (type.endsWith("[]")) {
-					type3=reg.getType(type.substring(0,type.length()-2));
-					type3=TypeOps.array(type3);
-				}
-				if (type3==null) {
-				throw new NullPointerException(propertyDescription.getType());
-				}
+				
+				type3 = createType(reg, propertyDescription, type, type3);
 			}
 			
 			if (propertyDescription.isMultivalue()) {
@@ -158,5 +153,36 @@ public class TypeRegistryProvider {
 			}
 			type2.declareProperty(s, type3, !propertyDescription.isRequired());
 		}
+	}
+
+	protected static AbstractType createType(ITypeRegistry reg, PropertyDescription propertyDescription, String type,
+			AbstractType type3) {
+		if (type.indexOf('|')!=-1) {
+			String[] split = type.split("\\|");
+			AbstractType res=null;
+			for (String s:split) {
+				
+				AbstractType createType = createType(reg, propertyDescription, s, type3);
+				if (res==null) {
+					res=createType;
+				}
+				else {
+					res=TypeOps.union("", res,createType);
+				}
+			}
+			return res;
+		}
+		if (type.endsWith("[]")) {
+			type3=reg.getType(type.substring(0,type.length()-2));
+			type3=TypeOps.array(type3);
+		}
+		
+		if (type3==null) {
+			type3=BuiltIns.getBuiltInTypes().getType(type);
+			if (type3==null) {
+				throw new NullPointerException(propertyDescription.getType());
+			}
+		}
+		return type3;
 	}
 }

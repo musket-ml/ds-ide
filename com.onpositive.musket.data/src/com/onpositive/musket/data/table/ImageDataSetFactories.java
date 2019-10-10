@@ -155,6 +155,7 @@ public class ImageDataSetFactories {
 				Optional<IMultiClassSegmentationItem> findAny = filter.findAny();
 				if (findAny.isPresent()) {
 					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(t,multiClassSegmentationDataSet.getSettings(),images);
+					return multiClassSegmentationDataSet;
 				}
 				return multiClassSegmentationDataSet;
 			}

@@ -171,11 +171,12 @@ types:
       augmentation:
          type: object
       classes:
-         type: integer
+         type: integer|integer[]
          min: 1
          required: true
       activation:
-         type: string
+         type: string|string[]
+         
          required: true
       weights:
          type: string

@@ -30,11 +30,11 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 
 	protected Node node;
 		
-	protected AbstractType type;
-	protected String key;
+	public AbstractType type;
+	public String key;
 	protected ASTElement parent;
 	protected ITypeRegistry registry;
-	protected String oneValue;
+	public String oneValue;
 	protected boolean fromNull = false;
 	protected int num=-1;
 
