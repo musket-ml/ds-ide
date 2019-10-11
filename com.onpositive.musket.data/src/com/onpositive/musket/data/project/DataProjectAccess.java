@@ -13,8 +13,6 @@ import com.onpositive.musket.data.table.IQuestionAnswerer;
 
 public class DataProjectAccess {
 
-	
-	
 	public static DataProject getProject(File file) {
 		return new DataProject(file);		
 	}

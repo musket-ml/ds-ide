@@ -1,9 +1,15 @@
 package com.onpositive.dside.ui.editors;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -13,11 +19,9 @@ import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.ui.ApplicationFrame;
 
-import com.opencsv.CSVReader;
-
 public class DetailedLogViewer {
 
-	static String[] headers = null;
+	static CSVRecord headers = null;
 	static ArrayList<Double[]> data = new ArrayList<>();
 
 	public static DefaultXYDataset createDataset(String metric) {
@@ -35,8 +39,8 @@ public class DetailedLogViewer {
 		if (headers == null) {
 			return;
 		}
-		for (int i = 0; i < headers.length; i++) {
-			if (headers[i].equals(metric)) {
+		for (int i = 0; i < headers.size(); i++) {
+			if (headers.get(i).equals(metric)) {
 				index = i;
 			}
 		}
@@ -95,14 +99,15 @@ public class DetailedLogViewer {
 	public static void main(String[] args) {
 		
 		try {
-			new CSVReader(new FileReader("D:\\jigsaw\\experiments\\e9\\metrics\\metrics-0.0.csvall2.csv")).forEach(l -> {
+			CSVParser.parse(new File("D:\\jigsaw\\experiments\\e9\\metrics\\metrics-0.0.csvall2.csv"), Charset.forName("UTF-8"), CSVFormat.DEFAULT).forEach(l -> {
 				if (headers == null) {
 					headers = l;
+					
 				} else {
-					Double[] res = new Double[l.length];
+					Double[] res = new Double[l.size()];
 					for (int i = 0; i < res.length; i++) {
 						try {
-							String string = l[i];
+							String string = l.get(i);
 							if (string.isEmpty()) {
 								return;
 							}
@@ -115,7 +120,7 @@ public class DetailedLogViewer {
 					data.add(res);
 				}
 			});
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

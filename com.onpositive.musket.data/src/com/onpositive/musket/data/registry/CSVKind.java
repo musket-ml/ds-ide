@@ -1,11 +1,17 @@
 package com.onpositive.musket.data.registry;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+
 import com.onpositive.musket.data.core.DataSetMemento;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetIO;
@@ -16,62 +22,46 @@ import com.onpositive.musket.data.table.Column;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
-import com.opencsv.CSVParser;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-import com.opencsv.ICSVParser;
 public class CSVKind implements IDataSetIO{
 
 	@Override
 	public IDataSet loadDataSet(DataSetMemento memento, IProgressMonitor monitor) {
 		String url=memento.getUrl();
 		String path=url.substring(url.indexOf("://")+3);
-		try {
-			CSVReader csvReader = new CSVReader(new FileReader(new File(path)),',','"' ,false);
-			
-			csvReader.setMultilineLimit(100000);
-			try {
-				List<String[]> readAll = csvReader.readAll();
+		try (CSVParser csvParser = CSVParser.parse(new File(path), Charset.forName("UTF-8"), CSVFormat.DEFAULT);) { 
+//			csvParser.setMultilineLimit(100000);
+				List<CSVRecord> records = csvParser.getRecords();
 				ArrayList<Column>cs=new ArrayList<>();
 				ArrayList<BasicItem>items=new ArrayList<BasicItem>();
-				if (readAll.size()>0) {
-					String[] strings = readAll.get(0);
+				if (records.size()>0) {
+					CSVRecord strings = records.get(0);
 					int num=0;
 					for (String s:strings) {
-						Column orCreateColumn = getOrCreateColumn(s,readAll,memento,num++);
+						Column orCreateColumn = getOrCreateColumn(s,records,memento,num++);
 						
 						cs.add(orCreateColumn);
 					}
 				}
-				readAll=new ArrayList<>(readAll);
-				for (int i=1;i<readAll.size();i++) {
-					String[] strings = readAll.get(i);
-					Object[] dta=new Object[strings.length];
-					for (int j=0;j<strings.length;j++) {
-						dta[j]=cs.get(j).parse(strings[j]);
+				records=new ArrayList<>(records);
+				for (int i=1;i<records.size();i++) {
+					CSVRecord strings = records.get(i);
+					Object[] dta=new Object[strings.size()];
+					for (int j=0;j<strings.size();j++) {
+						dta[j]=cs.get(j).parse(strings.get(j));
 					}
 					BasicItem basicItem = new BasicItem(i-1, dta);
 					
 					items.add(basicItem);
 				}
 				return new BasicDataSetImpl(items,cs);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			finally {
-				try {
-					csvReader.close();
-				} catch (IOException e) {
-					throw new IllegalStateException(e);
-				}
-			}
 		} catch (FileNotFoundException e) {
 			throw new IllegalStateException(e);
+		} catch (IOException e1) {
+			throw new IllegalStateException(e1);
 		}
-		return null;
 	}
 
-	private Column getOrCreateColumn(String s, List<String[]> readAll, DataSetMemento memento,int num) {
+	private Column getOrCreateColumn(String s, List<CSVRecord> records, DataSetMemento memento,int num) {
 		return new Column(s, null, num, String.class);
 	}
 
@@ -87,7 +77,7 @@ public class CSVKind implements IDataSetIO{
 	}
 
 	public static void writeCSV(ITabularDataSet set, String path) throws IOException {
-		CSVWriter csvWriter = new CSVWriter(new FileWriter(path));
+		CSVPrinter csvWriter = new CSVPrinter(new FileWriter(path), CSVFormat.DEFAULT);
 		List<? extends IColumn> columns = set.columns();			
 		ArrayList<String[]>eee=new ArrayList<String[]>();
 		eee.add(columns.stream().map(x->x.id()).toArray(x->new String[x]));
@@ -99,7 +89,7 @@ public class CSVKind implements IDataSetIO{
 			eee.add(ll);
 			
 		});
-		csvWriter.writeAll(eee, false);
+		csvWriter.printRecords(eee);
 		csvWriter.close();
 	}
 }

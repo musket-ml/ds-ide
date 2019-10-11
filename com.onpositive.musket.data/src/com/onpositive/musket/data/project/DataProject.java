@@ -6,9 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
-
 import org.yaml.snakeyaml.Yaml;
-
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.NotEnoughParametersException;
 import com.onpositive.musket.data.registry.DataSetIO;

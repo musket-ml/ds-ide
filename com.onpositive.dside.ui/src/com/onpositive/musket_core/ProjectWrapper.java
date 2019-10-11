@@ -29,8 +29,10 @@ import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 
 import com.onpositive.dside.tasks.TaskManager;
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.introspection.IIntrospector;
 import com.onpositive.dside.ui.introspection.ShellIntrospector;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
@@ -50,7 +52,7 @@ public class ProjectWrapper {
 				try {
 					fileReader = new FileReader(absolutePath);
 					try {
-						InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
+						InstrospectionResult loadAs = new Yaml(new CustomClassLoaderConstructor(DSIDEUIPlugin.getDefault().getClass().getClassLoader())).loadAs(fileReader, InstrospectionResult.class);
 						this.refreshed(loadAs);
 					} finally {
 						fileReader.close();

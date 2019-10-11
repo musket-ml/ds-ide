@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.nebula.widgets.gallery;bundle-version="1.0.0",
  org.eclipse.ui.navigator.resources,
  py4j-java;bundle-version="0.10.8",
  org.apache.commons.lang3;bundle-version="3.1.0",
- snake_yaml_repackaged;bundle-version="1.0.0",
  org.eclipse.ui.forms,
  com.onpositive.semantic.ui.swt;bundle-version="1.4.0",
  com.onpositive.semantic.ui.workbench;bundle-version="1.0.1",
@@ -42,10 +41,11 @@ Require-Bundle: org.eclipse.nebula.widgets.gallery;bundle-version="1.0.0",
  org.aml.typesystem,
  org.eclipse.ui.views,
  jfreechard_repackaged;bundle-version="1.0.0",
- opencsv-repackaged;bundle-version="1.0.0",
  com.google.gson;bundle-version="2.7.0",
  com.onpositive.musket.data;bundle-version="1.0.0",
- com.onpositive.datasets.visualisation.ui;bundle-version="1.0.0"
+ com.onpositive.datasets.visualisation.ui;bundle-version="1.0.0",
+ org.apache.commons.csv;bundle-version="1.4.0",
+ org.yaml.snakeyaml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: com.onpositive.dside.ui
 Bundle-ActivationPolicy: lazy

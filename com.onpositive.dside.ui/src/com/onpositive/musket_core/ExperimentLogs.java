@@ -5,10 +5,14 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
@@ -16,36 +20,35 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultXYDataset;
 
-import com.opencsv.CSVReader;
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 
 public class ExperimentLogs {
 	
 	String name;
 
-	String[] headers;
+	CSVRecord headers;
 	ArrayList<Double[]> data = new ArrayList<>();
 
 	public ExperimentLogs(String name,String path) {
 		try {
 			this.name=name;
-			new CSVReader(new FileReader(path)).forEach(l -> {
+			CSVParser.parse(new File(path), Charset.forName("UTF-8"), CSVFormat.DEFAULT).forEach(hdr -> {
 				if (headers == null) {
-					headers = l;
+					headers = hdr;
 				} else {
-					Double[] res = new Double[l.length];
+					Double[] res = new Double[hdr.size()];
 					for (int i = 0; i < res.length; i++) {
 						try {
-						res[i] = Double.parseDouble(l[i]);
-						}catch (Exception e) {
-							// TODO: handle exception
+						res[i] = Double.parseDouble(hdr.get(i));
+						} catch (Exception e) {
+							DSIDEUIPlugin.log(e);
 						}
 					}
 					this.data.add(res);
 				}
 			});
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (IOException e) {
+			DSIDEUIPlugin.log(e);
 		}
 	}
 
@@ -80,8 +83,8 @@ public class ExperimentLogs {
 		if (headers==null) {
 			return;
 		}
-		for (int i = 0; i < this.headers.length; i++) {
-			if (this.headers[i].equals( metric)) {
+		for (int i = 0; i < this.headers.size(); i++) {
+			if (this.headers.get(i).equals( metric)) {
 				index = i;
 			}
 		}
