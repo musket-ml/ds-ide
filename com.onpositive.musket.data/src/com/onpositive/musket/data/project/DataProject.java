@@ -28,6 +28,10 @@ public class DataProject {
 		imageRepresenter = new ImageRepresenter(file.getAbsolutePath());
 		imageRepresenter.configure();
 	}
+	
+	public ImageRepresenter getRepresenter() {
+		return imageRepresenter;		
+	}
 
 	@SuppressWarnings("unchecked")
 	public IDataSet getDataSet(File file2, IQuestionAnswerer answerer) {
