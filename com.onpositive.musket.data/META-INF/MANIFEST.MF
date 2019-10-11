@@ -10,7 +10,8 @@ Require-Bundle: org.junit,
  opencsv-repackaged;bundle-version="1.0.0",
  org.apache.commons.lang3;bundle-version="3.1.0",
  com.onpositive.semantic.model.java;bundle-version="1.0.0",
- snake_yaml_repackaged;bundle-version="1.0.0"
+ snake_yaml_repackaged;bundle-version="1.0.0",
+ com.onpositive.semantic.model.ui.generic;bundle-version="1.0.0"
 Export-Package: com.onpositive.musket.data.column.analisys,
  com.onpositive.musket.data.core,
  com.onpositive.musket.data.core.filters,
