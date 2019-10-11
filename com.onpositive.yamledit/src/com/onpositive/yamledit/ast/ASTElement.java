@@ -297,7 +297,9 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 					// range.toPropertiesView().positionalProperties();
 
 				}
-				if (range.equals(BuiltIns.ANY)||range.isAnonimous()&&range.superType().equals(BuiltIns.ANY)) {
+				
+				AbstractType superType = range.superType();
+				if (range==null||range.equals(BuiltIns.ANY)||range.isAnonimous()&&(superType!=null&&superType.equals(BuiltIns.ANY))) {
 					return new ASTElement(node, range, this);
 				}
 				return new ErrorElement(node, range, this);
