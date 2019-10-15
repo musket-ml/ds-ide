@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Csv
+Bundle-SymbolicName: org.apache.commons.csv
+Bundle-Version: 1.0.0
+Automatic-Module-Name: org.apache.commons.csv
+Export-Package: org.apache.commons.csv
