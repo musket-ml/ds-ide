@@ -17,7 +17,10 @@ import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IBinarySegmentationDataSet;
 import com.onpositive.musket.data.images.IImageDataSet;
 import com.onpositive.musket.data.images.IImageItem;
+import com.onpositive.musket.data.images.IInstanceSegmentationDataSet;
+import com.onpositive.musket.data.images.IMultiClassSegmentationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
+import com.onpositive.musket.data.images.MultiClassSegmentationItem;
 import com.onpositive.musket.data.registry.CSVKind;
 import com.onpositive.musket.data.table.BasicDataSetImpl;
 import com.onpositive.musket.data.table.BasicItem;
@@ -69,6 +72,34 @@ public class BasicImageDataSetActions {
 		ds.items().forEach(v -> {
 			BasicItem item = new BasicItem(0, new Object[] { v.id(), v.getMask().rle() });
 			items.add(item);
+		});
+		return new BasicDataSetImpl(items, cs);
+	}
+	
+	public static BasicDataSetImpl dropAttributes(IMultiClassSegmentationDataSet ds) {
+		ArrayList<Column> cs = new ArrayList<>();
+		cs.add(new Column("ImageId", "ImageId", 0, String.class));
+		cs.add(new Column("EncodedPixels", "EncodedPixels", 1, String.class));
+		cs.add(new Column("Height", "Height", 2, Integer.class));
+		cs.add(new Column("Width", "Width", 3, Integer.class));
+		cs.add(new Column("ClassId", "ClassId", 4, String.class));
+		ArrayList<BasicItem> items = new ArrayList<>();
+		ds.items().forEach(v -> {
+			String imageId = v.id();
+			MultiClassSegmentationItem vv = (MultiClassSegmentationItem)v;
+			vv.getMasks().forEach(m->{
+				int height = m.getHeight();
+				int width = m.getWidth();
+				String rle = m.rle();
+				String classId = m.clazz();
+				int ind = classId.indexOf("_");
+				if(ind>=0) {
+					classId = classId.substring(0, ind);
+				}
+				BasicItem item = new BasicItem(0, new Object[] {
+						imageId, rle, height, width, classId});
+				items.add(item);
+			});
 		});
 		return new BasicDataSetImpl(items, cs);
 	}
@@ -173,6 +204,10 @@ public class BasicImageDataSetActions {
 		}
 		if (d instanceof IImageDataSet) {
 			actions.add(new ConvertResolutionAction());
+		}
+		if(d instanceof IMulticlassClassificationDataSet) {
+			Function<IMultiClassSegmentationDataSet, BasicDataSetImpl> v = BasicImageDataSetActions::dropAttributes;
+			actions.add(new ConversionAction("Drop Attributes", v));
 		}
 		
 		return actions;

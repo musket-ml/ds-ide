@@ -3,6 +3,7 @@ package com.onpositive.musket.data.images;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
@@ -30,5 +31,13 @@ public class MultiClassInstanceSegmentationDataSet extends MultiClassSegmentatio
 	@Override
 	protected String getKind() {
 		return "Multi class instance segmentation";
+	}
+	
+	public String generatePythonString(String sourcePath) {
+		return "image_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
+	}
+	
+	protected String getPythonName() {
+		return "InstanceSegmentationDataSet";
 	}
 }

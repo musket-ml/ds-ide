@@ -1,0 +1,304 @@
+types: 
+   Optimizer:
+     type: object
+   function:
+     type: object 
+   GenericDeclaration:
+     polimophic: true
+     closed: true   
+     defaultProperty: body
+     properties:         
+        parameters:  
+           type: string[]
+           description: Parameters that this declaration can accept
+           required: false
+        inputs:
+           type: string[]
+           autoConvertToArray: true
+           required: false    
+           description: Optional names of this declaration inputs
+        outputs:   
+           type: string[]
+           required: false    
+           description: Optional names of members that are binded to this declaration outputs
+        body:
+           type: Referencable
+           multivalue: true
+           reference: true
+           #items: Element
+                   
+        with: 
+           type: any
+   Hyper:
+     type: object  
+     properties:
+        type:  
+           type: string
+        range: 
+           type: number[]
+        enum: 
+           type: string[]     
+   DataSetDeclaration:
+     polimophic: true
+     closed: true
+     defaultProperty: body
+     properties:   
+       body:
+           type: DatasetFactory
+           #multivalue: true
+           required: true
+           reference: true
+           #items: Element   
+   Callback:
+      type: Referencable  
+      customValidator: com.onpositive.yamledit.ast.CallbackValidator                 
+   Referencable:
+      type: object  
+      properties:
+         name: 
+           type: string
+         inputs:
+           autoConvertToArray: true
+           type: string[]
+         args:
+           type: any
+   DatasetFactory: 
+      type: object                  
+   Preprocessor:
+      type: Referencable
+   Layer:
+      
+      type: Referencable  
+   LayerOrPreprocessor: 
+      type: "Layer,Preprocessor"
+      properties:
+         name: 
+           type: string
+         inputs:
+           autoConvertToArray: true
+           type: string[]
+         args:
+           type: any
+   condition:
+       type: LayerOrPreprocessor
+       defaultProperty: body
+       properties:
+          body: 
+            type:  Referencable
+            #reference: true
+            #multivalue: true       
+   EarlyStopping:
+     type: Callback
+     properties:  
+          patience: 
+            type: number
+          monitor: 
+            type: function
+          mode: 
+            type: string   
+          verbose: 
+            type: integer      
+   ReduceLROnPlateau:
+      type: Callback
+      properties:
+          patience: 
+            type: int
+          factor: 
+            type: number
+          monitor: 
+            type: function
+          mode: 
+            type: string
+            
+          cooldown:
+            type: int
+          verbose: 
+            type: int 
+   PreprocessorDeclaration:
+      type: GenericDeclaration
+      closed: true
+      properties:               
+         body:
+           multivalue: true
+           type: Preprocessor
+           reference: true
+           
+   NetworkBlockDeclaration:
+      type: GenericDeclaration
+      customValidator: com.onpositive.yamledit.ast.LayerValidator
+      closed: true
+      properties:               
+         body:
+           type: Layer
+           multivalue: true
+           reference: true
+         outputs:   
+           type: string[]
+           required: false    
+           description: Optional names of members that are binded to this declaration outputs  
+         shared:
+           type: boolean
+           description: Mark this as true if you want to share weights between different references to this network declaration
+   Stage:
+      type: object
+      properties: 
+         epochs: 
+            type: integer
+            required: true 
+         loss:
+            type: function
+         initial_weights:
+            type: string
+         negatives:
+            type: number
+         validation_negatives:
+            type: number
+         lr:
+           type: number   
+         unfreeze_encoder: 
+            type: boolean            
+         callbacks:
+            multivalue: true
+            type: Callback         
+         extra_callbacks:
+            multivalue: true
+            type: Callback               
+   BasicConfig:   
+    root: true    
+    customValidator: com.onpositive.yamledit.ast.RootValidator 
+    properties:
+      hyperparameters:
+        multivalue: true
+        type: Hyper
+      dumpPredictionsToCSV:
+        type: boolean  
+      architecture: 
+         type: string
+      backbone: 
+         type: string
+      augmentation:
+         type: object
+      classes:
+         type: integer
+         min: 1
+         required: true
+#      activation:
+#         type: string
+#         required: true
+      max_evals:
+         type: number   
+      encoder_weights:
+         type: string
+      shape: 
+         type: integer[]                
+      metrics:
+        #multivalue: true
+        reference: true
+        type: function[]
+      loss:
+        type: function[]
+        reference: true  
+        #multivalue: true   
+      lr:
+        type: string
+        defaultValue: 0.001
+        min: 0  
+      folds_count:
+         defaultValue: 5
+         type: int
+      testSplit:
+         type: float
+         min: 0
+         max: 1.0
+         step: 0.1
+      testTimeAugmentation:
+         type: string    
+      num_seeds:
+         type: int
+         defaultValue: 1
+      stratified: 
+         type: boolean
+#      batch:
+#         type: int
+#         min: 1
+#         required: true
+      testSplitSeed:
+         type: int
+         defaultValue: 123
+      primary_metric:
+         type: function
+         customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm
+      experiment_result:
+         type: string
+         customRealm: com.onpositive.dside.ui.editors.yaml.model.MetricsRealm       
+      primary_metric_mode:
+         type: string
+         fixedValues: [min,max,auto]
+         defaultValue: auto
+      optimizer:         
+         type: Optimizer
+         fixedValues: [adam,sgd,nadam,rmsprop]
+         lowerCase: true
+         defaultValue: adam
+      callbacks:
+        multivalue: true
+        type: callback
+      clipnorm:
+        type: float
+      clipvalue:
+        type: float
+      declarations:
+        type: GenericDeclaration
+        multivalue: true
+      stages:
+        type: Stage[]
+        required: true                       
+      preprocessing:
+        type: Preprocessor
+        #range: stage  
+        reference: true  
+        multivalue: true
+      callbacks:
+        type: Callback
+        range: callback 
+        reference: true    
+        multivalue: true
+      dataset:   
+        type: DatasetFactory
+        reference: true
+        range: dataset
+      pretrain_transform:
+        type: object
+        range: dataset
+      extra_train_data:
+        type: object
+        range: dataset
+      stratified:
+        type: boolean
+      final_metrics: 
+         type: string[]  
+      validationSplit:
+        type: float          
+      datasets:                        
+        type: DataSetDeclaration
+        multivalue: true
+      inference_batch:
+        type: integer
+      imports:
+        type: string[]    
+      verbose:
+        type: integer  
+      configPath:
+        type: string
+      weightsPath:
+        type: string
+        required: false
+      imagesPerGpu:
+        type: integer
+        required: false
+      multiscaleMode:
+        type: string
+        required: false
+      resetHead:
+        type: boolean
+        required: false

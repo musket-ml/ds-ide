@@ -148,12 +148,12 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 //		if (this.vFlip) {
 //			augmentation=augmentation+"   Flipud: 0.5"+System.lineSeparator();
 //		}
-		result=result.replace((CharSequence)"{aug}", ""+augmentation);
+//		result=result.replace((CharSequence)"{aug}", ""+augmentation);
 		result=result.replace((CharSequence)"{height}", ""+this.height);
 		result=result.replace((CharSequence)"{numClasses}", ""+this.numClasses);
-		result=result.replace((CharSequence)"{activation}", ""+this.activation);
-		result=result.replace((CharSequence)"{architecture}", ""+this.architecture);
-		result=result.replace((CharSequence)"{backbone}", ""+this.backbone);
+		result=result.replace((CharSequence)"{imagesPerGpu}", ""+this.imagesPerGpu);
+		result=result.replace((CharSequence)"{configPath}", "configPath: "+this.configPath1);
+		result=result.replace((CharSequence)"{weightsPath}", "weightsPath: "+this.weightsPath);
 				
 		return result; 
 		}catch (Exception e) {

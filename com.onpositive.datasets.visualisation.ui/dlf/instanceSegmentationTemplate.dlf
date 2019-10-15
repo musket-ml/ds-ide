@@ -8,9 +8,9 @@
 
 		<string bindTo="name" caption="Experiment name" />
 
-		<spinner bindTo="imagesPerGpu"  min="1"/>
+		<string bindTo="imagesPerGpu"/>
 
-		<spinner bindTo="numClasses" min="1" />
+		<string bindTo="numClasses"/>
 		<group caption="Model">
 			<hc>
 				<group caption="Architecture filter">
@@ -51,8 +51,8 @@
 			<button caption="Reset" hAlign="right" bindTo="$$.resetModel" />
 		</group>
 		<group caption="Dimension" hint="200,-1">
-			<spinner bindTo="width"  min="1"/>
-			<spinner bindTo="height"  min="1"/>
+			<string bindTo="width"/>
+			<string bindTo="height"/>
 		</group>
 	</composite-editor>
 </dialog>
