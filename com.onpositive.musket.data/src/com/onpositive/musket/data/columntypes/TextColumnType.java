@@ -22,16 +22,23 @@ public class TextColumnType extends AbstractColumnType{
 	}
 	
 	public static boolean isText(IColumn c) {
-		return isText(c.values());
+		return isText(c.uniqueValues());
 	}
+	
 
 	public static boolean isText(Collection<Object> linkedHashSet) {
 		int textCount = 0;
 		for (Object o : linkedHashSet) {
 			try {
+				if (o==null) {
+					continue;
+				}
 				String string = o.toString();
 				if (looksLikeText(string)) {
 					textCount++;
+				}
+				if (textCount>10000) {
+					return true;
 				}
 			} catch (NumberFormatException e) {
 				return false;

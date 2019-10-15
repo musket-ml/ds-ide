@@ -1,0 +1,7 @@
+<composite-editor
+	xmlns="http://jetface.org/JetFace1.0/"
+	caption="Please select dataset factory to use"
+	description="We have found following dataset factories that seems to match your dataset, please select factory that you want to use">
+	<model class="com.onpositive.musket.data.project.FactoryModel" />
+	<list bindTo="factories" bindSelectionTo="selected" />
+</composite-editor>

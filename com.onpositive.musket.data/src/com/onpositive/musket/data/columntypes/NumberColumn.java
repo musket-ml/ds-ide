@@ -19,6 +19,9 @@ public class NumberColumn extends AbstractColumnType{
 			if (o !=null) {
 				try {
 					String string = o.toString();
+					if (string.isEmpty()) {
+						continue;
+					}
 					if (string.indexOf('.')!=-1) {
 						hasDot=true;
 					}

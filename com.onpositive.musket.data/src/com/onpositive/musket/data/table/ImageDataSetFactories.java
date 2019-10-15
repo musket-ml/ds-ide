@@ -1,17 +1,18 @@
 package com.onpositive.musket.data.table;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.onpositive.musket.data.columntypes.ClassColumnType;
+import com.onpositive.musket.data.columntypes.DataSetSpec;
+import com.onpositive.musket.data.columntypes.IDataSetFactory;
+import com.onpositive.musket.data.columntypes.ImageColumnType;
 import com.onpositive.musket.data.columntypes.RLEMaskColumnType;
-import com.onpositive.musket.data.columntypes.TextColumnType;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.AbstractRLEImageDataSet;
 import com.onpositive.musket.data.images.BinaryClassificationDataSet;
@@ -23,139 +24,75 @@ import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationItem;
 import com.onpositive.musket.data.images.MultiClassificationDataset;
 
-public class ImageDataSetFactories {
+public class ImageDataSetFactories implements IDataSetFactory{
 
-	private static IQuestionAnswerer answerer;
-	protected ImageRepresenter images;
-
-	public ImageDataSetFactories(ImageRepresenter images) {
+	public ImageDataSetFactories() {
 		super();
-		this.images = images;
 	}
 
-	public IDataSet create(ITabularDataSet t, Map<String, Object> settings) {
-		Object object = settings.get(AbstractRLEImageDataSet.CLAZZ);
-		if (object != null) {
-			// if (false) {
-			if (object.toString().equals(BinarySegmentationDataSet.class.getName())) {
-				return new BinarySegmentationDataSet(t, settings, images);
-			}
-			if (object.toString().equals(BinaryInstanceSegmentationDataSet.class.getName())) {
-				return new BinaryInstanceSegmentationDataSet(t, settings, images);
-			}
-			if (object.toString().equals(MultiClassSegmentationDataSet.class.getName())) {
-				return new MultiClassSegmentationDataSet(t, settings, images);
-			}
-			if (object.toString().equals(BinaryClassificationDataSet.class.getName())) {
-				return new BinaryClassificationDataSet(t, settings, images);
-			}
-			// }
-		}
-		return create(t, (IQuestionAnswerer) null);
-	}
+	public IDataSet create(DataSetSpec spec, Map<String, Object> settings) {
 
-	public IDataSet create(ITabularDataSet t,IQuestionAnswerer answerer) {
-		try{
-		ImageDataSetFactories.answerer=answerer;
-		IDataSet innerCreate = innerCreate(t,answerer);
-		if (innerCreate == null) {
-			List<? extends IColumn> columns = t.columns();
-			ArrayList<IColumn> mm = new ArrayList<>();
-			columns.forEach(v -> {
-				if (v.id().contains("_")) {
-					String[] split = v.id().split("_");
-					int sn = 0;
-					for (String s : split) {
-						Column c = (Column) v;
-						mm.add(new SubColumn(v.id(), s, c.num, c.clazz, sn));
-						sn = sn + 1;
-					}
-
-				} else {
-					mm.add(v.clone());
+		if (settings != null ) {
+			Object object = settings.get(AbstractRLEImageDataSet.CLAZZ);
+			if (object != null) {
+				if (object.toString().equals(BinarySegmentationDataSet.class.getName())) {
+					return new BinarySegmentationDataSet(spec.base(), settings, spec.getRepresenter());
 				}
-			});
-			BasicDataSetImpl newDs = new BasicDataSetImpl((ArrayList<? extends ITabularItem>) t.items(), mm);
-			return innerCreate(newDs,answerer);
-		}
-		return innerCreate;
-		}finally {
-			answerer=null;
-		}
-	}
-
-	private IDataSet innerCreate(ITabularDataSet t, IQuestionAnswerer a) {
-		List<? extends IColumn> columns = t.columns();
-
-		IColumn imageColumn = null;
-
-		for (IColumn c : columns) {
-			if (images.like(c)) {
-				if (imageColumn == null) {
-					imageColumn = c;
-				} else {
-					return null;
+				if (object.toString().equals(BinaryInstanceSegmentationDataSet.class.getName())) {
+					return new BinaryInstanceSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+				}
+				if (object.toString().equals(MultiClassSegmentationDataSet.class.getName())) {
+					return new MultiClassSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+				}
+				if (object.toString().equals(BinaryClassificationDataSet.class.getName())) {
+					return new BinaryClassificationDataSet(spec.base(), settings, spec.getRepresenter());
 				}
 			}
 		}
+		return innerCreate(spec);
+	}
+
+	private IDataSet innerCreate(DataSetSpec spec) {
+		List<? extends IColumn> columns = spec.columns();
+		ImageRepresenter images = spec.getRepresenter();
+		IColumn imageColumn = spec.getStrictColumn(ImageColumnType.class);
 		if (imageColumn == null) {
-			IColumn textColumn = null;
-			for (IColumn c : columns) {
-				if (TextColumnType.isText(c)) {
-					textColumn = c;
-					break;
-				}
-			}
-			if (textColumn != null) {
-				return TextDataSetFactories.create(t, textColumn, a);
-			}
 			return null;
 		}
-		ArrayList<IColumn> arrayList = new ArrayList<IColumn>(t.columns());
-		arrayList.remove(imageColumn);
-		Collection<Object> values = imageColumn.values();
-		boolean multipleObjects = false;
-		if (new HashSet<Object>(values).size() != values.size()) {
-			multipleObjects = true;
-		}
-		IColumn maskColumn = null;
+		IColumn rleColumn = spec.getStrictColumn(RLEMaskColumnType.class);
 
-		for (IColumn c : arrayList) {
-			if (c != imageColumn) {
-				boolean like = RLEMaskColumnType.like(c);
-				if (like) {
-					if (maskColumn == null) {
-						maskColumn = c;
-					}
-					if (like && arrayList.size() == 1) {
-						if (!multipleObjects) {
-							BufferedImage bufferedImage = images.get(images.iterator().next());
-							return new BinarySegmentationDataSet(t, imageColumn, maskColumn, images,
-									bufferedImage.getHeight(), bufferedImage.getWidth());
-						} else {
-							BufferedImage bufferedImage = images.get(images.iterator().next());
-							return new BinaryInstanceSegmentationDataSet(t, imageColumn, maskColumn, images,
-									bufferedImage.getHeight(), bufferedImage.getWidth());
-						}
-					}
+		boolean multipleObjects = !imageColumn.unique();
+
+		if (rleColumn != null) {
+			// This is segmentation or instance segmentation we only need to understand what
+			// kind of segmentation it is
+			if (columns.size() == 2) {
+				if (!multipleObjects) {
+					BufferedImage bufferedImage = images.get(images.iterator().next());
+					return new BinarySegmentationDataSet(spec, imageColumn, rleColumn, bufferedImage.getHeight(),
+							bufferedImage.getWidth());
+				} else {
+					BufferedImage bufferedImage = images.get(images.iterator().next());
+					return new BinaryInstanceSegmentationDataSet(spec, imageColumn, rleColumn,
+							bufferedImage.getHeight(), bufferedImage.getWidth());
 				}
 			}
 		}
-		if (maskColumn != null) {
-			arrayList.remove(maskColumn);
-		}
-		IColumn clazzColumn = findClassColumn(arrayList);
-		if (clazzColumn != null && maskColumn != null) {
+
+		IColumn clazzColumn = spec.getStrictColumn(ClassColumnType.class);
+		if (clazzColumn != null && rleColumn != null) {
 			if (!multipleObjects || true) {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
-				MultiClassSegmentationDataSet multiClassSegmentationDataSet = new MultiClassSegmentationDataSet(t, imageColumn, maskColumn, bufferedImage.getHeight(),
-						bufferedImage.getWidth(), images, clazzColumn);
-				Stream<IMultiClassSegmentationItem> filter = multiClassSegmentationDataSet.items().stream().parallel().filter(x->{
-					return ((MultiClassSegmentationItem) x).hasSameClass();
-				});
+				MultiClassSegmentationDataSet multiClassSegmentationDataSet = new MultiClassSegmentationDataSet(spec,
+						imageColumn, rleColumn, bufferedImage.getHeight(), bufferedImage.getWidth(), clazzColumn);
+				Stream<IMultiClassSegmentationItem> filter = multiClassSegmentationDataSet.items().stream().parallel()
+						.filter(x -> {
+							return ((MultiClassSegmentationItem) x).hasSameClass();
+						});
 				Optional<IMultiClassSegmentationItem> findAny = filter.findAny();
 				if (findAny.isPresent()) {
-					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(t,multiClassSegmentationDataSet.getSettings(),images);
+					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(spec.base(),
+							multiClassSegmentationDataSet.getSettings(), images);
 					return multiClassSegmentationDataSet;
 				}
 				return multiClassSegmentationDataSet;
@@ -163,102 +100,31 @@ public class ImageDataSetFactories {
 		}
 		if (clazzColumn != null) {
 			Collection<Object> values2 = new LinkedHashSet<>(clazzColumn.values());
-			
 			if (values2.size() == 2) {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
-				return new BinaryClassificationDataSet(t, imageColumn, clazzColumn, bufferedImage.getHeight(),
+				return new BinaryClassificationDataSet(spec.base(), imageColumn, clazzColumn, bufferedImage.getHeight(),
 						bufferedImage.getWidth(), images);
 			} else {
-				
 				BufferedImage bufferedImage = images.get(images.iterator().next());
-				MultiClassificationDataset multiClassificationDataset = new MultiClassificationDataset(t, imageColumn,
-						clazzColumn, bufferedImage.getHeight(), bufferedImage.getWidth(), images);
-				
+				MultiClassificationDataset multiClassificationDataset = new MultiClassificationDataset(spec.base(),
+						imageColumn, clazzColumn, bufferedImage.getHeight(), bufferedImage.getWidth(), images);
 				return multiClassificationDataset;
 			}
 		}
-		return t;
+		return null;
 	}
 
-	protected static IColumn findClassColumn(ArrayList<IColumn> arrayList) {
-		IColumn clazzColumn = null;
-		for (IColumn m : arrayList) {
-			if (m.caption().toLowerCase().contains("class") || m.caption().toLowerCase().contains("clazz")
-					|| m.caption().toLowerCase().contains("classes")) {
-				clazzColumn = m;
-				break;
-			}
-			LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(m.values());
-			if (linkedHashSet.size() < 1000) {
-				if (isAllInt(linkedHashSet) || isAllString(linkedHashSet) || isBool(linkedHashSet)) {
-					clazzColumn = m;
-					break;
-				}
-			}
+	@Override
+	public String caption() {
+		return "Image DataSet factories";
+	}
+
+	@Override
+	public double estimate(DataSetSpec parameterObject) {
+		IColumn imageColumn = parameterObject.getStrictColumn(ImageColumnType.class);
+		if (imageColumn!=null) {
+			return 1;
 		}
-		return clazzColumn;
-	}
-
-	protected static ArrayList<IColumn> findClassColumns(ArrayList<IColumn> arrayList) {
-		ArrayList<IColumn> clazzColumns = new ArrayList<>();
-		for (IColumn m : arrayList) {
-			if (m.caption().toLowerCase().contains("class") || m.caption().toLowerCase().contains("clazz")
-					|| m.caption().toLowerCase().contains("classes")) {
-				clazzColumns.add(m);
-				continue;
-			}
-			LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(m.values());
-			if (linkedHashSet.size() < 1000) {
-
-				if (isAllInt(linkedHashSet) || isAllString(linkedHashSet) || isBool(linkedHashSet)) {
-					if (clazzColumns.isEmpty()) {
-						clazzColumns.add(m);
-					} else if (linkedHashSet.size() < 100) {
-						clazzColumns.add(m);
-					}
-
-				}
-			}
-		}
-		return clazzColumns;
-	}
-
-	private static boolean isBool(LinkedHashSet<Object> linkedHashSet) {
-		if (linkedHashSet.size() == 2) {
-			return true;
-		}
-		return false;
-	}
-
-	private static boolean isAllString(LinkedHashSet<Object> linkedHashSet) {
-		for (Object s0 : linkedHashSet) {
-			String s = s0.toString();
-			if (!Character.isJavaIdentifierStart(s.charAt(0))) {
-				return false;
-			}
-			for (int i = 0; i < s.length(); i++) {
-				if (!Character.isJavaIdentifierPart(s.charAt(i))) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	
-
-	private static boolean isAllInt(LinkedHashSet<Object> linkedHashSet) {
-		for (Object o : linkedHashSet) {
-			try {
-				Integer.parseInt(o.toString());
-			} catch (NumberFormatException e) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static IQuestionAnswerer getAnswerer() {
-		return answerer;
+		return 0;
 	}
 }

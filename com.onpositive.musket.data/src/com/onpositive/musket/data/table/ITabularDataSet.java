@@ -26,7 +26,7 @@ public interface ITabularDataSet extends IDataSet,Cloneable {
 				String[] split = column.id.split("_");
 				String substring = id.substring(lastIndexOf + 1);
 				int sn = Integer.parseInt(substring);
-				SubColumn subColumn = new SubColumn(column.id(), split[sn], column.num, String.class, sn);
+				SubColumn subColumn = new SubColumn(column.id(), split[sn], column.getNum(), String.class, sn);
 				subColumn.owner=this;
 				return subColumn;
 			}

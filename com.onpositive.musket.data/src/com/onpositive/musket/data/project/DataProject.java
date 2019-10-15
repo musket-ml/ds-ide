@@ -4,14 +4,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
 
+import com.onpositive.musket.data.columntypes.ColumnLayout;
+import com.onpositive.musket.data.columntypes.DataSetFactoryRegistry;
+import com.onpositive.musket.data.columntypes.DataSetSpec;
+import com.onpositive.musket.data.columntypes.IDataSetFactory;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.NotEnoughParametersException;
 import com.onpositive.musket.data.registry.DataSetIO;
+import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ImageDataSetFactories;
@@ -19,18 +26,16 @@ import com.onpositive.musket.data.table.ImageRepresenter;
 
 public class DataProject {
 
-	private File file;
-
+	private static final String DATASET_FACTORY = "dataset_factory";
 	private ImageRepresenter imageRepresenter;
 
 	public DataProject(File file) {
-		this.file = file;
 		imageRepresenter = new ImageRepresenter(file.getAbsolutePath());
 		imageRepresenter.configure();
 	}
-	
+
 	public ImageRepresenter getRepresenter() {
-		return imageRepresenter;		
+		return imageRepresenter;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -47,30 +52,65 @@ public class DataProject {
 					@SuppressWarnings("rawtypes")
 					Map loadAs = new Yaml().loadAs(fileReader, Map.class);
 					fileReader.close();
-					IDataSet create = new ImageDataSetFactories(imageRepresenter).create(t1, loadAs);
+					Object object = loadAs.get(DATASET_FACTORY);
+					if (object != null) {
+						try {
+							IDataSetFactory factory = (IDataSetFactory) Class.forName(object.toString()).newInstance();
+							IDataSet create = factory.create(new DataSetSpec(null, t1, this, answerer), loadAs);
+							return create;
+						} catch (Exception e) {
+							e.printStackTrace();
+							// TODO: handle exception
+						}
 
-					return create;
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new IllegalStateException(e);
 				}
-			} else {
-				IDataSet create = new ImageDataSetFactories(imageRepresenter).create(t1, answerer);
-				if (create != null) {
-					try {
-						FileWriter fileWriter = new FileWriter(getMetaFile(file2));
-						new Yaml().dump(create.getSettings(), fileWriter);
-						fileWriter.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+			}
+			List<IColumn> columns = (List<IColumn>) t1.columns();
+			ColumnLayout layout = new ColumnLayout(columns, this, answerer);
+			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);
+			// make it a little bit smarter
+			IDataSetFactory factory = null;
+			ArrayList<IDataSetFactory> matching = DataSetFactoryRegistry.getInstance().matching(spec);
+			IDataSet create = null;
+			if (!matching.isEmpty() && matching.size() > 1) {
+				FactoryModel model = new FactoryModel(matching);
+				boolean askQuestion = answerer.askQuestion("Please select factory", model);
+				if (askQuestion) {
+					create = model.selected.create(spec, null);
+					factory = model.selected;
 				}
-
+			} else if (matching.size() == 1) {
+				IDataSetFactory iDataSetFactory = matching.get(0);
+				factory = iDataSetFactory;
+				create = iDataSetFactory.create(spec, null);
+			}
+			if (create != null) {
+				dumpSettings(file2, create, factory);
 				return create;
 			}
+			return new GenericDataSet(spec, t1);
+
 		} catch (NotEnoughParametersException e) {
 			return null;
+		}
+	}
+
+	protected void dumpSettings(File file2, IDataSet create, IDataSetFactory factory) {
+		if (create != null) {
+			try {
+				FileWriter fileWriter = new FileWriter(getMetaFile(file2));
+				Map<String, Object> settings = create.getSettings();
+				settings.put(DATASET_FACTORY, factory.getClass().getName());
+				new Yaml().dump(settings, fileWriter);
+				fileWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 

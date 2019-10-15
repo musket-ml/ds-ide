@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.table.IColumn;
@@ -16,8 +17,8 @@ import com.onpositive.musket.data.table.ImageRepresenter;
 
 public class BinarySegmentationDataSet extends AbstractRLEImageDataSet<BinarySegmentationItem> implements IBinarySegmentationDataSet,Cloneable{
 	
-	public BinarySegmentationDataSet(ITabularDataSet base,IColumn image,IColumn rle,ImageRepresenter rep,int width,int height) {
-		super(base,image,rle,width,height,rep);
+	public BinarySegmentationDataSet(DataSetSpec base,IColumn image,IColumn rle,int width,int height) {
+		super(base,image,rle,width,height);
 		
 	}
 	
@@ -38,7 +39,7 @@ public class BinarySegmentationDataSet extends AbstractRLEImageDataSet<BinarySeg
 
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return new BinarySegmentationDataSetWithGroundTruth(base, imageColumn, rleColumn, representer, width, height, (ITabularDataSet) t2);
+		return new BinarySegmentationDataSetWithGroundTruth(new DataSetSpec(base, representer), imageColumn, rleColumn, width, height, (ITabularDataSet) t2);
 	}
 
 	@Override

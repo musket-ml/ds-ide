@@ -24,7 +24,7 @@ public class ComputableColumn extends Column implements IColumn{
 	}
 
 	public ComputableColumn map(Function<Object,Object>vm) {
-		ComputableColumn computableColumn = new ComputableColumn(this.id, this.caption, this.num, this.clazz, (Function<? extends ITabularItem, Object>) f);
+		ComputableColumn computableColumn = new ComputableColumn(this.id, this.caption, this.getNum(), this.getClazz(), (Function<? extends ITabularItem, Object>) f);
 		if (this.value!=null) {
 			computableColumn.value=this.value.andThen(vm);
 		}

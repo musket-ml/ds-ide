@@ -7,10 +7,14 @@ public class SubColumn extends Column{
 		super(id, caption, num, clazz);
 		this.subnum=subNum;
 	}
+	public SubColumn(String id, String s, Column c, int sn) {
+		this(id,s,c.getNum(),c.getClazz(),sn);
+		this.owner=c.owner;
+	}
 	@Override
 	public Object getValue(ITabularItem item) {
 		BasicItem bi=(BasicItem) item;
-		String object = bi.values[num].toString();
+		String object = bi.values[getNum()].toString();
 		String[] vals=object.split("_");
 		if (vals.length<=subnum) {
 			return null;

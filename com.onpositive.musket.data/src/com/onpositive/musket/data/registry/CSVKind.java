@@ -1,11 +1,18 @@
 package com.onpositive.musket.data.registry;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.yaml.snakeyaml.events.Event.ID;
+
 import com.onpositive.musket.data.core.DataSetMemento;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetIO;
@@ -16,16 +23,79 @@ import com.onpositive.musket.data.table.Column;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
-import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
-import com.opencsv.ICSVParser;
 public class CSVKind implements IDataSetIO{
 
 	@Override
 	public IDataSet loadDataSet(DataSetMemento memento, IProgressMonitor monitor) {
 		String url=memento.getUrl();
 		String path=url.substring(url.indexOf("://")+3);
+		try {
+		IDataSet tryReadWithOpenCSV = tryReadWithOpenCSV(memento, path);
+		if (tryReadWithOpenCSV==null) {
+			return doReadApacheCSV(path);
+		}
+		return tryReadWithOpenCSV;
+		} catch (Exception e) {
+			return doReadApacheCSV(path);
+			// TODO: handle exception
+		}
+	}
+
+	protected IDataSet doReadApacheCSV(String path) {
+		CSVFormat default1 = CSVFormat.DEFAULT;
+		FileReader fileReader=null;
+		try {
+			fileReader = new FileReader(new File(path));
+		} catch (FileNotFoundException e1) {
+			return null;
+		}
+		ArrayList<Column>cs=new ArrayList<>();
+		ArrayList<BasicItem>items=new ArrayList<BasicItem>();
+		try {
+		Reader in = new BufferedReader(fileReader);
+		int num=0;
+		
+		for (CSVRecord record : default1.parse(in)) {
+			if (num==0) {
+				int n=0;
+				for (String s:record) {
+					Column orCreateColumn = getOrCreateColumn(s,null,null,n++);
+					cs.add(orCreateColumn);
+				}
+				num++;
+				continue;
+			}
+			if (record.isConsistent()) {
+				String[] vals=new String[cs.size()];
+				for (int i=0;i<vals.length;i++) {
+					vals[i]=record.get(i);
+				}
+				BasicItem basicItem = new BasicItem(num-1, vals);
+				items.add(basicItem);
+				num++;
+			}
+			else {
+				in.close();
+				return null;
+			}			
+		 }
+		 in.close();
+		} catch (IOException e1) {
+			return null;
+		}finally {
+			try {
+				fileReader.close();
+				
+			} catch (IOException e1) {
+				throw new IllegalStateException(e1);
+			}
+		}
+		return new BasicDataSetImpl(items,cs);
+	}
+
+	protected IDataSet tryReadWithOpenCSV(DataSetMemento memento, String path) {
 		try {
 			CSVReader csvReader = new CSVReader(new FileReader(new File(path)),',','"' ,false);
 			

@@ -7,9 +7,10 @@ public class Column implements IColumn,Cloneable{
 
 	protected String id;
 	protected String caption;
-	protected int num;
-	protected Class<?>clazz;
+	private int num;
+	private Class<?>clazz;
 	protected ITabularDataSet owner;
+	private ArrayList<Object> result;
 	
 	@Override
 	public String id() {
@@ -34,18 +35,18 @@ public class Column implements IColumn,Cloneable{
 
 	@Override
 	public Class<?> clazz() {
-		return clazz;
+		return getClazz();
 	}
 
 	@Override
 	public Object getValue(ITabularItem item) {
 		BasicItem bi=(BasicItem) item;
-		return bi.values[num];
+		return bi.values[getNum()];
 	}
 	@Override
 	public void setValue(ITabularItem item, Object value) {
 		BasicItem bi=(BasicItem) item;
-		bi.values[num]=clazz.cast(value);
+		bi.values[getNum()]=getClazz().cast(value);
 	}
 	public ITabularDataSet owner() {
 		return owner;
@@ -57,8 +58,8 @@ public class Column implements IColumn,Cloneable{
 		super();
 		this.id = id;
 		this.caption = caption;
-		this.num = num;
-		this.clazz = clazz;
+		this.setNum(num);
+		this.setClazz(clazz);
 	}
 
 	public Object parse(String string) {
@@ -76,10 +77,42 @@ public class Column implements IColumn,Cloneable{
 
 	@Override
 	public Collection<Object> values() {
-		ArrayList<Object>result=new ArrayList<Object>();
+		if (result!=null) {
+			return result;
+		}
+		result = new ArrayList<Object>();
 		this.owner.items().forEach(v->{
-			result.add(getValue(v));
+			Object value = getValue(v);
+			if (value==null) {
+				value="";
+			}
+			result.add(value);
 		});
 		return result;
+	}
+	ArrayList<Object>uniqueValues;
+	
+	@Override
+	public ArrayList<Object> uniqueValues() {
+		if (uniqueValues==null) {
+			uniqueValues=IColumn.super.uniqueValues();
+		}
+		return uniqueValues;
+	}
+
+	public int getNum() {
+		return num;
+	}
+
+	public void setNum(int num) {
+		this.num = num;
+	}
+
+	public Class<?> getClazz() {
+		return clazz;
+	}
+
+	public void setClazz(Class<?> clazz) {
+		this.clazz = clazz;
 	}
 }

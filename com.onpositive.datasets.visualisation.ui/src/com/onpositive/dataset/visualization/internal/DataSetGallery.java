@@ -36,6 +36,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.IImageItem;
+import com.onpositive.musket.data.table.BasicItem;
 import com.onpositive.semantic.ui.core.Alignment;
 import com.onpositive.semantic.ui.core.Point;
 
@@ -223,7 +224,9 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 	@Override
 	public void dispose() {
 		images.values().forEach(i -> {
-			i.dispose();
+			if (i!=null) {
+				i.dispose();
+			}
 		});
 		super.dispose();
 		images = null;
@@ -261,7 +264,13 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 							image=new Image(Display.getDefault(),Utils.convertToSWT((BufferedImage) image2));
 						}
 						else {
-							image = new Image(Display.getDefault(), s);
+							if (item instanceof BasicItem) {
+								image=null;
+							}
+							else {
+								image = new Image(Display.getDefault(), s);
+							}
+							
 						}
 					} else {
 						image = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
@@ -287,6 +296,9 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 						}
 						if (images.containsKey(key)) {
 							Image image = images.get(key);
+							if (image==null) {
+								return;
+							}
 							if (image.isDisposed()) {
 								return;
 							}

@@ -15,7 +15,10 @@ public class RLEMaskColumnType extends AbstractColumnType{
 
 	@Override
 	public ColumnPreference is(IColumn c, DataProject prj, IQuestionAnswerer answerer) {
-		return null;
+		if (like(c)) {
+			return ColumnPreference.STRICT;
+		}
+		return ColumnPreference.NEVER;
 	}
 
 	
