@@ -1,5 +1,6 @@
 package com.onpositive.musket.data.columntypes;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.onpositive.musket.data.project.DataProject;
@@ -15,9 +16,13 @@ public class TextColumnType extends AbstractColumnType{
 
 	@Override
 	public ColumnPreference is(IColumn c, DataProject prj, IQuestionAnswerer answerer) {
+		long l0=System.currentTimeMillis();
 		if (isText(c)) {
+			
 			return ColumnPreference.STRICT;
 		}
+		long l1=System.currentTimeMillis();
+		System.out.println(l1-l0);
 		return ColumnPreference.NEVER;
 	}
 	
@@ -28,6 +33,7 @@ public class TextColumnType extends AbstractColumnType{
 
 	public static boolean isText(Collection<Object> linkedHashSet) {
 		int textCount = 0;
+		int notTextCount=0;
 		for (Object o : linkedHashSet) {
 			try {
 				if (o==null) {
@@ -36,6 +42,12 @@ public class TextColumnType extends AbstractColumnType{
 				String string = o.toString();
 				if (looksLikeText(string)) {
 					textCount++;
+				}
+				else {
+					notTextCount++;
+				}
+				if (notTextCount>2000) {
+					return false;
 				}
 				if (textCount>10000) {
 					return true;
@@ -48,12 +60,15 @@ public class TextColumnType extends AbstractColumnType{
 	}
 
 	private static boolean looksLikeText(String string) {
-		String[] split = string.split(" ");
+		ArrayList<String> split = RLEMaskColumnType.fastSplitWS(string);
 		int words = 0;
-		if (split.length > 2) {
+		if (split.size() > 2) {
 			for (String m : split) {
 				if (isWord(m)) {
 					words++;
+					if (words>3) {
+						return true;
+					}
 				}
 			}
 		}

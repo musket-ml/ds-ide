@@ -2,6 +2,8 @@ package com.onpositive.musket.data.table;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Column implements IColumn,Cloneable{
 
@@ -80,14 +82,13 @@ public class Column implements IColumn,Cloneable{
 		if (result!=null) {
 			return result;
 		}
-		result = new ArrayList<Object>();
-		this.owner.items().forEach(v->{
+		result =   (ArrayList<Object>) this.owner.items().parallelStream().map(v->{
 			Object value = getValue(v);
 			if (value==null) {
-				value="";
+				return "";
 			}
-			result.add(value);
-		});
+			return value;
+		}).collect(Collectors.toList());
 		return result;
 	}
 	ArrayList<Object>uniqueValues;

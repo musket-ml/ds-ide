@@ -41,6 +41,7 @@ public class DataProject {
 	@SuppressWarnings("unchecked")
 	public IDataSet getDataSet(File file2, IQuestionAnswerer answerer) {
 		try {
+			long l0=System.currentTimeMillis();
 			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath());
 			if (load == null) {
 				return null;
@@ -69,11 +70,15 @@ public class DataProject {
 					throw new IllegalStateException(e);
 				}
 			}
+			long l1=System.currentTimeMillis();
+			System.out.println("CSV Load:"+(l1-l0));
 			List<IColumn> columns = (List<IColumn>) t1.columns();
 			ColumnLayout layout = new ColumnLayout(columns, this, answerer);
 			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);
 			// make it a little bit smarter
 			IDataSetFactory factory = null;
+			long l2=System.currentTimeMillis();
+			System.out.println("Column parsing:"+(l2-l1));
 			ArrayList<IDataSetFactory> matching = DataSetFactoryRegistry.getInstance().matching(spec);
 			IDataSet create = null;
 			if (!matching.isEmpty() && matching.size() > 1) {
@@ -88,10 +93,13 @@ public class DataProject {
 				factory = iDataSetFactory;
 				create = iDataSetFactory.create(spec, null);
 			}
+			long l3=System.currentTimeMillis();
+			System.out.println("Dataset creation:"+(l3-l2));
 			if (create != null) {
 				dumpSettings(file2, create, factory);
 				return create;
 			}
+			
 			return new GenericDataSet(spec, t1);
 
 		} catch (NotEnoughParametersException e) {

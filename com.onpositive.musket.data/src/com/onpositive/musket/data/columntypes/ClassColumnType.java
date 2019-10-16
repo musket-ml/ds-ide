@@ -1,5 +1,7 @@
 package com.onpositive.musket.data.columntypes;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 
 import com.onpositive.musket.data.project.DataProject;
@@ -24,26 +26,26 @@ public class ClassColumnType extends AbstractColumnType{
 				|| lowerCase.contains("classes")) {
 			return ColumnPreference.STRICT;
 		}
-		LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(c.values());
-		if (linkedHashSet.size() < 1000) {
-			if (isBool(linkedHashSet)){
+		ArrayList<Object> uniqueValues = c.uniqueValues();
+		if (uniqueValues.size() < 1000) {
+			if (isBool(uniqueValues)){
 				return ColumnPreference.STRICT;
 			}
-			if (isAllInt(linkedHashSet) || isAllString(linkedHashSet) ) {
+			if (isAllInt(uniqueValues) || isAllString(uniqueValues) ) {
 				return ColumnPreference.MAYBE;
 			}
 		}
 		return ColumnPreference.NEVER;
 	}
 	
-	private static boolean isBool(LinkedHashSet<Object> linkedHashSet) {
+	private static boolean isBool(Collection<Object> linkedHashSet) {
 		if (linkedHashSet.size() == 2) {
 			return true;
 		}
 		return false;
 	}
 
-	private static boolean isAllString(LinkedHashSet<Object> linkedHashSet) {
+	private static boolean isAllString(Collection<Object> linkedHashSet) {
 		for (Object s0 : linkedHashSet) {
 			if (s0==null) {
 				continue;
@@ -66,7 +68,7 @@ public class ClassColumnType extends AbstractColumnType{
 	}
 	
 
-	private static boolean isAllInt(LinkedHashSet<Object> linkedHashSet) {
+	private static boolean isAllInt(Collection<Object> linkedHashSet) {
 		for (Object o : linkedHashSet) {
 			try {
 				if( o==null) {
