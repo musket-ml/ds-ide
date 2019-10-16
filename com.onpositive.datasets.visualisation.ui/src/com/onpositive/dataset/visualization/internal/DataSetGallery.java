@@ -228,7 +228,12 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 				i.dispose();
 			}
 		});
+		GalleryItem[] items = this.gallery.getItems();
+		for (GalleryItem i:items) {
+			i.setData(null);
+		}
 		super.dispose();
+		
 		images = null;
 	}
 
