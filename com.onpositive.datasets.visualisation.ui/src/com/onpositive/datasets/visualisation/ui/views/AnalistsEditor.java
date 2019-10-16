@@ -44,14 +44,14 @@ import com.onpositive.commons.elements.ToolbarElement;
 import com.onpositive.dataset.visualization.internal.DataSetGallery;
 import com.onpositive.dataset.visualization.internal.Utils;
 import com.onpositive.dataset.visualization.internal.VirtualTable;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertResolutionAction;
+import com.onpositive.musket.data.actions.BasicDataSetActions.GenerateDataSetAction;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConvertResolutionAction;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.GenerateDataSetAction;
 import com.onpositive.musket.data.text.AbstractTextDataSet;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.realm.Realm;
@@ -280,8 +280,11 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 					if (selectedAction instanceof GenerateDataSetAction) {
 						GenerateDataSetAction fm = (GenerateDataSetAction) selectedAction;
 						String name = targetFile;
-						new DataSetGenerator().generateDataSet(results.getOriginal(), getInputFile(), name, true,
+						boolean generateDataSet = new DataSetGenerator().generateDataSet(results.getOriginal(), getInputFile(), name, true,
 								getProject());
+						if (!generateDataSet) {
+							return;
+						}
 						IFile file = getProject().getFile("common.yaml");
 						try {
 							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(

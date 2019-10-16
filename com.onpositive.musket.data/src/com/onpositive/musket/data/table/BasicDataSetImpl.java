@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 
 public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 	

@@ -7,7 +7,9 @@ import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.table.AbstractColumnType;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
+@Caption("Text")
 public class TextColumnType extends AbstractColumnType{
 
 	public TextColumnType(String image, String id, String caption) {
@@ -16,13 +18,10 @@ public class TextColumnType extends AbstractColumnType{
 
 	@Override
 	public ColumnPreference is(IColumn c, DataProject prj, IQuestionAnswerer answerer) {
-		long l0=System.currentTimeMillis();
 		if (isText(c)) {
 			
 			return ColumnPreference.STRICT;
 		}
-		long l1=System.currentTimeMillis();
-		System.out.println(l1-l0);
 		return ColumnPreference.NEVER;
 	}
 	

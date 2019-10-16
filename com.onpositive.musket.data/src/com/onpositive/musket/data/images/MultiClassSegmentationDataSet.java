@@ -174,7 +174,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 		return "Multi class segmentation";
 	}
 	@Override
-	public String generatePythonString(String sourcePath) {
+	public String generatePythonString(String sourcePath,Object model) {
 		return "image_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
 	}
 

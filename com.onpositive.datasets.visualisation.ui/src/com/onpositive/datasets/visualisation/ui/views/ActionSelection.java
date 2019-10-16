@@ -2,7 +2,7 @@ package com.onpositive.datasets.visualisation.ui.views;
 
 import java.util.List;
 
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;

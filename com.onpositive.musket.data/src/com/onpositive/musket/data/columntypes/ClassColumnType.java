@@ -8,7 +8,9 @@ import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.table.AbstractColumnType;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
+@Caption("Class")
 public class ClassColumnType extends AbstractColumnType{
 
 	public ClassColumnType(String image, String id, String caption) {

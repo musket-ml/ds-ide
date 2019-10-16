@@ -16,9 +16,12 @@ import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.SubColumn;
 import com.onpositive.musket.data.table.IColumnType.ColumnPreference;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
+import com.onpositive.semantic.model.api.property.java.annotations.TextLabel;
 
 public class ColumnLayout {
 
+	
 	public static class ColumnInfo {
 		protected IColumn cln;
 
@@ -48,6 +51,11 @@ public class ColumnLayout {
 				return ClassColumnType.class;
 			}
 			return nb;
+		}
+		
+		@Override
+		public String toString() {
+			return cln.caption()+":"+preferredType().getAnnotation(Caption.class).value();
 		}
 	}
 

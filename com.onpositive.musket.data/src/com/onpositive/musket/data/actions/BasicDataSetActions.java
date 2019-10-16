@@ -1,4 +1,4 @@
-package com.onpositive.musket.data.images.actions;
+package com.onpositive.musket.data.actions;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +30,7 @@ import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.text.TextClassificationDataSet;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
 
-public class BasicImageDataSetActions {
+public class BasicDataSetActions {
 
 	public static BasicDataSetImpl toBinaryClassification(IBinaryClassificationDataSet ds) {
 		ArrayList<Column> cs = new ArrayList<>();
@@ -178,7 +178,7 @@ public class BasicImageDataSetActions {
 	public static List<ConversionAction> getActions(IDataSet d) {
 		
 		ArrayList<ConversionAction> actions = new ArrayList<>();
-		ConversionAction conversionAction = new ConversionAction("Save with current filters", BasicImageDataSetActions::saveWithCurrentFilters);
+		ConversionAction conversionAction = new ConversionAction("Save with current filters", BasicDataSetActions::saveWithCurrentFilters);
 		conversionAction.setUsesCurrentFilters(true);
 		actions.add(conversionAction);
 		if (d instanceof IPythonStringGenerator) {
@@ -191,22 +191,22 @@ public class BasicImageDataSetActions {
 		}
 		
 		if (d instanceof IBinaryClassificationDataSet) {
-			Function<IBinaryClassificationDataSet, BasicDataSetImpl> v = BasicImageDataSetActions::toBinaryClassification;
+			Function<IBinaryClassificationDataSet, BasicDataSetImpl> v = BasicDataSetActions::toBinaryClassification;
 			actions.add(new ConversionAction("Convert to Binary Classification", v));
 		}
 		if (d instanceof IMulticlassClassificationDataSet) {
-			Function<IMulticlassClassificationDataSet, BasicDataSetImpl> v = BasicImageDataSetActions::toMultiClassClassification;
+			Function<IMulticlassClassificationDataSet, BasicDataSetImpl> v = BasicDataSetActions::toMultiClassClassification;
 			actions.add(new ConversionAction("Convert to Multiclass Classification", v));
 		}
 		if (d instanceof IBinarySegmentationDataSet) {
-			Function<IBinarySegmentationDataSet, BasicDataSetImpl> v = BasicImageDataSetActions::toBinarySegmentation;
+			Function<IBinarySegmentationDataSet, BasicDataSetImpl> v = BasicDataSetActions::toBinarySegmentation;
 			actions.add(new ConversionAction("Convert to Binary Segmentation", v));
 		}
 		if (d instanceof IImageDataSet) {
 			actions.add(new ConvertResolutionAction());
 		}
 		if(d instanceof IMulticlassClassificationDataSet) {
-			Function<IMultiClassSegmentationDataSet, BasicDataSetImpl> v = BasicImageDataSetActions::dropAttributes;
+			Function<IMultiClassSegmentationDataSet, BasicDataSetImpl> v = BasicDataSetActions::dropAttributes;
 			actions.add(new ConversionAction("Drop Attributes", v));
 		}
 		

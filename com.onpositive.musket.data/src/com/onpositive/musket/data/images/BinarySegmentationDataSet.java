@@ -48,7 +48,7 @@ public class BinarySegmentationDataSet extends AbstractRLEImageDataSet<BinarySeg
 	}
 
 	@Override
-	public String generatePythonString(String sourcePath) {
+	public String generatePythonString(String sourcePath,Object model) {
 		return "image_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
 	}
 

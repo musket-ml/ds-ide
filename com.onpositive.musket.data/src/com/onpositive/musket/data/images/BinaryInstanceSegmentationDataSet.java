@@ -57,7 +57,7 @@ public class BinaryInstanceSegmentationDataSet extends  AbstractRLEImageDataSet<
 	}
 
 	@Override
-	public String generatePythonString(String sourcePath) {
+	public String generatePythonString(String sourcePath,Object model) {
 		throw new UnsupportedOperationException();
 	}
 

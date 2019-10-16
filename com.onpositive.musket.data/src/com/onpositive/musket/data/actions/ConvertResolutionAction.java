@@ -1,4 +1,4 @@
-package com.onpositive.musket.data.images.actions;
+package com.onpositive.musket.data.actions;
 
 import java.awt.Graphics2D;
 import java.awt.Image;

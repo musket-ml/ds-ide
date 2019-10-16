@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
+import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class DataSetGenerator {
 
@@ -56,15 +57,26 @@ public class DataSetGenerator {
 	private String name;
 	private boolean makePrimary;
 	private File inputFile;
+	private Object modelObject;
 
-	public void generateDataSet(IDataSet ds, File inputFile, String name, boolean makePrimary, IProject project) {
+	public boolean generateDataSet(IDataSet ds, File inputFile, String name, boolean makePrimary, IProject project) {
 		this.ds = ds;
 		this.name = name;
 		this.inputFile=inputFile;
 		this.makePrimary = makePrimary;
+		IPythonStringGenerator ps=(IPythonStringGenerator) ds;
+		Object modelObject = ps.modelObject();
+		if (modelObject!=null) {
+			boolean createObject = WidgetRegistry.createObject(modelObject);
+			if (!createObject) {
+				return false;
+			}
+		}
+		this.modelObject=modelObject;
 		IFolder folder = getOrCreateFolder(project, "modules");
 		modifyFile(folder.getFile("datasets.py"), this::addDataSet);
 		modifyFile(project.getFile("common.yaml"), this::addDataDeclaration);
+		return true;
 	}
 
 	protected IFolder getOrCreateFolder(IProject project, String name) {
@@ -102,7 +114,7 @@ public class DataSetGenerator {
 		}
 		String substring = inputFile.getAbsolutePath().substring(root.getAbsolutePath().length()+1);
 		
-		arrayList.add("    return " + as.generatePythonString(substring));
+		arrayList.add("    return " + as.generatePythonString(substring,modelObject));
 	}
 
 	private void addDataDeclaration(ArrayList<String> arrayList) {

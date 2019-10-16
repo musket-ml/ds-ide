@@ -2,21 +2,26 @@ package com.onpositive.musket.data.generic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.onpositive.musket.data.actions.BasicDataSetActions;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizerProto;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
+import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
+import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.ITabularDataSet;
+import com.onpositive.musket.data.table.ITabularItem;
 
-public class GenericDataSet implements IDataSet{
+public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerator{
 
 	private DataSetSpec spec;
 	
@@ -86,11 +91,37 @@ public class GenericDataSet implements IDataSet{
 	
 	@Override
 	public List<ConversionAction> conversions() {
-		return new ArrayList<>();
+		return BasicDataSetActions.getActions(this);
 	}
 
 	@Override
 	public IAnalizerProto[] analizers() {
 		return IDataSet.super.analizers();
 	}
+	@Override
+	public ITabularDataSet original() {
+		return base;
+	}
+	@Override
+	public List<ITabularItem> represents(IItem i) {
+		GenericItem ti=(GenericItem) i;
+		return Collections.singletonList(ti.base);
+	}
+	@Override
+	public Object modelObject() {
+		GenerateMusketWrapperSettings generateMusketWrapperSettings = new GenerateMusketWrapperSettings();
+		generateMusketWrapperSettings.allColumns.addAll(spec.layout.infos());
+		return generateMusketWrapperSettings;
+	}
+	@Override
+	public String generatePythonString(String sourcePath, Object modelObject) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public String getImportString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

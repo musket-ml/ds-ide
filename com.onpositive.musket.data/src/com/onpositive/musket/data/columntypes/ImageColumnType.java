@@ -4,7 +4,9 @@ import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.table.AbstractColumnType;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
+@Caption("Image")
 public class ImageColumnType extends AbstractColumnType {
 
 	public ImageColumnType(String image, String id, String caption) {

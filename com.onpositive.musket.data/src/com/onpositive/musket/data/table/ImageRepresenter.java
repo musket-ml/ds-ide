@@ -19,8 +19,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import com.onpositive.musket.data.actions.ConvertResolutionAction;
 import com.onpositive.musket.data.core.IProgressMonitor;
-import com.onpositive.musket.data.images.actions.ConvertResolutionAction;
 
 public class ImageRepresenter implements Iterable<String> {
 

@@ -5,14 +5,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.onpositive.musket.data.actions.BasicDataSetActions;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 import com.onpositive.musket.data.table.ComputableColumn;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
@@ -177,7 +177,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	}
 	@Override
 	public List<ConversionAction> conversions() {
-		return BasicImageDataSetActions.getActions(this);
+		return BasicDataSetActions.getActions(this);
 	}
 
 	@Override
@@ -197,7 +197,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		return Collections.singletonList(it.baseItem);
 	}
 	@Override
-	public String generatePythonString(String sourcePath) {
+	public String generatePythonString(String sourcePath,Object model) {
 		return "text_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
 	}
 
@@ -224,6 +224,11 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		arrayList.add('"'+textColumn.id()+'"');
 		arrayList.add('"'+clazzColumn.caption()+'"');		
 		return arrayList;
+	}
+
+	@Override
+	public Object modelObject() {
+		return null;
 	}
 	
 }
