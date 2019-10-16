@@ -168,7 +168,7 @@ public class ExampleExtractor {
 		public String getStringValue(String key) {
 			Optional<keywordType> theArg = Arrays.asList(exp.keywords).stream()
 					.filter(x->(x.arg instanceof NameTok) && ((NameTok)x.arg).id.equals(key)).findFirst();
-			if(theArg.isEmpty()) {
+			if(!theArg.isPresent()) {
 				return null;
 			}
 			exprType exp = theArg.get().value;
