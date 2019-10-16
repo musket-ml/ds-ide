@@ -6,6 +6,8 @@ import java.util.HashMap;
 
 import org.yaml.snakeyaml.Yaml;
 
+import com.onpositive.yamledit.io.YamlIO;
+
 
 public class Registry {
 
@@ -24,7 +26,7 @@ public class Registry {
 			return types.get(type);
 		}
 		InputStream resourceAsStream = Registry.class.getResourceAsStream("/schema/"+type+".yaml");
-		NodeType loadAs = new Yaml().loadAs(new InputStreamReader(resourceAsStream), NodeType.class);
+		NodeType loadAs = YamlIO.load(new InputStreamReader(resourceAsStream), NodeType.class);
 		types.put(type, loadAs);
 		return loadAs;
 	}

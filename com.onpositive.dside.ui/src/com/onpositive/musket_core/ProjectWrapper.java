@@ -35,6 +35,7 @@ import com.onpositive.dside.ui.introspection.IIntrospector;
 import com.onpositive.dside.ui.introspection.ShellIntrospector;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
 import com.onpositive.yamledit.introspection.InstrospectionResult;
+import com.onpositive.yamledit.io.YamlIO;
 import com.onpositive.yamledit.project.IProjectContext;
 
 public class ProjectWrapper {
@@ -45,19 +46,9 @@ public class ProjectWrapper {
 		this.path = projectPath;
 		String absolutePath = projectMetaPath();
 		synchronized (ProjectWrapper.this) {
-			if (new File(absolutePath).exists()) {
-				FileReader fileReader;
-				try {
-					fileReader = new FileReader(absolutePath);
-					try {
-						InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
-						this.refreshed(loadAs);
-					} finally {
-						fileReader.close();
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			InstrospectionResult result = YamlIO.loadFromFile(new File(absolutePath), InstrospectionResult.class);
+			if (result != null) {
+				this.refreshed(result);
 			}
 		}
 		projectIntrospector = createIntrospector();
