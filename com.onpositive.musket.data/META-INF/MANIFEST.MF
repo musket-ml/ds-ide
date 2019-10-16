@@ -10,7 +10,7 @@ Require-Bundle: org.junit,
  org.apache.commons.lang3;bundle-version="3.1.0",
  com.onpositive.semantic.model.java;bundle-version="1.0.0",
  org.apache.commons.csv,
- org.yaml.snakeyaml;bundle-version="1.14.0"
+ org.yaml.snakeyaml
 Export-Package: com.onpositive.musket.data.column.analisys,
  com.onpositive.musket.data.core,
  com.onpositive.musket.data.core.filters,
