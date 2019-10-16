@@ -84,8 +84,7 @@
       <plugin id="javax.servlet.jsp.source"/>
       <plugin id="javax.servlet.source"/>
       <plugin id="javax.xml"/>
-      <plugin id="jfreechard_repackaged"/>
-      <plugin id="opencsv-repackaged"/>
+      <plugin id="jfreechard_repackaged"/>      
       <plugin id="org.aml.typesystem"/>
       <plugin id="org.apache.ant"/>
       <plugin id="org.apache.ant.source"/>
@@ -99,6 +98,7 @@
       <plugin id="org.apache.batik.util.source"/>
       <plugin id="org.apache.commons.codec"/>
       <plugin id="org.apache.commons.compress"/>
+      <plugin id="org.apache.commons.csv"/>
       <plugin id="org.apache.commons.httpclient"/>
       <plugin id="org.apache.commons.io"/>
       <plugin id="org.apache.commons.io.source"/>
@@ -581,10 +581,10 @@
       <plugin id="org.w3c.dom.smil.source"/>
       <plugin id="org.w3c.dom.svg"/>
       <plugin id="org.w3c.dom.svg.source"/>
+      <plugin id="org.yaml.snakeyaml"/>
       <plugin id="py4j-java"/>
       <plugin id="py4j-java.source"/>
       <plugin id="py4j-python"/>
-      <plugin id="snake_yaml_repackaged"/>
    </plugins>
 
    <configurations>
