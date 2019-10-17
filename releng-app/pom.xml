@@ -64,6 +64,17 @@
 		<module>../com.onpositive.dside.target</module>
 		<module>../com.onpositive.yamledit</module>
 		<module>../aml/org.aml.typesystem</module>
+		<module>../releng/Pydev/plugins/com.python.pydev.debug</module>
+		<module>../releng/Pydev/plugins/org.python.pydev.ast</module>
+		<module>../releng/Pydev/plugins/org.python.pydev.debug</module>
+		<module>../releng/Pydev/plugins/org.python.pydev.core</module>
+		<module>../releng/Pydev/plugins/org.python.pydev</module>
+		<module>../releng/Pydev/plugins/org.python.pydev.shared_ui</module>
+		<module>../releng/Pydev/plugins/org.python.pydev.parser</module>
+		<module>../releng/Pydev/plugins/org.python.pydev.jython</module>
+		<module>../releng/Pydev/plugins/com.python.pydev.analysis</module>
+		<module>../releng/Pydev/plugins/org.python.pydev.shared_interactive_console</module>
+		<module>../releng/Pydev/plugins/org.python.pydev.shared_core</module>
 		<module>../com.onpositive.musket.data</module>
 		<module>../com.onpositive.datasets.visualisation.ui</module>
 		<module>../com.onpositive.dside.ui</module>
