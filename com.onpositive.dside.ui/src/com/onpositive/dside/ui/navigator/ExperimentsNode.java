@@ -66,6 +66,9 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 				
 				@Override
 				public boolean visit(IResource resource) throws CoreException {
+					if (resource.getName().equals(".history")) {
+						return false;
+					}
 					if (resource.getName().equals("config.yaml")) {
 						children.add(new ExperimentNode((IFolder) resource.getParent()));
 					}
