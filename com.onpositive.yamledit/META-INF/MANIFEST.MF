@@ -17,3 +17,4 @@ Require-Bundle: com.onpositive.semantic.model.core;bundle-version="1.0.0",
  com.onpositive.semantic.model,
  org.aml.typesystem;bundle-version="1.0.0",
  org.yaml.snakeyaml;bundle-version="1.14.0"
+Import-Package: org.apache.commons.lang3
