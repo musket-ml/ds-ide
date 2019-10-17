@@ -15,4 +15,6 @@ public interface IColumnType extends IKnowsImageObject{
     
     public String caption();
 
+	public String typeId(IColumn column);
+
 }

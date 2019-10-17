@@ -9,8 +9,8 @@ import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 @Caption("Id")
 public class IDColumnType extends AbstractColumnType{
 
-	public IDColumnType(String image, String id, String caption) {
-		super(image, id, caption);
+	public IDColumnType() {
+		super("", "", "");
 	}
 
 	@Override
@@ -19,6 +19,11 @@ public class IDColumnType extends AbstractColumnType{
 			return ColumnPreference.STRICT;
 		}
 		return ColumnPreference.NEVER;
+	}
+
+	@Override
+	public String typeId(IColumn column) {
+		return "str";
 	}
 
 }

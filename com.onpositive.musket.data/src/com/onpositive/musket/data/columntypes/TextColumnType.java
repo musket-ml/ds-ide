@@ -12,8 +12,8 @@ import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 @Caption("Text")
 public class TextColumnType extends AbstractColumnType{
 
-	public TextColumnType(String image, String id, String caption) {
-		super(image, id, caption);
+	public TextColumnType() {
+		super("", "","");
 	}
 
 	@Override
@@ -91,6 +91,11 @@ public class TextColumnType extends AbstractColumnType{
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public String typeId(IColumn column) {
+		return "str";
 	}
 
 }

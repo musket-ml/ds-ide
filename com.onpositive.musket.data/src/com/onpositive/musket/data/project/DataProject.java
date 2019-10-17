@@ -47,6 +47,8 @@ public class DataProject {
 				return null;
 			}
 			ITabularDataSet t1 = load.as(ITabularDataSet.class);
+			long l1=System.currentTimeMillis();
+			System.out.println("CSV Load:"+(l1-l0));
 			if (getMetaFile(file2).exists()) {
 				try {
 					FileReader fileReader = new FileReader(getMetaFile(file2));
@@ -70,8 +72,7 @@ public class DataProject {
 					throw new IllegalStateException(e);
 				}
 			}
-			long l1=System.currentTimeMillis();
-			System.out.println("CSV Load:"+(l1-l0));
+			
 			List<IColumn> columns = (List<IColumn>) t1.columns();
 			ColumnLayout layout = new ColumnLayout(columns, this, answerer);
 			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);

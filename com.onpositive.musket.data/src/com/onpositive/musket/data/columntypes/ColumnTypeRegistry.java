@@ -17,12 +17,12 @@ public class ColumnTypeRegistry {
 	private static ColumnTypeRegistry instance;
 	
 	public ColumnTypeRegistry() {
-		types.add(new TextColumnType("", "text", "Text"));
-		types.add(new ImageColumnType("", "image", "Image"));
-		types.add(new RLEMaskColumnType("", "rle", "RLE Mask"));
-		types.add(new NumberColumn("", "number", "Number"));
-		types.add(new ClassColumnType("", "class", "Class"));
-		types.add(new IDColumnType("", "id", "Id"));
+		types.add(new TextColumnType());
+		types.add(new ImageColumnType());
+		types.add(new RLEMaskColumnType());
+		types.add(new NumberColumn());
+		types.add(new ClassColumnType());
+		types.add(new IDColumnType());
 	}
 	
 	public static ColumnTypeRegistry getInstance() {

@@ -9,8 +9,8 @@ import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 @Caption("Number")
 public class NumberColumn extends AbstractColumnType{
 
-	public NumberColumn(String image, String id, String caption) {
-		super(image, id, caption);
+	public NumberColumn() {
+		super("", "", "");
 	}
 
 	@Override
@@ -41,6 +41,11 @@ public class NumberColumn extends AbstractColumnType{
 			return ColumnPreference.STRICT;
 		}
 		return ColumnPreference.MAYBE;
+	}
+
+	@Override
+	public String typeId(IColumn column) {
+		return "number";
 	}
 
 }

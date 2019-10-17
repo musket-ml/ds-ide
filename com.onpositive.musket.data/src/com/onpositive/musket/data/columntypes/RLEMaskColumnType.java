@@ -12,8 +12,8 @@ import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 @Caption("RLE Mask")
 public class RLEMaskColumnType extends AbstractColumnType{
 
-	public RLEMaskColumnType(String image, String id, String caption) {
-		super(image, id, caption);
+	public RLEMaskColumnType() {
+		super("", "","");
 	}
 
 	@Override
@@ -86,5 +86,10 @@ public class RLEMaskColumnType extends AbstractColumnType{
 		});
 		
 		return res;
+	}
+
+	@Override
+	public String typeId(IColumn column) {
+		return "rle";
 	}
 }

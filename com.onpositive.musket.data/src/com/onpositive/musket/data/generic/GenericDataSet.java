@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.actions.BasicDataSetActions;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
+import com.onpositive.musket.data.columntypes.ColumnLayout.ColumnInfo;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizerProto;
@@ -18,6 +19,7 @@ import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.table.ICSVOVerlay;
+import com.onpositive.musket.data.table.IColumnType;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 
@@ -115,13 +117,37 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	}
 	@Override
 	public String generatePythonString(String sourcePath, Object modelObject) {
-		// TODO Auto-generated method stub
-		return null;
+		return "genericcsv.GenericCSVDataSet("+this.getDataSetArgs(sourcePath,modelObject).stream().collect(Collectors.joining(","))+")";
+		
 	}
+	private Collection<String> getDataSetArgs(String sourcePath,Object modelObject) {
+		GenerateMusketWrapperSettings ss=(GenerateMusketWrapperSettings) modelObject;
+		ArrayList<String>results=new ArrayList<>();
+		results.add("\""+sourcePath+"\"");
+		String inputs="["+ss.inputColumns.stream().map(x->'"'+x.getColumn().caption()+'"').collect(Collectors.joining(","))+"]";
+		String outputs="["+ss.outputColumns.stream().map(x->'"'+x.getColumn().caption()+'"').collect(Collectors.joining(","))+"]";
+		results.add(inputs);
+		results.add(outputs);
+		results.add(spec.representer.getImageDirsString());
+		ArrayList<ColumnInfo>all=new ArrayList<>();
+		all.addAll(ss.inputColumns);
+		all.addAll(ss.outputColumns);
+		String ctypes="{"+all.stream().map(x->'"'+x.getColumn().caption()+'"'+":"+'"'+getTypeName(x)+'"').collect(Collectors.joining(","))+"}";
+		results.add(ctypes);
+		return results;
+	}
+	String getTypeName(ColumnInfo info) {
+		try {
+			IColumnType newInstance = info.preferredType().newInstance();
+			return newInstance.typeId(info.getColumn());
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+	
 	@Override
 	public String getImportString() {
-		// TODO Auto-generated method stub
-		return null;
+		return "from musket_core import datasets,genericcsv";
 	}
 	
 }
