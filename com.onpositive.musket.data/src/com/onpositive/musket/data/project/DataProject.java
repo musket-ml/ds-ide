@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.yaml.snakeyaml.Yaml;
-
 import com.onpositive.musket.data.columntypes.ColumnLayout;
 import com.onpositive.musket.data.columntypes.DataSetFactoryRegistry;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -21,8 +19,8 @@ import com.onpositive.musket.data.registry.DataSetIO;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
 import com.onpositive.musket.data.table.ITabularDataSet;
-import com.onpositive.musket.data.table.ImageDataSetFactories;
 import com.onpositive.musket.data.table.ImageRepresenter;
+import com.onpositive.yamledit.io.YamlIO;
 
 public class DataProject {
 
@@ -53,7 +51,7 @@ public class DataProject {
 				try {
 					FileReader fileReader = new FileReader(getMetaFile(file2));
 					@SuppressWarnings("rawtypes")
-					Map loadAs = new Yaml().loadAs(fileReader, Map.class);
+					Map loadAs = YamlIO.loadAs(fileReader, Map.class);
 					fileReader.close();
 					Object object = loadAs.get(DATASET_FACTORY);
 					if (object != null) {
@@ -114,7 +112,7 @@ public class DataProject {
 				FileWriter fileWriter = new FileWriter(getMetaFile(file2));
 				Map<String, Object> settings = create.getSettings();
 				settings.put(DATASET_FACTORY, factory.getClass().getName());
-				new Yaml().dump(settings, fileWriter);
+				YamlIO.dump(settings, fileWriter);
 				fileWriter.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

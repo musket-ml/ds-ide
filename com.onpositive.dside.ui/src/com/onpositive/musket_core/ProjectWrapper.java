@@ -113,7 +113,7 @@ public class ProjectWrapper {
 			LinkedHashMap<String, FunctionDeclaration> maps = new LinkedHashMap<>();
 			introspectModules.forEach(m -> maps.put(m.name, m));
 			FileReader fileReader = new FileReader(new File(path, "common.yaml"));
-			Object loadAs = new Yaml().loadAs(fileReader, Object.class);
+			Object loadAs = YamlIO.loadAs(fileReader, Object.class);
 			if (loadAs instanceof Map) {
 				Map<String, Object> m = (Map<String, Object>) loadAs;
 				Object object = m.get("datasets");

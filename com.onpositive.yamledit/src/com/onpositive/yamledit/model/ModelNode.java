@@ -116,7 +116,7 @@ public class ModelNode implements IHasPropertyProvider,IKnowsImageObject {
 	}
 
 	public ModelNode(String str, NodeKind knd) {
-		Object loadAs = YamlIO.load(new StringReader(str), Object.class);
+		Object loadAs = YamlIO.loadAs(new StringReader(str), Object.class);
 		this.object = loadAs;
 		this.clazz = knd;
 	}
@@ -165,7 +165,7 @@ public class ModelNode implements IHasPropertyProvider,IKnowsImageObject {
 	}
 
 	public void update(String string) {
-		Object loadAs = YamlIO.load(new StringReader(string), Object.class);
+		Object loadAs = YamlIO.loadAs(new StringReader(string), Object.class);
 		this.object = loadAs;
 	}
 

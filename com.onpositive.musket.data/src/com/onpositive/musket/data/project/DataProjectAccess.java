@@ -6,10 +6,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.yaml.snakeyaml.Yaml;
-
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
+import com.onpositive.yamledit.io.YamlIO;
 
 public class DataProjectAccess {
 
@@ -48,7 +47,7 @@ public class DataProjectAccess {
 			settings.keySet().forEach(v->{
 				ns.put(v, settings.get(v).toString());
 			});
-			new Yaml().dump(ns, fileWriter);
+			YamlIO.dump(ns, fileWriter);
 			fileWriter.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

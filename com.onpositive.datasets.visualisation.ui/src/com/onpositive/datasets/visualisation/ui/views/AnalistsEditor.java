@@ -523,7 +523,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		element.add(g);
 		element.setEnabled(true);
 		VisualizationSpec visualizationSpec = r.visualizationSpec();
-		// Object loadAs = new Yaml().loadAs(visualizationSpec, Object.class);
+		// Object loadAs = YamlIO.loadAs(visualizationSpec, Object.class);
 		createChart = ChartUtils.createChart(ChartUtils.createDataset(r, visualizationSpec), visualizationSpec);
 		element2 = (Container) getElement("stat");
 
