@@ -36,8 +36,6 @@ Require-Bundle: org.eclipse.nebula.widgets.gallery;bundle-version="1.0.0",
  com.onpositive.commons.platform;bundle-version="1.3.9",
  com.onpositive.semantic.model.ui.generic,
  com.ibm.icu,
- org.python.pydev.shared_ui,
- org.python.pydev.shared_core,
  org.python.pydev,
  org.aml.typesystem,
  org.eclipse.ui.views,
@@ -45,7 +43,8 @@ Require-Bundle: org.eclipse.nebula.widgets.gallery;bundle-version="1.0.0",
  com.google.gson;bundle-version="2.7.0",
  com.onpositive.musket.data;bundle-version="1.0.0",
  com.onpositive.datasets.visualisation.ui;bundle-version="1.0.0",
- org.apache.commons.csv;bundle-version="1.4.0"
+ org.apache.commons.csv;bundle-version="1.4.0",
+ org.python.pydev.shared_ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: com.onpositive.dside.ui
 Bundle-ActivationPolicy: lazy

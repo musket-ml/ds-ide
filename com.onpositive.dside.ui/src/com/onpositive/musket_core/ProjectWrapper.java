@@ -28,7 +28,6 @@ import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.ui.introspection.IIntrospector;
