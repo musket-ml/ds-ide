@@ -1,0 +1,6 @@
+[submodule "aml"]
+	path = aml
+	url = https://github.com/OnPositive/aml.git
+[submodule "releng/Pydev"]
+	path = releng/Pydev
+	url = https://github.com/OnPositive/Pydev.git
