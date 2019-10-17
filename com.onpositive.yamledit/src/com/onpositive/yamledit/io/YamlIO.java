@@ -17,7 +17,8 @@ public class YamlIO {
 	public static <T> T loadFromFile(File file, Class<T> clazz) {
 		if (file.exists()) {
 			try (FileReader fileReader = new FileReader(file)) {
-					return new Yaml(new CustomClassLoaderConstructor(clazz.getClassLoader())).loadAs(fileReader, clazz);
+				Yaml yaml = getYamlTool(clazz);
+				return yaml.loadAs(fileReader, clazz);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -26,11 +27,19 @@ public class YamlIO {
 	}
 
 	public static <T> T loadAs(Reader reader, Class<T> clazz) {
-		return new Yaml(new CustomClassLoaderConstructor(clazz.getClassLoader())).loadAs(reader, clazz);	
+		Yaml yaml = getYamlTool(clazz);
+		return yaml.loadAs(reader, clazz);	
+	}
+
+	private static <T> Yaml getYamlTool(Class<T> clazz) {
+		ClassLoader loader = clazz.getClassLoader();
+		Yaml yaml = loader != null ? new Yaml(new CustomClassLoaderConstructor(loader)) : new Yaml();
+		return yaml;
 	}
 	
 	public static <T> T loadAs(InputStream stream, Class<T> clazz) {
-		return new Yaml(new CustomClassLoaderConstructor(clazz.getClassLoader())).loadAs(stream, clazz);	
+		Yaml yaml = getYamlTool(clazz);
+		return yaml.loadAs(stream, clazz);	
 	}
 	
 	public static <T> T loadAs(String str, Class<T> clazz) {
