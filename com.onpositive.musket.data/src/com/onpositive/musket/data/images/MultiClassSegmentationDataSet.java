@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -161,6 +162,11 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 			@Override
 			public String id() {
 				return "Image visualizer";
+			}
+
+			@Override
+			public Supplier<Collection<String>> values() {
+				return null;
 			}
 		};
 	}

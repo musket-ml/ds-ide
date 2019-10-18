@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
@@ -87,6 +88,11 @@ public class BinarySegmentationDataSetWithGroundTruth extends BinarySegmentation
 			@Override
 			public String id() {
 				return "Image visualizer";				
+			}
+
+			@Override
+			public Supplier<Collection<String>> values() {
+				return null;
 			}
 		};
 	}

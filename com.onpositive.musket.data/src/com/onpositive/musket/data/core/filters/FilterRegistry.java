@@ -7,10 +7,14 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.columntypes.IDColumnType;
@@ -31,6 +35,7 @@ import com.onpositive.musket.data.generic.GenericItem;
 import com.onpositive.musket.data.images.IMulticlassClassificationItem;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
 import com.onpositive.musket.data.table.IColumn;
+import com.onpositive.musket.data.table.IColumnType;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.text.ITextItem;
@@ -142,6 +147,17 @@ public class FilterRegistry {
 				}
 			}
 			throw new IllegalStateException();
+		}
+
+		@Override
+		public Supplier<Collection<String>> values() {
+			return new Supplier<Collection<String>>() {
+
+				@Override
+				public Collection<String> get() {
+					return Collections.emptyList();
+				}
+			};
 		}
 	}
 
@@ -265,7 +281,16 @@ public class FilterRegistry {
 		public IAnalizeResults perform(HashMap<String, Object> analzierArgs, IDataSet dataset) {
 			return this.analizer.analize(dataset);
 		}
+		@Override
+		public Supplier<Collection<String>> values() {
+			return new Supplier<Collection<String>>() {
 
+				@Override
+				public Collection<String> get() {
+					return Collections.emptyList();					
+				}
+			};
+		}
 	}
 
 	public static class BasicColumnFilterProto implements IFilterProto {
@@ -300,6 +325,16 @@ public class FilterRegistry {
 		public String id() {
 			return name();
 		}
+		@Override
+		public Supplier<Collection<String>> values() {
+			return new Supplier<Collection<String>>() {
+
+				@Override
+				public Collection<String> get() {
+					return column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());					
+				}
+			};
+		}
 
 		@Override
 		public Predicate<IItem> apply(IDataSet original, Map<String, Object> parameters) {
@@ -321,9 +356,11 @@ public class FilterRegistry {
 
 		protected AbstractAnalizer analizer;
 		private IColumn column;
+		private Class<? extends IColumnType> type;
 
-		public ObjectColumnFilterProto(IColumn c) {
+		public ObjectColumnFilterProto(IColumn c, Class<? extends IColumnType> class1) {
 			this.column = c;
+			this.type=class1;
 		}
 
 		@Override
@@ -354,6 +391,35 @@ public class FilterRegistry {
 					return valueAsString.contains(val);
 				}
 				return valueAsString.toLowerCase().contains(val);
+			};
+		}
+		@Override
+		public Supplier<Collection<String>> values() {
+			return new Supplier<Collection<String>>() {
+
+				@Override
+				public Collection<String> get() {
+					if (type==TextColumnType.class) {
+						return words();
+					}
+					return column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());					
+				}
+				ArrayList<String>_words=null;
+
+				private Collection<String> words() {
+					if (_words==null) {
+						HashSet<String>st=new HashSet<>();
+						for (Object x:column.uniqueValues()) {
+							String[] split = new BreakIteratorTokenizer().split(x.toString());
+							for (String s:split) {
+								st.add(s);
+							}
+						}
+						_words=new ArrayList<>(st);
+						Collections.sort(_words);						
+					}
+					return _words;
+				}
 			};
 		}
 	}
@@ -397,6 +463,17 @@ public class FilterRegistry {
 					return vlNum==Double.parseDouble(valueAsString);
 				}catch (NumberFormatException e) {
 					return islc;
+				}
+			};
+		}
+
+		@Override
+		public Supplier<Collection<String>> values() {
+			return new Supplier<Collection<String>>() {
+
+				@Override
+				public Collection<String> get() {
+					return column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());					
 				}
 			};
 		}
@@ -465,6 +542,17 @@ public class FilterRegistry {
 				}
 			};
 		}
+
+		@Override
+		public Supplier<Collection<String>> values() {
+			return new Supplier<Collection<String>>() {
+
+				@Override
+				public Collection<String> get() {
+					return column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());					
+				}
+			};
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -505,7 +593,7 @@ public class FilterRegistry {
 						} else {
 							result.add(new BasicColumnFilterProto(true, column, (AbstractAnalizer) wordCountAnalizer));
 							result.add(new BasicColumnFilterProto(false, column, (AbstractAnalizer) wordCountAnalizer));
-							result.add(new ObjectColumnFilterProto(column));
+							result.add(new ObjectColumnFilterProto(column,i.preferredType()));
 						}
 					} catch (InstantiationException | IllegalAccessException e) {
 						throw new IllegalStateException(e);
@@ -527,7 +615,7 @@ public class FilterRegistry {
 									(IAnalizer) wordCountAnalizer));
 
 						} else {
-							result.add(new ObjectColumnFilterProto(column));
+							result.add(new ObjectColumnFilterProto(column, i.preferredType()));
 						}
 					} catch (InstantiationException | IllegalAccessException e) {
 						throw new IllegalStateException(e);
@@ -538,7 +626,7 @@ public class FilterRegistry {
 				IColumn column = i.getColumn();
 				Function<IItem, IItem> converter = clazzAdapter(column);
 				if (!analizer) {
-					result.add(new ObjectColumnFilterProto(column));
+					result.add(new ObjectColumnFilterProto(column,i.preferredType()));
 				}
 			}
 			if (i.preferredType() == NumberColumn.class) {

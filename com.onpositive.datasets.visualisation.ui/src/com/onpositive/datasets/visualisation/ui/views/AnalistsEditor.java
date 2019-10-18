@@ -126,7 +126,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	}
 
 	public void addFilter() {
-		DataSetFilter object = new DataSetFilter();
+		DataSetFilter object = new DataSetFilter(this.filterKinds);
 		object.setMode("normal");
 		object.getModes().add("normal");
 		object.getModes().add("inverse");

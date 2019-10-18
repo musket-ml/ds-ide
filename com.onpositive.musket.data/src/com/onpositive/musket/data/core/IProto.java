@@ -1,5 +1,8 @@
 package com.onpositive.musket.data.core;
 
+import java.util.Collection;
+import java.util.function.Supplier;
+
 public interface IProto {
 
 
@@ -8,4 +11,6 @@ public interface IProto {
 	Parameter[] parameters();
 
 	String id();
+	
+	Supplier<Collection<String>>values();
 }

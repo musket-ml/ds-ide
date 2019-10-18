@@ -5,8 +5,10 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.DescriptionEntry;
@@ -210,6 +212,11 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 			@Override
 			public String id() {
 				return "Image visualizer";
+			}
+
+			@Override
+			public Supplier<Collection<String>> values() {
+				return null;
 			}
 		};
 	}

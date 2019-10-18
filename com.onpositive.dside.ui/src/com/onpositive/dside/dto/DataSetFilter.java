@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
+import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
+import com.onpositive.semantic.model.ui.generic.annotations.ContentAssist;
 
 @Display("dlf/filter.dlf")
 public class DataSetFilter {
 
 	protected String filterKind;
+
 	
 	protected String filterArgs;
 	
@@ -30,6 +33,7 @@ public class DataSetFilter {
 		this.filterKind = filterKind;
 	}
 
+	
 	public String getFilterArgs() {
 		return filterArgs;
 	}
