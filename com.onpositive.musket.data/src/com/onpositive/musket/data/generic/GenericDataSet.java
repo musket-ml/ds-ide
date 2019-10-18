@@ -3,8 +3,10 @@ package com.onpositive.musket.data.generic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.actions.BasicDataSetActions;
@@ -18,6 +20,7 @@ import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
+import com.onpositive.musket.data.core.Parameter;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumnType;
 import com.onpositive.musket.data.table.ITabularDataSet;
@@ -25,6 +28,10 @@ import com.onpositive.musket.data.table.ITabularItem;
 
 public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerator{
 
+	static final String FONT_SIZE = "Font size";
+	static final String VISIBLE_COLUMNS="Visible Columns";
+	static final String MAX_CHARS_IN_TEXT="Trim text to";
+	
 	private DataSetSpec spec;
 	
 	public DataSetSpec getSpec() {
@@ -36,10 +43,17 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 
 	public GenericDataSet(DataSetSpec spec, ITabularDataSet t1) {
 		this.spec=spec;
-		this.base=t1;		
+		this.base=t1;
+		settings.put(FONT_SIZE, "12");
+		settings.put(MAX_CHARS_IN_TEXT, "300");
+		settings.put(VISIBLE_COLUMNS, "");
+		if (spec.layout!=null) {
+			settings.put("layout", spec.layout.toOptions());
+		}
 	}
 	private List<IItem>items;
 	
+	protected HashMap<String, Object>settings=new HashMap<>();
 	
 	@Override
 	public List<? extends IItem> items() {
@@ -69,7 +83,8 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	}
 	@Override
 	public void setSettings(IVisualizerProto proto, Map<String, Object> parameters) {
-		
+		//settings.clear();
+		settings.putAll(parameters);
 	}
 	@SuppressWarnings("unchecked")
 	@Override
@@ -151,6 +166,51 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	@Override
 	public String getImportString() {
 		return "from musket_core import datasets,genericcsv";
+	}
+	
+	@Override
+	public IVisualizerProto getVisualizer() {
+		return new IVisualizerProto() {
+
+			@Override
+			public Parameter[] parameters() {
+			
+				Parameter parameter = new Parameter();
+				parameter.name=FONT_SIZE;
+				parameter.defaultValue=getSettings().get(FONT_SIZE).toString();
+				parameter.type=Integer.class;
+				
+				Parameter parameter1 = new Parameter();
+				parameter1.name=MAX_CHARS_IN_TEXT;
+				parameter1.defaultValue=getSettings().get(MAX_CHARS_IN_TEXT).toString();
+				parameter1.type=Integer.class;
+				
+				Parameter parameter2 = new Parameter();
+				parameter2.name=VISIBLE_COLUMNS;
+				parameter2.defaultValue=getSettings().get(VISIBLE_COLUMNS).toString();
+				parameter2.type=Columns.class;
+				return new Parameter[] {parameter,parameter1,parameter2};
+			}
+
+			@Override
+			public String name() {
+				return "Card visualizer";
+			}
+
+			@Override
+			public String id() {
+				return "Cart visualizer";
+			}
+
+			@Override
+			public Supplier<Collection<String>> values() {
+				return null;
+			}
+		};
+	}
+	@Override
+	public Map<String, Object> getSettings() {
+		return settings;
 	}
 	
 }

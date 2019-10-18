@@ -1,17 +1,37 @@
 package com.onpositive.datasets.visualisation.ui.views;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.ui.dialogs.ListSelectionDialog;
+import org.eclipse.ui.dialogs.SelectionDialog;
 
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.Container;
+import com.onpositive.commons.elements.SWTEventListener;
 import com.onpositive.commons.ui.appearance.HorizontalLayouter;
 import com.onpositive.commons.ui.appearance.OneElementOnLineLayouter;
 import com.onpositive.commons.ui.dialogs.FormDialog;
+import com.onpositive.datasets.visualisation.ui.views.AnalistsEditor.AnalizerOrVisualizerUI;
+import com.onpositive.musket.data.columntypes.ColumnLayout.ColumnInfo;
+import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.generic.Columns;
+import com.onpositive.musket.data.generic.GenericDataSet;
+import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.semantic.model.api.meta.BaseMeta;
 import com.onpositive.semantic.model.api.meta.DefaultMetaKeys;
 import com.onpositive.semantic.model.api.property.IHasPropertyProvider;
@@ -21,6 +41,7 @@ import com.onpositive.semantic.model.api.property.java.MapPropertyProvider;
 import com.onpositive.semantic.model.api.realm.Realm;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.generic.widgets.IUIElement;
+import com.onpositive.semantic.model.ui.property.editors.ButtonSelector;
 import com.onpositive.semantic.model.ui.property.editors.CheckboxElement;
 import com.onpositive.semantic.model.ui.property.editors.ColorSelectorWrapper;
 import com.onpositive.semantic.model.ui.property.editors.FormEditor;
@@ -30,6 +51,7 @@ import com.onpositive.semantic.model.ui.property.editors.SeparatorElement;
 import com.onpositive.semantic.model.ui.property.editors.structured.ComboEnumeratedValueSelector;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
+import com.onpositive.semantic.ui.core.Alignment;
 import com.onpositive.semantic.ui.core.Rectangle;
 
 public class DynamicUI {
@@ -224,6 +246,55 @@ public class DynamicUI {
 			element.setBinding(binding);
 			element.setCaption(HumanCaption.getHumanCaption(p.getName()));
 			cm.add(element);
+		}
+		else if (type.equals("columns")) {
+			ButtonSelector bs=new ButtonSelector();
+			bs.addListener(SWT.Selection, new SWTEventListener<Button>() {
+				
+				@Override
+				public void handleEvent(AbstractUIElement<Button> arg0, Event arg1) {
+					AnalizerOrVisualizerUI b=(AnalizerOrVisualizerUI) (DynamicUI.this);
+					GenericDataSet dataSet = (GenericDataSet) b.getDataSet();
+					List<ColumnInfo> columns = (List<ColumnInfo>) new ArrayList<>(dataSet.getSpec().layout.infos());
+					Object value = binding.getValue();
+					ListSelectionDialog ls=new ListSelectionDialog(Display.getCurrent().getActiveShell(), 
+							columns.toArray(), new ArrayContentProvider(), 
+							new LabelProvider() {
+						@Override
+						public String getText(Object element) {
+							return element.toString();
+						}
+					}, "Please select visible columns");
+					String ss=value==null?"":value.toString();
+					if (!ss.isEmpty()) {
+						String[] split = ss.split(",");
+						HashSet<String> hashSet = new HashSet<>(Arrays.asList(split));
+						ArrayList<Object>selected=new ArrayList<>();
+						for (ColumnInfo i:columns) {
+							if (hashSet.contains(i.getColumn().caption())) {
+								selected.add(i);
+							}
+						}
+						ls.setInitialSelections((Object[])selected.toArray());
+					}
+					else {
+						ls.setInitialSelections((Object[])columns.toArray());
+					}
+					int open = ls.open();
+					if (open==Dialog.OK) {
+						Object[] result = ls.getResult();
+						String collect = Arrays.asList(result).stream().map(x->{
+							return ((ColumnInfo)x).getColumn().caption();
+						}).collect(Collectors.joining(","));
+						binding.setValue(collect);
+					}
+					
+				}
+			});
+			bs.getLayoutHints().setGrabHorizontal(true);
+			bs.getLayoutHints().setAlignmentHorizontal(Alignment.FILL);
+			bs.setCaption("Visible Columns...");
+			cm.add(bs);
 		}
 		else {
 			OneLineTextElement<Object> element = new OneLineTextElement<Object>(binding);

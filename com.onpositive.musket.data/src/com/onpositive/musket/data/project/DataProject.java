@@ -15,6 +15,7 @@ import com.onpositive.musket.data.columntypes.IDataSetFactory;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IProgressMonitor;
 import com.onpositive.musket.data.generic.GenericDataSet;
+import com.onpositive.musket.data.generic.GenericDataSetFactory;
 import com.onpositive.musket.data.images.NotEnoughParametersException;
 import com.onpositive.musket.data.registry.DataSetIO;
 import com.onpositive.musket.data.table.IColumn;
@@ -116,6 +117,7 @@ public class DataProject {
 				return create;
 			}
 			GenericDataSet genericDataSet = new GenericDataSet(spec, t1);
+			dumpSettings(file2, genericDataSet, new GenericDataSetFactory());
 			return genericDataSet;
 
 		} catch (NotEnoughParametersException e) {

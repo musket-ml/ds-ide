@@ -396,6 +396,10 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				}
 			}
 		}
+		
+		public IDataSet getDataSet() {
+			return results.getOriginal();
+		}
 
 		@Override
 		protected ArrayList<IntrospectedParameter> getParameters() {

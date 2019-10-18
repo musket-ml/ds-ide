@@ -141,6 +141,9 @@ public class AnalisysEngine implements IAnalisysEngine {
 			if (simpleName.equals("Color")) {
 				simpleName = "color";
 			}
+			if (simpleName.equals("Columns")) {
+				simpleName = "columns";
+			}
 			introspectedParameter.setType(simpleName);
 			introspectedParameter.setDefaultValue(pa.defaultValue);
 			instrospectedFeature.getParameters().add(introspectedParameter);
