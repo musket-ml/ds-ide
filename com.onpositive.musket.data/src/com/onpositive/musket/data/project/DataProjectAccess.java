@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IProgressMonitor;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
 import com.onpositive.yamledit.io.YamlIO;
 
@@ -16,14 +17,14 @@ public class DataProjectAccess {
 		return new DataProject(file);		
 	}
 	
-	public static IDataSet getDataSet(File file,IQuestionAnswerer answerer) {
+	public static IDataSet getDataSet(File file,IQuestionAnswerer answerer,IProgressMonitor monitor) {
 		File dataRoot=findDataRoot(file);
 		if (dataRoot==null) {
 			dataRoot=file.getParentFile();
 		}
 		if (dataRoot!=null) {
 			DataProject project = getProject(dataRoot);
-			return project.getDataSet(file,answerer);
+			return project.getDataSet(file,answerer,monitor);
 		}
 		return null;		
 	}

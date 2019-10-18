@@ -17,7 +17,7 @@ public class NumberColumnAnalizer extends AbstractAnalizer implements IColumnDep
 
 	@Override
 	public String getName(IColumn c) {
-		return "group by "+c.caption();
+		return "Group by "+c.caption();
 	}
 
 	@Override

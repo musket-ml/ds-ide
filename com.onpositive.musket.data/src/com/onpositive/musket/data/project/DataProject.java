@@ -13,6 +13,7 @@ import com.onpositive.musket.data.columntypes.DataSetFactoryRegistry;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.columntypes.IDataSetFactory;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IProgressMonitor;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.NotEnoughParametersException;
 import com.onpositive.musket.data.registry.DataSetIO;
@@ -37,14 +38,16 @@ public class DataProject {
 	}
 
 	@SuppressWarnings("unchecked")
-	public IDataSet getDataSet(File file2, IQuestionAnswerer answerer) {
+	public IDataSet getDataSet(File file2, IQuestionAnswerer answerer, IProgressMonitor monitor) {
 		try {
 			long l0=System.currentTimeMillis();
+			monitor.onProgress("Loading dataset into memory", 0);
 			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath());
 			if (load == null) {
 				return null;
 			}
 			ITabularDataSet t1 = load.as(ITabularDataSet.class);
+			
 			long l1=System.currentTimeMillis();
 			System.out.println("CSV Load:"+(l1-l0));
 			if (getMetaFile(file2).exists()) {
@@ -57,7 +60,12 @@ public class DataProject {
 					if (object != null) {
 						try {
 							IDataSetFactory factory = (IDataSetFactory) Class.forName(object.toString()).newInstance();
+							boolean onProgress = monitor.onProgress("Preparing dataset for use", 1);
+							if (!onProgress) {
+								return null;
+							}
 							IDataSet create = factory.create(new DataSetSpec(null, t1, this, answerer), loadAs);
+							monitor.onDone("All done", 2);
 							return create;
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -71,13 +79,21 @@ public class DataProject {
 				}
 			}
 			
+			boolean onProgress = monitor.onProgress("Analizing dataset layout", 1);
+			if (!onProgress) {
+				return null;
+			}
 			List<IColumn> columns = (List<IColumn>) t1.columns();
-			ColumnLayout layout = new ColumnLayout(columns, this, answerer);
+			ColumnLayout layout = new ColumnLayout(columns, this, answerer,monitor);
 			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);
 			// make it a little bit smarter
 			IDataSetFactory factory = null;
 			long l2=System.currentTimeMillis();
 			System.out.println("Column parsing:"+(l2-l1));
+			boolean onProgress2 = monitor.onProgress("Checking data", 1);
+			if (!onProgress2) {
+				return null;
+			}
 			ArrayList<IDataSetFactory> matching = DataSetFactoryRegistry.getInstance().matching(spec);
 			IDataSet create = null;
 			if (!matching.isEmpty() && matching.size() > 1) {
@@ -93,13 +109,14 @@ public class DataProject {
 				create = iDataSetFactory.create(spec, null);
 			}
 			long l3=System.currentTimeMillis();
+			
 			System.out.println("Dataset creation:"+(l3-l2));
 			if (create != null) {
 				dumpSettings(file2, create, factory);
 				return create;
 			}
-			
-			return new GenericDataSet(spec, t1);
+			GenericDataSet genericDataSet = new GenericDataSet(spec, t1);
+			return genericDataSet;
 
 		} catch (NotEnoughParametersException e) {
 			return null;

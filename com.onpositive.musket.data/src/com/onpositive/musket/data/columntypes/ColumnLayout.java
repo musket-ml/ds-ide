@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.onpositive.musket.data.core.IProgressMonitor;
 import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.table.BasicDataSetImpl;
 import com.onpositive.musket.data.table.Column;
@@ -67,10 +68,14 @@ public class ColumnLayout {
 		return newDataSet;
 	}
 
-	public ColumnLayout(List<IColumn> clns, DataProject prj, IQuestionAnswerer answerer) {
+	public ColumnLayout(List<IColumn> clns, DataProject prj, IQuestionAnswerer answerer, IProgressMonitor monitor) {
 		ArrayList<IColumn>mm=new ArrayList<>();
 		boolean foundInterestingColumns=false;
 		for (IColumn v : clns) {
+			boolean onProgress = monitor.onProgress("Analizing dataset layout:"+v.id(),1);
+			if (!onProgress) {
+				return;
+			}
 			if (v.id().contains("_")) {
 				String[] split = v.id().split("_");
 				int sn = 0;

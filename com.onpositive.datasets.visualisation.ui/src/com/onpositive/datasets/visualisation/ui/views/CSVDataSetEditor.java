@@ -9,7 +9,10 @@ import javax.inject.Inject;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -20,12 +23,17 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.IPreferenceConstants;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.part.MultiEditorInput;
+import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.shared_ui.EditorUtils;
 
 import com.onpositive.commons.elements.Container;
 import com.onpositive.datasets.engine.AnalisysEngine;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IProgressMonitor;
 import com.onpositive.musket.data.images.AbstractImageDataSet;
 import com.onpositive.musket.data.images.BinaryClassificationDataSet;
 import com.onpositive.musket.data.images.BinarySegmentationDataSet;
@@ -77,9 +85,70 @@ public class CSVDataSetEditor extends AnalistsEditor {
 		if (editorInput instanceof IFileEditorInput) {
 			File file3 = fromINput(editorInput);
 			file2 = file3;
-			ds = DataProjectAccess.getDataSet(file2,new BasicQuestionAnswerer());
+			Job job = new Job("Opening dataset") {
+
+				@Override
+				protected IStatus run(org.eclipse.core.runtime.IProgressMonitor monitor) {
+					ds = DataProjectAccess.getDataSet(file2, new BasicQuestionAnswerer(), new IProgressMonitor() {
+
+						@Override
+						public boolean onProgress(String message, int passsedTicks) {
+							monitor.beginTask(message, 10);
+							monitor.worked(1);
+							if (monitor.isCanceled()) {
+								return false;
+							}
+							return true;
+						}
+
+						@Override
+						public boolean onDone(String message, int totalTicks) {
+							monitor.done();
+							if (monitor.isCanceled()) {
+								return false;
+							}
+							return true;
+
+						}
+
+						@Override
+						public boolean onBegin(String message, int totalTicks) {
+							monitor.beginTask(message, 10);
+							if (monitor.isCanceled()) {
+								return false;
+							}
+							return true;
+						}
+					});
+					if (ds != null) {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								init();
+							}
+						});
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			//job.setUser(true);
+
+			
+			boolean boolean1 = WorkbenchPlugin.getDefault().getPreferenceStore()
+					.getBoolean(IPreferenceConstants.RUN_IN_BACKGROUND);
+			try {
+				job.schedule();
+				WorkbenchPlugin.getDefault().getPreferenceStore().setValue(IPreferenceConstants.RUN_IN_BACKGROUND,
+						false);
+				
+				PlatformUI.getWorkbench().getProgressService().showInDialog(Display.getCurrent().getActiveShell(), job);
+			} finally {
+				WorkbenchPlugin.getDefault().getPreferenceStore().setValue(IPreferenceConstants.RUN_IN_BACKGROUND,
+						boolean1);
+			}
+
 			this.setPartName(file3.getName());
-			init();
 
 		}
 		if (editorInput instanceof MultiEditorInput) {
@@ -87,7 +156,23 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			File f1 = fromINput(input[0]);
 			File f2 = fromINput(input[1]);
 			file2 = f1;
-			IDataSet dataSet = DataProjectAccess.getDataSet(f1,new BasicQuestionAnswerer());
+			IDataSet dataSet = DataProjectAccess.getDataSet(f1, new BasicQuestionAnswerer(), new IProgressMonitor() {
+
+				@Override
+				public boolean onProgress(String message, int passsedTicks) {
+					return true;
+				}
+
+				@Override
+				public boolean onDone(String message, int totalTicks) {
+					return true;
+				}
+
+				@Override
+				public boolean onBegin(String message, int totalTicks) {
+					return true;
+				}
+			});
 			ds = dataSet.withPredictions(f2);
 			setPartName(f1.getName() + "-" + f2.getName());
 			init();
@@ -134,10 +219,11 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	boolean isFocused;
 
 	private void init() {
-		if (ds==null) {
-			((Container)getUIRoot()).getElement("sl").setEnabled(false);
-			((Container)getUIRoot()).getElement("label").setText("Sorry, we do not understand this kind of dataset yet");
-			
+		if (ds == null) {
+			((Container) getUIRoot()).getElement("sl").setEnabled(false);
+			((Container) getUIRoot()).getElement("label")
+					.setText("Sorry, we do not understand this kind of dataset yet");
+
 			return;
 		}
 		AnalisysEngine engine = new AnalisysEngine(ds);

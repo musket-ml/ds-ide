@@ -88,6 +88,9 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	@Override
 	public List<DescriptionEntry> description() {
 		ArrayList<DescriptionEntry>entry=new ArrayList<>();
+		entry.add(new DescriptionEntry("Kind", "Generic dataset"));
+		entry.add(new DescriptionEntry("Columns", this.spec.layout.infos().size()));
+		entry.add(new DescriptionEntry("Size", this.size()));
 		return entry;
 	}
 	

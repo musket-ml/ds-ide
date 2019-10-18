@@ -286,7 +286,12 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 						gc.dispose();
 						image = i;
 					}
+					if (images!=null) {
 					images.put(key, image);
+					}
+					else {
+						image.dispose();
+					}
 				}
 
 				Display.getDefault().asyncExec(new Runnable() {

@@ -6,7 +6,6 @@ import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationItem;
-import com.onpositive.musket.data.images.MultiClassSegmentationItem;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
@@ -22,7 +21,7 @@ public class HasClassesAnalizer extends AbstractAnalizer implements IAnalizer<IM
 
 	@Override
 	public String getName(IColumn c) {
-		return "Split "+c.caption()+" by class";
+		return "Group by "+c.caption();
 	}
 
 }
