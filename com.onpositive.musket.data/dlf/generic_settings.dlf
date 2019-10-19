@@ -4,7 +4,7 @@
 	<model
 		class="com.onpositive.musket.data.generic.GenerateMusketWrapperSettings" />
 	<hc>
-		<vc hint="400,400">
+		<vc hint="500,600">
 			<group caption="Dataset columns:" grabVertical="true">
 				<list bindTo="allColumns" bindSelectionTo="allSelection" />
 				<button caption="Move to input columns" bindTo="moveToInput" />
@@ -12,14 +12,33 @@
 			</group>
 		</vc>
 
-		<vc hint="400,400">
+		<vc hint="500,600">
 			<group caption="Input columns:" grabVertical="true">
-				<list bindTo="inputColumns" bindSelectionTo="inputSelection" />
+				<table bindTo="inputColumns" bindSelectionTo="inputSelection" enableDirectEdit="true">
+					<columns> 
+						<column id="column" caption="Column" resizeWeight="2" editable="false"/>
+						<column id="coder"  caption="Encode as" resizeWeight="1" editable="true"/>
+						<column id="group"  caption="Group" resizeWeight="1"  editable="true"/>
+					</columns>
+				</table>
+				<hc>
 				<button caption="Remove selected" bindTo="moveFromInputToAll"/>
+				<button caption="Group selected to one input" bindTo="concatenateSelected"/>
+				</hc>
 			</group>
 			<group caption="Output columns:" grabVertical="true">
-				<list bindTo="outputColumns" bindSelectionTo="outputSelection" />
+				
+				<table bindTo="outputColumns" bindSelectionTo="outputSelection" enableDirectEdit="true">
+					<columns> 
+						<column id="column" caption="Column" resizeWeight="2" editable="false"/>
+						<column id="coder"  caption="Encode as" resizeWeight="1" editable="true"/>
+						<column id="group"  caption="Group" resizeWeight="1" editable="true"/>
+					</columns>
+				</table>
+				<hc>
 				<button caption="Remove selected" bindTo="moveFromOutputToAll"/>
+				<button caption="Group selected to one output" bindTo="concatenateSelected0"/>
+				</hc>
 			</group>
 		</vc>
 	</hc>

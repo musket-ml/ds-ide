@@ -63,7 +63,22 @@ public class GenericItem implements IImageItem {
 		g2.setColor(Color.RED);
 
 		DataSetSpec spec = this.ds.getSpec();
-
+		int fs=12;
+		int mxch=300;
+		Font font = javax.swing.UIManager.getDefaults().getFont("TextArea.font");
+		try {
+			fs=Integer.parseInt(ds.getSettings().get(GenericDataSet.FONT_SIZE).toString());
+			mxch=Integer.parseInt(ds.getSettings().get(GenericDataSet.MAX_CHARS_IN_TEXT).toString());
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
+		if (!fonts.containsKey(fs)) {
+			font=new Font(font.getFamily(),font.getStyle(),fs);
+			fonts.put(fs, font);
+		}
+		else {
+			font=fonts.get(fs);
+		}
 		Collection<ColumnInfo> infos = spec.layout.infos();
 		Map<String, Object> settings = ds.getSettings();
 		ArrayList<ColumnInfo> large = new ArrayList<>();
@@ -83,18 +98,15 @@ public class GenericItem implements IImageItem {
 		StringBuilder bld = new StringBuilder();
 		
 		for (ColumnInfo i : infos) {
-			IColumn column = i.getColumn();
+			
 			Class<? extends IColumnType> preferredType = i.preferredType();
-			String value = column.getValueAsString(base);
+			boolean isRle = preferredType == RLEMaskColumnType.class;
 			if (preferredType == TextColumnType.class || preferredType == ImageColumnType.class
-					|| preferredType == RLEMaskColumnType.class) {
-				large.add(i);
-				if (preferredType == TextColumnType.class) {
-					if (value.length() > 500) {
-						value = value.substring(0, 500) + "...";
-					}
+					|| isRle) {
+				if (isRle) {
+					continue;
 				}
-
+				large.add(i);
 			}
 
 		}
@@ -137,22 +149,8 @@ public class GenericItem implements IImageItem {
 		titledBorder.setTitle("Simple properties");
 		label.setBorder(titledBorder);
 		label.setOpaque(true);
-		Font font = javax.swing.UIManager.getDefaults().getFont("TextArea.font");
-		int fs=12;
-		int mxch=300;
-		try {
-			fs=Integer.parseInt(ds.getSettings().get(GenericDataSet.FONT_SIZE).toString());
-			mxch=Integer.parseInt(ds.getSettings().get(GenericDataSet.MAX_CHARS_IN_TEXT).toString());
-		}catch (Exception e) {
-			// TODO: handle exception
-		}
-		if (!fonts.containsKey(fs)) {
-			font=new Font(font.getFamily(),font.getStyle(),fs);
-			fonts.put(fs, font);
-		}
-		else {
-			font=fonts.get(fs);
-		}
+		
+		
 		label.setFont(font);
 		label.setSize(350, 350);
 		Dimension preferredSize = label.getPreferredSize();

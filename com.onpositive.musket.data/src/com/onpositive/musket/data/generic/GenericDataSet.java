@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -21,6 +23,7 @@ import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.core.Parameter;
+import com.onpositive.musket.data.generic.GenerateMusketWrapperSettings.ColumnCoding;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumnType;
 import com.onpositive.musket.data.table.ITabularDataSet;
@@ -142,17 +145,45 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 		GenerateMusketWrapperSettings ss=(GenerateMusketWrapperSettings) modelObject;
 		ArrayList<String>results=new ArrayList<>();
 		results.add("\""+sourcePath+"\"");
-		String inputs="["+ss.inputColumns.stream().map(x->'"'+x.getColumn().caption()+'"').collect(Collectors.joining(","))+"]";
-		String outputs="["+ss.outputColumns.stream().map(x->'"'+x.getColumn().caption()+'"').collect(Collectors.joining(","))+"]";
+		String inputs="["+ss.inputColumns.stream().map(x->'"'+x.column.getColumn().caption()+'"').collect(Collectors.joining(","))+"]";
+		String outputs="["+ss.outputColumns.stream().map(x->'"'+x.column.getColumn().caption()+'"').collect(Collectors.joining(","))+"]";
 		results.add(inputs);
 		results.add(outputs);
 		results.add(spec.representer.getImageDirsString());
-		ArrayList<ColumnInfo>all=new ArrayList<>();
+		ArrayList<GenerateMusketWrapperSettings.ColumnCoding>all=new ArrayList<>();
 		all.addAll(ss.inputColumns);
 		all.addAll(ss.outputColumns);
-		String ctypes="{"+all.stream().map(x->'"'+x.getColumn().caption()+'"'+":"+'"'+getTypeName(x)+'"').collect(Collectors.joining(","))+"}";
+		String ctypes="{"+all.stream().map(x->'"'+x.column.getColumn().caption()+'"'+":"+'"'+x.coder+'"').collect(Collectors.joining(","))+"}";
 		results.add(ctypes);
+		ArrayList<ColumnCoding> inputColumns = ss.inputColumns;
+		LinkedHashMap<String, ArrayList<String>> icolumns = buildColumnGroups(inputColumns);
+		if (!icolumns.isEmpty()) {
+			results.add("inputGroups={"+icolumns.entrySet().stream().map(x->reprEntry(x)).collect(Collectors.joining(","))+"}");
+		}
+		icolumns = buildColumnGroups(ss.outputColumns);
+		if (!icolumns.isEmpty()) {
+			results.add("ouputGroups={"+icolumns.entrySet().stream().map(x->reprEntry(x)).collect(Collectors.joining(","))+"}");
+		}
 		return results;
+	}
+	private String reprEntry(Entry<String, ArrayList<String>> x) {
+		return '"'+x.getKey()+'"'+":["+x.getValue().stream().collect(Collectors.joining(","))+"]";
+	}
+	protected LinkedHashMap<String, ArrayList<String>> buildColumnGroups(ArrayList<ColumnCoding> inputColumns) {
+		LinkedHashMap<String, ArrayList<String>>icolumns=new LinkedHashMap<>();
+		
+		inputColumns.forEach(i->{
+			if (i.group!=null&&!i.group.trim().isEmpty()) {
+				String trim = i.group.trim();
+				ArrayList<String> arrayList = icolumns.get(trim);
+				if (arrayList==null) {
+					arrayList=new ArrayList<>();
+					icolumns.put(trim, arrayList);
+				}
+				arrayList.add('"'+i.column.getColumn().caption()+'"');
+			}
+		});
+		return icolumns;
 	}
 	String getTypeName(ColumnInfo info) {
 		try {
