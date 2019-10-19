@@ -3,6 +3,7 @@ package com.onpositive.datasets.visualisation.ui.views;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
@@ -18,7 +19,7 @@ public class DataSetFilter {
 	
 	protected String mode;
 	
-	private ArrayList<String>kinds=new ArrayList<>();
+	protected  ArrayList<String>kinds=new ArrayList<>();
 	private ArrayList<String>stages=new ArrayList<>();
 	private ArrayList<String>modes=new ArrayList<>();
 	
@@ -31,6 +32,7 @@ public class DataSetFilter {
 	}
 
 	@Required
+	@Caption("Kind")
 	public String getFilterKind() {
 		return filterKind;
 	}

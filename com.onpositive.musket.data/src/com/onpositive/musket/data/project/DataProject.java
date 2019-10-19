@@ -124,6 +124,25 @@ public class DataProject {
 			return null;
 		}
 	}
+	@SuppressWarnings("unchecked")
+	public IDataSet openGeneric(ITabularDataSet t1, IQuestionAnswerer answerer, IProgressMonitor monitor) {
+		try {
+			
+			boolean onProgress = monitor.onProgress("Analizing dataset layout", 1);
+			if (!onProgress) {
+				return null;
+			}
+			List<IColumn> columns = (List<IColumn>) t1.columns();
+			ColumnLayout layout = new ColumnLayout(columns, this, answerer,monitor);
+			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);
+			long l2=System.currentTimeMillis();
+			GenericDataSet genericDataSet = new GenericDataSet(spec, t1);
+			return genericDataSet;
+
+		} catch (NotEnoughParametersException e) {
+			return null;
+		}
+	}
 
 	protected void dumpSettings(File file2, IDataSet create, IDataSetFactory factory) {
 		if (create != null) {

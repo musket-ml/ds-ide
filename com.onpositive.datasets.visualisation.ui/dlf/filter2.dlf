@@ -1,0 +1,6 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" caption="Focus on" description="Please select a values to focus on">
+    <label caption="Expression"/>
+    <string caption="Value" bindTo="FilterArgs" />
+    <model class="com.onpositive.datasets.visualisation.ui.views.DataSetFilter"/>
+    <combo caption="Kind" bindTo="FilterKind" realmExpression="$$.Kinds"/>    
+</composite-editor>
