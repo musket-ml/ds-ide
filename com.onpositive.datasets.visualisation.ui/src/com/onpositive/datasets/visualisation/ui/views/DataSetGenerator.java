@@ -114,7 +114,7 @@ public class DataSetGenerator {
 		}
 		String substring = inputFile.getAbsolutePath().substring(root.getAbsolutePath().length()+1);
 		
-		arrayList.add("    return " + as.generatePythonString(substring,modelObject));
+		arrayList.add("    return " + as.generatePythonString(substring.replace('\\', '/'),modelObject));
 	}
 
 	private void addDataDeclaration(ArrayList<String> arrayList) {

@@ -158,11 +158,11 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 		ArrayList<ColumnCoding> inputColumns = ss.inputColumns;
 		LinkedHashMap<String, ArrayList<String>> icolumns = buildColumnGroups(inputColumns);
 		if (!icolumns.isEmpty()) {
-			results.add("inputGroups={"+icolumns.entrySet().stream().map(x->reprEntry(x)).collect(Collectors.joining(","))+"}");
+			results.add("input_groups={"+icolumns.entrySet().stream().map(x->reprEntry(x)).collect(Collectors.joining(","))+"}");
 		}
 		icolumns = buildColumnGroups(ss.outputColumns);
 		if (!icolumns.isEmpty()) {
-			results.add("ouputGroups={"+icolumns.entrySet().stream().map(x->reprEntry(x)).collect(Collectors.joining(","))+"}");
+			results.add("output_groups={"+icolumns.entrySet().stream().map(x->reprEntry(x)).collect(Collectors.joining(","))+"}");
 		}
 		return results;
 	}
