@@ -29,6 +29,7 @@ import com.onpositive.musket.data.columntypes.RLEMaskColumnType;
 import com.onpositive.musket.data.columntypes.TextColumnType;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.IImageItem;
+import com.onpositive.musket.data.images.RLEMask;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IColumnType;
 import com.onpositive.musket.data.table.ITabularItem;
@@ -96,7 +97,7 @@ public class GenericItem implements IImageItem {
 			infos=selected;
 		}
 		StringBuilder bld = new StringBuilder();
-		
+		ArrayList<ColumnInfo>rles=new ArrayList<>();
 		for (ColumnInfo i : infos) {
 			
 			Class<? extends IColumnType> preferredType = i.preferredType();
@@ -104,7 +105,9 @@ public class GenericItem implements IImageItem {
 			if (preferredType == TextColumnType.class || preferredType == ImageColumnType.class
 					|| isRle) {
 				if (isRle) {
+					rles.add(i);
 					continue;
+					
 				}
 				large.add(i);
 			}
@@ -187,6 +190,28 @@ public class GenericItem implements IImageItem {
 					g2.drawImage(nn, 0, height * num + pos + 10, null);
 					// g2.transform(AffineTransform.getTranslateInstance(0, height*num));
 					num++;
+				}
+				if (preferredType == ImageColumnType.class) {
+					String valueAsString = column.getValueAsString(base);
+					BufferedImage bufferedImage = ds.getSpec().representer.get(valueAsString);
+					int width = bufferedImage.getWidth();
+					int height2 = bufferedImage.getHeight();
+					double sw=width/350.0;
+					double sh=height2/height;
+					double scale=Math.max(sw, sh);
+					g2.drawImage(bufferedImage, 0, height * num + pos + 10, (int)(width/scale), (int)(height2/scale), null);
+					int nm=num;
+					int ps=pos;
+					rles.forEach(r->{
+						String rleMask = r.getColumn().getValueAsString(base);
+						try {
+							RLEMask ms=new RLEMask(rleMask,  height2,width);
+							Image image = ms.getImage();
+							g2.drawImage(image, 0, height * nm + ps + 10, (int)(width/scale), (int)(height2/scale), null);
+						}catch (Exception e) {
+							// TODO: handle exception
+						}
+					});
 				}
 			}
 		}

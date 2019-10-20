@@ -48,54 +48,54 @@ final class GalleryTooltip extends DefaultToolTip {
 		gc.setInterpolation(SWT.HIGH);
 		gc.drawImage(image, 0, 0, image.getBounds().width, image.getBounds().height, 0, 0, width, height);
 		gc.dispose();
-		//image.dispose(); // don't forget about me!
+		// image.dispose(); // don't forget about me!
 		return scaled;
 	}
 
 	protected Composite createToolTipContentArea(Event event, Composite parent) {
-        Image image = this.getImage(event);
-        Image bgImage = this.getBackgroundImage(event);
-        String text = this.getText(event);
-        Color fgColor = this.getForegroundColor(event);
-        Color bgColor = this.getBackgroundColor(event);
-        Font font = this.getFont(event);
-        FillLayout layout = (FillLayout)parent.getLayout();
-        layout.marginWidth = 10;
-        layout.marginHeight = 5;
-        parent.setBackground(bgColor);
-        
-        Rectangle bounds = image.getBounds();
-		if (bounds.width>900||bounds.height>900) {
-			if (bounds.width>bounds.height) {
-				image=resize(image, 900, (int) (bounds.height/(bounds.width/900.0)));	
+		Image image = this.getImage(event);
+		Image bgImage = this.getBackgroundImage(event);
+		String text = this.getText(event);
+		Color fgColor = this.getForegroundColor(event);
+		Color bgColor = this.getBackgroundColor(event);
+		Font font = this.getFont(event);
+		FillLayout layout = (FillLayout) parent.getLayout();
+		layout.marginWidth = 10;
+		layout.marginHeight = 5;
+		parent.setBackground(bgColor);
+		if (image != null) {
+			Rectangle bounds = image.getBounds();
+			if (bounds.width > 900 || bounds.height > 900) {
+				if (bounds.width > bounds.height) {
+					image = resize(image, 900, (int) (bounds.height / (bounds.width / 900.0)));
+				} else {
+					image = resize(image, (int) (bounds.width / (bounds.height / 900.0)), 900);
+				}
 			}
-			else {
-				image=resize(image,  (int) (bounds.width/(bounds.height/900.0)),900);	
-			}
-        }
-        CLabel label = new CLabel(parent, this.getStyle(event));
-        if (text != null) {
-            label.setText(text);
-        }
-        if (image != null) {
-            label.setImage(image);
-        }
-        if (fgColor != null) {
-            label.setForeground(fgColor);
-        }
-        if (bgColor != null) {
-            label.setBackground(bgColor);
-        }
-        if (bgImage != null) {
-            label.setBackgroundImage(image);
-        }
-        if (font != null) {
-            label.setFont(font);
-        }
-        Point computeSize = label.computeSize(-1, -1);
-        parent.setSize(500, 500);
-        return label;
-    }
+		}
+		CLabel label = new CLabel(parent, this.getStyle(event));
+		if (text != null) {
+			label.setText(text);
+		}
+		if (image != null) {
+			label.setImage(image);
+		}
+		if (fgColor != null) {
+			label.setForeground(fgColor);
+		}
+		if (bgColor != null) {
+			label.setBackground(bgColor);
+		}
+		if (bgImage != null) {
+			label.setBackgroundImage(image);
+		}
+		if (font != null) {
+			label.setFont(font);
+		}
+		Point computeSize = label.computeSize(-1, -1);
+		parent.setSize(500, 500);
+		return label;
+	}
 
 	protected Image getImage(Event event) {
 		Point point = new Point(event.x, event.y);
