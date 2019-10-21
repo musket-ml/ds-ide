@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
@@ -97,8 +98,10 @@ public class ExampleExtractor {
 			if(modelType == null) {
 				return null;
 			}
+			IPath wsRootPath = root.getWorkspace().getRoot().getFullPath();
 			String relPath = file.getFullPath().makeRelativeTo(root.getFullPath()).toOSString().replace("\\", "/");
-			MMDetCfgData result = new MMDetCfgData(modelType, relPath);
+			String wsPath = file.getFullPath().makeRelativeTo(wsRootPath).toOSString().replace("\\", "/");
+			MMDetCfgData result = new MMDetCfgData(modelType, relPath, wsPath);
 			
 			Map<String, List<DictWrapper>> chMap
 				= model.getChildren().stream().collect(Collectors.groupingBy(x->x.getName()));
