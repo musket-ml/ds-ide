@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -159,6 +160,17 @@ public class FilterRegistry {
 				}
 			};
 		}
+
+		@Override
+		public int score() {
+			if (clazz==BasicAnalizer.class) {
+				return -1;
+			}
+			if (AbstractAnalizer.class.isAssignableFrom(clazz)) {
+				return 0;
+			}
+			return 1;
+		}
 	}
 
 	public static class FilterPredicateFilterFactory extends FilterFactory {
@@ -255,11 +267,13 @@ public class FilterRegistry {
 
 		protected String name;
 		protected IAnalizer<IDataSet> analizer;
+		private int score;
 
-		public BasicAnalizerProto(String name, IAnalizer<IDataSet> analizer) {
+		public BasicAnalizerProto(String name, IAnalizer<IDataSet> analizer,int score) {
 			super();
 			this.name = name;
 			this.analizer = analizer;
+			this.score=score;
 		}
 
 		@Override
@@ -290,6 +304,11 @@ public class FilterRegistry {
 					return Collections.emptyList();					
 				}
 			};
+		}
+
+		@Override
+		public int score() {
+			return score;
 		}
 	}
 
@@ -402,7 +421,8 @@ public class FilterRegistry {
 					if (type==TextColumnType.class) {
 						return words();
 					}
-					return column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());					
+					List<String> collect = column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());
+					return collect;					
 				}
 				ArrayList<String>_words=null;
 
@@ -570,6 +590,7 @@ public class FilterRegistry {
 			DataSetSpec spec = ((GenericDataSet) ds).getSpec();
 			processGeneric((ArrayList) result, spec, true);
 		}
+		Collections.sort(result);
 		return result;
 	}
 
@@ -588,7 +609,7 @@ public class FilterRegistry {
 						if (analizer) {
 							result.add(new BasicAnalizerProto(
 									((IColumnDependentAnalizer) wordCountAnalizer).getName(column),
-									(IAnalizer) wordCountAnalizer));
+									(IAnalizer) wordCountAnalizer,1));
 
 						} else {
 							result.add(new BasicColumnFilterProto(true, column, (AbstractAnalizer) wordCountAnalizer));
@@ -612,7 +633,7 @@ public class FilterRegistry {
 						if (analizer) {
 							result.add(new BasicAnalizerProto(
 									((IColumnDependentAnalizer) wordCountAnalizer).getName(column),
-									(IAnalizer) wordCountAnalizer));
+									(IAnalizer) wordCountAnalizer,5000-column.uniqueValues().size()));
 
 						} else {
 							result.add(new ObjectColumnFilterProto(column, i.preferredType()));
@@ -636,7 +657,7 @@ public class FilterRegistry {
 				NumberColumnAnalizer wordCountAnalizer = new NumberColumnAnalizer(column);
 				if (analizer) {
 					result.add(new BasicAnalizerProto(((IColumnDependentAnalizer) wordCountAnalizer).getName(column),
-							(IAnalizer) wordCountAnalizer));
+							(IAnalizer) wordCountAnalizer,2));
 				} else {
 					result.add(new ObjectColumnFilterNumber(column));
 					result.add(new ObjectColumnFilterNumberRange(column,true));

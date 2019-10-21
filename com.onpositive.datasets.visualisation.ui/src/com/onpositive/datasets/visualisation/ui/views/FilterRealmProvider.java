@@ -8,7 +8,7 @@ import com.onpositive.semantic.model.api.realm.IRealm;
 import com.onpositive.semantic.model.api.realm.IRealmProvider;
 import com.onpositive.semantic.model.api.realm.Realm;
 
-public class FilterRealmProvider implements IRealmProvider<String>{
+public class FilterRealmProvider implements IRealmProvider<String> {
 
 	/**
 	 * 
@@ -17,28 +17,30 @@ public class FilterRealmProvider implements IRealmProvider<String>{
 
 	@Override
 	public IRealm<String> getRealm(IHasMeta arg0, Object arg1, Object arg2) {
-		DataSetFilter f1=(DataSetFilter) arg1;
-		Realm<String> realm = new Realm<String>() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
+			DataSetFilter f1 = (DataSetFilter) arg1;
+			Realm<String> realm = new Realm<String>() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
 
-			@Override
-			public Collection<String> getContents() {
-				for (InstrospectedFeature df:f1.features) {
-					if (df.getName().equals(f1.getFilterKind())) {
-						if (df.values!=null) {
-							return df.values.get();
+				@Override
+				public Collection<String> getContents() {
+					for (InstrospectedFeature df : f1.features) {
+						if (df.getName().equals(f1.getFilterKind())) {
+							if (df.values != null) {
+								return df.values.get();
+							}
 						}
 					}
+					return Collections.emptyList();
 				}
-				return Collections.emptyList();
-			}
-		};
-		realm.add("Hello");
-		realm.add("World");
-		return realm;
+			};
+			realm.add("Hello");
+			realm.add("World");
+
+			return realm;
+		
 	}
 
 }

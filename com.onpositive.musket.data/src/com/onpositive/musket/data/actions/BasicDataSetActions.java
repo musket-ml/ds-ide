@@ -174,6 +174,7 @@ public class BasicDataSetActions {
 			super("Generate Musket wrappers", null);
 		}		
 	}
+	
 
 	public static List<ConversionAction> getActions(IDataSet d) {
 		
@@ -209,7 +210,6 @@ public class BasicDataSetActions {
 			Function<IMultiClassSegmentationDataSet, BasicDataSetImpl> v = BasicDataSetActions::dropAttributes;
 			actions.add(new ConversionAction("Drop Attributes", v));
 		}
-		
 		return actions;
 	}
 

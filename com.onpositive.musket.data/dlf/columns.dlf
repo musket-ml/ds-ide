@@ -1,0 +1,12 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" caption="Configure Visible Columns"
+ description="Please configure visible columns">
+	<model class="com.onpositive.musket.data.generic.Columns"/>
+	<table bindTo="SelectedColumns" asCheckBox="true" bindSelectionTo="selectedColumns" headerVisible="false"
+	hint="400,400"  
+	>
+		<columns >
+			<column textFromBase="true" imageFromBase="true"/>
+		</columns>
+	</table>
+	
+</composite-editor>

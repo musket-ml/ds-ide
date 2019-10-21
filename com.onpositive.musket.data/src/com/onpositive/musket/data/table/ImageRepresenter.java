@@ -126,7 +126,9 @@ public class ImageRepresenter implements Iterable<String> {
 		boolean checks = true;
 		try {
 			DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(Paths.get(root, path));
+			boolean found=false;
 			for (Path v : newDirectoryStream) {
+				found=true;
 				Path name = v.getName(v.getNameCount() - 1);
 				String name2 = name.toFile().getName();
 				int lastIndexOf = name2.lastIndexOf(".");
@@ -140,8 +142,11 @@ public class ImageRepresenter implements Iterable<String> {
 				}
 
 			}
-			;
+			
 			newDirectoryStream.close();
+			if (!found) {
+				return false;
+			}
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}

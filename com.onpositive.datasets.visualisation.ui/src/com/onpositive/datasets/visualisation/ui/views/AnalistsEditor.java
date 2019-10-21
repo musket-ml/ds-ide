@@ -51,6 +51,7 @@ import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.VisualizationSpec;
+import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.text.AbstractTextDataSet;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
@@ -396,6 +397,10 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				}
 			}
 		}
+		
+		public IDataSet getDataSet() {
+			return results.getOriginal();
+		}
 
 		@Override
 		protected ArrayList<IntrospectedParameter> getParameters() {
@@ -491,7 +496,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	private void display(IAnalizeResults r) {
 		this.results = r;
 		getElement("empty").setEnabled(false);
-		boolean b = results.getOriginal() instanceof IMulticlassClassificationDataSet;
+		boolean b = (results.getOriginal() instanceof IMulticlassClassificationDataSet) || (results.getOriginal() instanceof GenericDataSet);
 		focus.setEnabled(b || focus.isChecked());
 		Container element = (Container) getElement("content");
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
@@ -613,7 +618,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 
 	}
 
-	IAnalisysEngine task;
+	protected IAnalisysEngine task;
 	private Action generatorMenu;
 	protected Action focus;
 	private org.eclipse.swt.dnd.Clipboard clipboard;

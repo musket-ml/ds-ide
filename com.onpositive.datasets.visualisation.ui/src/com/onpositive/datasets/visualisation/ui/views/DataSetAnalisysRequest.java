@@ -27,6 +27,10 @@ public class DataSetAnalisysRequest {
 		this.isData=isData;
 		this.stage=stage;
 	}
+	public DataSetAnalisysRequest() {
+		
+	}
+	
 	public ModelEvaluationSpec getSpec() {
 		return modelSpec;
 	}

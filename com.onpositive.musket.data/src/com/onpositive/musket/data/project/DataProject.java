@@ -15,6 +15,7 @@ import com.onpositive.musket.data.columntypes.IDataSetFactory;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IProgressMonitor;
 import com.onpositive.musket.data.generic.GenericDataSet;
+import com.onpositive.musket.data.generic.GenericDataSetFactory;
 import com.onpositive.musket.data.images.NotEnoughParametersException;
 import com.onpositive.musket.data.registry.DataSetIO;
 import com.onpositive.musket.data.table.IColumn;
@@ -115,6 +116,26 @@ public class DataProject {
 				dumpSettings(file2, create, factory);
 				return create;
 			}
+			GenericDataSet genericDataSet = new GenericDataSet(spec, t1);
+			dumpSettings(file2, genericDataSet, new GenericDataSetFactory());
+			return genericDataSet;
+
+		} catch (NotEnoughParametersException e) {
+			return null;
+		}
+	}
+	@SuppressWarnings("unchecked")
+	public IDataSet openGeneric(ITabularDataSet t1, IQuestionAnswerer answerer, IProgressMonitor monitor) {
+		try {
+			
+			boolean onProgress = monitor.onProgress("Analizing dataset layout", 1);
+			if (!onProgress) {
+				return null;
+			}
+			List<IColumn> columns = (List<IColumn>) t1.columns();
+			ColumnLayout layout = new ColumnLayout(columns, this, answerer,monitor);
+			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);
+			long l2=System.currentTimeMillis();
 			GenericDataSet genericDataSet = new GenericDataSet(spec, t1);
 			return genericDataSet;
 
