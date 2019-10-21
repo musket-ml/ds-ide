@@ -36,6 +36,44 @@ public class AnalisysEngine implements IAnalisysEngine {
 		super();
 		this.dataset = dataset;
 	}
+	
+	
+	public void filter(DataSetAnalisysRequest data, Consumer<IDataSet> func, Consumer<Throwable> error) {
+		Job j = new Job("Performing Filtering") {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				ArrayList<DataSetFilter> filters = data.getFilters();
+
+				Predicate<IItem> finalPredicate = null;
+				for (DataSetFilter fa : filters) {
+					for (IFilterProto p : dataset.filters()) {
+						if (p.name().equals(fa.getFilterKind())) {
+							String filterArgs = fa.getFilterArgs();
+							HashMap<String, Object> realArgs = new HashMap<String, Object>();
+							realArgs.put("expression", filterArgs);
+							Predicate<IItem> apply = p.apply(dataset, realArgs);
+							if (fa.getMode()!=null&&fa.getMode().equals("inverse")) {
+								apply = apply.negate();
+							}
+							if (finalPredicate == null) {
+								finalPredicate = apply;
+							} else {
+								finalPredicate = finalPredicate.and(apply);
+							}
+						}
+					}
+				}
+				List<? extends IItem> collect = finalPredicate == null ? (List<? extends IItem>) dataset.items()
+						: dataset.items().parallelStream().filter(finalPredicate).collect(Collectors.toList());
+				func.accept(dataset.subDataSet("filtered", collect));
+				return Status.OK_STATUS;
+			}
+		};
+		j.setUser(true);
+		j.schedule();
+	}
+		
 
 	@Override
 	public void perform(DataSetAnalisysRequest data, Consumer<IAnalizeResults> func, Consumer<Throwable> error) {
@@ -129,6 +167,7 @@ public class AnalisysEngine implements IAnalisysEngine {
 		InstrospectedFeature instrospectedFeature = new InstrospectedFeature();
 		instrospectedFeature.setName(p.name());
 		instrospectedFeature.setKind(p.id());
+		instrospectedFeature.setValues(p.values());
 		for (Parameter pa : p.parameters()) {
 			IntrospectedParameter introspectedParameter = new IntrospectedParameter();
 			introspectedParameter.setName(pa.name);
@@ -139,6 +178,9 @@ public class AnalisysEngine implements IAnalisysEngine {
 			}
 			if (simpleName.equals("Color")) {
 				simpleName = "color";
+			}
+			if (simpleName.equals("Columns")) {
+				simpleName = "columns";
 			}
 			introspectedParameter.setType(simpleName);
 			introspectedParameter.setDefaultValue(pa.defaultValue);

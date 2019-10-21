@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import org.yaml.snakeyaml.Yaml;
+import com.onpositive.yamledit.io.YamlIO;
 
 public class TemplatesList {
 
@@ -21,10 +21,9 @@ public class TemplatesList {
 	
 	
 	public static TemplatesList getTemplatesList() {
-		Yaml y = new Yaml();
 		InputStream resourceAsStream = TemplatesList.class.getResourceAsStream("/templates/templates.yaml");
 		try {
-		TemplatesList loadAs = y.loadAs(resourceAsStream, TemplatesList.class);
+		TemplatesList loadAs = YamlIO.loadAs(resourceAsStream, TemplatesList.class);
 		return loadAs;
 		}finally {
 			try {

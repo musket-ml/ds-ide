@@ -10,7 +10,7 @@
 	<splitter horizontal="true" id="sl" weights="3,0" >
 		<stack grabVertical="true">
 			<vc grabVertical="true" id="empty" vAlign="center">
-				<label caption="View is disconnected.... Please connect it to experiment."
+				<label caption="View is disconnected.... "
 					id='label' vAlign="center" hAlign="center" grabVertical="true">
 				</label>
 			</vc>

@@ -302,6 +302,28 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 				if (range==null||range.equals(BuiltIns.ANY)||range.isAnonimous()&&(superType!=null&&superType.equals(BuiltIns.ANY))) {
 					return new ASTElement(node, range, this);
 				}
+				if (range.isUnion()) {
+					List<Node> value = seq.getValue();
+					AbstractType next =null;
+					for(AbstractType z:range.unionTypeFamily()) {
+						if (z.isArray()) {
+							next=z;
+						}
+					}
+					AbstractType r1 = next;
+					List<Object> collect = value.stream().map(x -> parseInSequnce(r1, x)).collect(Collectors.toList());
+					for (int i=0;i<collect.size();i++) {
+						Object object = collect.get(i);
+						if (object instanceof ASTElement) {
+							ASTElement el=(ASTElement) object;
+							if (el.key==null) {
+								el.num=i;
+							}
+						}
+					}
+					return new ArrayImpl(collect);
+					//return new ASTElement(node, range, this);
+				}
 				return new ErrorElement(node, range, this);
 			}
 		}

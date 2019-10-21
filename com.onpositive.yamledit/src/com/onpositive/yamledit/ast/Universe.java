@@ -24,7 +24,6 @@ import org.aml.typesystem.meta.facets.IsRef;
 import org.aml.typesystem.meta.restrictions.DefaultPropertyMeta;
 import org.aml.typesystem.meta.restrictions.minmax.MaxProperties;
 import org.aml.typesystem.values.IArray;
-import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.NodeTuple;
@@ -35,6 +34,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
 import com.onpositive.yamledit.introspection.InstrospectionResult;
 import com.onpositive.yamledit.introspection.IntrospectedParameter;
+import com.onpositive.yamledit.io.YamlIO;
 import com.onpositive.yamledit.project.IProjectContext;
 
 public class Universe extends TypeRegistryImpl {
@@ -248,7 +248,7 @@ public class Universe extends TypeRegistryImpl {
 			}
 			rs.put(v.getName().substring(0, 1).toLowerCase() + v.getName().substring(1), v);
 		});
-		Node compose = new Yaml().compose(new StringReader(content));
+		Node compose = YamlIO.compose(new StringReader(content));
 		injectContextAdditions(inputFile, compose);
 		ASTElement obj = new ASTElement(compose, root, null);
 		obj.setRegistry(new InnerRegistry(rs));
@@ -487,7 +487,7 @@ public class Universe extends TypeRegistryImpl {
 			}
 			if(file.exists()) {
 				try (FileReader fileReader = new FileReader(file)){
-					Node root = new Yaml().compose(fileReader);
+					Node root = YamlIO.compose(fileReader);
 					if (root instanceof MappingNode) {
 						merge(compose,(MappingNode) root);
 					}

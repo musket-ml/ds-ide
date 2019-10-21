@@ -7,16 +7,16 @@ import java.util.Map;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.DumperOptions.FlowStyle;
+import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Node;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.semantic.model.api.property.IHasPropertyProvider;
 import com.onpositive.semantic.model.api.property.IPropertyProvider;
-import com.onpositive.semantic.model.api.property.java.annotations.Image;
 import com.onpositive.semantic.model.api.property.java.annotations.TextLabel;
 import com.onpositive.semantic.model.ui.generic.IKnowsImageObject;
+import com.onpositive.yamledit.io.YamlIO;
 
 @TextLabel(provider = ModelNodeLabelProvider.class)
 public class ModelNode implements IHasPropertyProvider,IKnowsImageObject {
@@ -116,7 +116,7 @@ public class ModelNode implements IHasPropertyProvider,IKnowsImageObject {
 	}
 
 	public ModelNode(String str, NodeKind knd) {
-		Object loadAs = new Yaml().loadAs(new StringReader(str), Object.class);
+		Object loadAs = YamlIO.loadAs(new StringReader(str), Object.class);
 		this.object = loadAs;
 		this.clazz = knd;
 	}
@@ -165,7 +165,7 @@ public class ModelNode implements IHasPropertyProvider,IKnowsImageObject {
 	}
 
 	public void update(String string) {
-		Object loadAs = new Yaml().loadAs(new StringReader(string), Object.class);
+		Object loadAs = YamlIO.loadAs(new StringReader(string), Object.class);
 		this.object = loadAs;
 	}
 

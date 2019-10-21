@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.Set;
+import java.util.function.Function;
 
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
@@ -19,7 +19,8 @@ public abstract class AbstractAnalizer {
 	public IAnalizeResults analize(IDataSet ds) {
 		LinkedHashMap<Object, ArrayList<IItem>> maps = new LinkedHashMap<Object, ArrayList<IItem>>();
 		ds.items().parallelStream().forEach(v -> {
-			Object group = group(v);
+			IItem v1=remap(v);
+			Object group = group(v1);
 			synchronized (AbstractAnalizer.this) {
 				ArrayList<IItem> arrayList = maps.get(group);
 				if (arrayList == null) {
@@ -31,6 +32,23 @@ public abstract class AbstractAnalizer {
 		});
 		LinkedHashMap<Object, ArrayList<IItem>> mapsNew = optimize(maps);
 		return toDs(ds, mapsNew);
+	}
+	
+	protected Function<IItem, IItem>converter;
+
+	public Function<IItem, IItem> getConverter() {
+		return converter;
+	}
+
+	public void setConverter(Function<IItem, IItem> converter) {
+		this.converter = converter;
+	}
+
+	private IItem remap(IItem v) {
+		if (converter!=null) {
+			return converter.apply(v);
+		}
+		return v;
 	}
 
 	protected IAnalizeResults toDs(IDataSet ds, LinkedHashMap<Object, ArrayList<IItem>> mapsNew) {
@@ -81,6 +99,10 @@ public abstract class AbstractAnalizer {
 			double max = Double.MIN_VALUE;
 			for (Object o : maps.keySet()) {
 				if (!(o instanceof Number)) {
+					
+					if (o.equals("None")) {
+						continue;
+					}
 					allNumber = false;
 					break;
 				} else {
@@ -97,7 +119,12 @@ public abstract class AbstractAnalizer {
 				double st = (max - min) / 20;
 				LinkedHashMap<Point2D, ArrayList<IItem>> items = new LinkedHashMap<>();
 				int totalSize = 0;
+				ArrayList<IItem>none=new ArrayList<>();
 				for (Object o : maps.keySet()) {
+					if (o.equals("None")) {
+						none.addAll(maps.get(o));
+						continue;
+					}
 					Number nm = (Number) o;
 					int group = (int) ((nm.doubleValue() - min) / st);
 					double minV = min + group * (max - min) / 20;
@@ -118,7 +145,7 @@ public abstract class AbstractAnalizer {
 					arrayList.addAll(arrayList2);
 				}
 				boolean removed = true;
-				while (removed) {
+				while (removed&&items.size()>6) {
 					removed=false;
 					ArrayList<Point2D> arrayList = new ArrayList<>(items.keySet());
 					arrayList.sort(new Comparator<Point2D>() {
@@ -171,6 +198,9 @@ public abstract class AbstractAnalizer {
 					String s=NumberFormat.getInstance().format(p.getX())+"-"+NumberFormat.getInstance().format(p.getY());
 					bitems.put(s,items.get(p));
 				}				
+				if (!none.isEmpty()) {
+					bitems.put("None", none);
+				}
 				return bitems;
 			}
 			else {

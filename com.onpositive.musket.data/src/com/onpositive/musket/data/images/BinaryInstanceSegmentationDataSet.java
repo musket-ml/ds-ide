@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.table.IColumn;
@@ -14,8 +15,8 @@ import com.onpositive.musket.data.table.ImageRepresenter;
 
 public class BinaryInstanceSegmentationDataSet extends  AbstractRLEImageDataSet<BinaryInstanceSegmentationItem> implements IDataSet,IBinarySegmentationDataSet,Cloneable,IInstanceSegmentationDataSet{
 	
-	public BinaryInstanceSegmentationDataSet(ITabularDataSet base,IColumn image,IColumn rle,ImageRepresenter rep,int width,int height) {
-		super(base,image,rle,width,height,rep);		
+	public BinaryInstanceSegmentationDataSet(DataSetSpec base,IColumn image,IColumn rle,int width,int height) {
+		super(base,image,rle,width,height);		
 	}
 	
 	public BinaryInstanceSegmentationDataSet(ITabularDataSet base, Map<String, Object> settings, ImageRepresenter rep) {
@@ -56,7 +57,7 @@ public class BinaryInstanceSegmentationDataSet extends  AbstractRLEImageDataSet<
 	}
 
 	@Override
-	public String generatePythonString(String sourcePath) {
+	public String generatePythonString(String sourcePath,Object model) {
 		throw new UnsupportedOperationException();
 	}
 

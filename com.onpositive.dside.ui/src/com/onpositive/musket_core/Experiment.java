@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -21,11 +22,12 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
-import org.yaml.snakeyaml.Yaml;
+
 import com.onpositive.dside.ui.ModelEvaluationSpec;
 import com.onpositive.musket_core.ProjectWrapper.BasicDataSetDesc;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
 import com.onpositive.semantic.model.api.property.java.annotations.TextLabel;
+import com.onpositive.yamledit.io.YamlIO;
 
 @Image("icons/experiment.png")
 @TextLabel(provider = ExperimentLabelProvider.class)
@@ -145,7 +147,7 @@ public class Experiment {
 		try {
 			FileReader fileReader = new FileReader(file);
 			try {
-				Object load = new Yaml().load(fileReader);
+				Object load = YamlIO.load(fileReader);
 				return new Score(load, this);
 			} finally {
 				fileReader.close();
@@ -172,7 +174,7 @@ public class Experiment {
 		try {
 			FileReader fileReader = new FileReader(file);
 			try {
-				Map load = (Map) new Yaml().load(fileReader);
+				Map load = (Map) YamlIO.load(fileReader);
 				this.config = load;
 			} finally {
 				fileReader.close();
@@ -189,7 +191,7 @@ public class Experiment {
 			try {
 				FileReader fileReader = new FileReader(file);
 				try {
-					return new Yaml().loadAs(fileReader, Errors.class);
+					return YamlIO.loadAs(fileReader, Errors.class);
 				} finally {
 					fileReader.close();
 				}

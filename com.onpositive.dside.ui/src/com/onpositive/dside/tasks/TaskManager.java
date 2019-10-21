@@ -20,9 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.core.ILaunchesListener;
 import org.eclipse.debug.core.ILaunchesListener2;
 import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.jface.window.Window;
@@ -39,7 +37,8 @@ import org.python.pydev.shared_core.utils.ArrayUtils;
 import org.python.pydev.shared_ui.EditorUtils;
 import org.python.pydev.shared_ui.dialogs.ProjectSelectionDialog;
 import org.python.pydev.shared_ui.utils.RunInUiThread;
-import org.yaml.snakeyaml.Yaml;
+
+import com.onpositive.yamledit.io.YamlIO;
 
 public class TaskManager {
 
@@ -70,7 +69,7 @@ public class TaskManager {
 			}
 			try {
 				byte[] readAllBytes = Files.readAllBytes(path);
-				Object loadAs = new Yaml().loadAs(new StringReader(new String(readAllBytes)), task.resultClass());
+				Object loadAs = YamlIO.loadAs(new StringReader(new String(readAllBytes)), task.resultClass());
 				task.afterCompletion(loadAs);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -144,7 +143,7 @@ public class TaskManager {
 		IProject[] projects = task.getProject();
 
 		LaunchShortcut launchShortcut = launchShortCut(projects);
-		String dump = new Yaml().dump(task);
+		String dump = YamlIO.dump(task);
 		try {
 			Path absolutePath = null;
 			Path absolutePath1 = null;

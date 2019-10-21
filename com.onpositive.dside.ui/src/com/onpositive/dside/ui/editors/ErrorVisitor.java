@@ -6,11 +6,11 @@ import java.util.Stack;
 
 import org.aml.typesystem.IStatusVisitor;
 import org.aml.typesystem.Status;
+import org.apache.commons.lang3.Range;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.yaml.snakeyaml.nodes.NodeTuple;
 
-import com.onpositive.dside.ui.builder.SampleBuilder;
+import com.onpositive.yamledit.ast.ASTUtil;
 import com.onpositive.yamledit.ast.IHasLocation;
 
 class ErrorVisitor implements IStatusVisitor {
@@ -45,16 +45,11 @@ class ErrorVisitor implements IStatusVisitor {
 						end = peek.getEndOffset();
 					}
 					if (key!=null) {
-						NodeTuple findInKey = element.findInKey(key);
-						if (findInKey!=null) {
-							start=findInKey.getValueNode().getStartMark().getIndex();
-							end=findInKey.getValueNode().getEndMark().getIndex();
-							if (onKey) {
-								start=findInKey.getKeyNode().getStartMark().getIndex();
-								end=findInKey.getKeyNode().getEndMark().getIndex();
-							}
+						Range<Integer> range = ASTUtil.getRange(key, element, onKey);
+						if (range != null) {
+							start = range.getMinimum();
+							end = range.getMaximum();
 						}
-						
 					}
 				}
 				end=adjustEnd(start,end);

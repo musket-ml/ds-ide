@@ -8,14 +8,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.onpositive.musket.data.actions.BasicDataSetActions;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
@@ -138,7 +138,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	}
 	@Override
 	public List<ConversionAction> conversions() {
-		return BasicImageDataSetActions.getActions(this);
+		return BasicDataSetActions.getActions(this);
 	}
 	protected String getImageIdColumn() {
 		return this.imageColumn.caption();
@@ -167,6 +167,10 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	@Override
 	public ITabularDataSet original() {
 		return base;
+	}
+	@Override
+	public Object modelObject() {
+		return null;
 	}
 	
 	@Override

@@ -3,13 +3,19 @@ package com.onpositive.datasets.visualisation.ui.views;
 import java.awt.Image;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
@@ -20,12 +26,22 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.IPreferenceConstants;
+import org.eclipse.ui.internal.WorkbenchPlugin;
 import org.eclipse.ui.part.MultiEditorInput;
+import org.eclipse.ui.progress.UIJob;
 import org.python.pydev.shared_ui.EditorUtils;
 
 import com.onpositive.commons.elements.Container;
+import com.onpositive.commons.elements.LinkElement;
 import com.onpositive.datasets.engine.AnalisysEngine;
+import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
+import com.onpositive.musket.data.core.IFilterProto;
+import com.onpositive.musket.data.core.IProgressMonitor;
+import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.AbstractImageDataSet;
 import com.onpositive.musket.data.images.BinaryClassificationDataSet;
 import com.onpositive.musket.data.images.BinarySegmentationDataSet;
@@ -34,8 +50,13 @@ import com.onpositive.musket.data.images.IImageItem;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassificationDataset;
+import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.project.DataProjectAccess;
+import com.onpositive.musket.data.table.ICSVOVerlay;
+import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.text.TextClassificationDataSet;
+import com.onpositive.semantic.model.ui.generic.HyperlinkEvent;
+import com.onpositive.semantic.model.ui.generic.IHyperlinkListener;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 /**
@@ -54,6 +75,43 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
  */
 
 public class CSVDataSetEditor extends AnalistsEditor {
+
+	private final class PM implements IProgressMonitor {
+		private final org.eclipse.core.runtime.IProgressMonitor monitor;
+
+		private PM(org.eclipse.core.runtime.IProgressMonitor monitor) {
+			this.monitor = monitor;
+		}
+
+		@Override
+		public boolean onProgress(String message, int passsedTicks) {
+			monitor.beginTask(message, 10);
+			monitor.worked(1);
+			if (monitor.isCanceled()) {
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public boolean onDone(String message, int totalTicks) {
+			monitor.done();
+			if (monitor.isCanceled()) {
+				return false;
+			}
+			return true;
+
+		}
+
+		@Override
+		public boolean onBegin(String message, int totalTicks) {
+			monitor.beginTask(message, 10);
+			if (monitor.isCanceled()) {
+				return false;
+			}
+			return true;
+		}
+	}
 
 	/**
 	 * The ID of the view as specified by the extension.
@@ -77,9 +135,26 @@ public class CSVDataSetEditor extends AnalistsEditor {
 		if (editorInput instanceof IFileEditorInput) {
 			File file3 = fromINput(editorInput);
 			file2 = file3;
-			ds = DataProjectAccess.getDataSet(file2,new BasicQuestionAnswerer());
-			this.setPartName(file3.getName());
-			init();
+			Job job = new Job("Opening dataset") {
+
+				@Override
+				protected IStatus run(org.eclipse.core.runtime.IProgressMonitor monitor) {
+					ds = DataProjectAccess.getDataSet(file2, new BasicQuestionAnswerer(), new PM(monitor));
+					if (ds != null) {
+						Display.getDefault().asyncExec(new Runnable() {
+
+							@Override
+							public void run() {
+								init();
+							}
+						});
+					}
+					return Status.OK_STATUS;
+				}
+			};
+			// job.setUser(true);
+
+			showInUI(job);
 
 		}
 		if (editorInput instanceof MultiEditorInput) {
@@ -87,12 +162,45 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			File f1 = fromINput(input[0]);
 			File f2 = fromINput(input[1]);
 			file2 = f1;
-			IDataSet dataSet = DataProjectAccess.getDataSet(f1,new BasicQuestionAnswerer());
+			IDataSet dataSet = DataProjectAccess.getDataSet(f1, new BasicQuestionAnswerer(), new IProgressMonitor() {
+
+				@Override
+				public boolean onProgress(String message, int passsedTicks) {
+					return true;
+				}
+
+				@Override
+				public boolean onDone(String message, int totalTicks) {
+					return true;
+				}
+
+				@Override
+				public boolean onBegin(String message, int totalTicks) {
+					return true;
+				}
+
+			});
 			ds = dataSet.withPredictions(f2);
 			setPartName(f1.getName() + "-" + f2.getName());
 			init();
 
 		}
+	}
+
+	protected void showInUI(Job job) {
+		boolean boolean1 = WorkbenchPlugin.getDefault().getPreferenceStore()
+				.getBoolean(IPreferenceConstants.RUN_IN_BACKGROUND);
+		try {
+			job.schedule();
+			WorkbenchPlugin.getDefault().getPreferenceStore().setValue(IPreferenceConstants.RUN_IN_BACKGROUND, false);
+
+			PlatformUI.getWorkbench().getProgressService().showInDialog(Display.getCurrent().getActiveShell(), job);
+		} finally {
+			WorkbenchPlugin.getDefault().getPreferenceStore().setValue(IPreferenceConstants.RUN_IN_BACKGROUND,
+					boolean1);
+		}
+
+		this.setPartName(file2.getName());
 	}
 
 	@Override
@@ -104,41 +212,166 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			isFocused = false;
 			return;
 		}
-		InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "Please select class",
-				"Please select class", "", new IInputValidator() {
+		if (ds instanceof GenericDataSet) {
+			IFilterProto[] filters2 = ds.filters();
 
-					@Override
-					public String isValid(String newText) {
-						IMulticlassClassificationDataSet d = (IMulticlassClassificationDataSet) ds;
-						boolean contains = d.classNames().contains(newText);
-						return contains ? null : "Please select valid class name";
+			ArrayList<InstrospectedFeature> protos = new ArrayList<>();
+			for (InstrospectedFeature p : task.getSpec().getDatasetFilters()) {
+				Supplier<Collection<String>> values = p.getValues();
+				if (values != null) {
+
+					if (p.getName().contains("is less") || p.getName().contains("is more")) {
+						continue;
 					}
-				});
-		int open = dlg.open();
-		if (open == Dialog.OK) {
-			{
-				IMulticlassClassificationDataSet d = (IMulticlassClassificationDataSet) ds;
-				IBinaryClassificationDataSet forClass = d.forClass(dlg.getValue());
-				AnalisysEngine engine = new AnalisysEngine(forClass);
-				initWithEngine(engine);
-				isFocused = true;
-				focus.setText("Unfocus");
+					protos.add(p);
+				}
 			}
-			// focus.setImageId("generic_task");
-		} else {
-			focus.setChecked(false);
+			DataSetFilter2 f2 = new DataSetFilter2(protos);
+
+			boolean createObject = WidgetRegistry.createObject(f2);
+			if (createObject) {
+				DataSetAnalisysRequest data = new DataSetAnalisysRequest();
+				data.getFilters().add(f2);
+				task.filter(data, x -> {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							AnalisysEngine engine = new AnalisysEngine(x);
+							initWithEngine(engine);
+							isFocused = true;
+							focus.setText("Unfocus");
+						}
+					});
+
+				}, e -> {
+					Display.getDefault().asyncExec(new Runnable() {
+
+						@Override
+						public void run() {
+							MessageDialog.openError(Display.getCurrent().getActiveShell(), e.getMessage(),
+									e.getMessage());
+						}
+					});
+
+				});
+				System.out.println("AAA");
+			} else {
+				focus.setChecked(false);
+
+			}
+		} else
+
+		{
+			InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "Please select class",
+					"Please select class", "", new IInputValidator() {
+
+						@Override
+						public String isValid(String newText) {
+							IMulticlassClassificationDataSet d = (IMulticlassClassificationDataSet) ds;
+							boolean contains = d.classNames().contains(newText);
+							return contains ? null : "Please select valid class name";
+						}
+					});
+			int open = dlg.open();
+			if (open == Dialog.OK) {
+				{
+					IMulticlassClassificationDataSet d = (IMulticlassClassificationDataSet) ds;
+					IBinaryClassificationDataSet forClass = d.forClass(dlg.getValue());
+					AnalisysEngine engine = new AnalisysEngine(forClass);
+					initWithEngine(engine);
+					isFocused = true;
+					focus.setText("Unfocus");
+				}
+				// focus.setImageId("generic_task");
+			} else {
+				focus.setChecked(false);
+			}
 		}
 		super.focusOn();
 	}
 
 	boolean isFocused;
 
+	boolean uiPatched;
+
 	private void init() {
-		if (ds==null) {
-			((Container)getUIRoot()).getElement("sl").setEnabled(false);
-			((Container)getUIRoot()).getElement("label").setText("Sorry, we do not understand this kind of dataset yet");
-			
+		if (ds == null) {
+			((Container) getUIRoot()).getElement("sl").setEnabled(false);
+			((Container) getUIRoot()).getElement("label")
+					.setText("Sorry, we do not understand this kind of dataset yet");
+
 			return;
+		}
+		if (!(ds instanceof GenericDataSet)) {
+			if (!(ds instanceof IDataSetWithGroundTruth)) {
+
+				if (ds instanceof ICSVOVerlay && file2 != null) {
+					if (!uiPatched) {
+						uiPatched = true;
+						Container cm = (Container) ((Container) getUIRoot()).getElement("f1");
+						LinkElement linkElement = new LinkElement();
+						linkElement.getLayoutHints().setGrabHorizontal(false);
+						linkElement.setText("Switch to generic");
+						linkElement.addHyperLinkListener(new IHyperlinkListener() {
+
+							@Override
+							public void linkExited(HyperlinkEvent arg0) {
+								// TODO Auto-generated method stub
+
+							}
+
+							@Override
+							public void linkEntered(HyperlinkEvent arg0) {
+								// TODO Auto-generated method stub
+
+							}
+
+							IDataSet base;
+
+							@Override
+							public void linkActivated(HyperlinkEvent arg0) {
+								if (base == null) {
+									base = ds;
+									ICSVOVerlay vv = (ICSVOVerlay) ds;
+									ITabularDataSet original = vv.original();
+									DataProject project2 = DataProjectAccess.getProject(file2.getParentFile());
+									Job job = new Job("Opening dataset") {
+
+										@Override
+										protected IStatus run(org.eclipse.core.runtime.IProgressMonitor monitor) {
+											ds = project2.openGeneric(original, new BasicQuestionAnswerer(),
+													new PM(monitor));
+											if (ds != null) {
+												Display.getDefault().asyncExec(new Runnable() {
+
+													@Override
+													public void run() {
+														linkElement.setText("Switch to specialized");
+														init();
+													}
+												});
+											}
+											return Status.OK_STATUS;
+										}
+									};
+									// job.setUser(true);
+
+									showInUI(job);
+								} else {
+									ds = base;
+									base = null;
+									init();
+									linkElement.setText("Switch to generic");
+								}
+
+								// now we need to get base dataset from this;
+							}
+						});
+						cm.add(linkElement);
+					}
+				}
+			}
 		}
 		AnalisysEngine engine = new AnalisysEngine(ds);
 

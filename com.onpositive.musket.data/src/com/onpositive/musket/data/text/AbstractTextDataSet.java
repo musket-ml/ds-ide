@@ -1,17 +1,19 @@
 package com.onpositive.musket.data.text;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.core.Parameter;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 
@@ -76,6 +78,11 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 			@Override
 			public String id() {
 				return "Text visualizer";
+			}
+
+			@Override
+			public Supplier<Collection<String>> values() {
+				return null;
 			}
 		};
 	}

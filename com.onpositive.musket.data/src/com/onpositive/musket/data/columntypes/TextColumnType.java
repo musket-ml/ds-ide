@@ -1,37 +1,55 @@
 package com.onpositive.musket.data.columntypes;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.table.AbstractColumnType;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
+@Caption("Text")
 public class TextColumnType extends AbstractColumnType{
 
-	public TextColumnType(String image, String id, String caption) {
-		super(image, id, caption);
+	public TextColumnType() {
+		super("", "","");
 	}
 
 	@Override
 	public ColumnPreference is(IColumn c, DataProject prj, IQuestionAnswerer answerer) {
 		if (isText(c)) {
+			
 			return ColumnPreference.STRICT;
 		}
 		return ColumnPreference.NEVER;
 	}
 	
 	public static boolean isText(IColumn c) {
-		return isText(c.values());
+		return isText(c.uniqueValues());
 	}
+	
 
 	public static boolean isText(Collection<Object> linkedHashSet) {
 		int textCount = 0;
+		int notTextCount=0;
 		for (Object o : linkedHashSet) {
 			try {
+				if (o==null) {
+					continue;
+				}
 				String string = o.toString();
 				if (looksLikeText(string)) {
 					textCount++;
+				}
+				else {
+					notTextCount++;
+				}
+				if (notTextCount>2000) {
+					return false;
+				}
+				if (textCount>10000) {
+					return true;
 				}
 			} catch (NumberFormatException e) {
 				return false;
@@ -41,12 +59,15 @@ public class TextColumnType extends AbstractColumnType{
 	}
 
 	private static boolean looksLikeText(String string) {
-		String[] split = string.split(" ");
+		ArrayList<String> split = RLEMaskColumnType.fastSplitWS(string);
 		int words = 0;
-		if (split.length > 2) {
+		if (split.size() > 2) {
 			for (String m : split) {
 				if (isWord(m)) {
 					words++;
+					if (words>3) {
+						return true;
+					}
 				}
 			}
 		}
@@ -70,6 +91,11 @@ public class TextColumnType extends AbstractColumnType{
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public String typeId(IColumn column) {
+		return "as_is";
 	}
 
 }

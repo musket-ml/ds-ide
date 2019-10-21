@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Supplier;
 
+import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
@@ -12,7 +14,6 @@ import com.onpositive.musket.data.core.Parameter;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
-import com.onpositive.musket.data.table.ImageRepresenter;
 
 public class BinarySegmentationDataSetWithGroundTruth extends BinarySegmentationDataSet implements IDataSetWithGroundTruth{
 
@@ -23,9 +24,9 @@ public class BinarySegmentationDataSetWithGroundTruth extends BinarySegmentation
 	public static final String PREDICTION_COLOR_DEFAULT = "0,255,0";
 
 
-	public BinarySegmentationDataSetWithGroundTruth(ITabularDataSet base, IColumn image, IColumn rle,
-			ImageRepresenter rep, int width, int height,ITabularDataSet prediction) {
-		super(base, image, rle, rep, width, height);
+	public BinarySegmentationDataSetWithGroundTruth(DataSetSpec base, IColumn image, IColumn rle,
+			 int width, int height,ITabularDataSet prediction) {
+		super(base, image, rle,  width, height);
 		{
 			parameters.put(PREDICTION_ALPHA, MASK_ALPHA_DEFAULT);
 			parameters.put(PREDICTION_COLOR, PREDICTION_COLOR_DEFAULT);
@@ -87,6 +88,11 @@ public class BinarySegmentationDataSetWithGroundTruth extends BinarySegmentation
 			@Override
 			public String id() {
 				return "Image visualizer";				
+			}
+
+			@Override
+			public Supplier<Collection<String>> values() {
+				return null;
 			}
 		};
 	}

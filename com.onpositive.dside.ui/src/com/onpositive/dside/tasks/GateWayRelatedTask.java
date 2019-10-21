@@ -3,13 +3,14 @@ package com.onpositive.dside.tasks;
 import java.io.StringReader;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.swt.widgets.Display;
-import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.musket_core.IServer;
+import com.onpositive.yamledit.io.YamlIO;
 
 import py4j.GatewayServer;
 
@@ -75,14 +76,13 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
-				Yaml yaml = new Yaml();
 				try {
-				Object performTask = musketServer.performTask(yaml.dump(data), null);
+				Object performTask = musketServer.performTask(YamlIO.dump(data), null);
 				if (resultClass.isInstance(performTask)){
 					Display.getDefault().asyncExec(()->func.accept(resultClass.cast(performTask)));
 				}
 				else {
-					R loadAs = yaml.loadAs(new StringReader((String) performTask), resultClass);
+					R loadAs = YamlIO.loadAs(new StringReader((String) performTask), resultClass);
 					Display.getDefault().asyncExec(()->func.accept(loadAs));
 				}
 				}catch (Exception e) {

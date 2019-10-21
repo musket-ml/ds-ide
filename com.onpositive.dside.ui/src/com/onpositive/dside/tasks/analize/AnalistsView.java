@@ -33,7 +33,6 @@ import org.jfree.data.general.PieDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
-import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.Container;
@@ -64,6 +63,7 @@ import com.onpositive.semantic.ui.core.Rectangle;
 import com.onpositive.semantic.ui.workbench.elements.XMLView;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
 import com.onpositive.yamledit.introspection.IntrospectedParameter;
+import com.onpositive.yamledit.io.YamlIO;
 
 public class AnalistsView extends XMLView {
 
@@ -511,7 +511,7 @@ public class AnalistsView extends XMLView {
 		element.add(g);
 		element.setEnabled(true);
 		String visualizationSpec = r.visualizationSpec();
-		Object loadAs = new Yaml().loadAs(visualizationSpec, Object.class);
+		Object loadAs = YamlIO.loadAs(visualizationSpec, Object.class);
 		createChart = createChart(createDataset(r, loadAs), loadAs);
 		element2 = (Container) getElement("stat");
 		update(createChart, element2);

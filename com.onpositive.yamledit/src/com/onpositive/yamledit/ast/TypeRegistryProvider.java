@@ -9,6 +9,7 @@ import org.aml.typesystem.ITypeRegistry;
 import org.aml.typesystem.InheritedType;
 import org.aml.typesystem.Status;
 import org.aml.typesystem.TypeOps;
+import org.aml.typesystem.UnionType;
 import org.aml.typesystem.meta.facets.HasKey;
 import org.aml.typesystem.meta.facets.IsRef;
 import org.aml.typesystem.meta.restrictions.AbstractRestricton;
@@ -167,7 +168,9 @@ public class TypeRegistryProvider {
 					res=createType;
 				}
 				else {
-					res=TypeOps.union("", res,createType);
+					UnionType union = TypeOps.union(type, res,createType);
+					
+					res=union;
 				}
 			}
 			return res;

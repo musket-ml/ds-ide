@@ -28,13 +28,13 @@ import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
-import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.ui.introspection.IIntrospector;
 import com.onpositive.dside.ui.introspection.ShellIntrospector;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
 import com.onpositive.yamledit.introspection.InstrospectionResult;
+import com.onpositive.yamledit.io.YamlIO;
 import com.onpositive.yamledit.project.IProjectContext;
 
 public class ProjectWrapper {
@@ -45,19 +45,9 @@ public class ProjectWrapper {
 		this.path = projectPath;
 		String absolutePath = projectMetaPath();
 		synchronized (ProjectWrapper.this) {
-			if (new File(absolutePath).exists()) {
-				FileReader fileReader;
-				try {
-					fileReader = new FileReader(absolutePath);
-					try {
-						InstrospectionResult loadAs = new Yaml().loadAs(fileReader, InstrospectionResult.class);
-						this.refreshed(loadAs);
-					} finally {
-						fileReader.close();
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+			InstrospectionResult result = YamlIO.loadFromFile(new File(absolutePath), InstrospectionResult.class);
+			if (result != null) {
+				this.refreshed(result);
 			}
 		}
 		projectIntrospector = createIntrospector();
@@ -122,7 +112,7 @@ public class ProjectWrapper {
 			LinkedHashMap<String, FunctionDeclaration> maps = new LinkedHashMap<>();
 			introspectModules.forEach(m -> maps.put(m.name, m));
 			FileReader fileReader = new FileReader(new File(path, "common.yaml"));
-			Object loadAs = new Yaml().loadAs(fileReader, Object.class);
+			Object loadAs = YamlIO.loadAs(fileReader, Object.class);
 			if (loadAs instanceof Map) {
 				Map<String, Object> m = (Map<String, Object>) loadAs;
 				Object object = m.get("datasets");

@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.yaml.snakeyaml.Yaml;
+import com.onpositive.yamledit.io.YamlIO;
 
 public class ExperimentResults extends Result {
 
@@ -17,15 +17,15 @@ public class ExperimentResults extends Result {
 	private String name;
 	private boolean all;
 
+	@SuppressWarnings("unchecked")
 	public ExperimentResults(String name, String path) {
 		this.name = name;
 		try {
-			Yaml yaml = new Yaml();
 			InputStream inputStream;
 			try {
 				inputStream = new FileInputStream(path);
 				try {
-				Object load = yaml.load(inputStream);
+				Object load = YamlIO.load(inputStream);
 				if (load instanceof Map) {
 					Map<String, Object> obj = (Map<String, Object>) load;
 					if (obj != null && obj.containsKey("allStages")) {
@@ -36,7 +36,7 @@ public class ExperimentResults extends Result {
 						results.add(stageResult);
 						Object object2 = obj.get("stages");
 						if (object2 instanceof List) {
-							List l = (List) object2;
+							List<?> l = (List<?>) object2;
 							for (int i = 0; i < l.size(); i++) {
 								results.add(new StageResult("Stage " + i, l.get(i)));
 							}

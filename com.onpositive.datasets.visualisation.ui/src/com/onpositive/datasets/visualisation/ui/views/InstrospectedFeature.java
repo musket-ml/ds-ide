@@ -1,6 +1,8 @@
 package com.onpositive.datasets.visualisation.ui.views;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.function.Supplier;
 
 public class InstrospectedFeature {
 
@@ -43,6 +45,16 @@ public class InstrospectedFeature {
 
 	public void setParameters(ArrayList<IntrospectedParameter> parameters) {
 		this.parameters = parameters;
+	}
+	
+	Supplier<Collection<String>>values;
+
+	public Supplier<Collection<String>> getValues() {
+		return values;
+	}
+
+	public void setValues(Supplier<Collection<String>> values) {
+		this.values = values;
 	}
 
 	String kind;

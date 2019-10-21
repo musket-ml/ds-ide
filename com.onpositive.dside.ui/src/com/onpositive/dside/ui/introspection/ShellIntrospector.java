@@ -11,13 +11,13 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.swt.widgets.Display;
-import org.yaml.snakeyaml.Yaml;
 
 import com.onpositive.dside.dto.PythonError;
 import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.musket_core.StackVisualizer;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 import com.onpositive.yamledit.introspection.InstrospectionResult;
+import com.onpositive.yamledit.io.YamlIO;
 
 public class ShellIntrospector implements IIntrospector {
 
@@ -68,7 +68,7 @@ public class ShellIntrospector implements IIntrospector {
 			}
 			FileReader fileReader = new FileReader(resultMetaPath);
 			try {
-				InstrospectionResult loaded = new Yaml().loadAs(fileReader, InstrospectionResult.class);
+				InstrospectionResult loaded = YamlIO.loadAs(fileReader, InstrospectionResult.class);
 				return loaded;
 
 			} finally {

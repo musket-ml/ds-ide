@@ -8,8 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
@@ -27,9 +29,8 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 	protected ArrayList<Object> classes;
 
 	@SuppressWarnings("unchecked")
-	public MultiClassSegmentationDataSet(ITabularDataSet base2, IColumn image, IColumn rle, int width2, int height2,
-			ImageRepresenter rep, IColumn clazzColumn) {
-		super(base2, image, rle, width2, height2, rep);
+	public MultiClassSegmentationDataSet(DataSetSpec base, IColumn image, IColumn rle, int width2, int height2, IColumn clazzColumn) {
+		super(base, image, rle, width2, height2);
 		this.clazzColumn = clazzColumn;
 		this.getSettings().put(CLAZZ_COLUMN, this.clazzColumn.id());
 		Collection<Object> values = clazzColumn.values();
@@ -69,7 +70,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return new MultiClassSegmentationDataSetWithGrounTruth(base,imageColumn,rleColumn,width,height,representer,clazzColumn,t2.as(ITabularDataSet.class));
+		return new MultiClassSegmentationDataSetWithGrounTruth(new DataSetSpec(base, representer),imageColumn,rleColumn,width,height,clazzColumn,t2.as(ITabularDataSet.class));
 	}
 
 	@Override
@@ -162,6 +163,11 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 			public String id() {
 				return "Image visualizer";
 			}
+
+			@Override
+			public Supplier<Collection<String>> values() {
+				return null;
+			}
 		};
 	}
 
@@ -174,7 +180,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 		return "Multi class segmentation";
 	}
 	@Override
-	public String generatePythonString(String sourcePath) {
+	public String generatePythonString(String sourcePath,Object model) {
 		return "image_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
 	}
 

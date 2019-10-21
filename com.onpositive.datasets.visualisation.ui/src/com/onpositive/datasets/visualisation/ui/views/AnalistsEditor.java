@@ -44,14 +44,15 @@ import com.onpositive.commons.elements.ToolbarElement;
 import com.onpositive.dataset.visualization.internal.DataSetGallery;
 import com.onpositive.dataset.visualization.internal.Utils;
 import com.onpositive.dataset.visualization.internal.VirtualTable;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertResolutionAction;
+import com.onpositive.musket.data.actions.BasicDataSetActions.GenerateDataSetAction;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.VisualizationSpec;
+import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConversionAction;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.ConvertResolutionAction;
-import com.onpositive.musket.data.images.actions.BasicImageDataSetActions.GenerateDataSetAction;
 import com.onpositive.musket.data.text.AbstractTextDataSet;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.realm.Realm;
@@ -126,7 +127,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	}
 
 	public void addFilter() {
-		DataSetFilter object = new DataSetFilter();
+		DataSetFilter object = new DataSetFilter(this.filterKinds);
 		object.setMode("normal");
 		object.getModes().add("normal");
 		object.getModes().add("inverse");
@@ -280,8 +281,11 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 					if (selectedAction instanceof GenerateDataSetAction) {
 						GenerateDataSetAction fm = (GenerateDataSetAction) selectedAction;
 						String name = targetFile;
-						new DataSetGenerator().generateDataSet(results.getOriginal(), getInputFile(), name, true,
+						boolean generateDataSet = new DataSetGenerator().generateDataSet(results.getOriginal(), getInputFile(), name, true,
 								getProject());
+						if (!generateDataSet) {
+							return;
+						}
 						IFile file = getProject().getFile("common.yaml");
 						try {
 							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
@@ -393,6 +397,10 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				}
 			}
 		}
+		
+		public IDataSet getDataSet() {
+			return results.getOriginal();
+		}
 
 		@Override
 		protected ArrayList<IntrospectedParameter> getParameters() {
@@ -488,7 +496,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	private void display(IAnalizeResults r) {
 		this.results = r;
 		getElement("empty").setEnabled(false);
-		boolean b = results.getOriginal() instanceof IMulticlassClassificationDataSet;
+		boolean b = (results.getOriginal() instanceof IMulticlassClassificationDataSet) || (results.getOriginal() instanceof GenericDataSet);
 		focus.setEnabled(b || focus.isChecked());
 		Container element = (Container) getElement("content");
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
@@ -520,7 +528,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		element.add(g);
 		element.setEnabled(true);
 		VisualizationSpec visualizationSpec = r.visualizationSpec();
-		// Object loadAs = new Yaml().loadAs(visualizationSpec, Object.class);
+		// Object loadAs = YamlIO.loadAs(visualizationSpec, Object.class);
 		createChart = ChartUtils.createChart(ChartUtils.createDataset(r, visualizationSpec), visualizationSpec);
 		element2 = (Container) getElement("stat");
 
@@ -610,7 +618,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 
 	}
 
-	IAnalisysEngine task;
+	protected IAnalisysEngine task;
 	private Action generatorMenu;
 	protected Action focus;
 	private org.eclipse.swt.dnd.Clipboard clipboard;

@@ -6,8 +6,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.yaml.snakeyaml.Yaml;
-
 import com.onpositive.semantic.model.api.meta.BaseMeta;
 import com.onpositive.semantic.model.api.meta.DefaultMetaKeys;
 import com.onpositive.semantic.model.api.meta.IHasMeta;
@@ -17,6 +15,7 @@ import com.onpositive.semantic.model.api.property.IProperty;
 import com.onpositive.semantic.model.api.realm.IRealm;
 import com.onpositive.semantic.model.api.realm.IRealmProvider;
 import com.onpositive.semantic.model.api.realm.Realm;
+import com.onpositive.yamledit.io.YamlIO;
 
 final class MapProperty extends AbstractWritableProperty implements IProperty {
 
@@ -209,8 +208,9 @@ final class MapProperty extends AbstractWritableProperty implements IProperty {
 			}
 			if (object instanceof String) {
 				try {
-				object=new Yaml().load(new StringReader((String) object));
-				}catch (Exception e) {
+					object = YamlIO.load(new StringReader((String) object));
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}

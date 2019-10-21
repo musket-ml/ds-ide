@@ -28,7 +28,15 @@ public interface IColumn {
 	public default ArrayList<Object>uniqueValues(){
 		LinkedHashSet<Object>vl=new LinkedHashSet<>(this.values());
 		ArrayList<Object>result=new ArrayList<>(vl);
+		try {
 		Collections.sort((List)result);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 		return result;
+	}
+
+	public default boolean unique() {
+		return uniqueValues().size()==values().size();
 	}
 }
