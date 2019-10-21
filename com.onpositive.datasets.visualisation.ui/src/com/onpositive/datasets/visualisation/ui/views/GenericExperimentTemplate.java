@@ -1,5 +1,7 @@
 package com.onpositive.datasets.visualisation.ui.views;
 
+import org.eclipse.core.resources.IFolder;
+
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 
@@ -20,5 +22,7 @@ public abstract class GenericExperimentTemplate {
 	}
 	public String projectPath;
 	public abstract String finish() ;
+	
+	public void finishExperimentFolder(IFolder folder) {}
 
 }
