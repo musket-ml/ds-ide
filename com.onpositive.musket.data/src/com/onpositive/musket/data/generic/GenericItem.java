@@ -39,6 +39,10 @@ public class GenericItem implements IImageItem {
 	protected GenericDataSet ds;
 	protected ITabularItem base;
 
+	public ITabularItem getBase() {
+		return base;
+	}
+
 	public GenericItem(GenericDataSet ds, ITabularItem base) {
 		super();
 		this.ds = ds;
