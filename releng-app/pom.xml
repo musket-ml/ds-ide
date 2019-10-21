@@ -53,7 +53,7 @@
 		<build.file.win32.fullpath>${build.folder.target.bin}/${build.file}.zip</build.file.win32.fullpath>
 		<build.file.linux.fullpath>${build.folder.target.bin}/${build.file}.tar.gz</build.file.linux.fullpath>
 		<build.folder.type>test</build.folder.type>
-		<build.file>dside-${project.version}</build.file>
+		<build.file>dside-${qualifiedVersion}</build.file>
 		<build.file.zip>dside.zip</build.file.zip>
 		<build.deploy.release>false</build.deploy.release>
 		<!-- <target.platform.name.default>mavenTychoDemo</target.platform.name.default> -->
