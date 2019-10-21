@@ -7,7 +7,12 @@ import java.util.stream.Collectors;
 import com.onpositive.musket.data.columntypes.ColumnLayout.ColumnInfo;
 import com.onpositive.musket.data.table.IColumnType;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
+import com.onpositive.semantic.model.api.meta.IHasMeta;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
+import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
+import com.onpositive.semantic.model.api.realm.IRealm;
+import com.onpositive.semantic.model.api.realm.IRealmProvider;
+import com.onpositive.semantic.model.api.realm.Realm;
 
 @Display("dlf/generic_settings.dlf")
 public class GenerateMusketWrapperSettings {
@@ -51,9 +56,33 @@ public class GenerateMusketWrapperSettings {
 			}
 		}
 		
+		@RealmProvider(CodersRealmProvider.class)
 		String coder;
 		String group;
 	}
+	public static class CodersRealmProvider implements IRealmProvider<String>{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public IRealm<String> getRealm(IHasMeta arg0, Object arg1, Object arg2) {
+			Realm<String> rs=new Realm<String>();
+			rs.add("one_hot");
+			rs.add("categorical_one_hot");
+			rs.add("as_is");
+			rs.add("binary");
+			rs.add("rle");
+			rs.add("image");
+			rs.add("number");
+			rs.add("normalized_number");
+			return rs;
+		}
+		
+	}
+	
 	public void moveToOutput() {
 		if (allSelection==null) {
 			return;
