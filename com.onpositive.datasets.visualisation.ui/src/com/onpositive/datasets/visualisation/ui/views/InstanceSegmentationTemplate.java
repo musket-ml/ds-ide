@@ -1,6 +1,7 @@
 package com.onpositive.datasets.visualisation.ui.views;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.MessageDialog;
 
 import com.onpositive.mmdetection.wrappers.ExampleExtractor;
 import com.onpositive.mmdetection.wrappers.MMDetCfgData;
@@ -28,7 +35,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	
 	private List<MMDetCfgData> configs = null;
 	
-	private List<String> pathsList1;
+	private List<MMDetCfgData> pathsList1;
 	
 	private List<String> weightPaths;
 	
@@ -73,7 +80,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	@Caption("Images per GPU")
 	protected int imagesPerGpu = 1;
 	
-	protected String configPath1;
+	protected MMDetCfgData _selectedConfig;
 	
 	@Caption("Model weights path")
 	@Validator(validatorClass = WeihtsPathValidator.class)
@@ -111,7 +118,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 			if(!paramToSkip.equals("architecture") && this.architecture != null && !this.architecture.equals(x.getArchitecture())) {
 				return false;
 			}
-			if(!paramToSkip.equals("path") && !isEmptyString(this.configPath1) && !this.configPath1.equals(x.getPath())) {
+			if(!paramToSkip.equals("path") && this._selectedConfig!=null && !this._selectedConfig.getPath().equals(x.getPath())) {
 				return false;
 			}
 			if(!paramToSkip.equals("backbone") && !isEmptyString(this.backbone) && !this.backbone.equals(x.getParameterValue("backbone"))){
@@ -135,6 +142,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	
 	public String finish() {
 		try {
+		String configName = fileName(this._selectedConfig.getPath());
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(InstanceSegmentationTemplate.class.getResourceAsStream("/templates/instanceSegmentationWizard.yaml.txt")));
 		Stream<String> lines = bufferedReader.lines();
 		
@@ -152,7 +160,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		result=result.replace((CharSequence)"{height}", ""+this.height);
 		result=result.replace((CharSequence)"{numClasses}", ""+this.numClasses);
 		result=result.replace((CharSequence)"{imagesPerGpu}", ""+this.imagesPerGpu);
-		result=result.replace((CharSequence)"{configPath}", "configPath: "+this.configPath1);
+		result=result.replace((CharSequence)"{configPath}", "configPath: ./" + configName  + ".py");
 		result=result.replace((CharSequence)"{weightsPath}", "weightsPath: "+this.weightsPath);
 				
 		return result; 
@@ -162,6 +170,28 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		
 	}
 	
+	public void finishExperimentFolder(IFolder folder) {
+		
+		try {
+			if (!folder.exists()) {
+				folder.create(true, true, new NullProgressMonitor());
+			}
+			String configName = fileName(this._selectedConfig.getPath());
+			IFile file = folder.getFile(configName + ".py");
+			String wsSrcPath = this._selectedConfig.getWSPath();
+			IFile srcFile = file.getWorkspace().getRoot().getFile(new Path(wsSrcPath));
+			
+			InputStream contents = srcFile.getContents();
+			if (file.exists()) {
+				file.setContents(contents, true, true, new NullProgressMonitor());
+			} else {
+				file.create(contents, true, new NullProgressMonitor());
+			}
+		} catch (Exception e) {
+			MessageDialog.openError(org.eclipse.swt.widgets.Display.getCurrent().getActiveShell(), "Error", e.getMessage());
+		}
+	}
+	
 	public void resetModel() {
 		this.architecture = null;		
 		this.backbone = null;
@@ -169,7 +199,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		this.rpn_head = null;
 		this.bbox_head = null;
 		this.mask_head = null;
-		this.configPath1 = null;
+		this._selectedConfig = null;
 		this.weightsPath = null;
 		ObjectChangeManager.markChanged(this);
 	}
@@ -179,21 +209,23 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		return str == null || str.trim().isEmpty();
 	}
 
-	public List<String> getPathsList() {
-		return getFilteredValues("path");
+	public List<MMDetCfgData> getPathsList() {
+		Stream<MMDetCfgData> configsStream = this.getRelevantConfigs("path");
+		List<MMDetCfgData> result = configsStream.collect(Collectors.toList());
+		return result;
 	}
 
-	public void setPathsList(List<String> pathsList) {
+	public void setPathsList(List<MMDetCfgData> pathsList) {
 		this.pathsList1 = pathsList;
 	}
 	
 	public void findWeihtsForConfig() {
-		if(this.configPath1 == null) {
+		if(this._selectedConfig == null) {
 			return;
 		}
-		String cp = fileName(configPath1);
+		String cp = fileName(_selectedConfig.getPath());
 		for(String wpFull: this.weightPaths) {			
-			if(conforms(configPath1,wpFull)) {
+			if(conforms(_selectedConfig.getPath(),wpFull)) {
 				this.weightsPath = wpFull;				
 			}
 		}
@@ -240,8 +272,8 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 			if(!(rootObj instanceof InstanceSegmentationTemplate)) {
 				return CodeAndMessage.OK_MESSAGE;
 			}
-			String configPath = ((InstanceSegmentationTemplate)rootObj).configPath1;
-			if(configPath==null || conforms(configPath, arg1)) {
+			MMDetCfgData configPath = ((InstanceSegmentationTemplate)rootObj)._selectedConfig;
+			if(configPath==null || conforms(configPath.getPath(), arg1)) {
 				return CodeAndMessage.OK_MESSAGE;
 			}
 			return CodeAndMessage.errorMessage("Selected config and weights do not correspond each other");
@@ -250,13 +282,12 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	}
 
 	@Caption("MMDetection config path")
-	public String getConfigPath() {
-		return configPath1;
+	public MMDetCfgData getSelectedConfig() {
+		return _selectedConfig;
 	}
 
-	public void setConfigPath(String configPath) {
-		this.configPath1 = configPath;
-		MMDetCfgData cfg = this.configsByPath.get(configPath);
+	public void setSelectedConfig(MMDetCfgData cfg) {
+		this._selectedConfig = cfg;
 		if(cfg!=null) {
 			this.architecture = cfg.getArchitecture();
 			this.backbone = cfg.getParameterValue("backbone");

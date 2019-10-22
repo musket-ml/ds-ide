@@ -2,7 +2,6 @@ package com.onpositive.musket.data.columntypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 
 import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.table.AbstractColumnType;
@@ -86,7 +85,11 @@ public class ClassColumnType extends AbstractColumnType{
 
 	@Override
 	public String typeId(IColumn column) {
-		return "class";
+		ArrayList<Object> uniqueValues = column.uniqueValues();
+		if (uniqueValues.size()==2) {
+			return "binary";
+		}
+		return "one_hot";
 	}
 
 }

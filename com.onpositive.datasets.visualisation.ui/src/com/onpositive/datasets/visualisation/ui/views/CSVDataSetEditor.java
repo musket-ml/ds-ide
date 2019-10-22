@@ -484,6 +484,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			} catch (Exception e) {
 				MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", e.getMessage());
 			}
+			classificationTemplate.finishExperimentFolder(folder2);
 		}
 	}
 

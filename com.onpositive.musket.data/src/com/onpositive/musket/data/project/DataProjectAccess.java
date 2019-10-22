@@ -17,6 +17,10 @@ public class DataProjectAccess {
 	public static DataProject getProject(File file) {
 		return new DataProject(file);
 	}
+	
+	public static IDataSet getDataSet(File file, IQuestionAnswerer answerer) {
+		return getDataSet(file, answerer, IProgressMonitor.nullProgressMonitor());
+	}
 
 	public static IDataSet getDataSet(File file, IQuestionAnswerer answerer, IProgressMonitor monitor) {
 		File dataRoot = findDataRoot(file);

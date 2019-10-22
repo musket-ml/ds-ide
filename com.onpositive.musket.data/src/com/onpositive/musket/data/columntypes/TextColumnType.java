@@ -95,7 +95,7 @@ public class TextColumnType extends AbstractColumnType{
 
 	@Override
 	public String typeId(IColumn column) {
-		return "str";
+		return "as_is";
 	}
 
 }

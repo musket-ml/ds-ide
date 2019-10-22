@@ -41,7 +41,7 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 		return spec;
 	}
 	
-	private ITabularDataSet base;
+	protected ITabularDataSet base;
 	protected String name="";
 
 	public GenericDataSet(DataSetSpec spec, ITabularDataSet t1) {
@@ -54,7 +54,7 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 			settings.put("layout", spec.layout.toOptions());
 		}
 	}
-	private List<IItem>items;
+	protected List<IItem>items;
 	
 	protected HashMap<String, Object>settings=new HashMap<>();
 	
@@ -100,6 +100,10 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
+		if (t2 instanceof ITabularDataSet) {
+			GenericDataSet genericDataSet = new GenericDataSet(getSpec(), t2.as(ITabularDataSet.class));
+			return new GenericDataSetWithPredictions(getSpec(), base, genericDataSet);
+		}
 		return null;
 	}
 	
