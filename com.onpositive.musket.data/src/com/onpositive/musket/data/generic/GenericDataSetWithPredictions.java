@@ -15,60 +15,75 @@ import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
+import com.onpositive.musket.data.table.ITabularItem;
 
-public class GenericDataSetWithPredictions extends GenericDataSet implements IDataSetWithGroundTruth{
+public class GenericDataSetWithPredictions extends GenericDataSet implements IDataSetWithGroundTruth {
 
 	private GenericDataSet predictions;
 
-	public GenericDataSetWithPredictions(DataSetSpec spec, ITabularDataSet t1,GenericDataSet d1) {
+	public GenericDataSetWithPredictions(DataSetSpec spec, ITabularDataSet t1, GenericDataSet d1) {
 		super(spec, t1);
-		this.predictions=d1;
+		this.predictions = d1;
 	}
-	
 
 	@Override
 	public IItem getPrediction(int num) {
-		return ((GenericItemWithPrediction)items().get(num)).getPrediction();
+		return ((GenericItemWithPrediction) items().get(num)).getPrediction();
 	}
 
 	@Override
 	public List<? extends IItem> items() {
 		Collection<ColumnInfo> infos = this.getSpec().layout.infos();
-		ArrayList<IColumn>stable=new ArrayList<>();
-		for (ColumnInfo i:infos) {
+		ArrayList<IColumn> stable = new ArrayList<>();
+		for (ColumnInfo i : infos) {
 			IColumn column = i.getColumn();
-			if (i.preferredType()==IDColumnType.class||i.preferredType()==ImageColumnType.class||i.preferredType()==TextColumnType.class) {
-				//this is a potentinal id
+			if (i.preferredType() == IDColumnType.class || i.preferredType() == ImageColumnType.class
+					|| i.preferredType() == TextColumnType.class) {
+				// this is a potentinal id
 				Collection<Object> values = new LinkedHashSet<>(column.uniqueValues());
-				Collection<Object> values1 = new LinkedHashSet<>(predictions.base.getColumn(column.id()).uniqueValues());
+				Collection<Object> values1 = new LinkedHashSet<>(
+						predictions.base.getColumn(column.id()).uniqueValues());
 				if (values.equals(values1)) {
-					//this column seems identical
+					// this column seems identical
 					stable.add(column);
 				}
 			}
 		}
-		LinkedHashMap<String, GenericItem>nitems=new LinkedHashMap<>();
+		LinkedHashMap<String, GenericItem> nitems = new LinkedHashMap<>();
 		if (!stable.isEmpty()) {
-			predictions.items().forEach(v->{
+			predictions.items().forEach(v -> {
 				String string = id(stable, v);
 				nitems.put(string, (GenericItem) v);
 			});
 		}
-		if (items==null) {
-			items=base.items().stream().map(x->{
-				GenericItem genericItem = nitems.get(id(stable,x));
-				return new GenericItemWithPrediction(this,x, genericItem);				
-			}).collect(Collectors.toList());;
+		if (items == null) {
+			items = base.items().stream().map(x -> {
+				GenericItem genericItem = nitems.get(id1(stable, x));
+				return new GenericItemWithPrediction(this, x, genericItem);
+			}).collect(Collectors.toList());
+			;
 		}
 		return items;
 	}
 
+	protected String id1(ArrayList<IColumn> stable, IItem v) {
+		StringBuilder bld = new StringBuilder();
+		for (IColumn c : stable) {
 
-	protected String id(ArrayList<IColumn> stable,IItem v){StringBuilder bld=new StringBuilder();
-	GenericItem v1=(GenericItem) v;
-	for (IColumn c:stable) {
-		
-		bld.append(c.getValueAsString(v1.base()));
+			bld.append(c.getValueAsString((ITabularItem) v));
+		}
+		String string = bld.toString();
+		return string;
 	}
-	String string = bld.toString();return string;}
+
+	protected String id(ArrayList<IColumn> stable, IItem v) {
+		StringBuilder bld = new StringBuilder();
+		GenericItem v1 = (GenericItem) v;
+		for (IColumn c : stable) {
+
+			bld.append(c.getValueAsString(v1.base()));
+		}
+		String string = bld.toString();
+		return string;
+	}
 }
