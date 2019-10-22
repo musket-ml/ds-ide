@@ -325,7 +325,9 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 									
 								}
 							}
-							num.setImage(image);
+							if (!gallery.isDisposed()) {
+								num.setImage(image);
+							}
 						}
 					}
 				});
