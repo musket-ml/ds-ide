@@ -2,6 +2,7 @@ package com.onpositive.musket.data.generic;
 
 import java.awt.Image;
 import java.text.NumberFormat;
+import java.util.List;
 
 import com.onpositive.musket.data.columntypes.NumberColumn;
 import com.onpositive.musket.data.table.IColumn;
@@ -65,5 +66,20 @@ public class GenericItemWithPrediction extends GenericItem{
 			bld.append(" &lt;&gt; <FONT COLOR=RED>" + StringUtils.encodeHtml(valueAsString) + "</FONT>");	
 		}
 		bld.append(" ");
+	}
+
+	public boolean allMatch() {
+		List<? extends IColumn> columns = this.ds.getSpec().columns();
+		for (IColumn c:columns) {
+			String valueAsString = c.getValueAsString(this.base);
+			if (this.prediction==null) {
+				return false;
+			}
+			String valueAsString2 = c.getValueAsString(this.prediction.base);
+			if (!valueAsString.equals(valueAsString2)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -88,6 +88,17 @@ public class FilterRegistry {
 
 		public boolean canApply(IDataSet d) {
 			Type[] interfaces = clazz.getGenericInterfaces();
+			try {
+				if (ICustomApply.class.isAssignableFrom(clazz)) {
+					ICustomApply c=(ICustomApply) clazz.newInstance();
+					if (!c.canApply(d)) {
+						return false;
+					}
+				}
+			}
+			catch (Exception e){
+				e.printStackTrace();
+			}
 			for (Type i : interfaces) {
 				if (i instanceof ParameterizedType) {
 					Type t = ((ParameterizedType) i).getActualTypeArguments()[0];
@@ -163,8 +174,17 @@ public class FilterRegistry {
 
 		@Override
 		public int score() {
-			if (clazz==BasicAnalizer.class) {
+			if (clazz == BasicAnalizer.class) {
 				return -1;
+			}
+			if (clazz == BinaryConfusionMatrix.class) {
+				return 6000;
+			}
+			if (clazz == AllMatch.class) {
+				return 6000;
+			}
+			if (clazz == ClassConfusionMatrix.class) {
+				return 6000;
 			}
 			if (AbstractAnalizer.class.isAssignableFrom(clazz)) {
 				return 0;
@@ -228,6 +248,7 @@ public class FilterRegistry {
 		register(PositiveNegativeAnalizer.class);
 		register(InstanceCountAnalizer.class);
 		register(BinaryConfusionMatrix.class);
+		register(AllMatch.class);
 		register(IOUAnalizer.class);
 		register(IdFilter.class);
 		register(CorrectlyClassifierFilter.class);
@@ -269,11 +290,11 @@ public class FilterRegistry {
 		protected IAnalizer<IDataSet> analizer;
 		private int score;
 
-		public BasicAnalizerProto(String name, IAnalizer<IDataSet> analizer,int score) {
+		public BasicAnalizerProto(String name, IAnalizer<IDataSet> analizer, int score) {
 			super();
 			this.name = name;
 			this.analizer = analizer;
-			this.score=score;
+			this.score = score;
 		}
 
 		@Override
@@ -295,13 +316,14 @@ public class FilterRegistry {
 		public IAnalizeResults perform(HashMap<String, Object> analzierArgs, IDataSet dataset) {
 			return this.analizer.analize(dataset);
 		}
+
 		@Override
 		public Supplier<Collection<String>> values() {
 			return new Supplier<Collection<String>>() {
 
 				@Override
 				public Collection<String> get() {
-					return Collections.emptyList();					
+					return Collections.emptyList();
 				}
 			};
 		}
@@ -344,13 +366,14 @@ public class FilterRegistry {
 		public String id() {
 			return name();
 		}
+
 		@Override
 		public Supplier<Collection<String>> values() {
 			return new Supplier<Collection<String>>() {
 
 				@Override
 				public Collection<String> get() {
-					return column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());					
+					return column.uniqueValues().stream().map(x -> x.toString()).collect(Collectors.toList());
 				}
 			};
 		}
@@ -379,7 +402,7 @@ public class FilterRegistry {
 
 		public ObjectColumnFilterProto(IColumn c, Class<? extends IColumnType> class1) {
 			this.column = c;
-			this.type=class1;
+			this.type = class1;
 		}
 
 		@Override
@@ -412,37 +435,41 @@ public class FilterRegistry {
 				return valueAsString.toLowerCase().contains(val);
 			};
 		}
+
 		@Override
 		public Supplier<Collection<String>> values() {
 			return new Supplier<Collection<String>>() {
 
 				@Override
 				public Collection<String> get() {
-					if (type==TextColumnType.class) {
+					if (type == TextColumnType.class) {
 						return words();
 					}
-					List<String> collect = column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());
-					return collect;					
+					List<String> collect = column.uniqueValues().stream().map(x -> x.toString())
+							.collect(Collectors.toList());
+					return collect;
 				}
-				ArrayList<String>_words=null;
+
+				ArrayList<String> _words = null;
 
 				private Collection<String> words() {
-					if (_words==null) {
-						HashSet<String>st=new HashSet<>();
-						for (Object x:column.uniqueValues()) {
+					if (_words == null) {
+						HashSet<String> st = new HashSet<>();
+						for (Object x : column.uniqueValues()) {
 							String[] split = new BreakIteratorTokenizer().split(x.toString());
-							for (String s:split) {
+							for (String s : split) {
 								st.add(s);
 							}
 						}
-						_words=new ArrayList<>(st);
-						Collections.sort(_words);						
+						_words = new ArrayList<>(st);
+						Collections.sort(_words);
 					}
 					return _words;
 				}
 			};
 		}
 	}
+
 	public static class ObjectColumnFilterNumber implements IFilterProto {
 
 		protected AbstractAnalizer analizer;
@@ -473,15 +500,15 @@ public class FilterRegistry {
 			Object vs = parameters.values().iterator().next();
 			String val = vs == null ? "" : vs.toString();
 			boolean islc = val.equals("None");
-			
-			double vlNum=!islc?Double.parseDouble(val):0;
+
+			double vlNum = !islc ? Double.parseDouble(val) : 0;
 			return (Predicate<IItem>) v -> {
 				GenericItem va = (GenericItem) v;
 				String valueAsString = column.getValueAsString(va.base());
-				
+
 				try {
-					return vlNum==Double.parseDouble(valueAsString);
-				}catch (NumberFormatException e) {
+					return vlNum == Double.parseDouble(valueAsString);
+				} catch (NumberFormatException e) {
 					return islc;
 				}
 			};
@@ -493,28 +520,29 @@ public class FilterRegistry {
 
 				@Override
 				public Collection<String> get() {
-					return column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());					
+					return column.uniqueValues().stream().map(x -> x.toString()).collect(Collectors.toList());
 				}
 			};
 		}
 	}
+
 	public static class ObjectColumnFilterNumberRange implements IFilterProto {
 
 		protected AbstractAnalizer analizer;
 		private IColumn column;
 		private boolean mode;
 
-		public ObjectColumnFilterNumberRange(IColumn c,boolean mode) {
+		public ObjectColumnFilterNumberRange(IColumn c, boolean mode) {
 			this.column = c;
-			this.mode=mode;
+			this.mode = mode;
 		}
 
 		@Override
 		public String name() {
 			if (mode) {
 				return column.caption() + " is greater then";
-			}
-			else return column.caption() + " is less then";
+			} else
+				return column.caption() + " is less then";
 
 		}
 
@@ -532,32 +560,29 @@ public class FilterRegistry {
 		public Predicate<IItem> apply(IDataSet original, Map<String, Object> parameters) {
 			Object vs = parameters.values().iterator().next();
 			String val = vs == null ? "" : vs.toString();
-			boolean isOk=false;
+			boolean isOk = false;
 			try {
 				Double.parseDouble(val);
-				isOk=true;
-			}
-			catch (Exception e) {
+				isOk = true;
+			} catch (Exception e) {
 				// TODO: handle exception
 			}
 			boolean islc = val.equals("None");
-			
-			
-			double vlNum=isOk?Double.parseDouble(val):0;
-			
+
+			double vlNum = isOk ? Double.parseDouble(val) : 0;
+
 			return (Predicate<IItem>) v -> {
 				GenericItem va = (GenericItem) v;
 				String valueAsString = column.getValueAsString(va.base());
-				
+
 				try {
 					if (mode) {
-						return vlNum<=Double.parseDouble(valueAsString);
-					}
-					else {
+						return vlNum <= Double.parseDouble(valueAsString);
+					} else {
 						double parseDouble = Double.parseDouble(valueAsString);
-						return vlNum>parseDouble;
+						return vlNum > parseDouble;
 					}
-				}catch (NumberFormatException e) {
+				} catch (NumberFormatException e) {
 					return false;
 				}
 			};
@@ -569,7 +594,7 @@ public class FilterRegistry {
 
 				@Override
 				public Collection<String> get() {
-					return column.uniqueValues().stream().map(x->x.toString()).collect(Collectors.toList());					
+					return column.uniqueValues().stream().map(x -> x.toString()).collect(Collectors.toList());
 				}
 			};
 		}
@@ -609,12 +634,12 @@ public class FilterRegistry {
 						if (analizer) {
 							result.add(new BasicAnalizerProto(
 									((IColumnDependentAnalizer) wordCountAnalizer).getName(column),
-									(IAnalizer) wordCountAnalizer,1));
+									(IAnalizer) wordCountAnalizer, 1));
 
 						} else {
 							result.add(new BasicColumnFilterProto(true, column, (AbstractAnalizer) wordCountAnalizer));
 							result.add(new BasicColumnFilterProto(false, column, (AbstractAnalizer) wordCountAnalizer));
-							result.add(new ObjectColumnFilterProto(column,i.preferredType()));
+							result.add(new ObjectColumnFilterProto(column, i.preferredType()));
 						}
 					} catch (InstantiationException | IllegalAccessException e) {
 						throw new IllegalStateException(e);
@@ -633,7 +658,7 @@ public class FilterRegistry {
 						if (analizer) {
 							result.add(new BasicAnalizerProto(
 									((IColumnDependentAnalizer) wordCountAnalizer).getName(column),
-									(IAnalizer) wordCountAnalizer,5000-column.uniqueValues().size()));
+									(IAnalizer) wordCountAnalizer, 5000 - column.uniqueValues().size()));
 
 						} else {
 							result.add(new ObjectColumnFilterProto(column, i.preferredType()));
@@ -647,7 +672,7 @@ public class FilterRegistry {
 				IColumn column = i.getColumn();
 				Function<IItem, IItem> converter = clazzAdapter(column);
 				if (!analizer) {
-					result.add(new ObjectColumnFilterProto(column,i.preferredType()));
+					result.add(new ObjectColumnFilterProto(column, i.preferredType()));
 				}
 			}
 			if (i.preferredType() == NumberColumn.class) {
@@ -657,11 +682,11 @@ public class FilterRegistry {
 				NumberColumnAnalizer wordCountAnalizer = new NumberColumnAnalizer(column);
 				if (analizer) {
 					result.add(new BasicAnalizerProto(((IColumnDependentAnalizer) wordCountAnalizer).getName(column),
-							(IAnalizer) wordCountAnalizer,2));
+							(IAnalizer) wordCountAnalizer, 2));
 				} else {
 					result.add(new ObjectColumnFilterNumber(column));
-					result.add(new ObjectColumnFilterNumberRange(column,true));
-					result.add(new ObjectColumnFilterNumberRange(column,false));
+					result.add(new ObjectColumnFilterNumberRange(column, true));
+					result.add(new ObjectColumnFilterNumberRange(column, false));
 				}
 			}
 		}
