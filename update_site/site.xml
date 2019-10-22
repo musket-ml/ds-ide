@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/ds_deps_1.0.0.201909271900.jar" id="ds_deps" version="1.0.0.201909271900"/>
+   <feature url="features/feature1_1.0.0.201909271900.jar" id="feature1" version="1.0.0.201909271900"/>
+   <feature url="features/feature2_1.0.0.201909271900.jar" id="feature2" version="1.0.0.201909271900"/>
+   <feature url="features/feature3_1.0.0.201909271900.jar" id="feature3" version="1.0.0.201909271900"/>
+   <feature url="features/feature4_1.0.0.201909271900.jar" id="feature4" version="1.0.0.201909271900"/>
+   <feature url="features/feature5_1.0.0.201909271900.jar" id="feature5" version="1.0.0.201909271900"/>
+   <feature url="features/sui_feature_1.0.0.201909271900.jar" id="sui_feature" version="1.0.0.201909271900"/>
+</site>
