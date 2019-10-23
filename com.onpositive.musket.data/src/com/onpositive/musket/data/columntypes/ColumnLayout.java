@@ -27,6 +27,8 @@ public class ColumnLayout {
 
 		protected HashMap<Class<? extends IColumnType>, ColumnPreference> prefs = new HashMap<>();
 
+		public ArrayList<SubColumn> subColumns;
+
 		public ColumnInfo(IColumn cln) {
 			super();
 			this.cln = cln;
@@ -40,7 +42,7 @@ public class ColumnLayout {
 					this.prefs.put(t.getClass(), ColumnPreference.valueOf(str.get(t.getClass().getName())));
 				}
 			}
-			
+
 		}
 
 		public IColumn getColumn() {
@@ -122,19 +124,42 @@ public class ColumnLayout {
 		} else {
 			this.newDataSet = clns.get(0).owner();
 		}
+
 		clns.forEach(v -> {
 			ColumnInfo columnInfo = new ColumnInfo(v);
 			infos.put(v, columnInfo);
 			fillInfo(columnInfo, prj, answerer);
+		});
+		new ArrayList<>(infos.values()).forEach(v -> {
+			if (v.subColumns != null) {
+				// we need to do split
 
+				Class<? extends IColumnType> preferredType = v.preferredType();
+				if (newDataSet == v.cln.owner()) {
+					BasicDataSetImpl newDs = new BasicDataSetImpl(
+							(ArrayList<? extends ITabularItem>) v.cln.owner().items(), mm);
+					this.newDataSet = newDs;
+				}
+				this.newDataSet.removeColumn(v.cln);
+
+				for (IColumn c : v.subColumns) {
+					this.newDataSet.addColumn(c);
+					ColumnInfo columnInfo = new ColumnInfo(c);
+					columnInfo.prefs = v.prefs;
+					columnInfo.subColumns = null;
+					infos.put(c, columnInfo);
+				}
+				infos.remove(v.cln);
+
+			}
 		});
 	}
 
 	public ColumnLayout(DataSetSpec spec, Object object) {
-		ArrayList<Object>o1=(ArrayList<Object>) object;
-		this.newDataSet=spec.tb;
-		for (Object z:o1) {
-			Map<Object,Object>om=(Map<Object, Object>) z;
+		ArrayList<Object> o1 = (ArrayList<Object>) object;
+		this.newDataSet = spec.tb;
+		for (Object z : o1) {
+			Map<Object, Object> om = (Map<Object, Object>) z;
 			IColumn column = spec.tb.getColumn(om.get("id").toString());
 			this.infos.put(column, new ColumnInfo(column, om));
 		}
@@ -142,17 +167,28 @@ public class ColumnLayout {
 
 	private void fillInfo(ColumnInfo columnInfo, DataProject prj, IQuestionAnswerer answerer) {
 		ColumnTypeRegistry.getInstance().getTypes().forEach(v -> {
-			columnInfo.prefs.put(v.getClass(), v.is(columnInfo.cln, prj, answerer));
+			if (v instanceof ISmartColumnType) {
+				SmartColumnPref is2 = ((ISmartColumnType) v).is2(columnInfo.cln, prj, answerer);
+
+				columnInfo.prefs.put(v.getClass(), is2.preference);
+				if (is2.preference == ColumnPreference.STRICT) {
+					if (is2.columns != null) {
+						columnInfo.subColumns = is2.columns;
+					}
+				}
+			} else {
+				columnInfo.prefs.put(v.getClass(), v.is(columnInfo.cln, prj, answerer));
+			}
 		});
 	}
 
 	public Collection<ColumnInfo> infos() {
 		return this.infos.values();
 	}
-	
+
 	public Object toOptions() {
-		ArrayList<Object>opts=new ArrayList<>();
-		this.infos.values().forEach(v->{
+		ArrayList<Object> opts = new ArrayList<>();
+		this.infos.values().forEach(v -> {
 			opts.add(v.toOptions());
 		});
 		return opts;

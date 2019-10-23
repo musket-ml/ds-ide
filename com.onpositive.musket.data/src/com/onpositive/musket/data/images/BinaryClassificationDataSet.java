@@ -47,7 +47,7 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 	protected boolean multi=false;
 	
 	protected void initClasses(IColumn clazzColumn) {
-		Collection<Object> values = clazzColumn.values();
+		Collection<Object> values = clazzColumn.uniqueValues();
 		LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(values);
 		
 		LinkedHashSet<Object>ac=new LinkedHashSet<>();

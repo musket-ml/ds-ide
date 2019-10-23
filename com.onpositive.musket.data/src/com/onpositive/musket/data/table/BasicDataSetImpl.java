@@ -81,8 +81,14 @@ public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 
 	@Override
 	public ITabularDataSet removeColumn(IColumn cl) {
-		this.columns.remove(cl);
-		this.idColumn=columns.indexOf(getColumn(idColumnId));
+		boolean remove = this.columns.remove(cl);
+		if (!remove) {
+			IColumn column = this.getColumn(cl.id());
+			this.columns.remove(column);
+		}
+		if (idColumnId!=null) {
+			this.idColumn=columns.indexOf(getColumn(idColumnId));
+		}
 		return this;
 	}
 	

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import com.onpositive.musket.data.columntypes.ColumnLayout;
 import com.onpositive.musket.data.columntypes.DataSetFactoryRegistry;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -85,6 +84,7 @@ public class DataProject {
 				return null;
 			}
 			List<IColumn> columns = (List<IColumn>) t1.columns();
+			
 			ColumnLayout layout = new ColumnLayout(columns, this, answerer,monitor);
 			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);
 			// make it a little bit smarter
