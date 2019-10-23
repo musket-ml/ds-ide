@@ -45,7 +45,7 @@ public class NumberColumn extends AbstractColumnType{
 
 	@Override
 	public String typeId(IColumn column) {
-		return "number";
+		return "normalized_number";
 	}
 
 }

@@ -429,6 +429,11 @@ public class FilterRegistry {
 			return (Predicate<IItem>) v -> {
 				GenericItem va = (GenericItem) v;
 				String valueAsString = column.getValueAsString(va.base());
+				if (type.equals(ClassColumnType.class)) {
+					if (!valueAsString.contains(" ")) {
+						return valueAsString.equals(val);
+					}
+				}				
 				if (!islc) {
 					return valueAsString.contains(val);
 				}

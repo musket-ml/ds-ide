@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.FontRegistry;
 import org.eclipse.jface.resource.JFaceResources;
@@ -121,7 +122,14 @@ public class ExperimentResultsEditorPart extends EditorPart {
 						@Override
 						public void linkActivated(HyperlinkEvent e) {
 							IFile iFile = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(p.groundTruth.toURI())[0];
+							
 							IFile iFile1 = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(p.prediction.toURI())[0];
+							try {
+							iFile.refreshLocal(0, new NullProgressMonitor());
+							iFile1.refreshLocal(0, new NullProgressMonitor());
+							}catch (Exception ex) {
+								ex.printStackTrace();
+							}
 							CompareCSVDataSets.open(iFile, iFile1);
 						}
 					});

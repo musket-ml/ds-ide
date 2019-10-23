@@ -27,9 +27,9 @@ public abstract class AbstractMultiSplitAnalizer {
 			}			
 		});
 		ArrayList<IDataSet> results = new ArrayList<IDataSet>();
-
-		maps.keySet().forEach(v -> {
-			results.add(ds.subDataSet(v.toString(), maps.get(v)));
+		LinkedHashMap<Object, ArrayList<IItem>> maps1=AbstractAnalizer.optimize(maps);
+		maps1.keySet().forEach(v -> {
+			results.add(ds.subDataSet(v.toString(), maps1.get(v)));
 
 		});
 		
@@ -37,12 +37,12 @@ public abstract class AbstractMultiSplitAnalizer {
 
 			@Override
 			public int size() {
-				return maps.keySet().size();
+				return maps1.keySet().size();
 			}
 
 			@Override
 			public String[] names() {
-				return maps.keySet().toArray(new String[maps.keySet().size()]);
+				return maps1.keySet().toArray(new String[maps1.keySet().size()]);
 			}
 
 			@Override

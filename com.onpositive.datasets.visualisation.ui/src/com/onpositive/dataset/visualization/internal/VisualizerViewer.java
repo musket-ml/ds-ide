@@ -24,7 +24,9 @@ public abstract class VisualizerViewer<T extends Control> extends AbstractUIElem
 					try {
 						Runnable pollLast = tasks.pollLast(1000, TimeUnit.MINUTES);
 						try {
-							pollLast.run();
+							if (pollLast!=null) {
+								pollLast.run();
+							}
 						} catch (Throwable e) {
 							e.printStackTrace();
 						}

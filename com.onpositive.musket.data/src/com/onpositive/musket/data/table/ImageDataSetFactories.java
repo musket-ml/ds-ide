@@ -44,6 +44,9 @@ public class ImageDataSetFactories implements IDataSetFactory{
 				if (object.toString().equals(MultiClassSegmentationDataSet.class.getName())) {
 					return new MultiClassSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
 				}
+				if (object.toString().equals(MultiClassificationDataset.class.getName())) {
+					return new MultiClassificationDataset(spec.base(), settings, spec.getRepresenter());
+				}
 				if (object.toString().equals(BinaryClassificationDataSet.class.getName())) {
 					return new BinaryClassificationDataSet(spec.base(), settings, spec.getRepresenter());
 				}

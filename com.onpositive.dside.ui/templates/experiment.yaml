@@ -2,16 +2,22 @@
 # Please note that you may override this settings in experiment configuration file
 declarations: 
   net: 
-    #Please describe your network here
+    body: 
+      - dense: [40,"tanh"]    
+      - dense: [1,"sigmoid"]
   preprocess: 
     #Sequence of preprocesing operations  
-callbacks:
-preprocessing: preprocess
+callbacks: #put your callbacks here
 architecture: net
 optimizer: adam
-batch: 50
-net:
+lr: 0.0001
+batch: 10
+testSplit: 0.2
+folds_count: 3
+metrics: [binary_accuracy, macro_f1  ]
+primary_metric: binary_accuracy 
 stages:
-  - epochs: 100
+  - epochs: 50
 dataset: #You need to feel it
-loss: binary_crossentropy  
+  getData: []
+loss: binary_crossentropy

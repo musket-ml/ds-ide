@@ -1,6 +1,6 @@
 templates:
    - name: Basic Template
-     description: Basic Template
+     description: Basic Dense Network Template
      kind: generic
      file: experiment.yaml
    - name: Image Classification

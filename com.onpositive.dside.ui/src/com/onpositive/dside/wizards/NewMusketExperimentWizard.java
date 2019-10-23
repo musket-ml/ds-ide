@@ -1,5 +1,10 @@
 package com.onpositive.dside.wizards;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -200,6 +205,7 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 			return true;
 			
 		}
+		String dN=dsName;
 		// define the operation to create a new project
 		WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 			@Override
@@ -229,7 +235,37 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 				IFile file = folder3.getFile("config.yaml");
 				Template template = TemplatesList.getTemplatesList().getTemplates().stream()
 						.filter(x -> x.name.equals(experimentParams.template)).findFirst().get();
-				file.create(NewMusketExperimentWizard.class.getResourceAsStream("/templates/" + template.file), true,
+				InputStream resourceAsStream = NewMusketExperimentWizard.class.getResourceAsStream("/templates/" + template.file);
+				StringBuilder bld=new StringBuilder();
+				try {
+				InputStreamReader rs=new InputStreamReader(resourceAsStream);
+				BufferedReader r=new BufferedReader(rs);
+				
+				while (true) {
+					String readLine;
+					try {
+						readLine = r.readLine();
+						if (readLine==null) {
+							break;
+						}
+						bld.append(readLine+System.lineSeparator());
+					} catch (IOException e) {
+						break;
+					}
+					
+				}
+				}finally {
+					try {
+						resourceAsStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				String content=bld.toString();
+				if (content.contains("getData: []")&&dN!=null&&!dN.isEmpty()) {
+					content=content.replace("getData: []", dN);
+				}
+				file.create(new ByteArrayInputStream(content.getBytes()), true,
 						monitor);
 				Display.getDefault().asyncExec(() -> {
 					EditorUtils.openFile(file);

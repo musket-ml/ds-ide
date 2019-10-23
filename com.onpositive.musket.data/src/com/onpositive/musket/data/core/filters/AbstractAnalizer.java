@@ -92,7 +92,7 @@ public abstract class AbstractAnalizer {
 		};
 	}
 
-	private LinkedHashMap<Object, ArrayList<IItem>> optimize(LinkedHashMap<Object, ArrayList<IItem>> maps) {
+	static LinkedHashMap<Object, ArrayList<IItem>> optimize(LinkedHashMap<Object, ArrayList<IItem>> maps) {
 		if (maps.size() > 20) {
 			boolean allNumber = true;
 			double min = Double.MAX_VALUE;
