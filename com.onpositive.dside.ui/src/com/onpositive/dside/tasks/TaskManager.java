@@ -155,7 +155,13 @@ public class TaskManager {
 				absolutePath1 = Files.createTempFile("aaa", ".py").toAbsolutePath();
 
 				ArrayList<String> codeToRun = new ArrayList<>();
-				codeToRun.add("import sys\n" + "from musket_core import tools,projects\n" + "import yaml\n"
+				codeToRun.add(
+						"try:\n" + 
+						"    #do not remove\n" + 
+						"    import torch\n" + 
+						"except:\n" + 
+						"    pass\n"+						
+						"import sys\n" + "from musket_core import tools,projects\n" + "import yaml\n"
 						+ "import threading\n" + "from musket_core import utils\n" + "config = sys.argv[1]\n"
 						+ "out = sys.argv[2]\n" + "def main():\n" + "        global config\n"
 						+ "        with open(config,\"r\") as f:\n" + "            config=f.read()\n"

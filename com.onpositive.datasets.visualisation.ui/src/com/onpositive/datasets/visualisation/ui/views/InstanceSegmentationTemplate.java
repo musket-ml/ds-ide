@@ -1,6 +1,7 @@
 package com.onpositive.datasets.visualisation.ui.views;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -15,12 +16,13 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
-
 import com.onpositive.mmdetection.wrappers.ExampleExtractor;
 import com.onpositive.mmdetection.wrappers.MMDetCfgData;
+import com.onpositive.mmdetection.wrappers.ModulePathExtractor;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
@@ -32,6 +34,31 @@ import com.onpositive.semantic.model.binding.Binding;
 
 @Display("dlf/instanceSegmentationTemplate.dlf")
 public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
+
+	
+	public InstanceSegmentationTemplate(IProject prj) {
+		this.prj = prj;
+		ExampleExtractor ee = new ExampleExtractor();
+
+		String mmdetPath = ModulePathExtractor.extractModulepath("mmdet", null);
+		File configsFolder = new File(new File(mmdetPath).getParentFile(),"configs");
+		
+		List<MMDetCfgData> builtinConfigs = ee.processFSFile(configsFolder);		
+		String wsConfigsPath = this.prj.getName() + "/modules";
+		List<MMDetCfgData> wsConfigs = ee.processEclipseFile(wsConfigsPath);
+		
+		ArrayList<MMDetCfgData> configs = new ArrayList<>(builtinConfigs);
+		configs.addAll(wsConfigs);		
+		this.configs = configs;
+		
+		this.weightPaths = ee.gatherWeightPaths("TestProject/data/checkpoints");
+		for(MMDetCfgData cfg : this.configs) {
+			this.configKeys.addAll(cfg.paramNames());
+			this.configsByPath.put(cfg.getPath(), cfg);
+		}
+		
+	}
+
 	
 	private List<MMDetCfgData> configs = null;
 	
@@ -43,16 +70,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	
 	private Map<String,MMDetCfgData> configsByPath = new HashMap<>();
 	
-	{
-		ExampleExtractor ee = new ExampleExtractor();
-		this.configs = ee.processFile("TestProject/data/configs");
-		this.weightPaths = ee.gatherWeightPaths("TestProject/data/checkpoints");
-		for(MMDetCfgData cfg : this.configs) {
-			this.configKeys.addAll(cfg.paramNames());
-			this.configsByPath.put(cfg.getPath(), cfg);
-		}
-		
-	}
+	private IProject prj;
 	
 	@Caption("Architecture")
 	protected String architecture;//="HybridTaskCascade";
@@ -94,6 +112,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 //	mask_head: HTCMaskHead, FCNMaskHead
 //	bbox_head: SSDHead, BBoxHead, ConvFCBBoxHead, FCOSHead, RetinaHead, GARetinaHead, SharedFCBBoxHead
 	
+
 	public List<String> getFilteredValues(String paramName){
 		List<String> result = Collections.emptyList();
 		Stream<MMDetCfgData> configsStream = this.getRelevantConfigs(paramName);
