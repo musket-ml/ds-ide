@@ -5,6 +5,7 @@ Bundle-SymbolicName: com.onpositive.dside.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.onpositive.dside.ui.DSIDEUIPlugin
 Bundle-Vendor: ONPOSITIVE
+Bundle-Localization: plugin
 Require-Bundle: org.eclipse.nebula.widgets.gallery;bundle-version="1.0.0",
  org.eclipse.ui,
  org.eclipse.core.runtime,

@@ -16,6 +16,15 @@
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
+		<resources>
+			<resource>
+	        	<directory>./</directory>
+	        	<includes>
+	            	<include>plugin.properties</include>
+		        </includes>
+	    	    <filtering>true</filtering>
+		    </resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -25,6 +34,17 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-		</plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<delimiters>
+						<delimiter>${*}</delimiter><!-- to keep the default behavior -->
+						<delimiter>@</delimiter><!-- to add Ant-like tokens style, this is needed as RCP has problems with the accolades -->
+					</delimiters>
+				</configuration>
+			</plugin>
+		</plugins>		
 	</build>
 </project>

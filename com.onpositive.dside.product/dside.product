@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="DS IDE" uid="dside" id="com.onpositive.dside.ui.product" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="@productName@" uid="dside" id="com.onpositive.dside.ui.product" application="org.eclipse.ui.ide.workbench" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/com.onpositive.dside.ui/icons/app/net_128.png"/>
@@ -84,7 +84,7 @@
       <plugin id="javax.servlet.jsp.source"/>
       <plugin id="javax.servlet.source"/>
       <plugin id="javax.xml"/>
-      <plugin id="jfreechard_repackaged"/>      
+      <plugin id="jfreechard_repackaged"/>
       <plugin id="org.aml.typesystem"/>
       <plugin id="org.apache.ant"/>
       <plugin id="org.apache.ant.source"/>
