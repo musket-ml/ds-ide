@@ -490,10 +490,10 @@
           point="org.eclipse.core.runtime.products">
        <product
              application="org.eclipse.ui.ide.workbench"
-             name="DS Ide">
+             name="%product.name">
           <property
                 name="windowImages"
-                value="./icons/app/net_16.png,./icons/app/net_32.png,./icons/app/net_64.png,./icons/app/net_128.png">
+                value="icons/app/net_16.png,icons/app/net_32.png,icons/app/net_64.png,icons/app/net_128.png">
           </property>
           <property
                 name="aboutText"
@@ -501,7 +501,7 @@
           </property>
           <property
                 name="aboutImage"
-                value="./icons/app/net_128.png">
+                value="icons/app/net_128.png">
           </property>
           <property
                 name="startupForegroundColor"
@@ -509,15 +509,15 @@
           </property>
           <property
                 name="startupProgressRect"
-                value="2,290,450,10">
+                value="2,250,450,10">
           </property>
           <property
                 name="startupMessageRect"
-                value="7,265,320,20">
+                value="7,235,320,15">
           </property>
           <property
                 name="appName"
-                value="DS Ide">
+                value="%product.name">
           </property>
           <property
                 name="preferenceCustomization"

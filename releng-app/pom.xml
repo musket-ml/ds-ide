@@ -56,6 +56,7 @@
 		<build.file>dside-${qualifiedVersion}</build.file>
 		<build.file.zip>dside.zip</build.file.zip>
 		<build.deploy.release>false</build.deploy.release>
+		<productName>DS IDE ${qualifiedVersion}</productName>
 		<!-- <target.platform.name.default>mavenTychoDemo</target.platform.name.default> -->
 	</properties>
 
