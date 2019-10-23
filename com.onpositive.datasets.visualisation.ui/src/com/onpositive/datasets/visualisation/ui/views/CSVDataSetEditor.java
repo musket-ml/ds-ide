@@ -369,6 +369,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 							}
 						});
 						cm.add(linkElement);
+						cm.getContentParent().layout();
 					}
 				}
 			}
