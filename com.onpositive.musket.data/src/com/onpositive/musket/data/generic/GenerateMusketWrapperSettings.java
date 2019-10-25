@@ -70,7 +70,7 @@ public class GenerateMusketWrapperSettings {
 		@Override
 		public IRealm<String> getRealm(IHasMeta arg0, Object arg1, Object arg2) {
 			Realm<String> rs=new Realm<String>();
-			rs.add("one_hot");
+			rs.add("multi_class");
 			rs.add("categorical_one_hot");
 			rs.add("as_is");
 			rs.add("binary");

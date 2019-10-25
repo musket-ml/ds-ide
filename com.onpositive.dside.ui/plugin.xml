@@ -257,6 +257,11 @@
             image="icons/data_icon.png"
             name="name">
       </image>
+      <image
+            id="history"
+            image="icons/history_working_set_obj.png"
+            name="history">
+      </image>
    </extension>
 	 <extension point="org.eclipse.ui.newWizards">
       <category
