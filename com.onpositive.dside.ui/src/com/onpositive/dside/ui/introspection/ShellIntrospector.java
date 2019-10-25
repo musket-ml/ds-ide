@@ -6,6 +6,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import com.onpositive.dside.dto.PythonError;
 import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.musket_core.StackVisualizer;
+import com.onpositive.python.command.PyCommandBuilder;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 import com.onpositive.yamledit.introspection.InstrospectionResult;
 import com.onpositive.yamledit.io.YamlIO;
@@ -26,26 +30,15 @@ public class ShellIntrospector implements IIntrospector {
 
 	@Override
 	public InstrospectionResult introspect(String projectPath, String pythonPath, String resultMetaPath) {
-		String whichCommand = StringUtils.stripToEmpty(System.getProperty("os.name")).startsWith("Windows") ? "where" : "which";
-		String whichResult = "";
 		
-		try {
-			whichResult = runProcess(new ProcessBuilder().command(whichCommand, PYTHON3_EXECUTABLE).start());
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
+		List<String> args = Arrays.asList(new String[] {"-m", "musket_core.inspectProject", "--project", projectPath, "--out", resultMetaPath});
 		
-		ProcessBuilder command = new ProcessBuilder().command(whichResult.isEmpty() ? PYTHON_EXECUTABLE : PYTHON3_EXECUTABLE, "-m", "musket_core.inspectProject", "--project", projectPath, "--out", resultMetaPath);
+		ProcessBuilder command = PyCommandBuilder.buildCommand(args, pythonPath);
 		
 		try {
 			File resultMetaFile = new File(resultMetaPath);
 			File resultMetaFolder = resultMetaFile.getParentFile();
-			Map<String, String> envs = System.getenv();
-			
-			command.environment().putAll(envs);
-			if (pythonPath != null) {
-				command.environment().put("PYTHONPATH", pythonPath);
-			}
+
 			File file = new File(resultMetaFolder, "error.log");
 			command.redirectError(file);
 			command.redirectOutput(new File(resultMetaFolder, "output.log"));
@@ -80,23 +73,4 @@ public class ShellIntrospector implements IIntrospector {
 		}
 		return null;
 	}
-	
-	private String runProcess(Process process) throws Throwable {
-		process.waitFor();
-		
-		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		
-		StringBuilder builder = new StringBuilder();
-		
-		String line = null;
-		
-		while((line = reader.readLine()) != null) {
-			builder.append(line);
-			
-			builder.append(System.getProperty("line.separator"));
-		}
-		
-		return builder.toString();
-	}
-
 }

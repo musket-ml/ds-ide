@@ -179,7 +179,7 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 			rs = new TextClassificationTemplate();
 		}
 		else if(template.kind.equals("instance_segmentation")){
-			rs = new InstanceSegmentationTemplate();
+			rs = new InstanceSegmentationTemplate(prj);
 		}
 		GenericExperimentTemplate ft=rs;
 		if (rs != null) {
