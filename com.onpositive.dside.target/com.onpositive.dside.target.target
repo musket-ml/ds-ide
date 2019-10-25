@@ -58,14 +58,14 @@
 			<repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20190827152740/repository"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<unit id="ds_deps.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature1.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature2.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature3.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature4.feature.group" version="1.0.0.201909261804"/>
-			<unit id="feature5.feature.group" version="1.0.0.201909261804"/>
-			<unit id="sui_feature.feature.group" version="1.0.0.201909261804"/>
-			<repository location="file:/D:/update_site/"/>
+			<unit id="ds_deps.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature1.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature2.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature3.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature4.feature.group" version="1.0.0.201909271900"/>
+			<unit id="feature5.feature.group" version="1.0.0.201909271900"/>
+			<unit id="sui_feature.feature.group" version="1.0.0.201909271900"/>
+			<repository location="file:../update_site/"/>
 		</location>
 	</locations>
 </target>
