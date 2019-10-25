@@ -128,7 +128,7 @@ public class ImageRepresenter implements Iterable<String> {
 			DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(Paths.get(root, path));
 			boolean found=false;
 			for (Path v : newDirectoryStream) {
-				found=true;
+				
 				Path name = v.getName(v.getNameCount() - 1);
 				String name2 = name.toFile().getName();
 				int lastIndexOf = name2.lastIndexOf(".");
@@ -136,9 +136,14 @@ public class ImageRepresenter implements Iterable<String> {
 					checks = false;
 				} else {
 					String withExtension = name2.substring(lastIndexOf);
+					
+					if (withExtension.equals(".DS_Store")) {
+						continue;
+					}
 					if (!withExtension.equals(".png") && !withExtension.equals(".jpg")) {
 						checks = false;
 					}
+					found=true;
 				}
 
 			}
