@@ -205,6 +205,16 @@ public class ImageRepresenter implements Iterable<String> {
 		children.forEach(v -> {
 			this.id2Path.putAll(v.id2Path);
 		});
+		if (this.children.isEmpty()) {
+			if (looksLikeImageFolder(".")) {
+				addFolder(".");
+				//ImageRepresenter imageRepresenter = new ImageRepresenter(root);
+				//this.children.add(imageRepresenter);
+			}
+			else {
+				
+			}
+		}
 	}
 
 	@Override
@@ -258,5 +268,9 @@ public class ImageRepresenter implements Iterable<String> {
 			}
 		}
 		return file;
+	}
+
+	public boolean isEmpty() {
+		return id2Path.isEmpty();
 	}
 }

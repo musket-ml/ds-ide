@@ -40,7 +40,16 @@ public class FolderDataSet extends MultiClassificationDataset{
 		BasicDataSetImpl impl=new BasicDataSetImpl(items2, cs);
 		ImageRepresenter rep = new ImageRepresenter(folder.getAbsolutePath());
 		rep.configure();
+		if (rep.isEmpty()) {
+			return null;
+		}
 		return new FolderDataSet(impl, cs.get(0), cs.get(1), 400, 400, rep);
+	}
+	protected String getPythonName() {
+		if (this.classes.size()==1) {
+			return "FolderDataSet";
+		}
+		return "FolderClassificationDataSet";
 	}
 	
 	private static void fillMap(HashMap<String, ArrayList<File>> images, File folder) {
