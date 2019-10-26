@@ -111,9 +111,11 @@ public class ImageRepresenter implements Iterable<String> {
 				Path name = v.getName(v.getNameCount() - 1);
 				String name2 = name.toFile().getName();
 				int lastIndexOf = name2.lastIndexOf(".");
+				String extension=name2.substring(lastIndexOf);
 				String withoutExtension = name2.substring(0, lastIndexOf);
-
-				id2Path.put(withoutExtension, v.toFile());
+				if (extension.equals(".jpg")||extension.equals(".gif")||extension.equals(".png")||extension.equals(".bmp")) {
+					id2Path.put(withoutExtension, v.toFile());
+				}
 			});
 			folders.add(path);
 			newDirectoryStream.close();
