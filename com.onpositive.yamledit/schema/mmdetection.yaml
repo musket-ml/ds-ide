@@ -299,6 +299,10 @@ types:
       multiscaleMode:
         type: string
         required: false
-      resetHead:
+      resetHeads:
         type: boolean
         required: false
+      dropSemanticHead:
+        type: boolean
+        required: false
+  

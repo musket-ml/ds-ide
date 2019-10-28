@@ -1,7 +1,9 @@
 package com.onpositive.datasets.visualisation.ui.views;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import com.onpositive.mmdetection.wrappers.ExampleExtractor;
 import com.onpositive.mmdetection.wrappers.MMDetCfgData;
 import com.onpositive.mmdetection.wrappers.ModulePathExtractor;
+import com.onpositive.python.command.IPythonPathProvider;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
@@ -36,12 +39,13 @@ import com.onpositive.semantic.model.binding.Binding;
 public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 
 	
-	public InstanceSegmentationTemplate(IProject prj) {
+	public InstanceSegmentationTemplate(IPythonPathProvider projectWrapper, IProject prj) {
 		this.prj = prj;
+		this.projectWrapper = projectWrapper;
 		ExampleExtractor ee = new ExampleExtractor();
 
-		String mmdetPath = ModulePathExtractor.extractModulepath("mmdet", null);
-		File configsFolder = new File(new File(mmdetPath).getParentFile(),"configs");
+		String mmdetPath = ModulePathExtractor.extractModulepath("mmdetection_pipeline", this.projectWrapper.getPythonPath());
+		File configsFolder = new File(new File(mmdetPath),"configs");
 		
 		List<MMDetCfgData> builtinConfigs = ee.processFSFile(configsFolder);		
 		String wsConfigsPath = this.prj.getName() + "/modules";
@@ -71,6 +75,8 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	private Map<String,MMDetCfgData> configsByPath = new HashMap<>();
 	
 	private IProject prj;
+	
+	private IPythonPathProvider projectWrapper;
 	
 	@Caption("Architecture")
 	protected String architecture;//="HybridTaskCascade";
@@ -195,12 +201,23 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 			if (!folder.exists()) {
 				folder.create(true, true, new NullProgressMonitor());
 			}
-			String configName = fileName(this._selectedConfig.getPath());
-			IFile file = folder.getFile(configName + ".py");
+			String cfgPath = this._selectedConfig.getPath();
+			String configName = fileName(cfgPath);
 			String wsSrcPath = this._selectedConfig.getWSPath();
-			IFile srcFile = file.getWorkspace().getRoot().getFile(new Path(wsSrcPath));
+
+			IFile file = folder.getFile(cfgPath);
+			InputStream contents = null;
+			Path wsFolderPath = new Path(wsSrcPath);
+			if(wsFolderPath.isAbsolute()) {
+				File srcFile = new File(new File(wsSrcPath), cfgPath);
+				contents = new BufferedInputStream(new FileInputStream(srcFile));
+			}
+			else {
+				IFolder srcFolder = file.getWorkspace().getRoot().getFolder(wsFolderPath);
+				contents = srcFolder.getFile(configName).getContents();
+			}
 			
-			InputStream contents = srcFile.getContents();
+			
 			if (file.exists()) {
 				file.setContents(contents, true, true, new NullProgressMonitor());
 			} else {
@@ -239,27 +256,29 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	}
 	
 	public void findWeihtsForConfig() {
-		if(this._selectedConfig == null) {
-			return;
-		}
-		String cp = fileName(_selectedConfig.getPath());
-		for(String wpFull: this.weightPaths) {			
+		
+		List<String> weightFileNames = ModulePathExtractor.extractCheckpointFilenames(this.projectWrapper.getPythonPath());
+		for(String wpFull: weightFileNames) {			
 			if(conforms(_selectedConfig.getPath(),wpFull)) {
-				this.weightsPath = wpFull;				
+				this.weightsPath = "open-mmlab://" + fileName(_selectedConfig.getPath());				
 			}
 		}
 		ObjectChangeManager.markChanged(this);		
 	}
 
 	private static String fileName(String pth) {
-		int ind = pth.lastIndexOf("/");
-		if (ind < 0) {
-			ind = 0;
+		int ind1 = pth.lastIndexOf("/");
+		if (ind1 < 0) {
+			ind1 = 0;
 		}
 		else {
-			ind++;
+			ind1++;
 		}
-		String cp = pth.substring(ind, pth.lastIndexOf("."));
+		int ind2 = pth.lastIndexOf(".");
+		if(ind2<0) {
+			ind2 = pth.length();
+		}
+		String cp = pth.substring(ind1, ind2);
 		return cp;
 	}
 	
@@ -269,9 +288,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		if(!wp.startsWith(cp)) {
 			return false;
 		}			
-		String postfix = wp.substring(cp.length());
-		String ggg = postfix.replaceAll("[_\\-0-9a-f]", "");
-		boolean result = ggg.isEmpty();
+		boolean result = wp.startsWith(cp);
 		return result;
 	}	
 	
