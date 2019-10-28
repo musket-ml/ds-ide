@@ -54,7 +54,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 		getSettings().put(HEIGHT, height);
 		
 		HashSet<String>strs=new HashSet<>();
-		for (int i=0;i<40;i++) {
+		for (int i=0;i<Math.min(40,base.size());i++) {
 			String value = imageColumn.getValueAsString(base.get(i));
 			BufferedImage bufferedImage = rep.get(value);
 			String str=bufferedImage.getWidth()+","+bufferedImage.getHeight();

@@ -84,7 +84,7 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 			}
 
 			@Override
-			public Supplier<Collection<String>> values() {
+			public Supplier<Collection<String>> values(IDataSet ds) {
 				return null;
 			}
 		};

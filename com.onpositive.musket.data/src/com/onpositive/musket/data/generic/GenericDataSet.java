@@ -238,7 +238,7 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 			}
 
 			@Override
-			public Supplier<Collection<String>> values() {
+			public Supplier<Collection<String>> values(IDataSet ds) {
 				return null;
 			}
 		};

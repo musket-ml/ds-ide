@@ -13,4 +13,6 @@ public interface IHasLabels {
 
 	Map<String, Object> getSettings();
 
+	LabelsSet labels();
+
 }

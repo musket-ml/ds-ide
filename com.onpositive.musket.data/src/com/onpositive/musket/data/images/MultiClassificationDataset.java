@@ -83,4 +83,11 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 		this.labels=labelsSet;
 	}
 
+
+
+	@Override
+	public LabelsSet labels() {
+		return labels;
+	}
+
 }

@@ -167,7 +167,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 			}
 
 			@Override
-			public Supplier<Collection<String>> values() {
+			public Supplier<Collection<String>> values(IDataSet ds) {
 				return null;
 			}
 		};
