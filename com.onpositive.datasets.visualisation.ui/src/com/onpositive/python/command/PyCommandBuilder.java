@@ -1,9 +1,14 @@
 package com.onpositive.python.command;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -56,6 +61,62 @@ public class PyCommandBuilder {
 		}
 		
 		return builder.toString();
+	}
+
+
+	public static String executeScript(String pythonPath, String script) {
+		List<String> args = Arrays.asList(new String[] {"-c", script});
+		ProcessBuilder command = PyCommandBuilder.buildCommand(args,pythonPath);
+		
+		try {
+			command.redirectError(Redirect.PIPE);
+			command.redirectOutput(Redirect.PIPE);
+			command.redirectInput(Redirect.PIPE);
+			Process process = command.start();
+			
+			InputStream es = process.getErrorStream();
+			InputStream is = process.getInputStream();
+			
+			BufferedReader isReader = new BufferedReader(new InputStreamReader(is, "utf-8"));
+			BufferedReader esReader = new BufferedReader(new InputStreamReader(es, "utf-8"));
+			
+			StringBuilder isBld = new StringBuilder();
+			StringBuilder esBld = new StringBuilder();
+			
+			String str;
+			while((str = isReader.readLine())!=null) {
+				isBld.append(str);
+			}
+			while((str = esReader.readLine())!=null) {
+				esBld.append(str);
+			}
+			
+			int waitFor = process.waitFor();
+			
+			if (waitFor != 0 || esBld.length() != 0) {
+//				List<String> readAllLines = Arrays.asList(new String[] { esBld.toString() });
+//				PythonError pythonError = new PythonError(readAllLines);
+//				Display.getDefault().asyncExec(new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						boolean createObject = WidgetRegistry.createObject(new StackVisualizer(pythonError));
+//						if (createObject) {
+//							pythonError.open();
+//						}
+//					}
+//				});
+				System.out.println(esBld.toString());
+				return null;
+			}
+			String result = isBld.toString().replace("\\", "/");
+			
+			return result;
+		} catch (InterruptedException | IOException e) {
+//			DSIDEUIPlugin.log(e);
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }
