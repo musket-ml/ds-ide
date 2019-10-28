@@ -740,7 +740,7 @@ public class FilterRegistry {
 				public ArrayList<String> classes() {
 					GenericItem ti = (GenericItem) x;
 					String vl = column.getValueAsString((ITabularItem) ti.base());
-					return MultiClassClassificationItem.splitByClass(vl);
+					return MultiClassClassificationItem.splitByClass(vl,null);
 				}
 			};
 		};

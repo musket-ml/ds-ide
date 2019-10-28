@@ -14,6 +14,7 @@ import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.core.Parameter;
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 
@@ -21,6 +22,8 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 
 	protected ITabularDataSet base;
 	protected IColumn idColumn;
+	
+	protected LabelsSet labels;
 
 	public AbstractTextDataSet(ITabularDataSet base, IColumn textColumn, IColumn idColumn) {
 		super();

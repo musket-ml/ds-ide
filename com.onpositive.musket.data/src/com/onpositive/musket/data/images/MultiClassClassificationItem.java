@@ -2,6 +2,7 @@ package com.onpositive.musket.data.images;
 
 import java.util.ArrayList;
 
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.ITabularItem;
 
 public class MultiClassClassificationItem extends BinaryClassificationItem implements IMulticlassClassificationItem {
@@ -21,10 +22,11 @@ public class MultiClassClassificationItem extends BinaryClassificationItem imple
 	@Override
 	public ArrayList<String> classes() {
 		String value = (String) this.base.clazzColumn.getValue(item);
-		return splitByClass(value);
+		
+		return splitByClass(value,this.base.labels);
 	}
 
-	public static ArrayList<String> splitByClass(String value) {
+	public static ArrayList<String> splitByClass(String value,LabelsSet labels) {
 		ArrayList<String> classes = new ArrayList<>();
 		if (value.indexOf(' ') != -1) {
 			String[] split = value.split(" ");
@@ -45,6 +47,13 @@ public class MultiClassClassificationItem extends BinaryClassificationItem imple
 			} else {
 				classes.add(value.trim());
 			}
+		}
+		if (labels!=null) {
+			ArrayList<String>cl1=new ArrayList<>();
+			for (String s:classes) {
+				cl1.add(labels.map(s));
+			}
+			return cl1;
 		}
 		return classes;
 	}

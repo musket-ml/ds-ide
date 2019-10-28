@@ -16,6 +16,7 @@ import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
@@ -38,6 +39,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	public static final String IMAGE_COLUMN = "IMAGE_COLUMN";
 	protected String name = "";
 	protected boolean isMultiResolution;
+	protected LabelsSet labels;
 	
 	public AbstractImageDataSet(ITabularDataSet base, IColumn imageColumn,int width, int height, ImageRepresenter rep) {
 		super();

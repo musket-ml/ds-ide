@@ -18,6 +18,7 @@ public class LabelsSet {
 
 	protected ArrayList<LabelItem>items=new ArrayList<>();
 	private ITabularDataSet dataset;
+	private boolean isOk;
 
 	
 	public LabelsSet(ITabularDataSet t,ArrayList<String>labels) {
@@ -28,6 +29,7 @@ public class LabelsSet {
 			ArrayList<Object> uniqueValues = c.uniqueValues();
 			if (new HashSet<>(uniqueValues).equals(new HashSet<>(labels))){
 				clazzColumn=c;
+				isOk=true;
 				continue;
 			}
 			else{
@@ -59,6 +61,10 @@ public class LabelsSet {
 		cs.add(new Column("Label", "Label", 1, String.class));
 		dataset=new BasicDataSetImpl(items, cs);
 	}
+	public ITabularDataSet getData() {
+		this.toTabular();
+		return this.dataset;
+	}
 
 	protected void fillIItems(ITabularDataSet t, IColumn labelColumn, IColumn clazzColumn) {
 		t.items().forEach(v->{
@@ -82,5 +88,9 @@ public class LabelsSet {
 			return clazzToLabel.get(clazzName);
 		}
 		return clazzName;
+	}
+
+	public boolean isOk() {
+		return this.isOk;
 	}
 }

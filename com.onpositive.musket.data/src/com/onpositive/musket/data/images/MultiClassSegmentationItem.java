@@ -140,7 +140,12 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 			if(m.isEmpty()) {
 				continue;
 			}
-			result.add(m.clazz());
+			String clazz = m.clazz();
+			if (this.base.labels!=null) {
+				result.add(this.base.labels.map(clazz));
+				continue;
+			}
+			result.add(clazz);
 		}
 		if (result.isEmpty()) {
 			result.add("Empty");

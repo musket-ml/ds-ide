@@ -43,7 +43,7 @@ public class TextItem implements ITextItem,IBinaryClasificationItem,IMulticlassC
 	@Override
 	public ArrayList<String> classes() {
 		String value = (String) ((TextClassificationDataSet)this.textDataSet).clazzColumn.getValue(baseItem);
-		return MultiClassClassificationItem.splitByClass(value);
+		return MultiClassClassificationItem.splitByClass(value,this.textDataSet.labels);
 	}
 	
 }

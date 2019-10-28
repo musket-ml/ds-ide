@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
@@ -50,6 +51,16 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 	protected ArrayList<Object> classes;
 	protected boolean multi=false;
 	
+	public static boolean isStringClasses(List<String> list) {
+		for (Object o:list) {
+			try {
+				Integer.parseInt(o.toString());
+			}catch (NumberFormatException e) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	protected void initClasses(IColumn clazzColumn) {
 		Collection<Object> values = clazzColumn.uniqueValues();
@@ -66,6 +77,7 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 				this.multi=true;
 			}
 		}
+		
 		classes = new ArrayList(linkedHashSet);
 		if (this.multi) {
 			classes=new ArrayList<>(ac);

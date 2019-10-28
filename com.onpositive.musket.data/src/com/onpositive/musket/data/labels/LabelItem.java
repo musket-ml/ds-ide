@@ -9,7 +9,14 @@ public class LabelItem {
 	@Caption("Clazz")
 	protected String clazz;
 	
-	@Required
+	public int getClazzNum() {
+		try {
+		return Integer.parseInt(clazz);
+		}catch (Exception e) {
+			return -1;
+		}
+	}
+	
 	@Caption("Label")
 	protected String label;
 

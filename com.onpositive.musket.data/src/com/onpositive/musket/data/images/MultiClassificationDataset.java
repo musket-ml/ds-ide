@@ -5,18 +5,20 @@ import java.util.List;
 import java.util.Map;
 
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
+import com.onpositive.musket.data.table.IHasLabels;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageRepresenter;
 
-public class MultiClassificationDataset extends BinaryClassificationDataSet implements IMulticlassClassificationDataSet{
+public class MultiClassificationDataset extends BinaryClassificationDataSet implements IMulticlassClassificationDataSet,IHasLabels{
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public MultiClassificationDataset(ITabularDataSet base2, IColumn image, IColumn clazzColumn, int width2,
 			int height2, ImageRepresenter rep) {
 		super(base2, image, clazzColumn, width2, height2, rep);
-		initClasses(clazzColumn);
+		initClasses(clazzColumn);		
 	}
 
 	
@@ -70,9 +72,15 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 
 	protected static ITabularDataSet filter(String clazz, ITabularDataSet base2,String clazzColumn) {
 		ITabularDataSet filter = base2.map(clazzColumn, x->{
-			return MultiClassClassificationItem.splitByClass(x.toString()).contains(clazz)?"1":"0";
+			return MultiClassClassificationItem.splitByClass(x.toString(),null).contains(clazz)?"1":"0";
 		});
 		return filter;
+	}
+
+
+
+	public void setLabels(LabelsSet labelsSet) {
+		this.labels=labelsSet;
 	}
 
 }

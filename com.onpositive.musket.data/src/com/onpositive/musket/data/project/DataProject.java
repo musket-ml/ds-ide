@@ -27,10 +27,16 @@ public class DataProject {
 
 	private static final String DATASET_FACTORY = "dataset_factory";
 	private ImageRepresenter imageRepresenter;
+	private File file;
+
+	public File getFile() {
+		return file;
+	}
 
 	public DataProject(File file) {
 		imageRepresenter = new ImageRepresenter(file.getAbsolutePath());
 		imageRepresenter.configure();
+		this.file=file;
 	}
 
 	public ImageRepresenter getRepresenter() {

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import com.onpositive.musket.data.actions.BasicDataSetActions;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.core.IDataSet;
@@ -13,6 +12,7 @@ import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.ComputableColumn;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
@@ -33,6 +33,8 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	protected ArrayList<String> classes = new ArrayList<>();
 
 	private boolean isMulti;
+	
+	
 	
 	
 	@SuppressWarnings("unchecked")
@@ -93,7 +95,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		allValues = new LinkedHashSet<>();
 		isMulti = false;
 		for (Object x : linkedHashSet) {
-			ArrayList<String> splitByClass = MultiClassClassificationItem.splitByClass(x.toString().trim());
+			ArrayList<String> splitByClass = MultiClassClassificationItem.splitByClass(x.toString().trim(),labels);
 			if (splitByClass.size()>1) {
 				isMulti=true;
 			}
@@ -146,7 +148,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	protected static ITabularDataSet filter(String clazz, ITabularDataSet base2, String clazzColumn) {
 		ITabularDataSet filter = base2.filter(clazzColumn, x -> {
-			return MultiClassClassificationItem.splitByClass(x.toString()).contains(clazz);
+			return MultiClassClassificationItem.splitByClass(x.toString(),null).contains(clazz);
 		});
 		return filter;
 	}
