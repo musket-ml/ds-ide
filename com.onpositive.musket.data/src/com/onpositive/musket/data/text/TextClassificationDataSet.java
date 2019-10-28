@@ -35,7 +35,6 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	private boolean isMulti;
 	
 	
-
 	@SuppressWarnings("unchecked")
 	public TextClassificationDataSet(ITabularDataSet base, IColumn textColumn, ArrayList<IColumn> clazzColumns) {
 		super(base.clone(), textColumn, null);

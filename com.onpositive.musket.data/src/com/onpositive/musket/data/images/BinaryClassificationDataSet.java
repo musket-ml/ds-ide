@@ -25,11 +25,15 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 		super(base2, image, width2, height2, rep);
 		this.clazzColumn=clazzColumn;
 		this.getSettings().put(MultiClassSegmentationDataSet.CLAZZ_COLUMN, this.clazzColumn.id());
+		this.initClasses(clazzColumn);									
+		
 	}
 
 	public BinaryClassificationDataSet(ITabularDataSet base, Map<String, Object> settings, ImageRepresenter rep) {
 		super(base, settings, rep);
-		this.clazzColumn=base.getColumn(settings.get(MultiClassSegmentationDataSet.CLAZZ_COLUMN).toString());		
+		this.clazzColumn=base.getColumn(settings.get(MultiClassSegmentationDataSet.CLAZZ_COLUMN).toString());
+		classes=clazzColumn.uniqueValues();
+		this.initClasses(clazzColumn);		
 	}
 
 	@Override

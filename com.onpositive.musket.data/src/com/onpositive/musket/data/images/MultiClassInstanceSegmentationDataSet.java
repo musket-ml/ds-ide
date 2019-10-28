@@ -22,6 +22,7 @@ public class MultiClassInstanceSegmentationDataSet extends MultiClassSegmentatio
 	public MultiClassInstanceSegmentationDataSet(ITabularDataSet base, Map<String, Object> settings,
 			ImageRepresenter rep) {
 		super(base, settings, rep);
+		this.getSettings().put(AbstractRLEImageDataSet.CLAZZ, this.getClass().getName());
 	}
 
 	@Override

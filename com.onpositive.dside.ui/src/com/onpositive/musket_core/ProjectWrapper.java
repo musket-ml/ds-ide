@@ -318,7 +318,10 @@ public class ProjectWrapper {
 
 	public void innerIntrospect(String pythonPath, String absolutePath) {
 		synchronized (mon) {
-			projectIntrospector.introspect(path, pythonPath, absolutePath);
+			InstrospectionResult introspect = projectIntrospector.introspect(path, pythonPath, absolutePath);
+			if (introspect!=null) {
+				refreshed(introspect);
+			}
 		}
 
 	}

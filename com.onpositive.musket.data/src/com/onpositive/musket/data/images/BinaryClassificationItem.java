@@ -23,10 +23,7 @@ public class BinaryClassificationItem implements IBinaryClasificationItem,IImage
 	
 	protected boolean isPositiveValue(Object value) {
 		ArrayList<Object> classes = base.classes;
-		if (base.classes==null) {
-			base.classes=base.clazzColumn.uniqueValues();
-			Collections.sort((List)base.classes);			
-		}
+		
 		if (value.equals(base.classes.get(0))) {
 			return false;
 		}
