@@ -7,4 +7,8 @@ import com.onpositive.musket.data.core.IItem;
 public interface IMulticlassClassificationItem extends IItem{
 
 	public ArrayList<String>classes();
+	
+	public default ArrayList<String>originalclasses(){
+		return classes();
+	}
 }

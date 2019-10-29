@@ -31,9 +31,9 @@ import com.onpositive.musket.data.table.ITabularItem;
 
 public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerator{
 
-	static final String FONT_SIZE = "Font size";
-	static final String VISIBLE_COLUMNS="Visible Columns";
-	static final String MAX_CHARS_IN_TEXT="Trim text to";
+	public static final String FONT_SIZE = "Font size";
+	public static final String VISIBLE_COLUMNS="Visible Columns";
+	public static final String MAX_CHARS_IN_TEXT="Trim text to";
 	
 	private DataSetSpec spec;
 	
@@ -234,7 +234,7 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 
 			@Override
 			public String id() {
-				return "Cart visualizer";
+				return "Card visualizer";
 			}
 
 			@Override

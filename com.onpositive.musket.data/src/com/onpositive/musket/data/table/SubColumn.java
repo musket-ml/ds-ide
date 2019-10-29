@@ -1,8 +1,12 @@
 package com.onpositive.musket.data.table;
 
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
 public class SubColumn extends Column{
 
 	private int subnum;
+	private int endIndex=Integer.MIN_VALUE;
 	public SubColumn(String id, String caption, int num, Class<?> clazz,int subNum) {
 		super(id, caption, num, clazz);
 		this.subnum=subNum;
@@ -11,6 +15,11 @@ public class SubColumn extends Column{
 		this(id,s,c.getNum(),c.getClazz(),sn);
 		this.owner=c.owner;
 	}
+	public SubColumn(String id, String s, Column c, int sn,int endIndex) {
+		this(id,s,c.getNum(),c.getClazz(),sn);
+		this.owner=c.owner;
+		this.endIndex=endIndex;
+	}
 	@Override
 	public Object getValue(ITabularItem item) {
 		BasicItem bi=(BasicItem) item;
@@ -18,6 +27,17 @@ public class SubColumn extends Column{
 		String[] vals=object.split("_");
 		if (vals.length<=subnum) {
 			return null;
+		}
+		if (this.endIndex!=Integer.MIN_VALUE) {
+			int e=this.endIndex;
+			if (e==-1) {
+				e=vals.length;
+			}
+			ArrayList<String>vls=new ArrayList<>();
+			for (int i=subnum;i<e;i++) {
+				vls.add(vals[i]);
+			}
+			return vls.stream().collect(Collectors.joining("_"));
 		}
 		return vals[subnum];
 	}
@@ -28,6 +48,9 @@ public class SubColumn extends Column{
 	
 	@Override
 	public String id() {
+		if (endIndex!=Integer.MIN_VALUE) {
+			return super.id()+":"+subnum+"-"+endIndex;
+		}
 		return super.id()+":"+subnum;
 	}
 }

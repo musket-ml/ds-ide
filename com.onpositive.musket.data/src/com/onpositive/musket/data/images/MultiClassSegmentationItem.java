@@ -79,7 +79,10 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 			ArrayList<IMask>mssk=new ArrayList<IMask>();
 			this.items.forEach(v->{
 				RLEMask createMask = base.createMask(base.rleColumn.getValueAsString(v), base.height, base.width,this);
-				createMask.setClazz(base.clazzColumn.getValue(v).toString());
+				Object value = base.clazzColumn.getValue(v);
+				if (value!=null) {
+				createMask.setClazz(value.toString());
+				}
 				mssk.add( createMask);
 			});
 			this.rleMasks=mssk;
@@ -152,6 +155,17 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 		}
 		return result;
 	}
+	public ArrayList<String>originalclasses(){
+		ArrayList<String>result=new ArrayList<>();
+		for (IMask m:this.getMasks()) {
+			if(m.isEmpty()) {
+				continue;
+			}
+			String clazz = m.clazz();
+			result.add(clazz);
+		}		
+		return result;
+	}
 
 	@Override
 	public BinarySegmentationItem getItem(String clazz) {
@@ -174,7 +188,11 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 	public boolean hasSameClass() {
 		HashSet<String>classes=new HashSet<>();
 		for (ITabularItem i:this.items) {
-			String string = base.clazzColumn.getValue(i).toString();
+			Object value = base.clazzColumn.getValue(i);
+			if (value==null) {
+				return false;
+			}
+			String string = value.toString();
 			if (!classes.add(string)) {
 				return true;
 			}

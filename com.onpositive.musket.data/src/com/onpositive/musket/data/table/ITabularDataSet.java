@@ -25,10 +25,22 @@ public interface ITabularDataSet extends IDataSet,Cloneable {
 			if (column != null) {
 				String[] split = column.id.split("_");
 				String substring = id.substring(lastIndexOf + 1);
-				int sn = Integer.parseInt(substring);
-				SubColumn subColumn = new SubColumn(column.id(), split[sn], column.getNum(), String.class, sn);
-				subColumn.owner=this;
-				return subColumn;
+				int er2 = substring.indexOf('^');
+				if (er2!=-1) {
+					String fst=substring.substring(0,er2);
+					String sec=substring.substring(er2+1);
+					int sn1 = Integer.parseInt(fst);
+					int sn2 = Integer.parseInt(sec);
+					SubColumn subColumn = new SubColumn(column.id(), id, column,sn1,sn2);
+					subColumn.owner=this;
+					return subColumn;
+				}
+				else{
+					int sn = Integer.parseInt(substring);
+					SubColumn subColumn = new SubColumn(column.id(), split[sn], column.getNum(), String.class, sn);
+					subColumn.owner=this;
+					return subColumn;
+				}
 			}
 		}
 		return null;

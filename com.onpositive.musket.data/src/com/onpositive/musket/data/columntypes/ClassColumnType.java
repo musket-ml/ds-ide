@@ -86,7 +86,7 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 								true)) {
 							ArrayList<SubColumn> cls = new ArrayList<>();
 							cls.add(new SubColumn(c.id(), c.caption() + ":0", (Column) c, 0));
-							cls.add(new SubColumn(c.id(), c.caption() + ":1", (Column) c, 1));
+							cls.add(new SubColumn(c.id(), c.caption() + ":1", (Column) c, 1,-1));
 							return new SmartColumnPref(check, cls);
 						}
 

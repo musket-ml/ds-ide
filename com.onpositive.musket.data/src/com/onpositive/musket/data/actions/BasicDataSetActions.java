@@ -51,7 +51,7 @@ public class BasicDataSetActions {
 		ArrayList<BasicItem> items = new ArrayList<>();
 		ds.items().forEach(v -> {
 			BasicItem item = new BasicItem(0,
-					new Object[] { v.id(), v.classes().stream().map(va->{
+					new Object[] { v.id(), v.originalclasses().stream().map(va->{
 						if (va.equals("Empty")) {
 							return "";
 						}
@@ -175,6 +175,12 @@ public class BasicDataSetActions {
 		}		
 	}
 	
+	public static class ClearDataSetMeta extends ConversionAction{
+		public ClearDataSetMeta() {
+			super("Clear dataset metadata and reopen", null);
+		}		
+	}
+	
 
 	public static List<ConversionAction> getActions(IDataSet d) {
 		
@@ -187,7 +193,6 @@ public class BasicDataSetActions {
 		}
 		if (d instanceof TextClassificationDataSet) {
 			TextClassificationDataSet td=(TextClassificationDataSet) d;
-			
 			return actions;
 		}
 		

@@ -14,6 +14,7 @@ import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.core.Parameter;
+import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
@@ -30,6 +31,8 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 		this.base = base;
 		this.textColumn = textColumn;
 		this.idColumn = idColumn;
+		settings.put(GenericDataSet.FONT_SIZE, "13");
+		settings.put(GenericDataSet.MAX_CHARS_IN_TEXT, "300");		
 	}
 
 	protected IColumn textColumn;
@@ -62,6 +65,11 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 	public IItem item(int num) {
 		return items().get(num);
 	}
+	
+	@Override
+	public Map<String, Object> getSettings() {
+		return settings;
+	}
 
 	@Override
 	public IVisualizerProto getVisualizer() {
@@ -70,17 +78,28 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 			@Override
 			public Parameter[] parameters() {
 			
-				return new Parameter[] {};
+				Parameter parameter = new Parameter();
+				parameter.name=GenericDataSet.FONT_SIZE;
+				Map<String, Object> settings2 = getSettings();
+				parameter.defaultValue=settings2.get(GenericDataSet.FONT_SIZE).toString();
+				parameter.type=Integer.class;
+				
+				Parameter parameter1 = new Parameter();
+				parameter1.name=GenericDataSet.MAX_CHARS_IN_TEXT;
+				parameter1.defaultValue=settings2.get(GenericDataSet.MAX_CHARS_IN_TEXT).toString();
+				parameter1.type=Integer.class;
+				
+				return new Parameter[] {parameter,parameter1};
 			}
 
 			@Override
 			public String name() {
-				return "Text visualizer";
+				return "Card visualizer";
 			}
 
 			@Override
 			public String id() {
-				return "Text visualizer";
+				return "Card visualizer";
 			}
 
 			@Override
@@ -92,8 +111,7 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 
 	@Override
 	public void setSettings(IVisualizerProto proto, Map<String, Object> parameters) {
-		this.settings.clear();
-		this.settings.putAll(settings);
+		this.settings.putAll(parameters);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -103,6 +121,7 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 			AbstractTextDataSet rs = (AbstractTextDataSet) this.clone();
 			rs.items = (ArrayList) arrayList;
 			rs.name = string;
+			rs.settings.putAll(this.settings);
 			return rs;
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

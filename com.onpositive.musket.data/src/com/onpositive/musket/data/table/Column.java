@@ -116,4 +116,11 @@ public class Column implements IColumn,Cloneable{
 	public void setClazz(Class<?> clazz) {
 		this.clazz = clazz;
 	}
+	@Override
+	public String toString() {
+		if (this.caption==null) {
+			return this.id;
+		}
+		return this.caption;
+	}
 }

@@ -1,9 +1,7 @@
 package com.onpositive.musket.data.images;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
@@ -14,14 +12,11 @@ import com.onpositive.musket.data.table.ImageRepresenter;
 
 public class MultiClassificationDataset extends BinaryClassificationDataSet implements IMulticlassClassificationDataSet,IHasLabels{
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public MultiClassificationDataset(ITabularDataSet base2, IColumn image, IColumn clazzColumn, int width2,
 			int height2, ImageRepresenter rep) {
 		super(base2, image, clazzColumn, width2, height2, rep);
 		initClasses(clazzColumn);		
 	}
-
-	
 
 	public MultiClassificationDataset(ITabularDataSet base, Map<String, Object> settings, ImageRepresenter rep) {
 		super(base, settings, rep);
@@ -32,6 +27,7 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 	public Collection<MultiClassClassificationItem> items() {
 		return (Collection<MultiClassClassificationItem>) super.items();
 	}
+	
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
 		return new MultiClassificationDataSetWithGroundTruth(base, imageColumn, clazzColumn, representer, width, height, (ITabularDataSet) t2);		
@@ -68,8 +64,6 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 		return new BinaryClassificationDataSet(filter, this.getSettings(), representer);
 	}
 
-
-
 	protected static ITabularDataSet filter(String clazz, ITabularDataSet base2,String clazzColumn) {
 		ITabularDataSet filter = base2.map(clazzColumn, x->{
 			return MultiClassClassificationItem.splitByClass(x.toString(),null).contains(clazz)?"1":"0";
@@ -77,13 +71,9 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 		return filter;
 	}
 
-
-
 	public void setLabels(LabelsSet labelsSet) {
 		this.labels=labelsSet;
 	}
-
-
 
 	@Override
 	public LabelsSet labels() {

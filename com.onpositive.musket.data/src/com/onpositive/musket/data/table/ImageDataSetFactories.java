@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.onpositive.musket.data.columntypes.ClassColumnType;
+import com.onpositive.musket.data.columntypes.ColumnLayout.ColumnInfo;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.columntypes.IDataSetFactory;
 import com.onpositive.musket.data.columntypes.ImageColumnType;
@@ -116,8 +117,49 @@ public class ImageDataSetFactories implements IDataSetFactory {
 		}
 
 		IColumn clazzColumn = spec.getStrictColumn(ClassColumnType.class);
+		Collection<ColumnInfo> infos = spec.layout.infos();
+		
+		LinkedHashSet<IColumn>allClasses=new LinkedHashSet<>();
+		for (ColumnInfo i:infos) {
+			if(i.preferredType()==ClassColumnType.class) {
+				allClasses.add(i.getColumn());
+				
+			}
+		}		
+		if (allClasses.size()>1) {
+			boolean askQuestion = spec.answerer.askQuestion("We have detected multiple classification columns, please select columns that you would like to use?", 
+					allClasses);
+			if (!askQuestion||allClasses.isEmpty()) {
+				return null;
+			}
+			//we have multiple class columns
+		}
+		
 		if (clazzColumn != null && rleColumn != null) {
 			if (!multipleObjects || true) {
+				if (allClasses.size()>1) {
+					spec.answerer.askQuestion("Sorry, segmentation and instance segmentation datasets, does not support multiple class columns yet, switching to generic",false);
+					return null;
+				}
+				clazzColumn=allClasses.iterator().next();
+				ArrayList<Object> uniqueValues = clazzColumn.uniqueValues();
+				if (uniqueValues.contains("")) {
+					spec.answerer.askQuestion("Sorry, class column can not be empty for segmentation and instance segmentation datasets,  switching to generic",false);
+					return null;
+				}
+				if (uniqueValues.size()>1000) {
+					for (Object s:uniqueValues) {
+						if (s!=null) {
+							String m=s.toString();
+							if (m.contains(" ")||m.contains("|")||m.contains("_")) {
+								spec.answerer.askQuestion("Sorry, class column can not have multiple classes at once for segmentation and instance segmentation datasets,  switching to generic",false);
+								
+								return null;			
+							}
+						}
+						
+					}
+				}
 				BufferedImage bufferedImage = images.get(images.iterator().next());
 				MultiClassSegmentationDataSet multiClassSegmentationDataSet = new MultiClassSegmentationDataSet(spec,
 						imageColumn, rleColumn, bufferedImage.getHeight(), bufferedImage.getWidth(), clazzColumn);
@@ -136,6 +178,7 @@ public class ImageDataSetFactories implements IDataSetFactory {
 				return multiClassSegmentationDataSet;
 			}
 		}
+		
 		if (clazzColumn != null) {
 			Collection<Object> values2 = new LinkedHashSet<>(clazzColumn.values());
 			if (values2.size() == 2) {

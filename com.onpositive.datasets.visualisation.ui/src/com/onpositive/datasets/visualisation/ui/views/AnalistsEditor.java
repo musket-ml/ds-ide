@@ -504,9 +504,9 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		if (viewer == null) {
 			viewer = "image";
 		}
-		if (results.getOriginal() instanceof AbstractTextDataSet) {
-			viewer = "text";
-		}
+//		if (results.getOriginal() instanceof AbstractTextDataSet) {
+//			viewer = "text";
+//		}
 		g = null;
 		if (viewer.equals("html")) {
 			VirtualTable v = new VirtualTable();

@@ -179,10 +179,21 @@ public class KaggleRunView extends Wizard implements INewWizard {
 		}
 		
 		String jsonString = config.serializeToJsonString();
-		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		ByteArrayInputStream bin = new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8));
 		
 		metadataFile.create(bin, true, null);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void runOnKaggle(IProject project) {

@@ -152,8 +152,14 @@ public class GenericItem implements IImageItem {
 		if (pos > 100 && large.size() > 0) {
 			pos = 100;
 		}
+		if (preferredSize.width>400) {
+			pos = 100;
+		}
+		if (large.isEmpty()) {
+			pos = 300;
+		}
 
-		label.setLocation(0, pos);
+		label.setLocation(0, 0);
 		label.setSize(350, pos);
 		label.paint(g2);
 		if (large.size() > 0) {
