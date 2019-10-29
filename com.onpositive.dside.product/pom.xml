@@ -19,17 +19,21 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.directory>dside</project.directory>
+		<zulu.ver>zulu8.42.0.21-ca-jdk8.0.232</zulu.ver>
+		<project.build.basedirectory.win>./target/products/${project.directory}/win32/win32/x86_64</project.build.basedirectory.win>
+		<project.build.basedirectory.linux>./target/products/${project.directory}/linux/gtk/x86_64</project.build.basedirectory.linux>
+		<generatedBuildProperties>root.properties</generatedBuildProperties>
 	</properties>
 
 	<build>
 		<resources>
 			<resource>
-	        	<directory>./</directory>
-	        	<includes>
-	            	<include>plugin.properties</include>
-		        </includes>
-	    	    <filtering>true</filtering>
-		    </resource>
+				<directory>./</directory>
+				<includes>
+					<include>plugin.properties</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
 		</resources>
 		<plugins>
 			<plugin>
@@ -49,19 +53,102 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 					<delimiters>
 						<delimiter>${*}</delimiter><!-- to keep the default behavior -->
-						<delimiter>@</delimiter><!-- to add Ant-like tokens style, this is needed as RCP has problems with the accolades -->
+						<delimiter>@</delimiter><!-- to add Ant-like tokens style, this is 
+							needed as RCP has problems with the accolades -->
 					</delimiters>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.googlecode.maven-download-plugin</groupId>
+				<artifactId>download-maven-plugin</artifactId>
+				<version>1.4.2</version>
+				<executions>
+					<execution>
+						<id>install-jre-win</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://cdn.azul.com/zulu/bin/${zulu.ver}-win_x64.zip</url>
+							<unpack>true</unpack>
+							<outputDirectory>${distrib.folder.jre.win}</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install-jre-linux</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>wget</goal>
+						</goals>
+						<configuration>
+							<url>https://cdn.azul.com/zulu/bin/${zulu.ver}-linux_x64.tar.gz</url>
+							<unpack>false</unpack>
+							<outputDirectory>${distrib.folder.jre.linux}</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.7</version>
+				<executions>
+					<execution>
+						<id>copy-jre-win</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+
+						<configuration>
+							<outputDirectory>${project.build.basedirectory.win}/jre</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${distrib.folder.jre.win}/${zulu.ver}-win_x64</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-jre-linux</id>
+						<phase>install</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.basedirectory.linux}/jre</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${distrib.folder.jre.linux}/${zulu.ver}-linux_x64</directory>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>untar-linux-jre</id>
+						<phase>process-resources</phase>
+						<configuration>
+							<target>			
+								<untar src="${distrib.folder.jre.linux}/${zulu.ver}-linux_x64.tar.gz" compression="gzip" dest="${distrib.folder.jre.linux}"/>			
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<execution>
 						<phase>install</phase>
+						<id>pack-product</id>
 						<configuration>
 							<target>
 								<!-- <fail -->
@@ -80,17 +167,17 @@
 								<delete file="${build.file.linux.fullpath}" />
 
 								<zip destfile="${build.file.win32.fullpath}"
-									basedir="./target/products/${project.directory}/win32/win32/x86_64" />
+									basedir="${project.build.basedirectory.win}" />
 								<tar longfile="gnu" destfile="${build.file.linux.fullpath}"
 									compression="gzip">
 									<tarfileset
-										dir="./target/products/${project.directory}/linux/gtk/x86_64"
-										filemode="755" username="root" group="root">
+										dir="${project.build.basedirectory.linux}" filemode="755"
+										username="root" group="root">
 										<include name="DSIDE" />
 									</tarfileset>
 									<tarfileset
-										dir="./target/products/${project.directory}/linux/gtk/x86_64"
-										username="root" group="root">
+										dir="${project.build.basedirectory.linux}" username="root"
+										group="root">
 										<include name="**" />
 										<exclude name="DSIDE" />
 									</tarfileset>

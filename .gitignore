@@ -23,3 +23,6 @@
 hs_err_pid*
 /bin/
 target/
+
+# build folder for downloading additional stuff like bundled JRE
+distrib/
