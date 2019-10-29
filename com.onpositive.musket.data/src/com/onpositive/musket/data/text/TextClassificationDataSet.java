@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import com.onpositive.musket.data.actions.BasicDataSetActions;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
@@ -12,7 +13,6 @@ import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
-import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.ComputableColumn;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
@@ -35,19 +35,37 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	private boolean isMulti;
 	
 	
-	
+	public TextClassificationDataSet(ITabularDataSet tb, Map<String, Object> options) {
+		super(tb.clone(),options);
+		Object object = settings.get(CLAZZ_COLUMNS);
+		String[] clazz=object.toString().split(",");
+		ArrayList<IColumn>cls=new ArrayList<>();
+		for (String s:clazz) {
+			cls.add(tb.getColumn(s));
+		}
+		this.clazzColumns=cls;
+		this.clazzColumn=cls.get(0);
+		init(clazzColumns);
+	}
 	
 	@SuppressWarnings("unchecked")
 	public TextClassificationDataSet(ITabularDataSet base, IColumn textColumn, ArrayList<IColumn> clazzColumns) {
 		super(base.clone(), textColumn, null);
-		int tS = 0;
+		
 		for (IColumn c:new ArrayList<>(base.columns())) {
 			if (c instanceof ComputableColumn) {
 				this.base.columns().remove(c);
 			}
 		}
-		LinkedHashSet<Object> allValues = new LinkedHashSet<>();
+		
+		settings.put(CLAZZ_COLUMNS, clazzColumns.stream().map(x->x.id()).collect(Collectors.joining(",")));
+		init(clazzColumns);
+	}
+
+	protected void init(ArrayList<IColumn> clazzColumns) {
+		int tS = 0;
 		ArrayList<IColumn>nc=new ArrayList<>();
+		LinkedHashSet<Object> allValues = new LinkedHashSet<>();
 		for (IColumn m : clazzColumns) {
 			ArrayList<Object> uniqueValues = m.uniqueValues();
 			if (uniqueValues.size()>1) {
@@ -104,6 +122,8 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		classes = new ArrayList(allValues);
 		Collections.sort(classes);
 	}
+
+	
 
 	protected String doMap(ITabularItem v, IColumn x) {
 		return x.id() + "_" + x.getValueAsString(v).trim();

@@ -8,8 +8,12 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JTextArea;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
 import com.onpositive.musket.data.core.IDataSet;
@@ -84,11 +88,22 @@ public class TextItem implements ITextItem, IBinaryClasificationItem, IMulticlas
 		BufferedImage nn = new BufferedImage(350, 350, BufferedImage.TYPE_INT_ARGB);
 		area.setLocation(0, 0);
 		area.setText(value);
-		area.setSize(350, 350);
+		area.setSize(350, 310);
 		area.paint(nn.getGraphics());
 
-		g2.drawImage(nn, 0, 0, null);
+		g2.drawImage(nn, 0, 40, null);
+		
+		ArrayList<String> classes = this.classes();
+		JLabel label = new JLabel("<html>" + classes.stream().collect(Collectors.joining(", ")) + "</html>");
+		Border createEmptyBorder = BorderFactory.createEmptyBorder(5, 5, 0, 5);
 
+		TitledBorder titledBorder = new TitledBorder(BorderFactory
+				.createCompoundBorder(BorderFactory.createTitledBorder("").getBorder(), createEmptyBorder));
+
+		titledBorder.setTitle("Classes");
+		label.setBorder(titledBorder);
+		label.setSize(350, 40);
+		label.paint(g2);
 		return img;
 
 	}

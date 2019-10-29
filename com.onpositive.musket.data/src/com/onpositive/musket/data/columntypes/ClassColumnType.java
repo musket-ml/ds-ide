@@ -98,6 +98,9 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 	}
 
 	public static ColumnPreference check(IColumn c) {
+		if (c.id().equals("publication_id")) {
+			System.out.println("A");
+		}
 		String lowerCase = c.caption().toLowerCase();
 		if (lowerCase.contains("class") || lowerCase.contains("clazz") || lowerCase.contains("classes")) {
 			return ColumnPreference.STRICT;
@@ -107,6 +110,9 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 		}
 		ArrayList<Object> uniqueValues = c.uniqueValues();
 		if (uniqueValues.size() < 1000) {
+			if (looksDouble(uniqueValues)) {
+				return ColumnPreference.NEVER;
+			}
 			if (isBool(uniqueValues)) {
 				return ColumnPreference.STRICT;
 			}
@@ -120,6 +126,27 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 	private static boolean isBool(Collection<Object> linkedHashSet) {
 		if (linkedHashSet.size() == 2) {
 			return true;
+		}
+		return false;
+	}
+	private static boolean looksDouble(Collection<Object> linkedHashSet) {
+		int ck=0;
+		for (Object o:linkedHashSet) {
+			if (o==null||o.toString().isEmpty()) {
+				continue;
+			}
+			try {
+				String sm=o.toString();
+				if (sm.indexOf('.')!=-1) {
+					double vl=Double.parseDouble(sm);
+					ck++;
+					if (ck>10) {
+						return true;
+					}
+				}
+			}catch (NumberFormatException e) {
+				return false;
+			}
 		}
 		return false;
 	}

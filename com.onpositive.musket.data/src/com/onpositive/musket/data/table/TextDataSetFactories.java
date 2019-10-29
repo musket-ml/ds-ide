@@ -1,6 +1,8 @@
 package com.onpositive.musket.data.table;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import com.onpositive.musket.data.columntypes.ClassColumnType;
@@ -60,8 +62,30 @@ public class TextDataSetFactories implements IDataSetFactory {
 
 	@Override
 	public IDataSet create(DataSetSpec spec, Map<String, Object> options) {
+		if (options!=null) {
+			TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(spec.tb,options);
+			return textClassificationDataSet;
+		}
 		IColumn strictColumn = spec.getStrictColumn(TextColumnType.class);
-
-		return create(spec.base(), strictColumn, spec.answerer);
+		Collection<ColumnInfo> infos = spec.layout.infos();
+		LinkedHashSet<IColumn>allClasses=new LinkedHashSet<>();
+		for (ColumnInfo i:infos) {
+			if(i.preferredType()==ClassColumnType.class) {
+				allClasses.add(i.getColumn());
+				
+			}
+		}		
+		if (allClasses.isEmpty()) {
+			return null;
+		}
+		if (allClasses.size()>1) {
+			boolean askQuestion = spec.answerer.askQuestion("We have detected multiple classification columns, please select columns that you would like to use?", 
+					allClasses);
+			if (!askQuestion||allClasses.isEmpty()) {
+				return null;
+			}
+		}
+		TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(spec.tb, strictColumn, new ArrayList<>(allClasses));
+		return textClassificationDataSet;		
 	}
 }

@@ -25,6 +25,10 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 	protected IColumn idColumn;
 	
 	protected LabelsSet labels;
+	
+	protected static String TEXT_COLUMN="TEXT_COLUMN";
+	
+	protected static String CLAZZ_COLUMNS="CLAZZ_COLUMNS";
 
 	public AbstractTextDataSet(ITabularDataSet base, IColumn textColumn, IColumn idColumn) {
 		super();
@@ -32,7 +36,14 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable {
 		this.textColumn = textColumn;
 		this.idColumn = idColumn;
 		settings.put(GenericDataSet.FONT_SIZE, "13");
-		settings.put(GenericDataSet.MAX_CHARS_IN_TEXT, "300");		
+		settings.put(GenericDataSet.MAX_CHARS_IN_TEXT, "300");
+		settings.put(TEXT_COLUMN, textColumn.id());
+	}
+
+	public AbstractTextDataSet(ITabularDataSet clone, Map<String, Object> options) {
+		this.base=clone;
+		this.settings=options;
+		this.textColumn=base.getColumn((String) settings.get(TEXT_COLUMN));
 	}
 
 	protected IColumn textColumn;

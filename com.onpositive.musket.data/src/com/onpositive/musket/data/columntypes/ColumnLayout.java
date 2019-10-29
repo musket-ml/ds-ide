@@ -61,7 +61,7 @@ public class ColumnLayout {
 				}
 			}
 			if (nb == null) {
-				return ClassColumnType.class;
+				return NumberColumn.class;
 			}
 			return nb;
 		}
