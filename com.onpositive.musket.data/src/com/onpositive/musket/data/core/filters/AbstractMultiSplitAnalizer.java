@@ -17,22 +17,24 @@ public abstract class AbstractMultiSplitAnalizer {
 			ArrayList<Object> group = group(v);
 			synchronized (AbstractMultiSplitAnalizer.this) {
 				for (Object o : group) {
-					ArrayList<IItem> arrayList = maps.get(o.toString());
-					if (arrayList == null) {
-						arrayList = new ArrayList<IItem>();
-						maps.put(o.toString(), arrayList);
+					if (o != null) {
+						ArrayList<IItem> arrayList = maps.get(o.toString());
+						if (arrayList == null) {
+							arrayList = new ArrayList<IItem>();
+							maps.put(o.toString(), arrayList);
+						}
+						arrayList.add(v);
 					}
-					arrayList.add(v);
-				}	
-			}			
+				}
+			}
 		});
 		ArrayList<IDataSet> results = new ArrayList<IDataSet>();
-		LinkedHashMap<Object, ArrayList<IItem>> maps1=AbstractAnalizer.optimize(maps);
+		LinkedHashMap<Object, ArrayList<IItem>> maps1 = AbstractAnalizer.optimize(maps);
 		maps1.keySet().forEach(v -> {
 			results.add(ds.subDataSet(v.toString(), maps1.get(v)));
 
 		});
-		
+
 		return new IAnalizeResults() {
 
 			@Override
@@ -62,7 +64,7 @@ public abstract class AbstractMultiSplitAnalizer {
 
 			@Override
 			public VisualizationSpec visualizationSpec() {
-				return new VisualizationSpec("","",ChartType.BAR);
+				return new VisualizationSpec("", "", ChartType.BAR);
 			}
 		};
 	}

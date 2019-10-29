@@ -102,6 +102,9 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 		if (lowerCase.contains("class") || lowerCase.contains("clazz") || lowerCase.contains("classes")) {
 			return ColumnPreference.STRICT;
 		}
+		if (lowerCase.contains("attribute")) {
+			return ColumnPreference.STRICT;
+		}
 		ArrayList<Object> uniqueValues = c.uniqueValues();
 		if (uniqueValues.size() < 1000) {
 			if (isBool(uniqueValues)) {

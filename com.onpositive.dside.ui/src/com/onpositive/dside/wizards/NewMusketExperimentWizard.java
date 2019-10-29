@@ -48,6 +48,7 @@ import com.onpositive.dside.ui.navigator.ExperimentGroup;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.project.DataProjectAccess;
 import com.onpositive.musket_core.ProjectManager;
+import com.onpositive.musket_core.ProjectWrapper;
 import com.onpositive.musket_core.ProjectWrapper.BasicDataSetDesc;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
@@ -179,7 +180,8 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 			rs = new TextClassificationTemplate();
 		}
 		else if(template.kind.equals("instance_segmentation")){
-			rs = new InstanceSegmentationTemplate();
+			ProjectWrapper wrapper = ProjectManager.getInstance(prj);
+			rs = new InstanceSegmentationTemplate(wrapper, prj);
 		}
 		GenericExperimentTemplate ft=rs;
 		if (rs != null) {

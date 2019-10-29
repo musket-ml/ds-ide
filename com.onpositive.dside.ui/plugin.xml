@@ -257,6 +257,11 @@
             image="icons/data_icon.png"
             name="name">
       </image>
+      <image
+            id="history"
+            image="icons/history_working_set_obj.png"
+            name="history">
+      </image>
    </extension>
 	 <extension point="org.eclipse.ui.newWizards">
       <category
@@ -566,6 +571,11 @@
              id="com.onpositive.dside.ui.compare"
              name="Compare CSV DataSets">
        </command>
+       <command
+             defaultHandler="com.onpositive.dside.ui.datasets.CreateDataSetFromFolder"
+             id="com.onpositive.dside.ui.createFromFolder"
+             name="Create dataset from folder">
+       </command>
     </extension>
     <extension
           point="org.eclipse.ui.menus">
@@ -594,7 +604,32 @@
                 </with>
              </visibleWhen>
           </command>
-        </menuContribution>  
+        </menuContribution>
+        <menuContribution
+             locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+             <command
+                   commandId="com.onpositive.dside.ui.createFromFolder"
+                   icon="icons/palette_layout.gif"
+                   label="Create dataset from folder"
+                   style="push">
+             <visibleWhen
+                   checkEnabled="false">
+                <with
+                      variable="selection">
+                   <count
+                         value="1">
+                   </count>
+                   <iterate>
+                      <adapt
+                            type="org.eclipse.core.resources.IFolder">
+                         
+                         
+                      </adapt>
+                   </iterate>
+                </with>
+             </visibleWhen>
+          </command>
+        </menuContribution>    
        <menuContribution
              locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
           <command
@@ -692,5 +727,12 @@
             name="Kaggle Dataset"
             project="false">
       </wizard>
+    </extension>
+    <extension
+          point="org.eclipse.ui.elementFactories">
+       <factory
+             class="com.onpositive.dside.ui.datasets.FolderEditorInputFactory"
+             id="com.onpositive.dside.ui.datasets.FolderEditorInputFactory">
+       </factory>
     </extension>
 </plugin>

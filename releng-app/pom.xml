@@ -66,6 +66,7 @@
 		<!-- <build.file.linux.fullpath>${build.folder.target.bin}/${build.folder.type}/${build.file}.tar.gz</build.file.linux.fullpath> -->
 		<build.file.win32.fullpath>${build.folder.target.bin}/${build.file}.zip</build.file.win32.fullpath>
 		<build.file.linux.fullpath>${build.folder.target.bin}/${build.file}.tar.gz</build.file.linux.fullpath>
+		<build.file.macosx.fullpath>${build.folder.target.bin}/${build.file}.tar.gz</build.file.macosx.fullpath>
 		<build.folder.type>test</build.folder.type>
 		<build.file>dside-${qualifiedVersion}</build.file>
 		<build.file.zip>dside.zip</build.file.zip>
@@ -146,7 +147,7 @@
 	<build>
 		<!-- <sourceDirectory>src</sourceDirectory> -->
 		<plugins>
-			
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
@@ -178,6 +179,11 @@
 						<environment>
 							<os>linux</os>
 							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
 							<arch>x86_64</arch>
 						</environment>
 					</environments>

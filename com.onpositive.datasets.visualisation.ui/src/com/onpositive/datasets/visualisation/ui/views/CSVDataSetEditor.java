@@ -45,6 +45,7 @@ import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.AbstractImageDataSet;
 import com.onpositive.musket.data.images.BinaryClassificationDataSet;
 import com.onpositive.musket.data.images.BinarySegmentationDataSet;
+import com.onpositive.musket.data.images.FolderDataSet;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IImageItem;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
@@ -156,6 +157,15 @@ public class CSVDataSetEditor extends AnalistsEditor {
 
 			showInUI(job);
 
+		}
+		if (editorInput instanceof FolderEditorInput) {
+			FolderEditorInput ed=(FolderEditorInput) editorInput;
+			File file = ed.getFolder().getLocation().toFile();
+			file2=file;
+			FolderDataSet createDataSetFromFolder = FolderDataSet.createDataSetFromFolder(file);
+			this.ds=createDataSetFromFolder;
+			project=ed.getFolder().getProject();
+			init();
 		}
 		if (editorInput instanceof MultiEditorInput) {
 			IEditorInput[] input = ((MultiEditorInput) editorInput).getInput();

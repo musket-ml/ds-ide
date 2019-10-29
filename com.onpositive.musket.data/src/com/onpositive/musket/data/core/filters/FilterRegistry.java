@@ -1,7 +1,7 @@
 package com.onpositive.musket.data.core.filters;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -17,15 +17,16 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.onpositive.musket.data.columntypes.ClassColumnType;
+import com.onpositive.musket.data.columntypes.ColumnLayout.ColumnInfo;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.columntypes.IDColumnType;
 import com.onpositive.musket.data.columntypes.NumberColumn;
 import com.onpositive.musket.data.columntypes.TextColumnType;
-import com.onpositive.musket.data.columntypes.ClassColumnType;
-import com.onpositive.musket.data.columntypes.ColumnLayout.ColumnInfo;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IAnalizerProto;
+import com.onpositive.musket.data.core.ICompletableFilter;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IFilterProto;
 import com.onpositive.musket.data.core.IItem;
@@ -37,7 +38,6 @@ import com.onpositive.musket.data.images.IMulticlassClassificationItem;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IColumnType;
-import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.text.ITextItem;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
@@ -162,11 +162,19 @@ public class FilterRegistry {
 		}
 
 		@Override
-		public Supplier<Collection<String>> values() {
+		public Supplier<Collection<String>> values(IDataSet ds) {
 			return new Supplier<Collection<String>>() {
 
 				@Override
 				public Collection<String> get() {
+					if (ICompletableFilter.class.isAssignableFrom(clazz)) {
+						try {
+							ICompletableFilter fl=(ICompletableFilter) clazz.getConstructor(String.class).newInstance("");
+							return fl.options(ds);
+						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+							throw new IllegalStateException(e);
+						}
+					}
 					return Collections.emptyList();
 				}
 			};
@@ -318,7 +326,7 @@ public class FilterRegistry {
 		}
 
 		@Override
-		public Supplier<Collection<String>> values() {
+		public Supplier<Collection<String>> values(IDataSet ds) {
 			return new Supplier<Collection<String>>() {
 
 				@Override
@@ -368,7 +376,7 @@ public class FilterRegistry {
 		}
 
 		@Override
-		public Supplier<Collection<String>> values() {
+		public Supplier<Collection<String>> values(IDataSet ds) {
 			return new Supplier<Collection<String>>() {
 
 				@Override
@@ -442,7 +450,7 @@ public class FilterRegistry {
 		}
 
 		@Override
-		public Supplier<Collection<String>> values() {
+		public Supplier<Collection<String>> values(IDataSet ds) {
 			return new Supplier<Collection<String>>() {
 
 				@Override
@@ -520,7 +528,7 @@ public class FilterRegistry {
 		}
 
 		@Override
-		public Supplier<Collection<String>> values() {
+		public Supplier<Collection<String>> values(IDataSet ds) {
 			return new Supplier<Collection<String>>() {
 
 				@Override
@@ -594,7 +602,7 @@ public class FilterRegistry {
 		}
 
 		@Override
-		public Supplier<Collection<String>> values() {
+		public Supplier<Collection<String>> values(IDataSet ds) {
 			return new Supplier<Collection<String>>() {
 
 				@Override
@@ -740,7 +748,7 @@ public class FilterRegistry {
 				public ArrayList<String> classes() {
 					GenericItem ti = (GenericItem) x;
 					String vl = column.getValueAsString((ITabularItem) ti.base());
-					return MultiClassClassificationItem.splitByClass(vl);
+					return MultiClassClassificationItem.splitByClass(vl,null);
 				}
 			};
 		};

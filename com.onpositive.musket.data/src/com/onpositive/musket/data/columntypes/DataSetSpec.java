@@ -5,6 +5,7 @@ import java.util.List;
 import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IColumnType;
+import com.onpositive.musket.data.table.IColumnType.ColumnPreference;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ImageRepresenter;
@@ -33,7 +34,7 @@ public class DataSetSpec {
 	
 	public IColumn getStrictColumn(Class<? extends IColumnType>clazz) {
 		for (IColumn c:layout.infos.keySet()) {
-			if (layout.infos.get(c).preferredType()==clazz) {
+			if (layout.infos.get(c).prefs.get(clazz)==ColumnPreference.STRICT) {
 				return c;
 			}
 		}

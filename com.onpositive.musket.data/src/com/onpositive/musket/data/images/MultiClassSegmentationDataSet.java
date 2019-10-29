@@ -16,13 +16,15 @@ import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.core.Parameter;
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
+import com.onpositive.musket.data.table.IHasLabels;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageRepresenter;
 
 public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImageItem>
-		implements IMultiClassSegmentationDataSet,IBinarySegmentationDataSet {
+		implements IMultiClassSegmentationDataSet,IBinarySegmentationDataSet ,IHasLabels{
 
 	public static final String CLAZZ_COLUMN = "CLAZZ_COLUMN";
 	protected IColumn clazzColumn;
@@ -165,7 +167,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 			}
 
 			@Override
-			public Supplier<Collection<String>> values() {
+			public Supplier<Collection<String>> values(IDataSet ds) {
 				return null;
 			}
 		};
@@ -205,7 +207,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 	}
 	protected static ITabularDataSet filter(String clazz, ITabularDataSet base2,String clazzColumn) {
 		ITabularDataSet filter = base2.filter(clazzColumn, x->{
-			ArrayList<String> splitByClass = MultiClassClassificationItem.splitByClass(x.toString());
+			ArrayList<String> splitByClass = MultiClassClassificationItem.splitByClass(x.toString(),null);
 			return splitByClass.contains(clazz)?true:false;
 		});
 		return filter;
@@ -221,5 +223,14 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 	public List<ITabularItem> represents(IItem i) {
 		MultiClassSegmentationItem it=(MultiClassSegmentationItem) i;
 		return it.items;
+	}
+
+	@Override
+	public void setLabels(LabelsSet labelsSet) {
+		this.labels=labelsSet;
+	}
+
+	public LabelsSet labels() {
+		return this.labels;
 	}
 }

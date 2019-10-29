@@ -1,0 +1,16 @@
+<composite-editor
+	xmlns="http://jetface.org/JetFace1.0/"
+	caption="Configure clazz labels" description="Please configure class labels">
+	<model class="com.onpositive.musket.data.labels.LabelsSet" />
+	<vc>
+	<table bindTo="items" 
+		enableDirectEdit="true" hint="400,400">
+		<columns>
+			<column id="ClazzNum" caption="Clazz" resizeWeight="1"
+				editable="false" />
+			<column id="label" caption="Label" resizeWeight="2"
+				editable="true" />
+		</columns>
+	</table>
+	</vc>
+</composite-editor>

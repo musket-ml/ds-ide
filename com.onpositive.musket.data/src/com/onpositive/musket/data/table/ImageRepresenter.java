@@ -111,9 +111,12 @@ public class ImageRepresenter implements Iterable<String> {
 				Path name = v.getName(v.getNameCount() - 1);
 				String name2 = name.toFile().getName();
 				int lastIndexOf = name2.lastIndexOf(".");
+				String extension = name2.substring(lastIndexOf);
 				String withoutExtension = name2.substring(0, lastIndexOf);
-
-				id2Path.put(withoutExtension, v.toFile());
+				if (extension.equals(".jpg") || extension.equals(".gif") || extension.equals(".png")
+						|| extension.equals(".bmp")) {
+					id2Path.put(withoutExtension, v.toFile());
+				}
 			});
 			folders.add(path);
 			newDirectoryStream.close();
@@ -126,9 +129,9 @@ public class ImageRepresenter implements Iterable<String> {
 		boolean checks = true;
 		try {
 			DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(Paths.get(root, path));
-			boolean found=false;
+			boolean found = false;
 			for (Path v : newDirectoryStream) {
-				found=true;
+
 				Path name = v.getName(v.getNameCount() - 1);
 				String name2 = name.toFile().getName();
 				int lastIndexOf = name2.lastIndexOf(".");
@@ -136,13 +139,18 @@ public class ImageRepresenter implements Iterable<String> {
 					checks = false;
 				} else {
 					String withExtension = name2.substring(lastIndexOf);
+
+					if (withExtension.equals(".DS_Store")) {
+						continue;
+					}
 					if (!withExtension.equals(".png") && !withExtension.equals(".jpg")) {
 						checks = false;
 					}
+					found = true;
 				}
 
 			}
-			
+
 			newDirectoryStream.close();
 			if (!found) {
 				return false;
@@ -155,7 +163,7 @@ public class ImageRepresenter implements Iterable<String> {
 
 	public BufferedImage get(String id) {
 		try {
-			File file =getFile(id);
+			File file = getFile(id);
 			BufferedImage read = ImageIO.read(file);
 			return read;
 		} catch (IOException e) {
@@ -163,28 +171,43 @@ public class ImageRepresenter implements Iterable<String> {
 		}
 	}
 	
+	protected void gather(File f,ArrayList<ImageRepresenter>rs) {
+		String absolutePath = f.getAbsolutePath();
+		if (f.getName().contains("mask")) {
+			return ;
+		}
+		String substring = absolutePath.substring(this.root.length());
+		if (looksLikeImageFolder(substring)) {
+			ImageRepresenter r1 = new ImageRepresenter(root);
+			r1.addFolder(substring);
+			rs.add(r1);
+		}
+		for (File c:f.listFiles()) {
+			if (c.isDirectory()) {
+				gather(c, rs);
+			}
+		}
+	}
 
 	public void configure() {
 		File file = new File(this.root);
 		File[] listFiles = file.listFiles();
 		ArrayList<ImageRepresenter> rs = new ArrayList<ImageRepresenter>();
 		for (File f : listFiles) {
-			if (f.isDirectory() && looksLikeImageFolder(f.getName())) {
-				ImageRepresenter r1 = new ImageRepresenter(root);
-				r1.addFolder(f.getName());
-				rs.add(r1);
-			} else if (f.isDirectory()) {
-				File[] listFiles2 = f.listFiles();
-				for (File fa : listFiles2) {
-					if (fa.getName().equals("images")) {
-						if (looksLikeImageFolder(f.getName() + "/" + fa.getName())) {
-							ImageRepresenter r1 = new ImageRepresenter(root);
-							r1.addFolder(f.getName() + "/" + fa.getName());
-							rs.add(r1);
+			boolean directory = f.isDirectory();
+			if (directory)
+				if (looksLikeImageFolder(f.getName())) {
+					ImageRepresenter r1 = new ImageRepresenter(root);
+					r1.addFolder(f.getName());
+					rs.add(r1);
+				} else {
+					File[] listFiles2 = f.listFiles();
+					for (File fa : listFiles2) {
+						if (fa.isDirectory()) {
+							gather(fa, rs);							
 						}
 					}
 				}
-			}
 		}
 		HashMap<HashSet<String>, ArrayList<ImageRepresenter>> maps = new HashMap<HashSet<String>, ArrayList<ImageRepresenter>>();
 		for (ImageRepresenter r : rs) {
@@ -200,6 +223,15 @@ public class ImageRepresenter implements Iterable<String> {
 		children.forEach(v -> {
 			this.id2Path.putAll(v.id2Path);
 		});
+		if (this.children.isEmpty()) {
+			if (looksLikeImageFolder(".")) {
+				addFolder(".");
+				// ImageRepresenter imageRepresenter = new ImageRepresenter(root);
+				// this.children.add(imageRepresenter);
+			} else {
+
+			}
+		}
 	}
 
 	@Override
@@ -208,39 +240,40 @@ public class ImageRepresenter implements Iterable<String> {
 	}
 
 	public String getImageDirsString() {
-		ArrayList<String>result=new ArrayList<>();
-		this.children.forEach(v->{
+		ArrayList<String> result = new ArrayList<>();
+		this.children.forEach(v -> {
 			String string = v.folders.get(0);
-			result.add('"'+string+'"');
+			result.add('"' + string + '"');
 		});
-		return "["+result.stream().collect(Collectors.joining(","))+"]";
+		return "[" + result.stream().collect(Collectors.joining(",")) + "]";
 	}
-	protected HashMap<String, Point>dims=new HashMap<>();
+
+	protected HashMap<String, Point> dims = new HashMap<>();
 
 	public Point getDimensions(String valueAsString) {
 		if (dims.containsKey(valueAsString)) {
 			return dims.get(valueAsString);
 		}
 		File file = getFile(valueAsString);
-		
-		try(ImageInputStream in = ImageIO.createImageInputStream(file)){
-		    final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
-		    if (readers.hasNext()) {
-		        ImageReader reader = readers.next();
-		        try {
-		            reader.setInput(in);
-		            Point point = new Point(reader.getWidth(0), reader.getHeight(0));
-		            synchronized (dims) {
-		            	dims.put(valueAsString, point);	
-					}		            
+
+		try (ImageInputStream in = ImageIO.createImageInputStream(file)) {
+			final Iterator<ImageReader> readers = ImageIO.getImageReaders(in);
+			if (readers.hasNext()) {
+				ImageReader reader = readers.next();
+				try {
+					reader.setInput(in);
+					Point point = new Point(reader.getWidth(0), reader.getHeight(0));
+					synchronized (dims) {
+						dims.put(valueAsString, point);
+					}
 					return point;
-		        } finally {
-		            reader.dispose();
-		        }
-		    }
+				} finally {
+					reader.dispose();
+				}
+			}
 		} catch (IOException e) {
 			throw new IllegalStateException();
-		} 
+		}
 		return null;
 	}
 
@@ -253,5 +286,9 @@ public class ImageRepresenter implements Iterable<String> {
 			}
 		}
 		return file;
+	}
+
+	public boolean isEmpty() {
+		return id2Path.isEmpty();
 	}
 }

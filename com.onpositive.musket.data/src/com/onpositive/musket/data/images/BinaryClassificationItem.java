@@ -3,6 +3,9 @@ package com.onpositive.musket.data.images;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
@@ -19,10 +22,19 @@ public class BinaryClassificationItem implements IBinaryClasificationItem,IImage
 	}
 	
 	protected boolean isPositiveValue(Object value) {
+		ArrayList<Object> classes = base.classes;
+		
+		if (value.equals(base.classes.get(0))) {
+			return false;
+		}
+		if (value.equals(base.classes.get(1))) {
+			return true;
+		}
 		String valueAsString=value.toString();
 		if (valueAsString.isEmpty()||valueAsString.trim().equals("0")||valueAsString.trim().equalsIgnoreCase("false")) {
 			return false;
 		}
+		
 		return true;
 	}
 	@Override

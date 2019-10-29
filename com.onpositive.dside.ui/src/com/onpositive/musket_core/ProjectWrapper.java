@@ -32,12 +32,13 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.ui.introspection.IIntrospector;
 import com.onpositive.dside.ui.introspection.ShellIntrospector;
+import com.onpositive.python.command.IPythonPathProvider;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
 import com.onpositive.yamledit.introspection.InstrospectionResult;
 import com.onpositive.yamledit.io.YamlIO;
 import com.onpositive.yamledit.project.IProjectContext;
 
-public class ProjectWrapper {
+public class ProjectWrapper implements IPythonPathProvider {
 	
 	protected IIntrospector projectIntrospector;
 
@@ -247,36 +248,43 @@ public class ProjectWrapper {
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
 
-				String pythonPath = null;
 				String absolutePath = projectMetaPath();
-				try {
-					IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
-							.findContainersForLocation(new Path(path));
-					if (findContainersForLocation != null&&findContainersForLocation.length>0) {
-						IProject project = findContainersForLocation[0].getProject();
-						LaunchShortcut launchShortCut = TaskManager.launchShortCut(new IProject[] { project });
-						ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
-								.createDefaultLaunchConfiguration(
-										new FileOrResource[] { new FileOrResource(project.getFolder("experiments")) });
-						PythonRunnerConfig pythonRunner = new PythonRunnerConfig(createDefaultLaunchConfiguration,
-								"run", "run");
-						String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(
-								createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
-						pythonPath = pythonpathFromConfiguration;
-					}
-
-				} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				String pythonPath = ProjectWrapper.this.getPythonPath();
 
 				innerIntrospect(pythonPath, absolutePath);
 				return Status.OK_STATUS;
 			}
 
+			
+
 		});
 		create.schedule();
 
+	}
+	
+	public String getPythonPath() {
+		String pythonPath = null;
+		try {
+			IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
+					.findContainersForLocation(new Path(this.path));
+			if (findContainersForLocation != null&&findContainersForLocation.length>0) {
+				IProject project = findContainersForLocation[0].getProject();
+				LaunchShortcut launchShortCut = TaskManager.launchShortCut(new IProject[] { project });
+				ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
+						.createDefaultLaunchConfiguration(
+								new FileOrResource[] { new FileOrResource(project.getFolder("experiments")) });
+				PythonRunnerConfig pythonRunner = new PythonRunnerConfig(createDefaultLaunchConfiguration,
+						"run", "run");
+				String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(
+						createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
+				pythonPath = pythonpathFromConfiguration;
+			}
+
+		} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		return pythonPath;
 	}
 
 	private String projectMetaPath() {
@@ -318,7 +326,10 @@ public class ProjectWrapper {
 
 	public void innerIntrospect(String pythonPath, String absolutePath) {
 		synchronized (mon) {
-			projectIntrospector.introspect(path, pythonPath, absolutePath);
+			InstrospectionResult introspect = projectIntrospector.introspect(path, pythonPath, absolutePath);
+			if (introspect!=null) {
+				refreshed(introspect);
+			}
 		}
 
 	}

@@ -1,6 +1,9 @@
 package com.onpositive.musket.data.table;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -23,8 +26,14 @@ import com.onpositive.musket.data.images.MultiClassInstanceSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationItem;
 import com.onpositive.musket.data.images.MultiClassificationDataset;
+import com.onpositive.musket.data.labels.LabelsSet;
+import com.onpositive.musket.data.registry.CSVKind;
+import com.onpositive.musket.data.registry.DataSetIO;
+import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
-public class ImageDataSetFactories implements IDataSetFactory{
+public class ImageDataSetFactories implements IDataSetFactory {
+
+	private static final String LABELS_PATH = "LABELS_PATH";
 
 	public ImageDataSetFactories() {
 		super();
@@ -32,27 +41,51 @@ public class ImageDataSetFactories implements IDataSetFactory{
 
 	public IDataSet create(DataSetSpec spec, Map<String, Object> settings) {
 
-		if (settings != null ) {
+		if (settings != null) {
 			Object object = settings.get(AbstractRLEImageDataSet.CLAZZ);
-			if (object != null) {
-				if (object.toString().equals(BinarySegmentationDataSet.class.getName())) {
-					return new BinarySegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+			IDataSet inner_Create = inner_Create(spec, settings, object);
+			if (inner_Create != null) {
+				Object object2 = settings.get(LABELS_PATH);
+				if (object2 != null && inner_Create instanceof IHasLabels) {
+					IDataSet load = DataSetIO.load("file://" + object2.toString());
+					ITabularDataSet as = load.as(ITabularDataSet.class);
+					if (as != null) {
+						IHasLabels hl = (IHasLabels) inner_Create;
+						LabelsSet labelsSet = new LabelsSet(as, (ArrayList<String>) new ArrayList<>(hl.classNames()));
+						if (labelsSet.isOk()) {
+							hl.setLabels(labelsSet);
+						}
+					}
 				}
-				if (object.toString().equals(BinaryInstanceSegmentationDataSet.class.getName())) {
-					return new BinaryInstanceSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
-				}
-				if (object.toString().equals(MultiClassSegmentationDataSet.class.getName())) {
-					return new MultiClassSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
-				}
-				if (object.toString().equals(MultiClassificationDataset.class.getName())) {
-					return new MultiClassificationDataset(spec.base(), settings, spec.getRepresenter());
-				}
-				if (object.toString().equals(BinaryClassificationDataSet.class.getName())) {
-					return new BinaryClassificationDataSet(spec.base(), settings, spec.getRepresenter());
-				}
+				return inner_Create;
 			}
+
 		}
 		return innerCreate(spec);
+	}
+
+	protected IDataSet inner_Create(DataSetSpec spec, Map<String, Object> settings, Object object) {
+		if (object != null) {
+			if (object.toString().equals(BinarySegmentationDataSet.class.getName())) {
+				return new BinarySegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+			}
+			if (object.toString().equals(MultiClassInstanceSegmentationDataSet.class.getName())) {
+				return new MultiClassInstanceSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+			}
+			if (object.toString().equals(BinaryInstanceSegmentationDataSet.class.getName())) {
+				return new BinaryInstanceSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+			}
+			if (object.toString().equals(MultiClassSegmentationDataSet.class.getName())) {
+				return new MultiClassSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+			}
+			if (object.toString().equals(MultiClassificationDataset.class.getName())) {
+				return new MultiClassificationDataset(spec.base(), settings, spec.getRepresenter());
+			}
+			if (object.toString().equals(BinaryClassificationDataSet.class.getName())) {
+				return new BinaryClassificationDataSet(spec.base(), settings, spec.getRepresenter());
+			}
+		}
+		return null;
 	}
 
 	private IDataSet innerCreate(DataSetSpec spec) {
@@ -93,9 +126,11 @@ public class ImageDataSetFactories implements IDataSetFactory{
 							return ((MultiClassSegmentationItem) x).hasSameClass();
 						});
 				Optional<IMultiClassSegmentationItem> findAny = filter.findAny();
+				trySetupLabels(spec, multiClassSegmentationDataSet);
 				if (findAny.isPresent()) {
 					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(spec.base(),
 							multiClassSegmentationDataSet.getSettings(), images);
+					multiClassSegmentationDataSet.setLabels(multiClassSegmentationDataSet.labels());
 					return multiClassSegmentationDataSet;
 				}
 				return multiClassSegmentationDataSet;
@@ -111,10 +146,60 @@ public class ImageDataSetFactories implements IDataSetFactory{
 				BufferedImage bufferedImage = images.get(images.iterator().next());
 				MultiClassificationDataset multiClassificationDataset = new MultiClassificationDataset(spec.base(),
 						imageColumn, clazzColumn, bufferedImage.getHeight(), bufferedImage.getWidth(), images);
+				trySetupLabels(spec, multiClassificationDataset);
 				return multiClassificationDataset;
 			}
 		}
 		return null;
+	}
+
+	protected void trySetupLabels(DataSetSpec spec, IHasLabels multiClassificationDataset) {
+		List<String> classNames = multiClassificationDataset.classNames();
+		if (classNames.size() > 2) {
+			if (!BinaryClassificationDataSet.isStringClasses(multiClassificationDataset.classNames())) {
+				File file = spec.prj.getFile();
+				for (File f : file.listFiles()) {
+					if (f.getName().contains("label") && f.getName().endsWith(".csv")) {
+						try {
+							IDataSet load = DataSetIO.load("file://" + f.getAbsolutePath());
+							ITabularDataSet as = load.as(ITabularDataSet.class);
+							if (as != null) {
+								LabelsSet labelsSet = new LabelsSet(as,
+										(ArrayList<String>) new ArrayList<>(multiClassificationDataset.classNames()));
+								if (labelsSet.isOk()) {
+									multiClassificationDataset.setLabels(labelsSet);
+									multiClassificationDataset.getSettings().put(LABELS_PATH, f.getAbsolutePath());
+									return;
+								}
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+
+				boolean ddd = spec.answerer.askQuestion(
+						"This dataset has " + classNames.size() + " classes, do you want to configure labels for them?",
+						Boolean.TRUE);
+				if (ddd) {
+					LabelsSet ls = new LabelsSet(new ArrayList<>(multiClassificationDataset.classNames()));
+					boolean askQuestion = spec.answerer.askQuestion("", ls);
+					if (askQuestion) {
+						ITabularDataSet data = ls.getData();
+						String absolutePath = new File(spec.prj.getFile(),"labels.csv").getAbsolutePath();
+						try {
+							CSVKind.writeCSV(data, absolutePath);
+							multiClassificationDataset.setLabels(ls);
+							multiClassificationDataset.getSettings().put(LABELS_PATH, absolutePath);
+							return;							
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+
+		}
 	}
 
 	@Override
@@ -125,7 +210,7 @@ public class ImageDataSetFactories implements IDataSetFactory{
 	@Override
 	public double estimate(DataSetSpec parameterObject) {
 		IColumn imageColumn = parameterObject.getStrictColumn(ImageColumnType.class);
-		if (imageColumn!=null) {
+		if (imageColumn != null) {
 			return 1;
 		}
 		return 0;

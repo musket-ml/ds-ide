@@ -167,7 +167,7 @@ public class AnalisysEngine implements IAnalisysEngine {
 		InstrospectedFeature instrospectedFeature = new InstrospectedFeature();
 		instrospectedFeature.setName(p.name());
 		instrospectedFeature.setKind(p.id());
-		instrospectedFeature.setValues(p.values());
+		instrospectedFeature.setValues(p.values(this.dataset));
 		for (Parameter pa : p.parameters()) {
 			IntrospectedParameter introspectedParameter = new IntrospectedParameter();
 			introspectedParameter.setName(pa.name);

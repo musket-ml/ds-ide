@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.onpositive.musket.data.columntypes.DataSetSpec;
+import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.IVisualizerProto;
@@ -91,7 +92,7 @@ public class BinarySegmentationDataSetWithGroundTruth extends BinarySegmentation
 			}
 
 			@Override
-			public Supplier<Collection<String>> values() {
+			public Supplier<Collection<String>> values(IDataSet ds) {
 				return null;
 			}
 		};

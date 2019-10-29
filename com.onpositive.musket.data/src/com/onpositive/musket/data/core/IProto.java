@@ -12,5 +12,5 @@ public interface IProto {
 
 	String id();
 	
-	Supplier<Collection<String>>values();
+	Supplier<Collection<String>>values(IDataSet ds);
 }

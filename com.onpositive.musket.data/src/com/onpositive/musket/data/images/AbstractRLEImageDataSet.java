@@ -215,7 +215,7 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 			}
 
 			@Override
-			public Supplier<Collection<String>> values() {
+			public Supplier<Collection<String>> values(IDataSet ds) {
 				return null;
 			}
 		};
