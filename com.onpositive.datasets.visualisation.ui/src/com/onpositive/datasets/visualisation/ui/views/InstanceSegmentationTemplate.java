@@ -25,6 +25,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import com.onpositive.mmdetection.wrappers.ExampleExtractor;
 import com.onpositive.mmdetection.wrappers.MMDetCfgData;
 import com.onpositive.mmdetection.wrappers.ModulePathExtractor;
+import com.onpositive.mmdetection.wrappers.ModulePathExtractor.Data;
 import com.onpositive.python.command.IPythonPathProvider;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
@@ -44,10 +45,9 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		this.projectWrapper = projectWrapper;
 		ExampleExtractor ee = new ExampleExtractor();
 
-		String mmdetPath = ModulePathExtractor.extractModulepath("mmdetection_pipeline", this.projectWrapper.getPythonPath());
-		File configsFolder = new File(new File(mmdetPath),"configs");
+		Data data = ModulePathExtractor.extractCheckpointsAndConfigs(this.projectWrapper.getPythonPath());
 		
-		List<MMDetCfgData> builtinConfigs = ee.processFSFile(configsFolder);		
+		List<MMDetCfgData> builtinConfigs = data.getConfigs();		
 		String wsConfigsPath = this.prj.getName() + "/modules";
 		List<MMDetCfgData> wsConfigs = ee.processEclipseFile(wsConfigsPath);
 		
@@ -55,7 +55,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		configs.addAll(wsConfigs);		
 		this.configs = configs;
 		
-		this.weightPaths = ee.gatherWeightPaths("TestProject/data/checkpoints");
+		this.checkpointNames = data.getCheckpointNames();
 		for(MMDetCfgData cfg : this.configs) {
 			this.configKeys.addAll(cfg.paramNames());
 			this.configsByPath.put(cfg.getPath(), cfg);
@@ -68,7 +68,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	
 	private List<MMDetCfgData> pathsList1;
 	
-	private List<String> weightPaths;
+	private List<String> checkpointNames;
 	
 	private Set<String> configKeys = new HashSet<>();
 	
@@ -186,8 +186,9 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		result=result.replace((CharSequence)"{numClasses}", ""+this.numClasses);
 		result=result.replace((CharSequence)"{imagesPerGpu}", ""+this.imagesPerGpu);
 		result=result.replace((CharSequence)"{configPath}", "configPath: ./" + configName  + ".py");
-		result=result.replace((CharSequence)"{weightsPath}", "weightsPath: "+this.weightsPath);
-				
+		if(this.weightsPath != null) {
+			result=result.replace((CharSequence)"{weightsPath}", "weightsPath: "+this.weightsPath);
+		}				
 		return result; 
 		}catch (Exception e) {
 			throw new IllegalStateException(e);
@@ -202,14 +203,14 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 				folder.create(true, true, new NullProgressMonitor());
 			}
 			String cfgPath = this._selectedConfig.getPath();
-			String configName = fileName(cfgPath);
+			String configName = new Path(cfgPath).lastSegment();
 			String wsSrcPath = this._selectedConfig.getWSPath();
 
-			IFile file = folder.getFile(cfgPath);
+			IFile file = folder.getFile(configName);
 			InputStream contents = null;
 			Path wsFolderPath = new Path(wsSrcPath);
 			if(wsFolderPath.isAbsolute()) {
-				File srcFile = new File(new File(wsSrcPath), cfgPath);
+				File srcFile = new File(wsSrcPath);
 				contents = new BufferedInputStream(new FileInputStream(srcFile));
 			}
 			else {
@@ -257,8 +258,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	
 	public void findWeihtsForConfig() {
 		
-		List<String> weightFileNames = ModulePathExtractor.extractCheckpointFilenames(this.projectWrapper.getPythonPath());
-		for(String wpFull: weightFileNames) {			
+		for(String wpFull: this.checkpointNames) {			
 			if(conforms(_selectedConfig.getPath(),wpFull)) {
 				this.weightsPath = "open-mmlab://" + fileName(_selectedConfig.getPath());				
 			}

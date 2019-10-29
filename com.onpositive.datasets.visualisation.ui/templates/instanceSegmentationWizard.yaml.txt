@@ -6,10 +6,7 @@ imagesPerGpu: {imagesPerGpu}
 
 inference_batch: 1
 stages:
-  - epochs: 15
-
-stages:
-  - epochs: 30
+  - epochs: 3
 
 dataset:
    {dataset}

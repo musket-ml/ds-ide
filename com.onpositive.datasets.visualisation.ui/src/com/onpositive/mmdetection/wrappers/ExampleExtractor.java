@@ -367,5 +367,32 @@ public class ExampleExtractor {
 		}
 		
 	}
+	
+	public static MMDetCfgData configFromDescriptionString(String description) {
+		return configFromDescriptionString(description, ";");
+	}
+	
+	public static MMDetCfgData configFromDescriptionString(String description, String sep) {
+		
+		String[] arr = description.split(sep);
+		if (arr.length < 3) {
+			return null;
+		}
+		String wsPath = arr[0];
+		String relPath = arr[1];
+		String architecture = arr[2];
+		MMDetCfgData result = new MMDetCfgData(architecture, relPath, wsPath);
+		for(int i = 3 ; i < arr.length; i++) {
+			String paramStr = arr[i];
+			int ind = paramStr.indexOf(":");
+			if(ind<0) {
+				continue;
+			}
+			String pName = paramStr.substring(0, ind);
+			String pValue = paramStr.substring(ind+1);
+			result.addParameter(pName, pValue);
+		}
+		return result;
+	}
 
 }
