@@ -30,7 +30,11 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 	
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return new MultiClassificationDataSetWithGroundTruth(base, imageColumn, clazzColumn, representer, width, height, (ITabularDataSet) t2);		
+		MultiClassificationDataSetWithGroundTruth multiClassificationDataSetWithGroundTruth = new MultiClassificationDataSetWithGroundTruth(base, imageColumn, clazzColumn, representer, width, height, (ITabularDataSet) t2);
+		if (this.labels!=null) {
+			multiClassificationDataSetWithGroundTruth.labels=this.labels;
+		}
+		return multiClassificationDataSetWithGroundTruth;		
 	}
 	
 	protected BinaryClassificationItem createItem(ITabularItem v){return new MultiClassClassificationItem(this,v);}

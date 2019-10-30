@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
 
+import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
@@ -31,7 +32,7 @@ public abstract class AbstractAnalizer {
 			}			
 		});
 		LinkedHashMap<Object, ArrayList<IItem>> mapsNew = optimize(maps);
-		return toDs(ds, mapsNew);
+		return toDs(ds, mapsNew,maps);
 	}
 	
 	protected Function<IItem, IItem>converter;
@@ -51,13 +52,19 @@ public abstract class AbstractAnalizer {
 		return v;
 	}
 
-	protected IAnalizeResults toDs(IDataSet ds, LinkedHashMap<Object, ArrayList<IItem>> mapsNew) {
+	protected IAnalizeResults toDs(IDataSet ds, LinkedHashMap<Object, ArrayList<IItem>> mapsNew, LinkedHashMap<Object, ArrayList<IItem>> maps) {
 		ArrayList<IDataSet> results = new ArrayList<IDataSet>();
 
 		mapsNew.keySet().forEach(v -> {
 			results.add(ds.subDataSet(v.toString(), mapsNew.get(v)));
 
 		});
+		VisualizationSpec visualizationSpec = getVisualizationSpec();
+		ChartData.BasicChartData basicChartData = new ChartData.BasicChartData();
+		maps.keySet().forEach(k->{
+			basicChartData.values.put(k.toString(), (double)maps.get(k).size());
+		});
+		visualizationSpec.full=basicChartData;
 		return new IAnalizeResults() {
 
 			@Override
@@ -87,7 +94,8 @@ public abstract class AbstractAnalizer {
 
 			@Override
 			public VisualizationSpec visualizationSpec() {
-				return getVisualizationSpec();
+				
+				return visualizationSpec;
 			}
 		};
 	}

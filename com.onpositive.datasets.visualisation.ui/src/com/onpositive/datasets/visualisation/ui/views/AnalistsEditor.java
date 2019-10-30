@@ -24,11 +24,14 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.ImageTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.PartInitException;
@@ -38,6 +41,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.jfree.chart.JFreeChart;
 
 import com.onpositive.commons.elements.AbstractUIElement;
+import com.onpositive.commons.elements.CTabFolderElement;
 import com.onpositive.commons.elements.Container;
 import com.onpositive.commons.elements.SashElement;
 import com.onpositive.commons.elements.ToolbarElement;
@@ -47,21 +51,28 @@ import com.onpositive.dataset.visualization.internal.VirtualTable;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertResolutionAction;
 import com.onpositive.musket.data.actions.BasicDataSetActions.GenerateDataSetAction;
+import com.onpositive.musket.data.core.ChartData;
+import com.onpositive.musket.data.core.ChartData.BasicChartData;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.VisualizationSpec;
+import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.text.AbstractTextDataSet;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
+import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
+import com.onpositive.semantic.model.api.property.java.annotations.Required;
 import com.onpositive.semantic.model.api.realm.Realm;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.actions.Action;
+import com.onpositive.semantic.model.ui.generic.Column;
 import com.onpositive.semantic.model.ui.property.editors.CompositeEditor;
 import com.onpositive.semantic.model.ui.property.editors.FormEditor;
 import com.onpositive.semantic.model.ui.property.editors.FormTextElement;
 import com.onpositive.semantic.model.ui.property.editors.structured.ComboEnumeratedValueSelector;
+import com.onpositive.semantic.model.ui.property.editors.structured.columns.TableEnumeratedValueSelector;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 import com.onpositive.semantic.ui.core.Alignment;
@@ -91,19 +102,29 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 
 	boolean isPieChart;
 
-	public void changeChartMode() {
-		if (visualizationSpec == null) {
-			visualizationSpec = this.results.visualizationSpec();
-		}
-		if (visualizationSpec.type == VisualizationSpec.ChartType.BAR) {
-			visualizationSpec.type = VisualizationSpec.ChartType.PIE;
-		} else {
-			visualizationSpec.type = VisualizationSpec.ChartType.BAR;
-		}
-		createChart = ChartUtils.createChart(ChartUtils.createDataset(this.results, visualizationSpec),
-				visualizationSpec);
-		update(createChart, element2);
+	protected VisualizationSpec.ChartType vMode = ChartType.PIE;
 
+	@RealmProvider(EnumRealmProvider.class)
+	@Required
+	public VisualizationSpec.ChartType getVMode() {
+		return vMode;
+	}
+
+	public void setVMode(VisualizationSpec.ChartType vMode) {
+		if (this.vMode != vMode && vMode != null && results != null) {
+			this.vMode = vMode;
+			if (visualizationSpec == null) {
+				visualizationSpec = results.visualizationSpec();
+			}
+			visualizationSpec.type = vMode;
+
+			createChart = ChartUtils.createChart(ChartUtils.createDataset(this.results, visualizationSpec),
+					visualizationSpec);
+			update(createChart, element2);
+		}
+	}
+
+	public void changeChartMode() {
 	}
 
 	public AnalistsEditor() {
@@ -176,6 +197,18 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		});
 		visualizers.getControl().addListener(SWT.Selection, (x) -> {
 			update();
+		});
+		CTabFolderElement tel=(CTabFolderElement) this.getElement("mct");
+		tel.getControl().addSelectionListener(new SelectionAdapter() {
+			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (visualizationSpec!=null&&visualizationSpec.type==ChartType.TABLE) {
+					TableEnumeratedValueSelector vs = (TableEnumeratedValueSelector) element2.getParent().getElement("v1");
+					setVisible(vs.getControl(), true);
+				}
+				super.widgetSelected(e);
+			}
 		});
 		ToolbarElement sl = new ToolbarElement();
 		bindedAction = new Action(Action.AS_CHECK_BOX) {
@@ -281,8 +314,8 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 					if (selectedAction instanceof GenerateDataSetAction) {
 						GenerateDataSetAction fm = (GenerateDataSetAction) selectedAction;
 						String name = targetFile;
-						boolean generateDataSet = new DataSetGenerator().generateDataSet(results.getOriginal(), getInputFile(), name, true,
-								getProject());
+						boolean generateDataSet = new DataSetGenerator().generateDataSet(results.getOriginal(),
+								getInputFile(), name, true, getProject());
 						if (!generateDataSet) {
 							return;
 						}
@@ -397,7 +430,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				}
 			}
 		}
-		
+
 		public IDataSet getDataSet() {
 			return results.getOriginal();
 		}
@@ -496,8 +529,11 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 	private void display(IAnalizeResults r) {
 		this.results = r;
 		getElement("empty").setEnabled(false);
-		boolean b = (results.getOriginal() instanceof IMulticlassClassificationDataSet) || (results.getOriginal() instanceof GenericDataSet);
+		boolean b = (results.getOriginal() instanceof IMulticlassClassificationDataSet)
+				|| (results.getOriginal() instanceof GenericDataSet);
 		focus.setEnabled(b || focus.isChecked());
+		 
+		this.visualizationSpec=r.visualizationSpec();
 		Container element = (Container) getElement("content");
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
 		String viewer = visualizerFeature.getViewer();
@@ -520,6 +556,11 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 			VirtualTable v = new VirtualTable();
 			v.setWrap(wrap);
 			g = v;
+		}
+		if (r.visualizationSpec() != null) {
+			vMode = r.visualizationSpec().type;
+			Binding bnd = (Binding) getBinding().getBinding("vMode");
+			bnd.refresh();
 		}
 		g.getLayoutHints().setGrabHorizontal(true);
 		g.getLayoutHints().setGrabVertical(true);
@@ -575,20 +616,82 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		}
 
 	}
+	
+	static class PX{
+		Object x;
+		Object y;
+	}
 
 	@SuppressWarnings("unused")
 	private void update(JFreeChart createChart, Container element2) {
 		Point size = element2.getControl().getSize();
-		BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, size.y - 3);
-		ImageData convertToSWT = Utils.convertToSWT(createBufferedImage);
-		if (image != null) {
-			image.dispose();
-		}
-
-		image = new Image(Display.getCurrent(), convertToSWT);
 		element2.getControl().setBackgroundImage(null);
-		element2.getControl().setBackgroundImage(image);
-		element2.getControl().redraw();
+		VisualizationSpec visualizationSpec2 = results.visualizationSpec();
+		if (this.visualizationSpec!=null) {
+			visualizationSpec2=this.visualizationSpec;
+		}
+		if (visualizationSpec2.type!=ChartType.TABLE) {
+
+			BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, size.y - 3);
+			ImageData convertToSWT = Utils.convertToSWT(createBufferedImage);
+			if (image != null) {
+				image.dispose();
+			}
+
+			TableEnumeratedValueSelector vs = (TableEnumeratedValueSelector) element2.getParent().getElement("v1");
+			vs.setEnabled(false);
+			for (Control c:vs.getAllControls()) {
+				setVisible(c,false);
+			}
+//		columns.get(0).setCaption("AAAA");
+			image = new Image(Display.getCurrent(), convertToSWT);
+
+			element2.getControl().setBackgroundImage(image);
+			element2.getControl().redraw();
+		}
+		else {
+			TableEnumeratedValueSelector vs = (TableEnumeratedValueSelector) element2.getParent().getElement("v1");
+			
+			ChartData chart = visualizationSpec2.full;
+			if (chart==null) {
+				chart=visualizationSpec2.full;
+			}
+			ArrayList<PX>rs=new ArrayList<>();
+			vs.setEnabled(true);
+			if (chart instanceof BasicChartData) {
+				BasicChartData ds=(BasicChartData) chart;
+				ds.values.keySet().forEach(v->{
+					PX px = new PX();
+					px.x=v;
+					Double double1 = ds.values.get(v);
+					if (double1.isNaN()||double1.isInfinite()) {
+						px.y="";
+					}
+					else {
+						px.y=double1;
+					}
+					rs.add(px);
+				});
+				vs.setBinding(new Binding(rs));
+				
+			}
+			vs.getColumn(0).setCaption(visualizationSpec2.xName);
+			vs.getColumn(1).setCaption(visualizationSpec2.yName);
+			for (Control c:vs.getAllControls()) {
+				setVisible(c,true);
+			}
+		}
+	}
+	
+	void setVisible(Control c,boolean b) {
+		c.setVisible(b);
+		c.setEnabled(b);
+		if (c instanceof Composite) {
+			for (Control c1: ((Composite) c).getChildren()) {
+				setVisible(c1,b);
+				
+			}
+		}
 	}
 
 	private void cleanContent() {
@@ -603,7 +706,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		if (this.task != null) {
 			this.task.terminate();
 		}
-		if (clipboard!=null) {
+		if (clipboard != null) {
 			clipboard.dispose();
 		}
 		super.dispose();

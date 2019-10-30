@@ -10,4 +10,8 @@ public class PrecisionAnalizer extends F1Analizer implements IAnalizer<IDataSetW
 	protected double func(String s) {
 		return stat.get(s).precision();
 	}
+	
+	protected String getYName() {
+		return "Precision";
+	}
 }

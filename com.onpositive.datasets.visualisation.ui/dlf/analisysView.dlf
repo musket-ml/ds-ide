@@ -14,20 +14,23 @@
 					id='label' vAlign="center" hAlign="center" grabVertical="true">
 				</label>
 			</vc>
-			<ctab-folder bottom="true">
+			<ctab-folder bottom="true" id="mct">
 				<vc id="gm" grabVertical="true" grabHorizontal="true" caption="Statistics">
 					<hc margin="0,0,0,0"><label id="info" richContent="true"/>
-					<toolbar >
-						<binded-action caption="Switch mode"  image="com.onpositive.datasets.visualisation.ui.chart"  bindTo="$$.changeChartMode" style="drop-down"/>
+					<combo caption="Show as" hint="50,-1" bindTo="VMode"/>
+					<toolbar >						
 						<binded-action caption="Copy chart"  image="com.onpositive.semantic.ui.copy" bindTo="$$.copyChart" />
 					</toolbar> 
-					
-					
-					</hc>
-					
-					<vc id="stat" grabVertical="true" grabHorizontal="true"
-						>
-					</vc>
+					</hc>					
+					<stack grabVertical="true" grabHorizontal="true">
+					    <table enablement="false" id="v1" grabVertical="true" grabHorizontal="true">	
+							<columns>
+								<column caption="F1" id="x" />
+								<column caption="Value" id="y" />
+							</columns>
+						</table>		
+						<vc id="stat" grabVertical="true" grabHorizontal="true"/>										
+					</stack>
 				</vc>
 				<vc id="content" grabVertical="true" grabHorizontal="true"
 					caption="Data">

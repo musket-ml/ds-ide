@@ -10,4 +10,8 @@ public class RecallAnalizer extends F1Analizer implements IAnalizer<IDataSetWith
 	protected double func(String s) {
 		return stat.get(s).recall();
 	}
+	
+	protected String getYName() {
+		return "Recall";
+	}
 }

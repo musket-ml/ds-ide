@@ -1,8 +1,10 @@
 package com.onpositive.musket.data.core.filters;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import com.onpositive.musket.data.core.ChartData;
@@ -59,7 +61,13 @@ public class F1Analizer extends BinaryConfusionMatrix implements IAnalizer<IData
 	public IAnalizeResults analize(IDataSet ds) {
 		if (ds instanceof IMulticlassClassificationDataSet) {
 			IMulticlassClassificationDataSet ms=(IMulticlassClassificationDataSet) ds;
-			classes=ms.classNames();
+			LinkedHashSet<String>sm=new LinkedHashSet<>();
+			ms.items().forEach(v->{
+				ArrayList<String> classes2 = v.classes();
+				sm.addAll(classes2);
+			});
+			classes=new ArrayList<>(sm);
+			Collections.sort(classes);
 		}
 		else if (ds instanceof IBinaryClassificationDataSet) {
 			classes=new ArrayList<>();
@@ -122,14 +130,20 @@ public class F1Analizer extends BinaryConfusionMatrix implements IAnalizer<IData
 
 	@Override
 	protected VisualizationSpec getVisualizationSpec() {
-		VisualizationSpec visualizationSpec = super.getVisualizationSpec();
+		VisualizationSpec visualizationSpec =new VisualizationSpec(getYName(), "Class", ChartType.PIE);
 		ChartData.BasicChartData basicChartData = new ChartData.BasicChartData();
 		visualizationSpec.type=ChartType.BAR;
 		for (String s:classes) {
 			basicChartData.values.put(s,func(s));
 		}
 		visualizationSpec.chart=basicChartData;
+		if (classes.size()>50) {
+			visualizationSpec.type=ChartType.TABLE;
+		}
 		return visualizationSpec;
+	}
+	protected String getYName() {
+		return "F1";
 	}
 	protected double func(String s) {
 		return stat.get(s).f1();

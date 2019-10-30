@@ -5,7 +5,7 @@ package com.onpositive.musket.data.core;
 public class VisualizationSpec {
 
 	public static enum ChartType{
-		BAR,PIE
+		BAR,PIE,TABLE
 	}
 	
 	public final String yName;
@@ -13,6 +13,7 @@ public class VisualizationSpec {
 	
 	public ChartType type;
 	public ChartData chart;
+	public ChartData full;
 	
 	public VisualizationSpec(String yName, String xName, ChartType type) {
 		super();

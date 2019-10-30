@@ -25,6 +25,7 @@ import com.onpositive.musket.data.core.ChartData.BasicChartData;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.VisualizationSpec;
+import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
 
 public class ChartUtils {
 
@@ -179,6 +180,7 @@ public class ChartUtils {
 	}
 
 	public static JFreeChart createChart(Dataset dataset, VisualizationSpec loadAs) {
+		
 		if (dataset instanceof DefaultCategoryDataset) {
 			String y_axis = loadAs.yName;
 			String x_axis = loadAs.xName;

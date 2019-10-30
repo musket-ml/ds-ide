@@ -5,12 +5,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
+import com.onpositive.musket.data.table.IHasLabels;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageRepresenter;
 
-public class MultiClassificationDataSetWithGroundTruth extends BinaryClassificationDataSetWithGroundTruth implements IMultiClassificationWithGroundTruth{
+public class MultiClassificationDataSetWithGroundTruth extends BinaryClassificationDataSetWithGroundTruth implements IMultiClassificationWithGroundTruth ,IHasLabels{
 
 	public MultiClassificationDataSetWithGroundTruth(ITabularDataSet base, IColumn image, IColumn clazz,
 			ImageRepresenter rep, int width, int height, ITabularDataSet prediction) {
@@ -53,5 +55,15 @@ public class MultiClassificationDataSetWithGroundTruth extends BinaryClassificat
 		ITabularDataSet filter = MultiClassificationDataset.filter(clazz, base,this.clazzColumn.caption());
 		ITabularDataSet pred = MultiClassificationDataset.filter(clazz,predictions, this.clazzColumn.caption());;
 		return new BinaryClassificationDataSetWithGroundTruth(filter,imageColumn,clazzColumn,representer,width,height,pred);
+	}
+
+	@Override
+	public void setLabels(LabelsSet labelsSet) {
+		this.labels=labelsSet;
+	}
+
+	@Override
+	public LabelsSet labels() {
+		return labels;
 	}
 }

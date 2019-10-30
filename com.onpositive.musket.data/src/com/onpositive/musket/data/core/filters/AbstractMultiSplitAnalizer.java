@@ -3,6 +3,7 @@ package com.onpositive.musket.data.core.filters;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
@@ -34,7 +35,12 @@ public abstract class AbstractMultiSplitAnalizer {
 			results.add(ds.subDataSet(v.toString(), maps1.get(v)));
 
 		});
-
+		VisualizationSpec visualizationSpec = new VisualizationSpec("", "", ChartType.BAR);
+		ChartData.BasicChartData basicChartData = new ChartData.BasicChartData();
+		maps.keySet().forEach(k->{
+			basicChartData.values.put(k.toString(), (double)maps.get(k).size());
+		});
+		visualizationSpec.full=basicChartData;
 		return new IAnalizeResults() {
 
 			@Override
@@ -64,7 +70,8 @@ public abstract class AbstractMultiSplitAnalizer {
 
 			@Override
 			public VisualizationSpec visualizationSpec() {
-				return new VisualizationSpec("", "", ChartType.BAR);
+				
+				return visualizationSpec;
 			}
 		};
 	}
