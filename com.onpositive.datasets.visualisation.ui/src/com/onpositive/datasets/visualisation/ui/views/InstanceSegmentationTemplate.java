@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,7 +63,10 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		}
 		
 	}
-
+	
+	private List<String> basicPaths = Arrays.asList(new String[] {"htc/htc_dconv_c3-c5_mstrain_400_1400_x101_64x4d_fpn_20e.py", "mask_rcnn_x101_64x4d_fpn_1x.py"});
+	
+	private List<String> basicCaptions = Arrays.asList(new String[] {"Hyper Task Cascade 1", "Mask RCNN" });
 	
 	private List<MMDetCfgData> configs = null;
 	
@@ -333,5 +337,26 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 			this.bbox_head = cfg.getParameterValue("bbox_head");
 			ObjectChangeManager.markChanged(this);					
 		}
+	}
+	
+	public String getBasicPath(int ind) {
+		return this.basicPaths.get(ind);
+	}
+	
+	@Caption("Hybrid Task Cascade")
+	public void setConfig0() {
+		setConfig(0);
+	}
+	
+	@Caption("Mask RCNN")	
+	public void setConfig1() {
+		setConfig(1);
+	}
+	
+	private void setConfig(int ind) {
+		String url = this.basicPaths.get(ind);
+		MMDetCfgData cfg = this.configsByPath.get(url);
+		this.setSelectedConfig(cfg);
+		this.findWeihtsForConfig();
 	}
 }
