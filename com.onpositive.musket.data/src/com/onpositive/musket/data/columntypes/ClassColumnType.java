@@ -193,7 +193,7 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 		if (uniqueValues.size() == 2) {
 			return "binary";
 		}
-		return "one_hot";
+		return "multi_class";
 	}
 
 }
