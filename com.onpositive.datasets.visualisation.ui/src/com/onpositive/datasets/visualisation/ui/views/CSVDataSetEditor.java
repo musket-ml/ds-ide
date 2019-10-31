@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -462,12 +463,22 @@ public class CSVDataSetEditor extends AnalistsEditor {
 				((ImageExperimentTemplate) classificationTemplate).height = image.getHeight(null);
 			}
 			if (original instanceof IMulticlassClassificationDataSet) {
-				int size = ((IMulticlassClassificationDataSet) original).classNames().size();
-				if (size > 2 && !(((IMulticlassClassificationDataSet) original).isExclusive())) {
-					classificationTemplate.numClasses = size;
+				List<String> classNames = ((IMulticlassClassificationDataSet) original).classNames();
+				int size = classNames.size();
+				boolean b = ((IMulticlassClassificationDataSet) original).isExclusive();
+				if (size > 2 && !b) {
+					if (classNames.contains("Empty")) {
+						classificationTemplate.numClasses = size-1;
+					}
+					else {
+						classificationTemplate.numClasses = size;
+					}
 					if (((IMulticlassClassificationDataSet) original).isExclusive()) {
 						classificationTemplate.activation = "softmax";
 					}
+				}
+				if (size>2&&b) {
+					classificationTemplate.numClasses = size;
 				}
 			}
 		}

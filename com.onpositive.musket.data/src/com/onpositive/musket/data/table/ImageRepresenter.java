@@ -111,11 +111,13 @@ public class ImageRepresenter implements Iterable<String> {
 				Path name = v.getName(v.getNameCount() - 1);
 				String name2 = name.toFile().getName();
 				int lastIndexOf = name2.lastIndexOf(".");
-				String extension = name2.substring(lastIndexOf);
-				String withoutExtension = name2.substring(0, lastIndexOf);
-				if (extension.equals(".jpg") || extension.equals(".gif") || extension.equals(".png")
-						|| extension.equals(".bmp")) {
-					id2Path.put(withoutExtension, v.toFile());
+				if (lastIndexOf != -1) {
+					String extension = name2.substring(lastIndexOf);
+					String withoutExtension = name2.substring(0, lastIndexOf);
+					if (extension.equals(".jpg") || extension.equals(".gif") || extension.equals(".png")
+							|| extension.equals(".bmp")) {
+						id2Path.put(withoutExtension, v.toFile());
+					}
 				}
 			});
 			folders.add(path);
@@ -136,7 +138,9 @@ public class ImageRepresenter implements Iterable<String> {
 				String name2 = name.toFile().getName();
 				int lastIndexOf = name2.lastIndexOf(".");
 				if (lastIndexOf == -1) {
-					checks = false;
+					if (!name2.contains("DS_Store")) {
+						checks = false;
+					}
 				} else {
 					String withExtension = name2.substring(lastIndexOf);
 
@@ -170,11 +174,11 @@ public class ImageRepresenter implements Iterable<String> {
 			throw new IllegalStateException(e);
 		}
 	}
-	
-	protected void gather(File f,ArrayList<ImageRepresenter>rs) {
+
+	protected void gather(File f, ArrayList<ImageRepresenter> rs) {
 		String absolutePath = f.getAbsolutePath();
 		if (f.getName().contains("mask")) {
-			return ;
+			return;
 		}
 		String substring = absolutePath.substring(this.root.length());
 		if (looksLikeImageFolder(substring)) {
@@ -182,7 +186,7 @@ public class ImageRepresenter implements Iterable<String> {
 			r1.addFolder(substring);
 			rs.add(r1);
 		}
-		for (File c:f.listFiles()) {
+		for (File c : f.listFiles()) {
 			if (c.isDirectory()) {
 				gather(c, rs);
 			}
@@ -204,7 +208,7 @@ public class ImageRepresenter implements Iterable<String> {
 					File[] listFiles2 = f.listFiles();
 					for (File fa : listFiles2) {
 						if (fa.isDirectory()) {
-							gather(fa, rs);							
+							gather(fa, rs);
 						}
 					}
 				}
