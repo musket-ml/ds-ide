@@ -13,6 +13,7 @@ import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
+import com.onpositive.musket.data.table.ClassColumnsOptimizer;
 import com.onpositive.musket.data.table.ComputableColumn;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
@@ -48,7 +49,6 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		init(clazzColumns);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public TextClassificationDataSet(ITabularDataSet base, IColumn textColumn, ArrayList<IColumn> clazzColumns) {
 		super(base.clone(), textColumn, null);
 		
@@ -57,25 +57,16 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 				this.base.columns().remove(c);
 			}
 		}
-		
 		settings.put(CLAZZ_COLUMNS, clazzColumns.stream().map(x->x.id()).collect(Collectors.joining(",")));
 		init(clazzColumns);
 	}
 
 	protected void init(ArrayList<IColumn> clazzColumns) {
-		int tS = 0;
-		ArrayList<IColumn>nc=new ArrayList<>();
-		LinkedHashSet<Object> allValues = new LinkedHashSet<>();
-		for (IColumn m : clazzColumns) {
-			ArrayList<Object> uniqueValues = m.uniqueValues();
-			if (uniqueValues.size()>1) {
-				nc.add(m);
-			}
-			tS = tS + uniqueValues.size();
-			allValues.addAll(uniqueValues);
-		}
-		this.clazzColumns=nc;
-		boolean uniqueValues = tS == allValues.size();
+		
+		
+		
+		this.clazzColumns=clazzColumns;
+		
 		//this.clazzColumns = clazzColumns;
 		if (this.clazzColumns.size() == 1) {
 			clazzColumn = this.clazzColumns.get(0);
@@ -85,15 +76,8 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 					linkedHashSet.stream().map(x -> ("" + x).trim()).collect(Collectors.toList()));
 			Collections.sort(binaryValues);
 		} else {
-			if (uniqueValues) {
-				clazzColumn = new ComputableColumn("clazz", "clazz", -1, String.class, v -> {
-					return nc.stream().map(x -> x.getValueAsString(v).trim()).collect(Collectors.joining(" "));
-				});
-			} else {
-				clazzColumn = new ComputableColumn("clazz", "clazz", -1, String.class, v -> {
-					return nc.stream().map(x -> doMap(v, x)).collect(Collectors.joining(" "));
-				});
-			}
+			IColumn clazzColumn = ClassColumnsOptimizer.createCompositeColumn(clazzColumns);
+			this.clazzColumn=clazzColumn;
 			this.base = this.base.addColumn(clazzColumn);
 
 			for (IColumn m : this.clazzColumns) {
@@ -109,25 +93,20 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 				binaryColumn=this.clazzColumn;
 			}
 		}
-		LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(clazzColumn.values());
-		allValues = new LinkedHashSet<>();
+		LinkedHashSet<String> allValues = new LinkedHashSet<>();
 		isMulti = false;
-		for (Object x : linkedHashSet) {
+		for (Object x : clazzColumn.uniqueValues()) {
 			ArrayList<String> splitByClass = MultiClassClassificationItem.splitByClass(x.toString().trim(),labels);
 			if (splitByClass.size()>1) {
 				isMulti=true;
 			}
 			allValues.addAll(splitByClass);
 		}
-		classes = new ArrayList(allValues);
+		classes = new ArrayList<String>(allValues);
 		Collections.sort(classes);
 	}
 
 	
-
-	protected String doMap(ITabularItem v, IColumn x) {
-		return x.id() + "_" + x.getValueAsString(v).trim();
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override

@@ -35,7 +35,13 @@ public interface IColumn {
 		}
 		return result;
 	}
-
+	
+	public default boolean isBinaryColumn() {
+		boolean b = this.uniqueValues().size()==2;
+		return b;
+	}
+	
+	
 	public default boolean unique() {
 		return uniqueValues().size()==values().size();
 	}

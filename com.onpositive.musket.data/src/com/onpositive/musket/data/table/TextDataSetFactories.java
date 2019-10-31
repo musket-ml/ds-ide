@@ -3,6 +3,7 @@ package com.onpositive.musket.data.table;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import com.onpositive.musket.data.columntypes.ClassColumnType;
@@ -16,16 +17,6 @@ import com.onpositive.musket.data.text.TextClassificationDataSet;
 
 public class TextDataSetFactories implements IDataSetFactory {
 
-	public static IDataSet create(ITabularDataSet t, IColumn textColumn, IQuestionAnswerer question_answerer) {
-		ArrayList<IColumn> columns = new ArrayList<>(t.columns());
-		columns.remove(textColumn);
-		ArrayList<IColumn> findClassColumn = findClassColumns(columns);
-
-		if (findClassColumn.size() > 0) {
-			return new TextClassificationDataSet(t, textColumn, findClassColumn);
-		}
-		return null;
-	}
 
 	protected static ArrayList<IColumn> findClassColumns(ArrayList<IColumn> arrayList) {
 		ArrayList<IColumn> clazzColumns = new ArrayList<>();
@@ -85,7 +76,8 @@ public class TextDataSetFactories implements IDataSetFactory {
 				return null;
 			}
 		}
-		TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(spec.tb, strictColumn, new ArrayList<>(allClasses));
+		List<IColumn> optimize = ClassColumnsOptimizer.optimize(allClasses, spec.answerer);
+		TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(spec.tb, strictColumn, new ArrayList<>(optimize));
 		return textClassificationDataSet;		
 	}
 }

@@ -178,7 +178,10 @@ public class ImageDataSetFactories implements IDataSetFactory {
 				return multiClassSegmentationDataSet;
 			}
 		}
-		
+		List<IColumn> optimize = ClassColumnsOptimizer.optimize(allClasses, spec.answerer);
+		if (optimize.size()==1) {
+			clazzColumn=optimize.get(0);
+		}
 		if (clazzColumn != null) {
 			Collection<Object> values2 = new LinkedHashSet<>(clazzColumn.values());
 			if (values2.size() == 2) {

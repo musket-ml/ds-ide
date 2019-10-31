@@ -3,6 +3,7 @@ package com.onpositive.musket.data.images;
 import java.util.ArrayList;
 
 import com.onpositive.musket.data.labels.LabelsSet;
+import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularItem;
 
 public class MultiClassClassificationItem extends BinaryClassificationItem implements IMulticlassClassificationItem {
@@ -24,6 +25,19 @@ public class MultiClassClassificationItem extends BinaryClassificationItem imple
 		String value = (String) this.base.clazzColumn.getValue(item);
 		
 		return splitByClass(value,this.base.labels);
+	}
+	
+	public static boolean isMultiClass(IColumn c) {
+		for (Object o:c.uniqueValues()) {
+			if (o==null) {
+				continue;
+			}
+			ArrayList<String> splitByClass = splitByClass(o.toString(), null);
+			if (splitByClass.size()>1) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static ArrayList<String> splitByClass(String value,LabelsSet labels) {

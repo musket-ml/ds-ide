@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.IDataSet;
 
@@ -17,6 +18,23 @@ public interface ITabularDataSet extends IDataSet,Cloneable {
 		for (IColumn c : columns()) {
 			if (c.id().equals(id)) {
 				return c;
+			}
+		}
+		if (id.contains("|")) {
+			String[] split = id.split("\\|");
+			ArrayList<IColumn>aa=new ArrayList<>();
+			boolean allMatch=true;
+			for (String s:split) {
+				IColumn z=getColumn(s);
+				if (z!=null) {
+					aa.add(z);
+				}
+				else {
+					allMatch=false;
+				}
+			}
+			if (allMatch) {
+				return new ClassJoiningColumn(aa,aa.stream().map(x->x.id()).collect(Collectors.joining("|")), this);
 			}
 		}
 		int lastIndexOf = id.lastIndexOf(':');
