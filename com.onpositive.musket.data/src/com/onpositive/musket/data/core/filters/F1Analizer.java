@@ -102,11 +102,14 @@ public class F1Analizer extends BinaryConfusionMatrix implements IAnalizer<IData
 			if (b1.isPredictionPositive()) {
 				pr.add("pos");
 			}
+			
+			count(gt, pr);
 		}
 		return super.group(v);
 	}
 	
 	private void count(HashSet<String> gt, HashSet<String> pr) {
+		
 		for (String s:classes) {
 			Stat stat2 = stat.get(s);
 			if (gt.contains(s)) {
