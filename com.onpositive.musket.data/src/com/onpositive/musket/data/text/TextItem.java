@@ -93,8 +93,8 @@ public class TextItem implements ITextItem, IBinaryClasificationItem, IMulticlas
 
 		g2.drawImage(nn, 0, 40, null);
 		
-		ArrayList<String> classes = this.classes();
-		JLabel label = new JLabel("<html>" + classes.stream().collect(Collectors.joining(", ")) + "</html>");
+		String string = getClassText();
+		JLabel label = new JLabel(string);
 		Border createEmptyBorder = BorderFactory.createEmptyBorder(5, 5, 0, 5);
 
 		TitledBorder titledBorder = new TitledBorder(BorderFactory
@@ -106,6 +106,12 @@ public class TextItem implements ITextItem, IBinaryClasificationItem, IMulticlas
 		label.paint(g2);
 		return img;
 
+	}
+
+	protected String getClassText() {
+		ArrayList<String> classes = this.classes();
+		String string = "<html>" + classes.stream().collect(Collectors.joining(", ")) + "</html>";
+		return string;
 	}
 
 	@Override
