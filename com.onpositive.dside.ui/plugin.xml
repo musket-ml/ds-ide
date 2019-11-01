@@ -108,6 +108,13 @@
         name="Musket Core Run"
         public="false">
 	</launchConfigurationType>
+	<launchConfigurationType
+        delegate="com.onpositive.musket_core.PublicMusketLaunchConfigurationDelegate"
+        id="com.onpositive.dside.musket.launch"
+        modes="run, debug"
+        name="Musket Core Run"
+        public="true">
+	</launchConfigurationType>
    </extension>
    <extension
          point="org.eclipse.ui.editors">

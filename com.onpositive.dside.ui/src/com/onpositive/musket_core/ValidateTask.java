@@ -7,9 +7,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 
-import com.onpositive.dside.tasks.IServerTask;
+import com.onpositive.dside.tasks.PrivateServerTask;
 
-public class ValidateTask implements IServerTask<ValidationResult> {
+public class ValidateTask extends PrivateServerTask<ValidationResult> {
 
 	boolean debug;
 	Experiment experiment;
@@ -38,7 +38,7 @@ public class ValidateTask implements IServerTask<ValidationResult> {
 	}
 
 	@Override
-	public IProject[] getProject() {
+	public IProject[] getProjects() {
 		ArrayList<org.eclipse.core.resources.IProject> p = new ArrayList<>();
 		Experiment e = experiment;
 		IPath path = e.getPath();

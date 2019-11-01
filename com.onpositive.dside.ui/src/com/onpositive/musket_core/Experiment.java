@@ -166,6 +166,7 @@ public class Experiment {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<String, Object> getConfig() {
 		if (this.config != null) {
 			return config;
@@ -174,8 +175,8 @@ public class Experiment {
 		try {
 			FileReader fileReader = new FileReader(file);
 			try {
-				Map load = (Map) YamlIO.load(fileReader);
-				this.config = load;
+				Map<String, Object> config = (Map<String, Object>) YamlIO.load(fileReader);
+				this.config = config;
 			} finally {
 				fileReader.close();
 			}
@@ -377,7 +378,7 @@ public class Experiment {
 		Object object = getConfig().get("datasets");
 		LinkedHashSet<String> existing = new LinkedHashSet<>();
 		if (object instanceof Map) {
-			Set keySet = ((Map) object).keySet();
+			Set<String> keySet = ((Map<String, ?>) object).keySet();
 			existing.addAll(keySet);
 			datasets.addAll(keySet);
 		}
@@ -404,7 +405,7 @@ public class Experiment {
 	}
 
 	public boolean hasStages() {
-		List orDefault = (List) this.getConfig().getOrDefault("stages", 5);
+		List<?> orDefault = (List<?>) this.getConfig().getOrDefault("stages", 5);
 		return orDefault.size() > 1;
 	}
 

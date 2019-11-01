@@ -22,6 +22,9 @@ import com.onpositive.semantic.model.api.property.java.annotations.Required;
 @Display("dlf/launch.dlf")
 public class LaunchConfiguration implements IServerTask<Object> {
 
+	public LaunchConfiguration() {
+	}
+	
 	public LaunchConfiguration(Collection<Object> collection) {
 		collection.forEach(e -> {
 			experiment.add((Experiment) e);
@@ -180,7 +183,7 @@ public class LaunchConfiguration implements IServerTask<Object> {
 	}
 
 	@Override
-	public org.eclipse.core.resources.IProject[] getProject() {
+	public org.eclipse.core.resources.IProject[] getProjects() {
 		ArrayList<org.eclipse.core.resources.IProject>p=new ArrayList<>();
 		for(Experiment e:experiment) {
 			IPath path = e.getPath();
@@ -190,6 +193,11 @@ public class LaunchConfiguration implements IServerTask<Object> {
 			}
 		}
 		return p.toArray(new org.eclipse.core.resources.IProject[p.size()]);
+	}
+
+	@Override
+	public String getPreferredLaunchDelegate() {
+		return "com.onpositive.dside.musket.launch";
 	}
 
 	

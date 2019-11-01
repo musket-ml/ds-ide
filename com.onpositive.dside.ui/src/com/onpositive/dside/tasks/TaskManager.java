@@ -1,92 +1,41 @@
 package com.onpositive.dside.tasks;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
-import org.eclipse.debug.ui.CommonTab;
-import org.eclipse.jface.window.Window;
+import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.python.pydev.core.IInterpreterManager;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.FileOrResource;
-import org.python.pydev.debug.ui.launching.LaunchConfigurationCreator;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
-import org.python.pydev.plugin.nature.PythonNature;
-import org.python.pydev.shared_core.callbacks.ICallback;
-import org.python.pydev.shared_core.utils.ArrayUtils;
-import org.python.pydev.shared_ui.EditorUtils;
-import org.python.pydev.shared_ui.dialogs.ProjectSelectionDialog;
-import org.python.pydev.shared_ui.utils.RunInUiThread;
 
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.yamledit.io.YamlIO;
 
 public class TaskManager {
 
-	static ArrayList<Runnable> onJobComplete = new ArrayList<>();
-
-	public static void addJobListener(Runnable r) {
-		onJobComplete.add(r);
-	}
-
-	public static void removeJobListener(Runnable r) {
-		onJobComplete.remove(r);
-	}
-
-	static class TaskStatus {
-		protected IServerTask<Object> task;
-		protected Path path;
-		protected boolean reported;
-
-		public TaskStatus(IServerTask<Object> task, Path path) {
-			super();
-			this.task = task;
-			this.path = path;
-		}
-
-		public void report(ILaunch launch) {
-			if (reported) {
-				return;
-			}
-			try {
-				byte[] readAllBytes = Files.readAllBytes(path);
-				Object loadAs = YamlIO.loadAs(new StringReader(new String(readAllBytes)), task.resultClass());
-				task.afterCompletion(loadAs);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			this.reported = true;
-		}
-
-	}
-
-	static IdentityHashMap<ILaunch, TaskStatus> tasks = new IdentityHashMap<>();
+	private static ArrayList<Runnable> onJobComplete = new ArrayList<>();
+	
+	private static IdentityHashMap<ILaunch, TaskStatus> tasks = new IdentityHashMap<>();
 
 	static {
 		ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
 		launchManager.addLaunchListener(new ILaunchesListener2() {
-
-			
 
 			private void perform(ILaunch l) {
 				if (tasks.containsKey(l)) {
@@ -97,8 +46,6 @@ public class TaskManager {
 					}
 				}
 			}
-
-			
 
 			@Override
 			public void launchesRemoved(ILaunch[] launches) {
@@ -132,178 +79,95 @@ public class TaskManager {
 		});
 	}
 
+	public static void addJobListener(Runnable r) {
+		onJobComplete.add(r);
+	}
+
+	public static void removeJobListener(Runnable r) {
+		onJobComplete.remove(r);
+	}
+
+	public static class TaskStatus {
+		protected IServerTask<Object> task;
+		protected Path path;
+		protected boolean reported;
+
+		public TaskStatus(IServerTask<Object> task, Path path) {
+			super();
+			this.task = task;
+			this.path = path;
+		}
+
+		public void report(ILaunch launch) {
+			if (reported) {
+				return;
+			}
+			try {
+				byte[] readAllBytes = Files.readAllBytes(path);
+				Object loadAs = YamlIO.loadAs(new StringReader(new String(readAllBytes)), task.resultClass());
+				task.afterCompletion(loadAs);
+			} catch (Exception e) {
+				DSIDEUIPlugin.log(e);
+			}
+			this.reported = true;
+		}
+
+	}
+
+	@SuppressWarnings("deprecation")
 	public static void perform(IServerTask<?> task) {
+		String dump = YamlIO.dump(task);
 		task.beforeStart();
 		try {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("org.eclipse.ui.console.ConsoleView");
 		} catch (PartInitException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			DSIDEUIPlugin.log(e1);
 		}
-		IProject[] projects = task.getProject();
+		
 
-		LaunchShortcut launchShortcut = launchShortCut(projects);
-		String dump = YamlIO.dump(task);
 		try {
-			Path absolutePath = null;
-			Path absolutePath1 = null;
-			Path absolutePath2 = Files.createTempFile("aaa", "result").toAbsolutePath();
-			try {
-				absolutePath = Files.createTempFile("aaa", "task").toAbsolutePath();
-				Path write = Files.write(absolutePath, dump.getBytes());
+			IProject[] projects = task.getProjects();
+			LaunchShortcut launchShortcut = new MusketLaunchShortcut(projects);
 
-				absolutePath1 = Files.createTempFile("aaa", ".py").toAbsolutePath();
-
-				ArrayList<String> codeToRun = new ArrayList<>();
-				codeToRun.add(
-						"try:\n" + 
-						"    #do not remove\n" + 
-						"    import torch\n" + 
-						"except:\n" + 
-						"    pass\n"+						
-						"import sys\n" + "from musket_core import tools,projects\n" + "import yaml\n"
-						+ "import threading\n" + "from musket_core import utils\n" + "config = sys.argv[1]\n"
-						+ "out = sys.argv[2]\n" + "def main():\n" + "        global config\n"
-						+ "        with open(config,\"r\") as f:\n" + "            config=f.read()\n"
-						+ "        config = config[1:].replace(\"!!com.onpositive\", \"!com.onpositive\")\n"
-						+ "        obj = yaml.load(config, Loader=yaml.Loader)\n" + "        print(obj)\n"
-						+ "        results = obj.perform(projects.Workspace(), tools.ProgressMonitor())\n"
-						+ "        with open(out,\"w\") as f:\n" + "            f.write(yaml.dump(results))\n"
-						+ "if __name__ == \"__main__\":"
-						+ "    main()");
-				Path write1 = Files.write(absolutePath1, codeToRun);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving = launchShortcut
+			
+			ILaunchConfigurationWorkingCopy launchConfig = launchShortcut
 					.createDefaultLaunchConfigurationWithoutSaving(
-							new FileOrResource[] { new FileOrResource(absolutePath1.toFile()) });
-			HashSet<String> modes = new HashSet<>();
-			modes.add("run");
-			modes.add("debug");
+							new FileOrResource[] { new FileOrResource(LaunchScriptFileProvider.getScriptFile()) });
+			Set<String> modeSet = new HashSet<String>(Arrays.asList("run", "debug"));
+			((ILaunchConfigurationWorkingCopy) launchConfig).setPreferredLaunchDelegate(modeSet, 
+					task.getPreferredLaunchDelegate());
+			ILaunchConfigurationDelegate preferredDelegate = launchConfig.getType().getDelegate(task.isDebug() ? ILaunchManager.DEBUG_MODE : ILaunchManager.RUN_MODE);
+			
+			if (preferredDelegate instanceof IMusketLaunchDelegate) {
+				((IMusketLaunchDelegate) preferredDelegate).setTask(task);
+			}
+			launchConfig.setAttribute(ITaskConstants.YAML_SETTINGS, dump);
+			
 			if (projects.length > 0) {
-				createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_PROJECT,
+				launchConfig.setAttribute(Constants.ATTR_PROJECT,
 						projects[0].getName());
 			}
-			createDefaultLaunchConfigurationWithoutSaving.setPreferredLaunchDelegate(modes,
-					"org.python.pydev.debug.musketLaunchConfigurationType");
-			ArrayList<String> args = new ArrayList<>();
-			args.add(absolutePath.toString());
-			args.add(absolutePath2.toString());
-			createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,
-					args.stream().collect(Collectors.joining(" ")));
 
 			// createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_WORKING_DIRECTORY,
 			// "D:/");
 			HashMap<String, String> value = new HashMap<>();
 			value.put("PYTHONUNBUFFERED", "1");
-			createDefaultLaunchConfigurationWithoutSaving.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, value);
+			launchConfig.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, value);
 			if (task.save()) {
-				createDefaultLaunchConfigurationWithoutSaving.doSave();
+				launchConfig.doSave();
 			}
-			ILaunch launch = createDefaultLaunchConfigurationWithoutSaving.launch(task.isDebug() ? "debug" : "run",
+			ILaunch launch = launchConfig.launch(task.isDebug() ? "debug" : "run",
 					new NullProgressMonitor());
-			TaskStatus value2 = new TaskStatus((IServerTask<Object>) task, absolutePath2);
-			if (launch.isTerminated()) {
-				value2.report(launch);
-			}
-			tasks.put(launch, value2);
-			task.afterStart(launch);
+			
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			DSIDEUIPlugin.log(e);
 		}
 
 	}
 
-	public static LaunchShortcut launchShortCut(IProject[] projects) {
-		LaunchShortcut launchShortcut = new LaunchShortcut() {
-
-			@Override
-			protected String getLaunchConfigurationType() {
-				return "org.python.pydev.debug.musketLaunchConfigurationType";
-			}
-
-			public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(
-					FileOrResource[] resource) throws CoreException {
-				IProject project;
-				if (projects.length > 0) {
-	                project=projects[0];
-	            }
-				 else {
-					IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-					List<IProject> projectsLst = ArrayUtils.filter(projects, new ICallback<Boolean, IProject>() {
-
-						@Override
-						public Boolean call(IProject arg) {
-							IProject project = arg;
-							try {
-								return project.isOpen() && project.hasNature(PythonNature.PYTHON_NATURE_ID);
-							} catch (CoreException e) {
-								return false;
-							}
-						}
-					});
-					final Object[] found = new Object[1];
-					if (projectsLst.size() == 0) {
-						found[0] = new CoreException(new Status(IStatus.ERROR, "",
-								"Found no projects  with the Python nature in the workspace."));
-					} else if (projectsLst.size() == 1) {
-						found[0] = projectsLst.get(0);
-					} else {
-						RunInUiThread.sync(new Runnable() {
-
-							@Override
-							public void run() {
-								ProjectSelectionDialog dialog = new ProjectSelectionDialog(EditorUtils.getShell(),
-										PythonNature.PYTHON_NATURE_ID);
-								dialog.setMessage("Choose the project that'll provide the interpreter and\n"
-										+ "PYTHONPATH to be used in the launch of the file.");
-								if (dialog.open() == Window.OK) {
-									Object firstResult = dialog.getFirstResult();
-									if (firstResult instanceof IProject) {
-										found[0] = firstResult;
-									} else {
-										found[0] = new CoreException(
-												new Status(IStatus.ERROR, "", "Expected project to be selected."));
-									}
-								}
-							}
-						});
-					}
-
-					if (found[0] == null) {
-						return null;
-					}
-					if (found[0] instanceof IProject) {
-						project = (IProject) found[0];
-					} else {
-						if (found[0] instanceof CoreException) {
-							throw (CoreException) found[0];
-						} else {
-							throw new CoreException(
-									new Status(IStatus.ERROR, "", "Expected project, found: " + found[0]));
-						}
-					}
-				}
-				IInterpreterManager pythonInterpreterManager = getInterpreterManager(project);
-				String projName = project.getName();
-				ILaunchConfigurationWorkingCopy createdConfiguration = LaunchConfigurationCreator
-						.createDefaultLaunchConfiguration(resource, getLaunchConfigurationType(),
-								LaunchConfigurationCreator.getDefaultLocation(resource, false), // it'll be made
-																								// relative later on
-								pythonInterpreterManager, projName);
-					
-				// Common Tab Arguments
-				CommonTab tab = new CommonTab();
-				tab.setDefaults(createdConfiguration);
-				tab.dispose();
-				return createdConfiguration;
-			}
-		};
-		return launchShortcut;
+	public static void registerTask(ILaunch launch, TaskStatus status) {
+		tasks.put(launch, status);
 	}
+
 }
