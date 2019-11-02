@@ -33,6 +33,9 @@ public class BinaryConfusionMatrix extends AbstractAnalizer implements IAnalizer
 					return new ClassConfusionMatrix().group(v);
 				}
 				IMulticlassClassificationItem prediction = (IMulticlassClassificationItem) m1.getPrediction();
+				if (prediction==null) {
+					return "Unmatched";
+				}
 				ArrayList<String> classes2 = prediction.classes();
 				HashSet<String> gt = new HashSet<>(classes);
 				HashSet<String> pr = new HashSet<>(classes2);

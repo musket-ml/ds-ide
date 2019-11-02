@@ -2,11 +2,12 @@
 	title="New Classification Experiment"
 	message="Please check basic text classification experiment settings">
 	<composite-editor
-		xmlns="http://jetface.org/JetFace1.0/" hint="-1,400" >
+		xmlns="http://jetface.org/JetFace1.0/" hint="-1,500" >
 		<model
 			class="com.onpositive.datasets.visualisation.ui.views.TextClassificationTemplate" />
 		<string bindTo="name" caption="Experiment name" />
-		<string bindTo="embeddings" />
+		<string bindTo="embeddings" visibility="!$$.bert_classifier"/>
+		<string bindTo="bertPath" visibility="$$.bert_classifier"/>
 		<string bindTo="numClasses" />
 		<string bindTo="maxLen" />
 
@@ -14,6 +15,7 @@
 		<group caption="Architecture">
 			<radio bindTo="rnn_classifier" />
 			<radio bindTo="cnn_classifier" />
+			<radio bindTo="bert_classifier" />
 		</group>
 		<group caption="Basic Augmentation">
 
@@ -23,7 +25,6 @@
 				bindTo="add_random_words" />
 			<checkbox caption="Swap Random Words"
 				bindTo="replace_random_words" />
-
 		</group>
 
 	</composite-editor>

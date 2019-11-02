@@ -1,0 +1,40 @@
+#%Musket Generic 1.0
+imports: [musket_text.preprocessors]
+## Bert fine tuning
+declarations: 
+   net:
+      body:
+       - bert:
+       - takeFirstToken:
+       - dense: [300, tanh] 
+       - dense: [{classes}, {activation}]
+           
+preprocessing: 
+  - lowercase:
+{aug}  
+  - text_to_bert_input: [ {bertPath}, {maxLen} ]
+folds_count: 5       
+architecture: net  
+optimizer: adam   
+batch: 16 
+stages:
+  - epochs: 2  
+loss: binary_crossentropy      
+stratified: false 
+lr: 0.00005
+primary_metric: val_binary_accuracy
+metrics: [binary_accuracy ]
+callbacks:
+  LRVariator: #Bert fine tuning requires custom LR schedule to perform well   
+     fromVal: 0  
+     toVal: 0.00005 
+     style: linear     
+     relSize: 0.05
+     then: 
+         LRVariator: 
+             fromVal: 0.00005
+             toVal: 0 
+             relSize: 2                
+             style: linear    
+dataset:  
+    {dataset}

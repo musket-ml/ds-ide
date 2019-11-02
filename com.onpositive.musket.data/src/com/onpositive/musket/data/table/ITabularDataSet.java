@@ -125,4 +125,6 @@ public interface ITabularDataSet extends IDataSet,Cloneable {
 
 	public ITabularDataSet clone();
 
+	public ITabularDataSet withIds(ITabularDataSet filter);
+
 }

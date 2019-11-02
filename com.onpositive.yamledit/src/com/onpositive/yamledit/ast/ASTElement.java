@@ -422,6 +422,9 @@ public class ASTElement implements IObject, ITypedObject, IHasLocation,IKnowsPro
 				}
 			}
 		}
+		if (range.isAnonimous()&&range.superType().equals(BuiltIns.ANY)) {
+			return node;
+		}
 		return new ErrorElement(node, range, this);
 	}
 

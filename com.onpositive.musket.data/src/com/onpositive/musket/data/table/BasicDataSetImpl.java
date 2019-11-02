@@ -244,4 +244,16 @@ public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 		}
 	}
 
+	@Override
+	public ITabularDataSet withIds(ITabularDataSet filter) {
+		Map<String, IItem> itemMap = filter.itemMap();
+		ArrayList<ITabularItem>bi=new ArrayList<>();
+		this.items().forEach(v->{
+			if (itemMap.containsKey(v.id())) {
+				bi.add((ITabularItem)v);
+			}
+		});
+		return (ITabularDataSet) this.subDataSet("", bi);
+	}
+
 }

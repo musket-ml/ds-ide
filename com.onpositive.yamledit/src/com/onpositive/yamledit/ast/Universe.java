@@ -181,6 +181,9 @@ public class Universe extends TypeRegistryImpl {
 						if (type.equals("str")) {
 							type = BuiltIns.STRING.name();
 						}
+						if (type.equals("any")) {
+							type = BuiltIns.ANY.name();
+						}
 						if (type.equals("float")) {
 							type = BuiltIns.NUMBER.name();
 						}

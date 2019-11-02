@@ -53,7 +53,7 @@ public class MultiClassificationDataSetWithGroundTruth extends BinaryClassificat
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
 		ITabularDataSet filter = MultiClassificationDataset.filter(clazz, base,this.clazzColumn.caption());
-		ITabularDataSet pred = MultiClassificationDataset.filter(clazz,predictions, this.clazzColumn.caption());;
+		ITabularDataSet pred = predictions.withIds(filter);
 		return new BinaryClassificationDataSetWithGroundTruth(filter,imageColumn,clazzColumn,representer,width,height,pred);
 	}
 

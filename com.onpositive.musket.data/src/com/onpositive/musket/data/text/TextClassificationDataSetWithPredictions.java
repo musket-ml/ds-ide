@@ -6,7 +6,10 @@ import java.util.Map;
 
 import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
+import com.onpositive.musket.data.images.BinaryClassificationDataSetWithGroundTruth;
+import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IMultiClassificationWithGroundTruth;
+import com.onpositive.musket.data.images.MultiClassificationDataset;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 
@@ -31,6 +34,13 @@ public class TextClassificationDataSetWithPredictions extends TextClassification
 			items.add(new TextItemWithPrediction(this, v, (TextItem) itemMap.get(v.id())));
 		});
 		return items;
+	}
+
+	@Override
+	public IBinaryClassificationDataSet forClass(String clazz) {
+		ITabularDataSet filter = filter(clazz, base, clazzColumn.caption());
+		TextClassificationDataSet filter1 = (TextClassificationDataSet) predictions.withIds(filter);
+		return new TextClassificationDataSetWithPredictions(filter, this.textColumn, this.clazzColumns, filter1);
 	}
 
 	@Override

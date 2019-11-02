@@ -16,10 +16,13 @@ import com.onpositive.semantic.model.api.property.java.annotations.Required;
 @Display("dlf/textClassificationTemplate.dlf")
 public class TextClassificationTemplate extends GenericExperimentTemplate {
 
-	@Caption("Commas separated list of word embeddings to use")
-	@Required
+	@Caption("Commas separated list of word embeddings")
 	@RealmProvider(EmbeddingsRealmProvider.class)
 	ArrayList<String> embeddings;
+	
+	@Caption("Path to saved Google Bert checkpoint")
+	@RealmProvider(BertRealmProvider.class)
+	String bertPath;
 
 	@Caption("Maximum number of words to process")
 	@Required
@@ -39,9 +42,16 @@ public class TextClassificationTemplate extends GenericExperimentTemplate {
 	@Caption("RNN")
 	protected boolean rnn_classifier=true;
 	
+	@Caption("Google Bert")
+	protected boolean bert_classifier=false;
+	
 	public Collection<String>getEmbeddings(){
 		ArrayList<String> arrayList = new ArrayList<String>(Arrays.asList("dice","iou","map10"));
 		return arrayList;
+	}
+	
+	public String getCaption() {
+		return "AAAA";
 	}
 
 	@Override
@@ -50,6 +60,9 @@ public class TextClassificationTemplate extends GenericExperimentTemplate {
 			String string = "/templates/textClassificationWizard.yaml.txt";
 			if (this.cnn_classifier) {
 				string = "/templates/textClassificationWizard2.yaml.txt";
+			}
+			if (this.bert_classifier) {
+				string = "/templates/textClassificationBert.yaml.txt";
 			}
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
 					ClassificationTemplate.class.getResourceAsStream(string)));
@@ -82,8 +95,13 @@ public class TextClassificationTemplate extends GenericExperimentTemplate {
 			result = result.replace((CharSequence) "{aug}", "" + aug);
 			result = result.replace((CharSequence) "{classes}", "" + this.numClasses);
 			result = result.replace((CharSequence) "{activation}", "" + this.activation);
+			if (this.bert_classifier) {
+				result = result.replace((CharSequence) "{bertPath}", "" + '"'+this.bertPath+'"');
+			}
 			result = result.replace((CharSequence) "{maxLen}", "" + this.maxLen);
-			result = result.replace((CharSequence) "{embeddings}", "" + this.embeddings.stream().collect(Collectors.joining(",")));
+			if (!this.bert_classifier) {
+				result = result.replace((CharSequence) "{embeddings}", "" + this.embeddings.stream().collect(Collectors.joining(",")));
+			}
 			// result=result.replace((CharSequence)"{architecture}", ""+this.architecture);
 			result = result.replace((CharSequence) "{loss}", "" + this.loss);
 //			if (this.testTime) {

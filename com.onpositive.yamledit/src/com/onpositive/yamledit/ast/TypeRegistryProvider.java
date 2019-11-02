@@ -158,6 +158,7 @@ public class TypeRegistryProvider {
 
 	protected static AbstractType createType(ITypeRegistry reg, PropertyDescription propertyDescription, String type,
 			AbstractType type3) {
+		
 		if (type.indexOf('|')!=-1) {
 			String[] split = type.split("\\|");
 			AbstractType res=null;

@@ -231,5 +231,10 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	public Object modelObject() {
 		return null;
 	}
+
+	public TextClassificationDataSet withIds(ITabularDataSet filter) {
+		ITabularDataSet withIds = this.base.withIds(filter);
+		return new TextClassificationDataSet(withIds, this.settings);
+	}
 	
 }

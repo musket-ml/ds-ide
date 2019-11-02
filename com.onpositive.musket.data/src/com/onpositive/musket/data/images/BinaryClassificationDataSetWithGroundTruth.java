@@ -32,8 +32,8 @@ public class BinaryClassificationDataSetWithGroundTruth extends BinaryClassifica
 		return items;
 	}
 
-	
-
+	 
+   
 	@Override
 	public IItem getPrediction(int num) {
 		BinaryClassificationItemWithGroundTruth binarySegmentationItem = (BinaryClassificationItemWithGroundTruth) this.items.get(num);
