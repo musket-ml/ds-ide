@@ -1,0 +1,4 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" caption="Please select class" description="Please select class to focus on">
+	<model class="com.onpositive.datasets.visualisation.ui.views.FocusOnModel"/>
+	<string bindTo="input"/>
+</composite-editor>

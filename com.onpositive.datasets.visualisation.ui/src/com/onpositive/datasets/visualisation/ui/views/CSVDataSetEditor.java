@@ -271,34 +271,31 @@ public class CSVDataSetEditor extends AnalistsEditor {
 				focus.setChecked(false);
 
 			}
-		} else
+		}
+		 else
 
-		{
-			InputDialog dlg = new InputDialog(Display.getCurrent().getActiveShell(), "Please select class",
-					"Please select class", "", new IInputValidator() {
-
-						@Override
-						public String isValid(String newText) {
-							IMulticlassClassificationDataSet d = (IMulticlassClassificationDataSet) ds;
-							boolean contains = d.classNames().contains(newText);
-							return contains ? null : "Please select valid class name";
-						}
-					});
-			int open = dlg.open();
-			if (open == Dialog.OK) {
-				{
-					IMulticlassClassificationDataSet d = (IMulticlassClassificationDataSet) ds;
-					IBinaryClassificationDataSet forClass = d.forClass(dlg.getValue());
+			{
+				FocusOnModel mod=new FocusOnModel();
+				IMulticlassClassificationDataSet d = (IMulticlassClassificationDataSet) ds;
+				mod.classes=d.classNames();
+				boolean createObject = WidgetRegistry.createObject(mod);
+				if (createObject) {
+					
+					
+					IBinaryClassificationDataSet forClass = d.forClass(mod.input);
 					AnalisysEngine engine = new AnalisysEngine(forClass);
 					initWithEngine(engine);
 					isFocused = true;
 					focus.setText("Unfocus");
 				}
+				else {
+					isFocused=false;
+					focus.setChecked(false);
+					super.focusOn();
+				}
 				// focus.setImageId("generic_task");
-			} else {
-				focus.setChecked(false);
+							
 			}
-		}
 		super.focusOn();
 	}
 
