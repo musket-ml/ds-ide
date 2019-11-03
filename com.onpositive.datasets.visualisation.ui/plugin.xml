@@ -24,7 +24,7 @@
       <editor
             class="com.onpositive.datasets.visualisation.ui.views.CSVDataSetEditor"
             default="false"
-            extensions="csv"
+            extensions="csv,txt"
             icon="icons/data_icon.png"
             id="com.onpositive.datasets.visualisation.ui.datasetEditor"
             name="DataSet Editor">

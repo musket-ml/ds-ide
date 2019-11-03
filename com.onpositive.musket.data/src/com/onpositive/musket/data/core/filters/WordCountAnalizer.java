@@ -6,12 +6,13 @@ import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.text.AbstractTextDataSet;
+import com.onpositive.musket.data.text.ITextDataSet;
 import com.onpositive.musket.data.text.ITextItem;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
 @Caption("Group by word count")
 @ProvidesFilter("word count")
-public class WordCountAnalizer extends AbstractAnalizer implements IAnalizer<AbstractTextDataSet>,IColumnDependentAnalizer{
+public class WordCountAnalizer extends AbstractAnalizer implements IAnalizer<ITextDataSet>,IColumnDependentAnalizer{
 
 	@Override
 	protected Object group(IItem v) {

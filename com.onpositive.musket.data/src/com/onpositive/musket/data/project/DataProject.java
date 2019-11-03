@@ -1,6 +1,8 @@
 package com.onpositive.musket.data.project;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -21,6 +23,8 @@ import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IQuestionAnswerer;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ImageRepresenter;
+import com.onpositive.musket.data.text.ConnlFormatReader;
+import com.onpositive.musket.data.text.TextSequenceDataSet;
 import com.onpositive.yamledit.io.YamlIO;
 
 public class DataProject {
@@ -48,10 +52,31 @@ public class DataProject {
 		try {
 			long l0=System.currentTimeMillis();
 			monitor.onProgress("Loading dataset into memory", 0);
+			if (file2.getName().endsWith(".txt")) {
+				try {
+					FileReader fileReader = new FileReader(file2);
+					try {
+					TextSequenceDataSet read = new ConnlFormatReader().read(new BufferedReader(fileReader));
+					return read;
+					}finally {
+						try {
+							fileReader.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
 			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath());
 			if (load == null) {
 				return null;
 			}
+			
 			ITabularDataSet t1 = load.as(ITabularDataSet.class);
 			
 			long l1=System.currentTimeMillis();

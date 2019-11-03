@@ -17,12 +17,30 @@ import com.onpositive.musket.data.core.Parameter;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
-import com.onpositive.musket.data.table.ITabularDataSet;
 
-public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextDataSet{
+public class TextSequenceDataSet  implements IDataSet,ITextDataSet{
 
-	protected ITabularDataSet base;
-	protected IColumn idColumn;
+	public TextSequenceDataSet(ArrayList<Document> docs2) {
+		this.docs.addAll(docs2);
+		settings.put(GenericDataSet.FONT_SIZE, "13");
+		settings.put(GenericDataSet.MAX_CHARS_IN_TEXT, "700");
+	}
+
+	public TextSequenceDataSet() {
+		settings.put(GenericDataSet.FONT_SIZE, "13");
+		settings.put(GenericDataSet.MAX_CHARS_IN_TEXT, "700");
+	}
+
+	protected ArrayList<Document>docs=new ArrayList<>();
+	private int text;
+	
+	protected void init() {
+		this.text=0;
+	}
+
+	public int textPosition() {
+		return text;
+	}
 	
 	protected LabelsSet labels;
 	
@@ -30,21 +48,7 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 	
 	protected static String CLAZZ_COLUMNS="CLAZZ_COLUMNS";
 
-	public AbstractTextDataSet(ITabularDataSet base, IColumn textColumn, IColumn idColumn) {
-		super();
-		this.base = base;
-		this.textColumn = textColumn;
-		this.idColumn = idColumn;
-		settings.put(GenericDataSet.FONT_SIZE, "13");
-		settings.put(GenericDataSet.MAX_CHARS_IN_TEXT, "300");
-		settings.put(TEXT_COLUMN, textColumn.id());
-	}
 
-	public AbstractTextDataSet(ITabularDataSet clone, Map<String, Object> options) {
-		this.base=clone;
-		this.settings=options;
-		this.textColumn=base.getColumn((String) settings.get(TEXT_COLUMN));
-	}
 
 	protected IColumn textColumn;
 	protected ArrayList<IItem> items ;
@@ -65,7 +69,11 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 		return this.items;
 	}
 
-	protected abstract ArrayList<IItem> createItems();
+	protected ArrayList<IItem> createItems(){
+		ArrayList<IItem> arrayList = new ArrayList<>();
+		arrayList.addAll(this.docs);
+		return arrayList;
+	}
 
 	@Override
 	public IDataSetDelta compare(IDataSet d) {
@@ -82,6 +90,10 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 		return settings;
 	}
 
+	@Override
+	public String name() {
+		return this.name;
+	}
 	@Override
 	public IVisualizerProto getVisualizer() {
 		return new IVisualizerProto() {
@@ -125,37 +137,25 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 		this.settings.putAll(parameters);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public IDataSet subDataSet(String string, List<? extends IItem> arrayList) {
-		try {
-			AbstractTextDataSet rs = (AbstractTextDataSet) this.clone();
-			rs.items = (ArrayList) arrayList;
-			rs.name = string;
-			rs.settings.putAll(this.settings);
-			return rs;
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
+		TextSequenceDataSet textSequenceDataSet = new TextSequenceDataSet((ArrayList<Document>) arrayList);
+		textSequenceDataSet.name=string;
+		return textSequenceDataSet;
+	}
+
+	@Override
+	public IDataSet withPredictions(IDataSet t2) {
 		return null;
 	}
 
 	@Override
 	public List<DescriptionEntry> description() {
-		ArrayList<DescriptionEntry> result = new ArrayList<>();
-		return result;
+		return new ArrayList<>();
 	}
 
 	@Override
 	public List<ConversionAction> conversions() {
 		return new ArrayList<>();
 	}
-
-	public String name() {
-		return this.name;
-	}
-
-	public abstract boolean isPositive(TextItem textItem);
-
-	public abstract Object binaryLabel(TextItem textItem);
 }
