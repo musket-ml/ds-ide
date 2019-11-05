@@ -25,6 +25,7 @@ import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 
 import com.onpositive.dside.ui.DSIDEUIPlugin;
+import com.onpositive.dside.ui.IHasName;
 import com.onpositive.yamledit.io.YamlIO;
 
 public class TaskManager {
@@ -127,7 +128,8 @@ public class TaskManager {
 
 		try {
 			IProject[] projects = task.getProjects();
-			LaunchShortcut launchShortcut = new MusketLaunchShortcut(projects);
+			LaunchShortcut launchShortcut = new MusketLaunchShortcut(projects, task.getPreferredLaunchConfigType());
+			((MusketLaunchShortcut) launchShortcut).setPreferredLaunchConfigType(task.getPreferredLaunchConfigType());
 
 			
 			ILaunchConfigurationWorkingCopy launchConfig = launchShortcut
@@ -135,7 +137,10 @@ public class TaskManager {
 							new FileOrResource[] { new FileOrResource(LaunchScriptFileProvider.getScriptFile()) });
 			Set<String> modeSet = new HashSet<String>(Arrays.asList("run", "debug"));
 			((ILaunchConfigurationWorkingCopy) launchConfig).setPreferredLaunchDelegate(modeSet, 
-					task.getPreferredLaunchDelegate());
+					task.getPreferredLaunchConfigType());
+			if (task instanceof IHasName) {
+				launchConfig.rename(((IHasName) task).getName());
+			}
 			ILaunchConfigurationDelegate preferredDelegate = launchConfig.getType().getDelegate(task.isDebug() ? ILaunchManager.DEBUG_MODE : ILaunchManager.RUN_MODE);
 			
 			if (preferredDelegate instanceof IMusketLaunchDelegate) {

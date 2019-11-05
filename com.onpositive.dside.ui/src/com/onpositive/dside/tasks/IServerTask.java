@@ -16,7 +16,7 @@ public interface IServerTask<T> {
 
 	public default void afterStart(ILaunch launch) {};
 	
-	public String getPreferredLaunchDelegate();
+	public String getPreferredLaunchConfigType();
 	
 	default boolean save() {return false;}
 }

@@ -109,7 +109,7 @@
         public="false">
 	</launchConfigurationType>
 	<launchConfigurationType
-        delegate="com.onpositive.musket_core.PublicMusketLaunchConfigurationDelegate"
+        delegate="com.onpositive.musket_core.PublicMusketLaunchDelegate"
         id="com.onpositive.dside.musket.launch"
         modes="run, debug"
         name="Musket Core Run"
@@ -742,4 +742,12 @@
              id="com.onpositive.dside.ui.datasets.FolderEditorInputFactory">
        </factory>
     </extension>
+    <extension
+	    point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+	    <launchConfigurationTabGroup
+	        class="com.onpositive.dside.ui.launch.MusketTabGroup"
+	        id="com.onpositive.dside.ui.launch.MusketTabGroup"
+	        type="com.onpositive.dside.musket.launch">
+	    </launchConfigurationTabGroup>
+	</extension>
 </plugin>

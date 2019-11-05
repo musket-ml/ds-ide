@@ -1,6 +1,7 @@
 package com.onpositive.dside.tasks;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -23,19 +24,31 @@ import org.python.pydev.shared_ui.utils.RunInUiThread;
 
 public class MusketLaunchShortcut extends LaunchShortcut {
 
+	private static final String DEFAULT_LAUNCH_TYPE = "com.onpositive.dside.musket.launch";
 	private IProject[] projects;
+	private String preferredLaunchConfigType;
 
 	public MusketLaunchShortcut() {
-		this(new IProject[0]);
+		this(new IProject[0], DEFAULT_LAUNCH_TYPE);
 	}
 
-	public MusketLaunchShortcut(IProject[] projects) {
+	public MusketLaunchShortcut(IProject[] projects, String preferredLaunchConfigType) {
 		this.projects = projects;
+		this.preferredLaunchConfigType = preferredLaunchConfigType;
+	}
+	
+	@Override
+	protected void launch(FileOrResource file, String mode) {
+		// TODO Auto-generated method stub
+		super.launch(file, mode);
 	}
 
 	@Override
 	protected String getLaunchConfigurationType() {
-		return "org.python.pydev.debug.musketLaunchConfigurationType";
+		if (preferredLaunchConfigType != null) {
+			return preferredLaunchConfigType;
+		}
+		return DEFAULT_LAUNCH_TYPE;
 	}
 
 	public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(FileOrResource[] resource)
@@ -111,6 +124,10 @@ public class MusketLaunchShortcut extends LaunchShortcut {
 		tab.setDefaults(createdConfiguration);
 		tab.dispose();
 		return createdConfiguration;
+	}
+
+	public void setPreferredLaunchConfigType(String preferredLaunchDelegate) {
+		this.preferredLaunchConfigType = preferredLaunchDelegate;
 	}
 	
 	

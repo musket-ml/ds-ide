@@ -270,7 +270,7 @@ public class ProjectWrapper implements IPythonPathProvider {
 					.findContainersForLocation(new Path(this.path));
 			if (findContainersForLocation != null&&findContainersForLocation.length>0) {
 				IProject project = findContainersForLocation[0].getProject();
-				LaunchShortcut launchShortCut = new MusketLaunchShortcut(new IProject[] { project });
+				LaunchShortcut launchShortCut = new MusketLaunchShortcut(new IProject[] { project }, "org.python.pydev.debug.musketLaunchConfigurationType");
 				ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
 						.createDefaultLaunchConfiguration(
 								new FileOrResource[] { new FileOrResource(project.getFolder("experiments")) });
