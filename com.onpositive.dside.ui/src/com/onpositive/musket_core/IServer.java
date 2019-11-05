@@ -1,7 +1,6 @@
 package com.onpositive.musket_core;
 
 public interface IServer {
-
 	String hello();
 	
 	IMusketProject project(String path);
@@ -17,4 +16,6 @@ public interface IServer {
 	void downloadCompetitionFiles(String id, String dest);
 	
 	void runOnKaggle(String projectPath);
+
+	void downloadDeps(String fullPath);
 }

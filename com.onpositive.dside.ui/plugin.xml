@@ -88,6 +88,11 @@
                id="com.onpositive.dside.ui.action4"
                label="Kaggle Dataset">
          </action>
+         <action
+               class="com.onpositive.dside.ui.navigator.DownloadDepsAction"
+               id="com.onpositive.dside.ui.action4"
+               label="Download Dependecies">
+         </action>
       </objectContribution>
       <objectContribution
             adaptable="true"
