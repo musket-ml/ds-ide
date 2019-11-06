@@ -6,10 +6,8 @@ import java.util.Map;
 
 import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
-import com.onpositive.musket.data.images.BinaryClassificationDataSetWithGroundTruth;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IMultiClassificationWithGroundTruth;
-import com.onpositive.musket.data.images.MultiClassificationDataset;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 

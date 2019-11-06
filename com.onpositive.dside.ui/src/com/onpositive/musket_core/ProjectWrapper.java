@@ -249,7 +249,7 @@ public class ProjectWrapper implements IPythonPathProvider {
 			public IStatus run(IProgressMonitor monitor) {
 
 				String absolutePath = projectMetaPath();
-				String pythonPath = ProjectWrapper.this.getPythonPath();
+				PyInfo pythonPath = ProjectWrapper.this.getPythonPath();
 
 				innerIntrospect(pythonPath, absolutePath);
 				return Status.OK_STATUS;
@@ -262,7 +262,8 @@ public class ProjectWrapper implements IPythonPathProvider {
 
 	}
 	
-	public String getPythonPath() {
+	
+	public PyInfo getPythonPath() {
 		String pythonPath = null;
 		try {
 			IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
@@ -278,13 +279,14 @@ public class ProjectWrapper implements IPythonPathProvider {
 				String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(
 						createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
 				pythonPath = pythonpathFromConfiguration;
+				return new PyInfo(pythonPath, pythonRunner.interpreter.toFile().getAbsolutePath());
 			}
 
 		} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		return pythonPath;
+		return null;
 	}
 
 	private String projectMetaPath() {
@@ -324,7 +326,7 @@ public class ProjectWrapper implements IPythonPathProvider {
 	
 	
 
-	public void innerIntrospect(String pythonPath, String absolutePath) {
+	public void innerIntrospect(PyInfo pythonPath, String absolutePath) {
 		synchronized (mon) {
 			InstrospectionResult introspect = projectIntrospector.introspect(path, pythonPath, absolutePath);
 			if (introspect!=null) {

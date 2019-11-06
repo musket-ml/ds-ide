@@ -1,5 +1,7 @@
 package com.onpositive.musket.data.text;
 
+import java.util.ArrayList;
+
 public class Token {
 
 	private String[] vals;
@@ -19,4 +21,14 @@ public class Token {
 	public String toString() {
 		return vals[this.parent.document.parent.textPosition()];
 	}
+
+	public ArrayList<String> classes() {
+		ArrayList<String>rs=new ArrayList<>();
+		for (int i=this.parent.document.parent.textPosition()+1;i<vals.length;i++) {
+			rs.add(this.vals[i]);
+		}
+		return rs;		
+	}
+	
+	
 }

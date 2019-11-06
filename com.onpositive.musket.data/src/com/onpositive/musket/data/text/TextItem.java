@@ -18,6 +18,7 @@ import javax.swing.border.TitledBorder;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.generic.GenericDataSet;
+import com.onpositive.musket.data.generic.StringUtils;
 import com.onpositive.musket.data.images.IBinaryClasificationItem;
 import com.onpositive.musket.data.images.IImageItem;
 import com.onpositive.musket.data.images.IMulticlassClassificationItem;
@@ -55,7 +56,7 @@ public class TextItem implements ITextItem, IBinaryClasificationItem, IMulticlas
 		if (value.length() > mxch) {
 			value = value.substring(0, mxch) + "...";
 		}
-		return value;
+		return StringUtils.encodeHtml(value);
 	}
 	@Override
 	public Image getImage() {
@@ -110,7 +111,7 @@ public class TextItem implements ITextItem, IBinaryClasificationItem, IMulticlas
 
 	protected String getClassText() {
 		ArrayList<String> classes = this.classes();
-		String string = "<html>" + classes.stream().collect(Collectors.joining(", ")) + "</html>";
+		String string = "<html>" + StringUtils.encodeHtml(classes.stream().collect(Collectors.joining(", "))) + "</html>";
 		return string;
 	}
 

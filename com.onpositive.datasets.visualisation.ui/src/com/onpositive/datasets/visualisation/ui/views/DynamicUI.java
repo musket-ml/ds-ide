@@ -32,6 +32,8 @@ import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.generic.Columns;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.table.IColumn;
+import com.onpositive.musket.data.text.ClassVisibilityOptions;
+import com.onpositive.musket.data.text.IHasClassGroups;
 import com.onpositive.semantic.model.api.meta.BaseMeta;
 import com.onpositive.semantic.model.api.meta.DefaultMetaKeys;
 import com.onpositive.semantic.model.api.property.IHasPropertyProvider;
@@ -246,6 +248,30 @@ public class DynamicUI {
 			element.setBinding(binding);
 			element.setCaption(HumanCaption.getHumanCaption(p.getName()));
 			cm.add(element);
+		}else if (type.equals("ClassVisibilityOptions")) {
+			ButtonSelector bs=new ButtonSelector();
+			bs.addListener(SWT.Selection, new SWTEventListener<Button>() {
+				
+				@Override
+				public void handleEvent(AbstractUIElement<Button> arg0, Event arg1) {
+					AnalizerOrVisualizerUI b=(AnalizerOrVisualizerUI) (DynamicUI.this);					
+					Object value = binding.getValue();
+					if (value==null) {
+						value="";
+					}
+					ClassVisibilityOptions options=new ClassVisibilityOptions(value.toString(),(IHasClassGroups) b.getDataSet());
+					boolean createObject = WidgetRegistry.createObject(options);
+					
+					if (createObject) {
+						binding.setValue(options.toString());
+					}
+					
+				}
+			});
+			bs.getLayoutHints().setGrabHorizontal(true);
+			bs.getLayoutHints().setAlignmentHorizontal(Alignment.FILL);
+			bs.setCaption("Visible Classes...");
+			cm.add(bs);
 		}
 		else if (type.equals("columns")) {
 			ButtonSelector bs=new ButtonSelector();

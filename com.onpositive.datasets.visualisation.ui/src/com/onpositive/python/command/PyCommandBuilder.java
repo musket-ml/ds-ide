@@ -13,23 +13,18 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.onpositive.python.command.IPythonPathProvider.PyInfo;
+
 public class PyCommandBuilder {
 
 	private static final String PYTHON3_EXECUTABLE = "python3";
 	private static final String PYTHON_EXECUTABLE = "python";
 
 
-	public static ProcessBuilder buildCommand(Collection<String> args, String pythonPath) {
-		String whichCommand = StringUtils.stripToEmpty(System.getProperty("os.name")).startsWith("Windows") ? "where" : "which";
-		String whichResult = "";
+	public static ProcessBuilder buildCommand(Collection<String> args, PyInfo pythonPath) {
 		
-		try {
-			whichResult = runProcess(new ProcessBuilder().command(whichCommand, PYTHON3_EXECUTABLE).start());
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
 		
-		String pyExe = whichResult.isEmpty() ? PYTHON_EXECUTABLE : PYTHON3_EXECUTABLE;
+		String pyExe = pythonPath.pythonInterpreter;
 		ArrayList<String> fullArgsList = new ArrayList<>(1 + args.size());
 		fullArgsList.add(pyExe);
 		fullArgsList.addAll(args);
@@ -40,7 +35,7 @@ public class PyCommandBuilder {
 		command.environment().putAll(envs);
 		
 		if (pythonPath != null) {
-			command.environment().put("PYTHONPATH", pythonPath);
+			command.environment().put("PYTHONPATH", pythonPath.pythonPath);
 		}
 		return command;
 	}
@@ -64,7 +59,7 @@ public class PyCommandBuilder {
 	}
 
 
-	public static String executeScript(String pythonPath, String script) {
+	public static String executeScript(PyInfo pythonPath, String script) {
 		List<String> args = Arrays.asList(new String[] {"-c", script});
 		ProcessBuilder command = PyCommandBuilder.buildCommand(args,pythonPath);
 		

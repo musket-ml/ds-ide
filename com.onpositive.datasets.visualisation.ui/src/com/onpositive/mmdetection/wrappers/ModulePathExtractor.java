@@ -4,11 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.onpositive.python.command.IPythonPathProvider.PyInfo;
 import com.onpositive.python.command.PyCommandBuilder;
 
 public class ModulePathExtractor {
 	
-	public static String extractModulepath(String moduleName, String pythonPath) {
+	public static String extractModulepath(String moduleName, PyInfo pythonPath) {
 
 		String script = "import os\n" + 
 				"import " + moduleName + "\n" + 
@@ -18,7 +19,7 @@ public class ModulePathExtractor {
 		return PyCommandBuilder.executeScript(pythonPath, script);
 	}
 	
-	public static List<String> extractCheckpointFilenames(String pythonPath) {
+	public static List<String> extractCheckpointFilenames(PyInfo pythonPath) {
 		
 		String script = "from mmdetection_pipeline import checkpoint_registry\n" + 
 				"for x in checkpoint_registry.listModelWeightPaths():\n" + 
@@ -29,7 +30,7 @@ public class ModulePathExtractor {
 		return result;
 	}
 	
-	public static Data extractCheckpointsAndConfigs(String pythonPath) {
+	public static Data extractCheckpointsAndConfigs(PyInfo pythonPath) {
 		String sep1 = "####";
 		String sep2 = "@@";
 		String script = String.format(

@@ -6,32 +6,36 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import javax.swing.border.Border;
+import javax.swing.JTextPane;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.generic.GenericDataSet;
+import com.onpositive.musket.data.generic.StringUtils;
 import com.onpositive.musket.data.images.IImageItem;
 
-public class Document implements ITextItem,IImageItem{
+public class Document implements ITextItem, IImageItem {
 
-	protected ArrayList<Sentence>contents=new ArrayList<>();
+	protected ArrayList<Sentence> contents = new ArrayList<>();
 
 	protected TextSequenceDataSet parent;
 
 	private int num;
-	
-	public Document(TextSequenceDataSet parent,int num) {
+
+	public Document(TextSequenceDataSet parent, int num) {
 		super();
 		this.parent = parent;
-		this.num=num;
+		this.num = num;
 	}
 
 	public boolean isEmpty() {
@@ -41,15 +45,15 @@ public class Document implements ITextItem,IImageItem{
 	public void add(Sentence curSeq) {
 		this.contents.add(curSeq);
 	}
-	
+
 	@Override
 	public String toString() {
-		return this.contents.stream().map(x->x.toString()).collect(Collectors.joining(System.lineSeparator()));
+		return this.contents.stream().map(x -> x.toString()).collect(Collectors.joining(System.lineSeparator()));
 	}
 
 	@Override
 	public String id() {
-		return ""+num;
+		return "" + num;
 	}
 
 	@Override
@@ -61,6 +65,7 @@ public class Document implements ITextItem,IImageItem{
 	public String getText() {
 		return toString();
 	}
+
 	protected static HashMap<Integer, Font> fonts = new HashMap<>();
 
 	protected String getTextValue(int mxch) {
@@ -70,7 +75,7 @@ public class Document implements ITextItem,IImageItem{
 		}
 		return value;
 	}
-	
+
 	@Override
 	public Image getImage() {
 		BufferedImage img = new BufferedImage(350, 350, BufferedImage.TYPE_INT_ARGB);
@@ -93,46 +98,82 @@ public class Document implements ITextItem,IImageItem{
 			font = fonts.get(fs);
 		}
 
-		JTextArea area = new JTextArea();
-		area.setWrapStyleWord(true);
-		area.setLineWrap(true);
+		JTextPane area = new JTextPane();
+		area.setContentType("text/html");
+		// area.setLineWrap(true);
 		area.setFont(font);
 		area.setBorder(new TitledBorder("Text"));
-		String value = getTextValue(mxch);
 		BufferedImage nn = new BufferedImage(350, 350, BufferedImage.TYPE_INT_ARGB);
 		area.setLocation(0, 0);
-		area.setText(value);
-		area.setSize(350, 310);
+		HTMLEditorKit kit = new HTMLEditorKit();
+		HTMLDocument doc = new HTMLDocument();
+		area.setEditorKit(kit);
+		area.setDocument(doc);
+		ClassVisibilityOptions visibility = this.parent.getVisibility();
+		try {
+			StringBuilder bld = new StringBuilder();
+			bld.append("<font size='4'>");
+			l2:for (Sentence s : this.contents) {
+				bld.append("<p>");
+				for (Token t : s.tokens) {
+					bld.append(StringUtils.encodeHtml(t.toString()+" "));
+					List<String> classes = t.classes();
+					classes=classes.stream().filter(x->x.contains("LOC")||x.contains("ORG")).collect(Collectors.toList());
+					if (!classes.isEmpty()&&visibility.showInText) {
+						bld.append("<font color='blue'>");
+						bld.append('(');
+						
+						bld.append(classes.stream().collect(Collectors.joining(", ")));
+						bld.append(") ");
+						bld.append("</font>");
+					}
+					if (bld.length()>mxch) {
+						bld.append("...");
+						break l2;
+					}
+				}
+				bld.append("</p>");
+			}
+			bld.append("</font>");
+			kit.insertHTML(doc, doc.getLength(), bld.toString(), 0, 0, null);
+
+		} catch (BadLocationException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		area.setSize(350, 350);
 		area.paint(nn.getGraphics());
 
-		g2.drawImage(nn, 0, 40, null);
-		
-		String string = getClassText();
-		JLabel label = new JLabel(string);
-		Border createEmptyBorder = BorderFactory.createEmptyBorder(5, 5, 0, 5);
+		g2.drawImage(nn, 0, 0, null);
 
-		TitledBorder titledBorder = new TitledBorder(BorderFactory
-				.createCompoundBorder(BorderFactory.createTitledBorder("").getBorder(), createEmptyBorder));
-
-		titledBorder.setTitle("Classes");
-		label.setBorder(titledBorder);
-		label.setSize(350, 40);
-		label.paint(g2);
 		return img;
 
 	}
 
-	private String getClassText() {
-		return "";
-	}
 
 	@Override
 	public void drawOverlay(Image image, int color) {
-		
+
 	}
 
 	@Override
 	public Point getImageDimensions() {
-		return new Point(350,350);
+		return new Point(350, 350);
+	}
+
+	public ArrayList<LinkedHashSet<String>>classes(){
+		ArrayList<LinkedHashSet<String>>classes=new ArrayList<>();
+		this.contents.forEach(v->{
+			ArrayList<LinkedHashSet<String>> tclasses = v.classes();
+			for (int i=0;i<tclasses.size();i++) {
+				LinkedHashSet<String> string = tclasses.get(i);
+				if (classes.size()<=i) {
+					classes.add(new LinkedHashSet<>());
+				}
+				classes.get(i).addAll(string);
+			}
+		});
+		return classes;
 	}
 }

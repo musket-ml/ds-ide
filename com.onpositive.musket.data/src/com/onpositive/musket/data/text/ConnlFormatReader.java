@@ -58,6 +58,7 @@ public class ConnlFormatReader {
 			docs.add(curDoc);
 		}
 		ds.docs.addAll(docs);
+		ds.init();
 		return ds;		
 	}
 	
