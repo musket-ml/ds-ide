@@ -144,14 +144,12 @@
             <enablement>
                <with variable="selection">
 			     <count value="1"/>
-			      <iterate>            
-	               <adapt type="org.eclipse.core.resources.IResource">
-	               		<test
-					   		property="org.eclipse.core.resources.name"
-					   		value="config.yaml">
-				   		</test>
-				   </adapt>			   
-			      </iterate>
+			        <iterate>
+				       <adapt type="org.eclipse.core.resources.IResource">
+				          <test property="org.eclipse.core.resources.name" 
+				                value="common.yaml"/>
+				       </adapt>
+				    </iterate>
 			     </with>
             </enablement>
          </contextualLaunch>  
@@ -641,14 +639,12 @@
                    <count
                          value="2">
                    </count>
-                   <iterate>
-                      <adapt
-                            type="org.eclipse.core.resources.IFile">
-                         <test
-                                property="matchesName" value="*.csv"/>
-                         
-                      </adapt>
-                   </iterate>
+                     <iterate>
+				       <adapt type="org.eclipse.core.resources.IResource">
+				          <test property="org.eclipse.core.resources.name" 
+				                value="*.csv"/>
+				       </adapt>
+				    </iterate>
                 </with>
              </visibleWhen>
           </command>
