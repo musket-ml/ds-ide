@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 
 import com.onpositive.datasets.visualisation.ui.views.EnumRealmProvider;
 import com.onpositive.dside.tasks.IServerTask;
@@ -20,18 +21,44 @@ import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
 
 @Display("dlf/launch.dlf")
-public class LaunchConfiguration implements IServerTask<Object> {
+public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 
+	protected List<Experiment> experiment = new ArrayList<Experiment>();
+	
+	@Range(min = 1, max = 100)
+	protected int numWorkers = 1;
+
+	@Range(min = 1, max = 16)
+	protected int numGpus = 1;
+
+	@Range(min = 1, max = 8)
+	protected int gpusPerNet = 1;
+
+	protected boolean allowResume;
+
+	protected boolean onlyReports;
+
+	protected boolean launchTasks;
+
+	protected boolean fitFromScratch;
+
+	protected boolean debug;
+
+	@Caption("Please select fold selection strategy")
+	@RealmProvider(EnumRealmProvider.class)
+	@Required
+	FoldSelectionStrategy folds=FoldSelectionStrategy.ALL;
+
+	ArrayList<Integer>folds_numbers=new ArrayList<>();
+
+	public LaunchConfiguration() {
+	}
+	
 	public LaunchConfiguration(Collection<Object> collection) {
 		collection.forEach(e -> {
 			experiment.add((Experiment) e);
 		});
 	}
-
-	protected List<Experiment> experiment = new ArrayList<Experiment>();
-
-	@Range(min = 1, max = 100)
-	int numWorkers = 1;
 
 	public int getNumWorkers() {
 		return numWorkers;
@@ -67,32 +94,9 @@ public class LaunchConfiguration implements IServerTask<Object> {
 		this.cleanSplits = cleanSplits;
 	}
 
-	@Range(min = 1, max = 16)
-	int numGpus = 1;
-
-	@Range(min = 1, max = 8)
-	int gpusPerNet = 1;
-
-	boolean allowResume;
-
-	boolean onlyReports;
-
-	boolean launchTasks;
-
-	boolean fitFromScratch;
-	
-	boolean debug;
-	
-	@Caption("Please select fold selection strategy")
-	@RealmProvider(EnumRealmProvider.class)
-	@Required
-	FoldSelectionStrategy folds=FoldSelectionStrategy.ALL;
-	
 	public boolean getShowFolds() {
 		return folds==FoldSelectionStrategy.MANUAL;
 	}
-	
-	ArrayList<Integer>folds_numbers=new ArrayList<>();
 	
 	public String getFolds() {
 		return folds_numbers.stream().map(x->x.toString()).collect(Collectors.joining(","));
@@ -180,7 +184,7 @@ public class LaunchConfiguration implements IServerTask<Object> {
 	}
 
 	@Override
-	public org.eclipse.core.resources.IProject[] getProject() {
+	public org.eclipse.core.resources.IProject[] getProjects() {
 		ArrayList<org.eclipse.core.resources.IProject>p=new ArrayList<>();
 		for(Experiment e:experiment) {
 			IPath path = e.getPath();
@@ -190,6 +194,28 @@ public class LaunchConfiguration implements IServerTask<Object> {
 			}
 		}
 		return p.toArray(new org.eclipse.core.resources.IProject[p.size()]);
+	}
+
+	@Override
+	public String getPreferredLaunchConfigType() {
+		return "com.onpositive.dside.musket.launch";
+	}
+
+	@Override
+	public String getName() {
+		if (!experiment.isEmpty()) {
+			String projectPath = new Path(experiment.get(0).getProjectPath()).lastSegment();
+			return projectPath + " " + experiment.get(0).getPath().lastSegment();
+		}
+		return "<experiment>";
+	}
+
+	public boolean isFitFromScratch() {
+		return fitFromScratch;
+	}
+
+	public void setFitFromScratch(boolean fitFromScratch) {
+		this.fitFromScratch = fitFromScratch;
 	}
 
 	

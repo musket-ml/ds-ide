@@ -1,9 +1,9 @@
 package com.onpositive.musket_core;
 
-import com.onpositive.dside.tasks.IServerTask;
+import com.onpositive.dside.tasks.PrivateServerTask;
 import com.onpositive.yamledit.introspection.InstrospectionResult;
 
-public class IntrospectTask implements IServerTask<InstrospectionResult>{
+public class IntrospectTask extends PrivateServerTask<InstrospectionResult>{
 
 	protected String path;
 	protected transient ProjectWrapper wrapper;
@@ -37,7 +37,7 @@ public class IntrospectTask implements IServerTask<InstrospectionResult>{
 	}
 
 	@Override
-	public org.eclipse.core.resources.IProject[] getProject() {
+	public org.eclipse.core.resources.IProject[] getProjects() {
 		return new org.eclipse.core.resources.IProject[0];
 	}
 }
