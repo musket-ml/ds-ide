@@ -116,16 +116,28 @@ public class Document implements ITextItem, IImageItem {
 			l2:for (Sentence s : this.contents) {
 				bld.append("<p>");
 				for (Token t : s.tokens) {
-					bld.append(StringUtils.encodeHtml(t.toString()+" "));
+					
 					List<String> classes = t.classes();
-					classes=classes.stream().filter(x->x.contains("LOC")||x.contains("ORG")).collect(Collectors.toList());
-					if (!classes.isEmpty()&&visibility.showInText) {
+					classes=visibility.filter(classes);					
+					if (!classes.isEmpty()&&(visibility.showInText||classes.size()>1)) {
+						bld.append(StringUtils.encodeHtml(t.toString()+" "));
 						bld.append("<font color='blue'>");
 						bld.append('(');
 						
 						bld.append(classes.stream().collect(Collectors.joining(", ")));
 						bld.append(") ");
 						bld.append("</font>");
+					}
+					else {
+						if (classes.size()>0) {
+						Color color = visibility.getColor(classes.get(0));
+							bld.append("<font color='#"+Integer.toHexString(color.getRGB()).substring(2)+"'>");
+							bld.append(StringUtils.encodeHtml(t.toString())+" ");
+							bld.append("</font>");
+						}
+						else {
+							bld.append(StringUtils.encodeHtml(t.toString()+" "));
+						}
 					}
 					if (bld.length()>mxch) {
 						bld.append("...");

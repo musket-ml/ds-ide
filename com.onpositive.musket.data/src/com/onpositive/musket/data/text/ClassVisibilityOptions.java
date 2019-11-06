@@ -3,7 +3,9 @@ package com.onpositive.musket.data.text;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
@@ -73,6 +75,7 @@ public class ClassVisibilityOptions {
 	}
 	
 	boolean showInText=true;
+	private HashSet<String> visibleClasses;
 
 	public void hideSelected() {
 		if (selection != null) {
@@ -150,5 +153,34 @@ public class ClassVisibilityOptions {
 		replace = replace.replace((CharSequence) "@sep", ";");
 		replace = replace.replace((CharSequence) "@colon", ":");
 		return replace;
+	}
+
+	public List<String> filter(List<String> classes) {
+		if (this.visibleClasses==null) {
+			this.visibleClasses=new HashSet<>();
+			this.settings.forEach(v->{
+				if (v.show) {
+					this.visibleClasses.add(v.group+v.name);
+				}
+			});
+		}
+		int size = classes.size();
+		ArrayList<String>results=new ArrayList<>();
+		for (int i=0;i<size;i++) {
+			String key=i+classes.get(i);
+			if (visibleClasses.contains(key)) {
+				results.add(classes.get(i));
+			}
+		}
+		return results;
+	}
+
+	public Color getColor(String string) {
+		for (ClassVisibilitySetting s:this.settings) {
+			if (s.name.equals(string)) {
+				return s.rgb;
+			}
+		}
+		return null;		
 	}
 }
