@@ -116,6 +116,42 @@
         public="true">
 	</launchConfigurationType>
    </extension>
+    <extension
+         point="org.eclipse.debug.ui.launchShortcuts">
+      <shortcut
+            class="com.onpositive.dside.tasks.MusketLaunchShortcut"
+            icon="icons/experiment.png"
+            id="com.onpositive.dside.tasks.MusketLaunchShortcut"
+            label="Launch Musket Experiment"
+            modes="run, debug">
+         <description
+               description="Run Musket Experiment Launch"
+               mode="run">
+         </description>
+         <description
+               description="Debug Musket Experiment Launch"
+               mode="debug">
+         </description>
+         <configurationType
+               id="com.onpositive.dside.musket.launch">
+         </configurationType>
+         <contextualLaunch>
+            <enablement>
+               <with variable="selection">
+			     <count value="1"/>
+			      <iterate>            
+	               <adapt type="org.eclipse.core.resources.IResource">
+	               		<test
+					   		property="org.eclipse.core.resources.name"
+					   		value="config.yaml">
+				   		</test>
+				   </adapt>			   
+			      </iterate>
+			     </with>
+            </enablement>
+         </contextualLaunch>  
+      </shortcut>
+   </extension>
    <extension
          point="org.eclipse.ui.editors">
       <editor

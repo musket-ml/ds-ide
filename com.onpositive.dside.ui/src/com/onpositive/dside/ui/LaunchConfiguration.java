@@ -205,13 +205,17 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 	public String getName() {
 		if (!experiment.isEmpty()) {
 			String projectPath = new Path(experiment.get(0).getProjectPath()).lastSegment();
-			String label = projectPath + ":" + experiment.get(0).getPath().lastSegment();
-			if (experiment.size() > 1) {
-				label += ",...";
-			}
-			return label;
+			return projectPath + " " + experiment.get(0).getPath().lastSegment();
 		}
 		return "<experiment>";
+	}
+
+	public boolean isFitFromScratch() {
+		return fitFromScratch;
+	}
+
+	public void setFitFromScratch(boolean fitFromScratch) {
+		this.fitFromScratch = fitFromScratch;
 	}
 
 	

@@ -24,6 +24,9 @@ public class MusketTab extends AbstractLaunchConfigurationTab {
 	private Spinner numWorkersSpinner;
 	private Button initSplitsCheck;
 	private Button debugCheck;
+	private Button fitFromScratch;
+	private Button allowResume;
+	private Button onlyReports;
 
 	@Override
 	public void createControl(Composite parent) {
@@ -35,13 +38,12 @@ public class MusketTab extends AbstractLaunchConfigurationTab {
 		numGPUSpinner = createSpinner(con, "GPUs to use", 1, 16);
 		numWorkersSpinner = createSpinner(con, "Total number of workers", 1, 16);
 		
-		debugCheck = new Button(con, SWT.CHECK);
-		debugCheck.setText("Launch in debug mode");
-		GridDataFactory.swtDefaults().span(2,1).applyTo(debugCheck);
+		fitFromScratch = createButton(con, "Fit from start", SWT.RADIO);
+	 	allowResume = createButton(con, "Resume incomplete experiments", SWT.RADIO);
+	 	onlyReports = createButton(con, "Only generate reports", SWT.RADIO);
 		
-		initSplitsCheck = new Button(con, SWT.CHECK);
-		initSplitsCheck.setText("Always initialize data splits from scratch");
-		GridDataFactory.swtDefaults().span(2,1).applyTo(initSplitsCheck);
+		debugCheck = createButton(con, "Launch in debug mode", SWT.CHECK);
+		initSplitsCheck = createButton(con, "Always initialize data splits from scratch", SWT.CHECK);
 		
 	}
 
@@ -61,8 +63,14 @@ public class MusketTab extends AbstractLaunchConfigurationTab {
 				numGPUSpinner.setSelection(launchConfiguration.getNumGpus());
 				numWorkersSpinner.setSelection(launchConfiguration.getNumWorkers());
 				
+				allowResume.setSelection(launchConfiguration.isAllowResume());
+				onlyReports.setSelection(launchConfiguration.isOnlyReports());
+				fitFromScratch.setSelection(launchConfiguration.isFitFromScratch());
+				
 				debugCheck.setSelection(launchConfiguration.isDebug());
 				initSplitsCheck.setSelection(launchConfiguration.isCleanSplits());
+			} else {
+				launchConfiguration = new LaunchConfiguration();
 			}
 		} catch (Exception e) {
 			DSIDEUIPlugin.log(e);
@@ -71,13 +79,37 @@ public class MusketTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-		// TODO Auto-generated method stub
 
+		launchConfiguration.setNumGpus(numGPUSpinner.getSelection());
+		launchConfiguration.setNumWorkers(numWorkersSpinner.getSelection());
+		launchConfiguration.setGpusPerNet(numGPUPerNetSpinner.getSelection());
+		
+		launchConfiguration.setAllowResume(allowResume.getSelection());
+		launchConfiguration.setOnlyReports(onlyReports.getSelection());
+		launchConfiguration.setFitFromScratch(fitFromScratch.getSelection());
+		
+		launchConfiguration.setDebug(debugCheck.getSelection());
+		launchConfiguration.setCleanSplits(initSplitsCheck.getSelection());
+		
+		doSaveLaunchCfg(configuration);
+		
+	}
+
+	private void doSaveLaunchCfg(ILaunchConfigurationWorkingCopy configuration) {
+		String dump = YamlIO.dump(launchConfiguration);
+		configuration.setAttribute(ITaskConstants.YAML_SETTINGS, dump);
 	}
 
 	@Override
 	public String getName() {
 		return "Musket";
+	}
+	
+	private Button createButton(Composite parent, String label, int style) {
+		Button btn = new Button(parent, style);
+		btn.setText(label);
+		GridDataFactory.swtDefaults().span(2,1).applyTo(btn);
+		return btn;
 	}
 	
 	private Spinner createSpinner(Composite parent, String label, int min, int max) {
