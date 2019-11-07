@@ -103,8 +103,6 @@ public class PythonRunner {
             throws CoreException, IOException {
 
         try {
-            PyUnitServer pyUnitServer = null;            
-
             if (config.isDebug) {
                 runDebug(config, launch, monitor);
 

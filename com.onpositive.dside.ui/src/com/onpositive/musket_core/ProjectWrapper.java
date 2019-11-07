@@ -29,7 +29,8 @@ import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 
-import com.onpositive.dside.tasks.TaskManager;
+import com.onpositive.dside.tasks.MusketLaunchShortcut;
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.introspection.IIntrospector;
 import com.onpositive.dside.ui.introspection.ShellIntrospector;
 import com.onpositive.python.command.IPythonPathProvider;
@@ -270,7 +271,7 @@ public class ProjectWrapper implements IPythonPathProvider {
 					.findContainersForLocation(new Path(this.path));
 			if (findContainersForLocation != null&&findContainersForLocation.length>0) {
 				IProject project = findContainersForLocation[0].getProject();
-				LaunchShortcut launchShortCut = TaskManager.launchShortCut(new IProject[] { project });
+				LaunchShortcut launchShortCut = new MusketLaunchShortcut(new IProject[] { project }, "org.python.pydev.debug.musketLaunchConfigurationType");
 				ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
 						.createDefaultLaunchConfiguration(
 								new FileOrResource[] { new FileOrResource(project.getFolder("experiments")) });
@@ -283,8 +284,7 @@ public class ProjectWrapper implements IPythonPathProvider {
 			}
 
 		} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			DSIDEUIPlugin.log(e1);
 		}
 		return null;
 	}

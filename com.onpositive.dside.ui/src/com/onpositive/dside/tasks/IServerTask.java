@@ -4,17 +4,19 @@ import org.eclipse.debug.core.ILaunch;
 
 public interface IServerTask<T> {
 
-	Class<T>resultClass();
+	Class<T> resultClass();
 	
 	public void afterCompletion(T taskResult);
 	
 	public boolean isDebug();
 	
-	org.eclipse.core.resources.IProject[] getProject();
+	org.eclipse.core.resources.IProject[] getProjects();
 	
 	public default void beforeStart() {};
 
 	public default void afterStart(ILaunch launch) {};
+	
+	public String getPreferredLaunchConfigType();
 	
 	default boolean save() {return false;}
 }

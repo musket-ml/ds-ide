@@ -14,7 +14,7 @@ import com.onpositive.yamledit.io.YamlIO;
 
 import py4j.GatewayServer;
 
-public class GateWayRelatedTask implements IServerTask<Object> {
+public class GateWayRelatedTask extends PrivateServerTask<Object> {
 
 	protected IProject project;
 	private IGateWayServerTaskDelegate delegate;
@@ -104,7 +104,7 @@ public class GateWayRelatedTask implements IServerTask<Object> {
 	}
 
 	@Override
-	public IProject[] getProject() {
+	public IProject[] getProjects() {
 		return new IProject[] { project };
 	}
 

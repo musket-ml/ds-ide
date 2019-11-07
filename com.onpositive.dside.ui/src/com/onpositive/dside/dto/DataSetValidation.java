@@ -1,11 +1,12 @@
 package com.onpositive.dside.dto;
 
 import java.util.ArrayList;
+
 import org.eclipse.core.resources.IProject;
 
-import com.onpositive.dside.tasks.IServerTask;
+import com.onpositive.dside.tasks.PrivateServerTask;
 
-public class DataSetValidation implements IServerTask<DataSetValidationResult>{
+public class DataSetValidation extends PrivateServerTask<DataSetValidationResult>{
 
 	boolean debug;
 	
@@ -41,7 +42,7 @@ public class DataSetValidation implements IServerTask<DataSetValidationResult>{
 	}
 
 	@Override
-	public IProject[] getProject() {
+	public IProject[] getProjects() {
 		return new IProject[] {project};
 	}
 

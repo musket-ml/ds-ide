@@ -20,14 +20,14 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
-import com.onpositive.dside.tasks.IServerTask;
+import com.onpositive.dside.tasks.PrivateServerTask;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.IExperimentExecutionListener;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.Range;
 
 @Display("dlf/task.dlf")
-public class TaskConfiguration implements IServerTask<Object> {
+public class TaskConfiguration extends PrivateServerTask<Object> {
 
 	public TaskConfiguration(Collection<Object> collection) {
 		collection.forEach(e -> {
@@ -205,7 +205,7 @@ public class TaskConfiguration implements IServerTask<Object> {
 		});
 	}
 	@Override
-	public IProject[] getProject() {
+	public IProject[] getProjects() {
 		ArrayList<org.eclipse.core.resources.IProject>p=new ArrayList<>();
 		for(Experiment e:experiment) {
 			IPath path = e.getPath();
