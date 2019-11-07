@@ -150,7 +150,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 		});
 	}
 	
-	private static List<DataLink> loadYaml(org.eclipse.core.resources.IProject project) throws CoreException {
+	private static List<DataLink> loadYaml(org.eclipse.core.resources.IProject project) {
 		String projectPath = project.getLocation().toOSString();
 		
 		IFile depsFile = project.getFile(DEPS_FILE);
@@ -161,10 +161,14 @@ public class KaggleDataset extends Wizard implements INewWizard {
 		
 		List<Object> parsedDeps = new ArrayList<Object>();
 		
-		if(depsFile.exists()) {
-			parsed = (Map<String, Object>) yaml.load(depsFile.getContents());
-			
-			parsedDeps = (List<Object>) parsed.get("dependencies");
+		try {
+			if(depsFile.exists()) {
+				parsed = (Map<String, Object>) yaml.load(depsFile.getContents());
+				
+				parsedDeps = (List<Object>) parsed.get("dependencies");
+			}
+		} catch (Throwable t) {
+			parsedDeps = new ArrayList<Object>();
 		}
 		
 		List<DataLink> result = new ArrayList<DataLink>();
