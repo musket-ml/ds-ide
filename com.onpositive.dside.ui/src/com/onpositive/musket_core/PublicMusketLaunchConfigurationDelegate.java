@@ -9,7 +9,7 @@ import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.LaunchConfiguration;
 import com.onpositive.yamledit.io.YamlIO;
 
-public class PublicMusketLaunchDelegate extends MusketLaunchConfigurationDelegate {
+public class PublicMusketLaunchConfigurationDelegate extends MusketLaunchConfigurationDelegate {
 
 	protected IServerTask<?> obtainTask(ILaunchConfiguration conf) {
 		IServerTask<?> task = super.obtainTask(conf);

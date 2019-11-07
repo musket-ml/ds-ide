@@ -153,8 +153,6 @@ public class TaskManager {
 						projects[0].getName());
 			}
 
-			// createDefaultLaunchConfigurationWithoutSaving.setAttribute(Constants.ATTR_WORKING_DIRECTORY,
-			// "D:/");
 			HashMap<String, String> value = new HashMap<>();
 			value.put("PYTHONUNBUFFERED", "1");
 			launchConfig.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, value);

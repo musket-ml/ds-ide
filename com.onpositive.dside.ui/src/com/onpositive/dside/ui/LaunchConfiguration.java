@@ -145,7 +145,10 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 	}
 
 	public void setExperiments(List<String> strings) {
-
+		experiment = new ArrayList<>();
+		for (String path : strings) {
+			experiment.add(new Experiment(path));
+		}
 	}
 
 	static ArrayList<IExperimentExecutionListener> listeners = new ArrayList<>();
