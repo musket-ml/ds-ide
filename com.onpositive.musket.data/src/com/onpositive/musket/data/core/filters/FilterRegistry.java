@@ -17,6 +17,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.onpositive.musket.data.columntypes.BasicColumn;
 import com.onpositive.musket.data.columntypes.ClassColumnType;
 import com.onpositive.musket.data.columntypes.ColumnLayout.ColumnInfo;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -659,7 +660,7 @@ public class FilterRegistry {
 					}
 				}
 			}
-			if (i.preferredType() == ClassColumnType.class) {
+			if (i.preferredType() == ClassColumnType.class||i.preferredType()==BasicColumn.class) {
 				IColumn column = i.getColumn();
 				Function<IItem, IItem> converter = clazzAdapter(column);
 				Class[] cc = new Class[] { HasClassesAnalizer.class };

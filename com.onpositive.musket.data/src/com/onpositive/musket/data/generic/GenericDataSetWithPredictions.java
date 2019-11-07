@@ -49,6 +49,21 @@ public class GenericDataSetWithPredictions extends GenericDataSet implements IDa
 				}
 			}
 		}
+		if (stable.isEmpty()) {
+			for (ColumnInfo i : infos) {
+				IColumn column = i.getColumn();
+				if (true) {
+					// this is a potentinal id
+					Collection<Object> values = column.values();
+					Collection<Object> values1 = 
+							predictions.base.getColumn(column.id()).values();
+					if (values.equals(values1)) {
+						// this column seems identical
+						stable.add(column);
+					}
+				}
+			}
+		}
 		LinkedHashMap<String, GenericItem> nitems = new LinkedHashMap<>();
 		if (!stable.isEmpty()) {
 			predictions.items().forEach(v -> {

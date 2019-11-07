@@ -131,9 +131,9 @@ public class Document implements ITextItem, IImageItem {
 					else {
 						if (classes.size()>0) {
 						Color color = visibility.getColor(classes.get(0));
-							bld.append("<font color='#"+Integer.toHexString(color.getRGB()).substring(2)+"'>");
+							bld.append("<b><font color='#"+Integer.toHexString(color.getRGB()).substring(2)+"'>");
 							bld.append(StringUtils.encodeHtml(t.toString())+" ");
-							bld.append("</font>");
+							bld.append("</font></b>");
 						}
 						else {
 							bld.append(StringUtils.encodeHtml(t.toString()+" "));
