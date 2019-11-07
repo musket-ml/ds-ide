@@ -117,8 +117,8 @@ public class TaskManager {
 
 	@SuppressWarnings("deprecation")
 	public static void perform(IServerTask<?> task) {
-		String dump = YamlIO.dump(task);
 		task.beforeStart();
+		String dump = YamlIO.dump(task);
 		try {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("org.eclipse.ui.console.ConsoleView");
 		} catch (PartInitException e1) {
