@@ -147,7 +147,7 @@
 			        <iterate>
 				       <adapt type="org.eclipse.core.resources.IResource">
 				          <test property="org.eclipse.core.resources.name" 
-				                value="common.yaml"/>
+				                value="config.yaml"/>
 				       </adapt>
 				    </iterate>
 			     </with>

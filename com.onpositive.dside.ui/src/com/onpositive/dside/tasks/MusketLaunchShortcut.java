@@ -53,10 +53,15 @@ public class MusketLaunchShortcut extends LaunchShortcut {
 
 	public ILaunchConfigurationWorkingCopy createDefaultLaunchConfigurationWithoutSaving(FileOrResource[] resource)
 			throws CoreException {
-		IProject project;
+		IProject project = null;
 		if (projects.length > 0) {
 			project = projects[0];
-		} else {
+		} 
+		if (project == null) {
+			project = tryGetProject(resource);
+		}
+		
+		if (project == null) {
 			IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
 			List<IProject> projectsLst = ArrayUtils.filter(projects, new ICallback<Boolean, IProject>() {
 
@@ -124,6 +129,15 @@ public class MusketLaunchShortcut extends LaunchShortcut {
 		tab.setDefaults(createdConfiguration);
 		tab.dispose();
 		return createdConfiguration;
+	}
+
+	private IProject tryGetProject(FileOrResource[] resources) {
+		for (FileOrResource fileOrResource : resources) {
+			if (fileOrResource.resource != null) {
+				return fileOrResource.resource.getProject();
+			}
+		}
+		return null;
 	}
 
 	public void setPreferredLaunchConfigType(String preferredLaunchDelegate) {
