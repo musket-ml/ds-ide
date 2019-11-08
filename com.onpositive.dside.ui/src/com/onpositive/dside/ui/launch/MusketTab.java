@@ -49,8 +49,19 @@ public class MusketTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		// TODO Auto-generated method stub
-
+		if (launchConfiguration == null) {
+			launchConfiguration = new LaunchConfiguration();
+		}
+		launchConfiguration.setNumGpus(1);
+		launchConfiguration.setNumWorkers(1);
+		launchConfiguration.setGpusPerNet(1);
+		
+		launchConfiguration.setAllowResume(true);
+		launchConfiguration.setOnlyReports(false);
+		launchConfiguration.setFitFromScratch(false);
+		
+		launchConfiguration.setDebug(false);
+		launchConfiguration.setCleanSplits(true);
 	}
 
 	@Override
@@ -91,13 +102,13 @@ public class MusketTab extends AbstractLaunchConfigurationTab {
 		launchConfiguration.setDebug(debugCheck.getSelection());
 		launchConfiguration.setCleanSplits(initSplitsCheck.getSelection());
 		
-		doSaveLaunchCfg(configuration);
+		doSaveLaunchCfg(launchConfiguration, configuration);
 		
 	}
 
-	private void doSaveLaunchCfg(ILaunchConfigurationWorkingCopy configuration) {
-		String dump = YamlIO.dump(launchConfiguration);
-		configuration.setAttribute(ITaskConstants.YAML_SETTINGS, dump);
+	private void doSaveLaunchCfg(LaunchConfiguration from, ILaunchConfigurationWorkingCopy to) {
+		String dump = YamlIO.dump(from);
+		to.setAttribute(ITaskConstants.YAML_SETTINGS, dump);
 	}
 
 	@Override

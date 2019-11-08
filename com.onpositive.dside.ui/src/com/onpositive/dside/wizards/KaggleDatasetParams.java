@@ -67,6 +67,32 @@ public class KaggleDatasetParams {
 		return isDsDatasetEnabled() ? dsDatsetItem : dsCompetitionItem;
 	}
 	
+	public void applyDataLink(DataLink dataLink) {
+		if(DataLinkType.KAGGLE_DATASET.equals(dataLink.type)) {
+			dsDatsetItem = new DatasetTableElement(dataLink);
+			
+			dsSearchResultDatasets.clear();			
+			dsSearchResultDatasets.add(dsDatsetItem);
+			
+			dsIsDataset = true;
+			dsIsCompetition = false;
+			
+			return;
+		}
+		
+		if(DataLinkType.KAGGLE_COMPETITION.equals(dataLink.type)) {
+			dsCompetitionItem = new DatasetTableElement(dataLink);
+			
+			dsSearchResultCompetitions.clear();
+			dsSearchResultCompetitions.add(dsCompetitionItem);
+			
+			dsIsDataset = false;
+			dsIsCompetition = true;
+			
+			return;
+		}
+	};
+	
 	public void deserializeFromJsonString(String jsonString) {
 		JsonParser parser = new JsonParser();
 		
@@ -103,6 +129,14 @@ public class KaggleDatasetParams {
 		root.getAsJsonObject().addProperty("size", getItem().size);
 		
 		return root.toString();
+	}
+	
+	public DataLink asDatalink() {
+		String ref = dsIsDataset ? "kaggle.dataset://" : "kaggle.competition://";
+		
+		ref = ref + getItem().ref;
+		
+		return new DataLink(ref);
 	}
 			
 	@Caption("Search")

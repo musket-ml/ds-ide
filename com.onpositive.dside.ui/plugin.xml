@@ -114,7 +114,7 @@
         public="false">
 	</launchConfigurationType>
 	<launchConfigurationType
-        delegate="com.onpositive.musket_core.PublicMusketLaunchDelegate"
+        delegate="com.onpositive.musket_core.PublicMusketLaunchConfigurationDelegate"
         id="com.onpositive.dside.musket.launch"
         modes="run, debug"
         name="Musket Core Run"
@@ -147,7 +147,7 @@
 			        <iterate>
 				       <adapt type="org.eclipse.core.resources.IResource">
 				          <test property="org.eclipse.core.resources.name" 
-				                value="common.yaml"/>
+				                value="config.yaml"/>
 				       </adapt>
 				    </iterate>
 			     </with>

@@ -66,6 +66,9 @@ public class MusketLaunchConfigurationDelegate extends AbstractLaunchConfigurati
 			ArrayList<String> args = new ArrayList<>();
 			args.add(taskFilePath.toString());
 			args.add(resultFilePath.toString());
+			if (!(conf instanceof ILaunchConfigurationWorkingCopy)) {
+				conf = conf.copy(conf.getName());
+			}
 			((ILaunchConfigurationWorkingCopy) conf).setAttribute(Constants.ATTR_PROGRAM_ARGUMENTS,
 					args.stream().collect(Collectors.joining(" ")));
 			
