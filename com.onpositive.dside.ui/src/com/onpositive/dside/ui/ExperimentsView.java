@@ -3,6 +3,7 @@ package com.onpositive.dside.ui;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.compare.internal.CompareAction;
@@ -120,7 +121,7 @@ public class ExperimentsView extends XMLView {
 
 	public static void open(Experiment e) {
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(e.getPath())
-				.getFile(new Path("config.yaml"));
+				.getFile(new Path(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
 		try {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
 					new FileEditorInput(file), "com.onpositive.dside.ui.editors.ExperimentMultiPageEditor");
@@ -136,7 +137,7 @@ public class ExperimentsView extends XMLView {
 	}
 
 	public static void launchExperiment(Object currentValue) {
-		Collection<Object> collection = ValueUtils.toCollection(currentValue);
+		Collection<Experiment> collection = Collections.singletonList((Experiment)currentValue);
 		LaunchConfiguration cfg=new LaunchConfiguration(collection);
 		boolean createObject = WidgetRegistry.createObject(cfg);
 		if (createObject) {
@@ -173,7 +174,7 @@ public class ExperimentsView extends XMLView {
 		for (Object o : collection) {
 			Experiment e = (Experiment) o;
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(e.getPath())
-					.getFile(new Path("config.yaml"));
+					.getFile(new Path(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
 			objects.add(file);
 		}
 		CompareAction compareAction = new CompareAction();

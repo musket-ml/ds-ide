@@ -8,7 +8,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.python.pydev.navigator.ui.PydevPackageExplorer;
+
+import com.onpositive.dside.ui.IMusketConstants;
 
 public class MusketNavigator implements ITreeContentProvider{
 
@@ -44,7 +45,7 @@ public class MusketNavigator implements ITreeContentProvider{
 					
 					@Override
 					public boolean visit(IResource resource) throws CoreException {
-						if (resource.getName().equals("config.yaml")) {
+						if (resource.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 							return false;
 						}
 						if (resource.equals(pm.folder)) {

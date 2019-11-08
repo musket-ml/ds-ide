@@ -128,8 +128,8 @@ public class TaskManager {
 
 		try {
 			IProject[] projects = task.getProjects();
-			LaunchShortcut launchShortcut = new MusketLaunchShortcut(projects, task.getPreferredLaunchConfigType());
-			((MusketLaunchShortcut) launchShortcut).setPreferredLaunchConfigType(task.getPreferredLaunchConfigType());
+			LaunchShortcut launchShortcut = new InternalMusketLaunchShortcut(projects, task.getPreferredLaunchConfigType());
+			((InternalMusketLaunchShortcut) launchShortcut).setPreferredLaunchConfigType(task.getPreferredLaunchConfigType());
 
 			
 			ILaunchConfigurationWorkingCopy launchConfig = launchShortcut

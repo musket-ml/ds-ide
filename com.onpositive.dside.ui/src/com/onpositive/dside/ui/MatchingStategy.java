@@ -13,7 +13,7 @@ public class MatchingStategy implements IEditorMatchingStrategy {
 		if (input instanceof FileEditorInput)
 		{
 			FileEditorInput fe=(FileEditorInput) input;
-			if (fe.getName().equals("config.yaml")) {
+			if (fe.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 				IEditorInput editorInput;
 				try {
 					editorInput = editorRef.getEditorInput();

@@ -17,11 +17,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardPage;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -32,6 +29,7 @@ import org.python.pydev.core.log.Log;
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
+import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
 import com.onpositive.semantic.model.api.status.IStatusChangeListener;
@@ -132,7 +130,7 @@ public class NewMusketGroupWizard extends Wizard implements INewWizard {
 				if (!folder3.exists()) {
 					folder3.create(true, true, monitor);
 				}
-				IFile file = folder3.getFile("config.yaml");
+				IFile file = folder3.getFile(IMusketConstants.MUSKET_CONFIG_FILE_NAME);
 				file.create(NewMusketExperimentWizard.class.getResourceAsStream("/templates/experiment.yaml"), true, monitor);
 			}
 		};

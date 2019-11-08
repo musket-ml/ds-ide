@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
+import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.dside.ui.ModelEvaluationSpec;
 import com.onpositive.musket_core.ProjectWrapper.BasicDataSetDesc;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
@@ -171,7 +172,7 @@ public class Experiment {
 		if (this.config != null) {
 			return config;
 		}
-		File file = new File(path, "config.yaml");
+		File file = new File(path, IMusketConstants.MUSKET_CONFIG_FILE_NAME);
 		try {
 			FileReader fileReader = new FileReader(file);
 			try {
@@ -335,14 +336,14 @@ public class Experiment {
 		IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
 				.findContainersForLocation(new Path(this.path));
 		for (IContainer c : findContainersForLocation) {
-			IFile file = c.getFile(new Path("config.yaml"));
+			IFile file = c.getFile(new Path(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
 			if (file.exists()) {
 				IContainer parent = c.getParent();
 				IFolder folder = parent.getFolder(new Path(value));
 				if (!folder.exists()) {
 					try {
 						folder.create(true, true, new NullProgressMonitor());
-						IPath append = folder.getFullPath().append("config.yaml");
+						IPath append = folder.getFullPath().append(IMusketConstants.MUSKET_CONFIG_FILE_NAME);
 						file.copy(append, true, new NullProgressMonitor());
 						IFile file2 = ResourcesPlugin.getWorkspace().getRoot().getFile(append);
 						String portableString = file2.getParent().getLocation().toPortableString();
@@ -447,7 +448,7 @@ public class Experiment {
 		String name = new File(path).getName();
 		File ed = new File(experimentHistory, name);
 		ed.mkdir();
-		Utils.copyDir(new File(path, "config.yaml"), new File(ed, "config.yaml"));
+		Utils.copyDir(new File(path, IMusketConstants.MUSKET_CONFIG_FILE_NAME), new File(ed, IMusketConstants.MUSKET_CONFIG_FILE_NAME));
 
 		experimentHistory = new File(file2, "" + (maxNum - 1));
 		if (experimentHistory.exists()) {

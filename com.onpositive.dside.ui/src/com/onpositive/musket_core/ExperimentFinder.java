@@ -11,6 +11,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 
+import com.onpositive.dside.ui.IMusketConstants;
+
 public class ExperimentFinder {
 
 	
@@ -23,7 +25,7 @@ public class ExperimentFinder {
 					@Override
 					public boolean visit(IResource resource) throws CoreException {
 						if (resource instanceof IFolder) {
-							IFile file = ((IFolder) resource).getFile("config.yaml");
+							IFile file = ((IFolder) resource).getFile(IMusketConstants.MUSKET_CONFIG_FILE_NAME);
 							if (file.exists()) {
 								Experiment ex=new Experiment(resource.getLocation().toPortableString());
 								exp.add(ex);	
