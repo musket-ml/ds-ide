@@ -54,6 +54,7 @@ import org.python.pydev.editor.hover.AbstractPyEditorTextHover;
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.dside.ui.ExperimentErrorsEditorPart;
 import com.onpositive.dside.ui.ExperimentResultsEditorPart;
+import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.dside.ui.LaunchConfiguration;
 import com.onpositive.dside.ui.builder.SampleBuilder;
 import com.onpositive.dside.ui.editors.YamlHyperlinkDetector.FeatureInfo;
@@ -427,7 +428,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				for (IMarker m : findMarkers) {
 					m.delete();
 				}
-				if (!file.getName().equals("config.yaml")) {
+				if (!file.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 					return;
 				}
 				if( file.getName().equals("common.yaml")) {

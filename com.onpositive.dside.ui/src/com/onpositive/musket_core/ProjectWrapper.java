@@ -29,7 +29,7 @@ import org.python.pydev.debug.ui.launching.InvalidRunException;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 
-import com.onpositive.dside.tasks.MusketLaunchShortcut;
+import com.onpositive.dside.tasks.InternalMusketLaunchShortcut;
 import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.introspection.IIntrospector;
 import com.onpositive.dside.ui.introspection.ShellIntrospector;
@@ -271,7 +271,7 @@ public class ProjectWrapper implements IPythonPathProvider {
 					.findContainersForLocation(new Path(this.path));
 			if (findContainersForLocation != null&&findContainersForLocation.length>0) {
 				IProject project = findContainersForLocation[0].getProject();
-				LaunchShortcut launchShortCut = new MusketLaunchShortcut(new IProject[] { project }, "org.python.pydev.debug.musketLaunchConfigurationType");
+				LaunchShortcut launchShortCut = new InternalMusketLaunchShortcut(new IProject[] { project }, "org.python.pydev.debug.musketLaunchConfigurationType");
 				ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
 						.createDefaultLaunchConfiguration(
 								new FileOrResource[] { new FileOrResource(project.getFolder("experiments")) });

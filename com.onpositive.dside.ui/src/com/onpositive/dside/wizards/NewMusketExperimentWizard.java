@@ -44,6 +44,7 @@ import com.onpositive.datasets.visualisation.ui.views.GenericExperimentTemplate;
 import com.onpositive.datasets.visualisation.ui.views.InstanceSegmentationTemplate;
 import com.onpositive.datasets.visualisation.ui.views.SegmentationTemplate;
 import com.onpositive.datasets.visualisation.ui.views.TextClassificationTemplate;
+import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.dside.ui.navigator.ExperimentGroup;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.project.DataProjectAccess;
@@ -234,7 +235,7 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 				if (!folder3.exists()) {
 					folder3.create(true, true, monitor);
 				}
-				IFile file = folder3.getFile("config.yaml");
+				IFile file = folder3.getFile(IMusketConstants.MUSKET_CONFIG_FILE_NAME);
 				Template template = TemplatesList.getTemplatesList().getTemplates().stream()
 						.filter(x -> x.name.equals(experimentParams.template)).findFirst().get();
 				InputStream resourceAsStream = NewMusketExperimentWizard.class.getResourceAsStream("/templates/" + template.file);

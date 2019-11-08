@@ -40,7 +40,7 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 
 	protected boolean launchTasks;
 
-	protected boolean fitFromScratch;
+	protected boolean fitFromScratch = true;
 
 	protected boolean debug;
 
@@ -50,14 +50,12 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 	FoldSelectionStrategy folds=FoldSelectionStrategy.ALL;
 
 	ArrayList<Integer>folds_numbers=new ArrayList<>();
-
+	
 	public LaunchConfiguration() {
 	}
-	
-	public LaunchConfiguration(Collection<Object> collection) {
-		collection.forEach(e -> {
-			experiment.add((Experiment) e);
-		});
+
+	public LaunchConfiguration(Collection<Experiment> collection) {
+		experiment.addAll(collection);
 	}
 
 	public int getNumWorkers() {

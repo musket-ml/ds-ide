@@ -11,6 +11,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 
+import com.onpositive.dside.ui.IMusketConstants;
+
 public class ExperimentsNode implements IAdaptable,IHasExperiments{
 
 	IFolder folder;
@@ -69,7 +71,7 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 					if (resource.getName().equals(".history")) {
 						return false;
 					}
-					if (resource.getName().equals("config.yaml")) {
+					if (resource.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 						children.add(new ExperimentNode((IFolder) resource.getParent()));
 					}
 					// TODO Auto-generated method stub

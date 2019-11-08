@@ -58,9 +58,6 @@ public class MusketLaunchConfigurationDelegate extends AbstractLaunchConfigurati
 			Path taskFilePath = Files.createTempFile(TEMP_FILE_PREFFIX, "task").toAbsolutePath();
 			Path resultFilePath = Files.createTempFile(TEMP_FILE_PREFFIX, "result").toAbsolutePath();
 			
-			HashSet<String> modes = new HashSet<>();
-			modes.add("run");
-			modes.add("debug");
 			Files.write(taskFilePath, yaml.getBytes());
 			
 			ArrayList<String> args = new ArrayList<>();
