@@ -7,7 +7,9 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -39,6 +41,8 @@ import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.python.pydev.core.log.Log;
+import org.yaml.snakeyaml.Yaml;
+
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
@@ -59,7 +63,8 @@ import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class KaggleDataset extends Wizard implements INewWizard {
-
+	private static final String DEPS_FILE = "deps.yaml";
+	
 	private IStructuredSelection selection;
 
 	private KaggleDatasetParams datasetView;
@@ -144,6 +149,36 @@ public class KaggleDataset extends Wizard implements INewWizard {
 			}
 		});
 	}
+	
+	private static List<DataLink> loadYaml(org.eclipse.core.resources.IProject project) {
+		String projectPath = project.getLocation().toOSString();
+		
+		IFile depsFile = project.getFile(DEPS_FILE);
+		
+		Yaml yaml = new Yaml();
+		
+		Map<String, Object> parsed = null;
+		
+		List<Object> parsedDeps = new ArrayList<Object>();
+		
+		try {
+			if(depsFile.exists()) {
+				parsed = (Map<String, Object>) yaml.load(depsFile.getContents());
+				
+				parsedDeps = (List<Object>) parsed.get("dependencies");
+			}
+		} catch (Throwable t) {
+			parsedDeps = new ArrayList<Object>();
+		}
+		
+		List<DataLink> result = new ArrayList<DataLink>();
+		
+		for(Object item : parsedDeps) {
+			result.add(new DataLink(item));
+		}
+		
+		return result;
+	}
 
 	private void download(org.eclipse.core.resources.IProject project) {
 		IFolder folder = project.getFolder("data");
@@ -224,7 +259,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 	public static KaggleDatasetParams readConfig(IProject project, KaggleDatasetParams config)
 			throws IOException, CoreException {
 		IFolder metadata = project.getFolder(".metadata");
-
+		
 		if (!metadata.exists()) {
 			metadata.create(true, true, null);
 		}
@@ -233,23 +268,45 @@ public class KaggleDataset extends Wizard implements INewWizard {
 
 		if (metadataFile.exists()) {
 			InputStreamReader reader = new InputStreamReader(metadataFile.getContents());
-
+			
 			BufferedReader br = new BufferedReader(reader);
-
+			
 			String line = br.readLine();
-
+			
 			String jsonString = "";
-
-			while (line != null) {
+			
+			while(line != null) {
 				jsonString += line + "\n";
 
 				line = br.readLine();
 			}
-
+			
 			config.deserializeFromJsonString(jsonString);
+			
+			for(DataLink link: loadYaml(project)) {
+				if(link.isKaggle()) {
+					config.applyDataLink(link);
+					
+					break;
+				}
+			}
 		}
-
+		
 		return config;
+	}
+	
+	private Map<String, Object> serializeDataLinks(List<DataLink> links) {
+		Map<String, Object> result = new HashMap<>();
+		
+		List<Object> deps = new ArrayList<>();
+		
+		result.put("dependencies", deps);
+		
+		for(DataLink item: links) {
+			deps.add(item.serialize());
+		}
+		
+		return result;
 	}
 
 	private void writeConfig(IProject project, KaggleDatasetParams config) throws CoreException, IOException {
@@ -270,6 +327,34 @@ public class KaggleDataset extends Wizard implements INewWizard {
 		ByteArrayInputStream bin = new ByteArrayInputStream(jsonString.getBytes(StandardCharsets.UTF_8));
 
 		metadataFile.create(bin, true, null);
+		
+		List<DataLink> dataLinks = loadYaml(project);
+		
+		DataLink link = config.asDatalink();
+		
+		for(DataLink item: dataLinks) {
+			if(link.equals(item)) {
+				dataLinks.remove(item);
+				
+				break;
+			}
+		}
+		
+		dataLinks.add(0, link);
+		
+		Yaml yaml = new Yaml();
+		
+		String txt = yaml.dump(serializeDataLinks(dataLinks));
+		
+		bin = new ByteArrayInputStream(txt.getBytes(StandardCharsets.UTF_8));
+		
+		IFile depsFile = project.getFile(DEPS_FILE);
+		
+		if(depsFile.exists()) {
+			depsFile.delete(true, null);
+		}
+				
+		depsFile.create(bin, true, null);
 	}
 
 	private void ensure(IFolder folder, IProgressMonitor monitor) throws CoreException {
