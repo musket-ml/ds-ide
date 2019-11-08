@@ -1,11 +1,14 @@
 package com.onpositive.musket.data.registry;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,11 +42,16 @@ public class CSVKind implements IDataSetIO{
 
 	protected IDataSet doReadApacheCSV(String path) {
 		CSVFormat default1 = CSVFormat.DEFAULT;
-		FileReader fileReader=null;
+		InputStreamReader fileReader=null;
+		FileInputStream fileInputStream=null;
 		try {
-			fileReader = new FileReader(new File(path));
+			fileInputStream = new FileInputStream(path);
+			fileReader = new InputStreamReader(fileInputStream,"UTF-8");
 		} catch (FileNotFoundException e1) {
 			return null;
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		ArrayList<Column>cs=new ArrayList<>();
 		ArrayList<BasicItem>items=new ArrayList<BasicItem>();
@@ -76,6 +84,7 @@ public class CSVKind implements IDataSetIO{
 			}			
 		 }
 		 in.close();
+		 fileInputStream.close();
 		} catch (IOException e1) {
 			return null;
 		}finally {

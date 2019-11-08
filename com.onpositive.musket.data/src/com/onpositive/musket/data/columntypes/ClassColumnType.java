@@ -98,18 +98,20 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 	}
 
 	public static ColumnPreference check(IColumn c) {
-		if (c.id().equals("publication_id")) {
-			System.out.println("A");
-		}
+		
 		String lowerCase = c.caption().toLowerCase();
-		if (lowerCase.contains("class") || lowerCase.contains("clazz") || lowerCase.contains("classes")) {
+		if (lowerCase.contains("class") || lowerCase.contains("clazz") || lowerCase.contains("classes") || lowerCase.equals("tag")|| lowerCase.equals("tags")) {
 			return ColumnPreference.STRICT;
 		}
 		if (lowerCase.contains("attribute")) {
 			return ColumnPreference.STRICT;
 		}
 		ArrayList<Object> uniqueValues = c.uniqueValues();
+		if (uniqueValues.size()>20&&c.id().contains("_id")) {
+			return ColumnPreference.NEVER;
+		}
 		if (uniqueValues.size() < 1000) {
+			
 			if (looksDouble(uniqueValues)) {
 				return ColumnPreference.NEVER;
 			}

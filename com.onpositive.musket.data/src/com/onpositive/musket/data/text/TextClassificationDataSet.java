@@ -13,15 +13,17 @@ import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.ClassColumnsOptimizer;
 import com.onpositive.musket.data.table.ComputableColumn;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
+import com.onpositive.musket.data.table.IHasLabels;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 
 public class TextClassificationDataSet extends AbstractTextDataSet
-		implements IBinaryClassificationDataSet, IMulticlassClassificationDataSet,ICSVOVerlay,IPythonStringGenerator {
+		implements IBinaryClassificationDataSet, IMulticlassClassificationDataSet,ICSVOVerlay,IPythonStringGenerator,IHasLabels {
 
 	protected ArrayList<IColumn> clazzColumns;
 
@@ -34,6 +36,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	protected ArrayList<String> classes = new ArrayList<>();
 
 	private boolean isMulti;
+	
 	
 	
 	public TextClassificationDataSet(ITabularDataSet tb, Map<String, Object> options) {
@@ -235,6 +238,16 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	public TextClassificationDataSet withIds(ITabularDataSet filter) {
 		ITabularDataSet withIds = this.base.withIds(filter);
 		return new TextClassificationDataSet(withIds, this.settings);
+	}
+
+	@Override
+	public void setLabels(LabelsSet labelsSet) {
+		this.labels=labelsSet;
+	}
+
+	@Override
+	public LabelsSet labels() {
+		return this.labels;
 	}
 	
 }

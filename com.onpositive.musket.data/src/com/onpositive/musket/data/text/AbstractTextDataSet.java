@@ -25,7 +25,6 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 	protected IColumn idColumn;
 	
 	protected LabelsSet labels;
-	
 	protected static String TEXT_COLUMN="TEXT_COLUMN";
 	
 	protected static String CLAZZ_COLUMNS="CLAZZ_COLUMNS";

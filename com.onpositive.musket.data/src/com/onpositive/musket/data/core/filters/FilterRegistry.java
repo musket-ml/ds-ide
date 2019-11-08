@@ -274,6 +274,7 @@ public class FilterRegistry {
 		register(RecallAnalizer.class);
 		register(PrecisionAnalizer.class);
 		register(BasicAnalizer.class);
+		register(SequenceMatchAnalizer.class);
 	}
 
 	public ArrayList<IFilterProto> getFilters(IDataSet ds) {

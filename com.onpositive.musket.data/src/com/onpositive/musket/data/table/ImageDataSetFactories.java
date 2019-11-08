@@ -34,7 +34,7 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class ImageDataSetFactories implements IDataSetFactory {
 
-	private static final String LABELS_PATH = "LABELS_PATH";
+	public static final String LABELS_PATH = "LABELS_PATH";
 
 	public ImageDataSetFactories() {
 		super();
@@ -199,13 +199,13 @@ public class ImageDataSetFactories implements IDataSetFactory {
 		return null;
 	}
 
-	protected void trySetupLabels(DataSetSpec spec, IHasLabels multiClassificationDataset) {
+	public static void trySetupLabels(DataSetSpec spec, IHasLabels multiClassificationDataset) {
 		List<String> classNames = multiClassificationDataset.classNames();
 		if (classNames.size() > 2) {
 			if (!BinaryClassificationDataSet.isStringClasses(multiClassificationDataset.classNames())) {
 				File file = spec.prj.getFile();
 				for (File f : file.listFiles()) {
-					if (f.getName().contains("label") && f.getName().endsWith(".csv")) {
+					if ((f.getName().contains("label")||f.getName().contains("categories")) && f.getName().endsWith(".csv")) {
 						try {
 							IDataSet load = DataSetIO.load("file://" + f.getAbsolutePath());
 							ITabularDataSet as = load.as(ITabularDataSet.class);

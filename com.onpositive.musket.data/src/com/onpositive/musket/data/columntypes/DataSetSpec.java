@@ -40,7 +40,14 @@ public class DataSetSpec {
 		}
 		return null;		
 	}
+	protected Object extension;
 
+	public Object getExtension() {
+		return extension;
+	}
+	public void setExtension(Object extension) {
+		this.extension = extension;
+	}
 	public List<? extends IColumn> columns() {
 		return tb.columns();
 	}

@@ -2,13 +2,18 @@ package com.onpositive.musket.data.project;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.onpositive.musket.data.columntypes.ColumnLayout;
 import com.onpositive.musket.data.columntypes.DataSetFactoryRegistry;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -52,6 +57,24 @@ public class DataProject {
 		try {
 			long l0=System.currentTimeMillis();
 			monitor.onProgress("Loading dataset into memory", 0);
+			if (file2.getName().endsWith(".jsonl")) {
+				try {
+					ArrayList<Object>data=new ArrayList<>();
+					BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file2),"UTF8"));
+					while (true) {
+						String readLine = bufferedReader.readLine();
+						if (readLine==null) {
+							break;
+						}
+						Object fromJson = new Gson().fromJson(readLine, Object.class);
+						//System.out.println(fromJson);
+						data.add(fromJson);
+					}
+					bufferedReader.close();
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			if (file2.getName().endsWith(".txt")) {
 				try {
 					FileReader fileReader = new FileReader(file2);

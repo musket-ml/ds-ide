@@ -24,6 +24,7 @@ public class LabelsSet {
 		List<? extends IColumn> columns = t.columns();
 		IColumn labelColumn = null;
 		IColumn clazzColumn = null;
+		IColumn parent=null;
 		for (IColumn c : columns) {
 			ArrayList<Object> uniqueValues = c.uniqueValues();
 			if (new HashSet<>(uniqueValues).containsAll(new HashSet<>(labels))) {
@@ -33,8 +34,11 @@ public class LabelsSet {
 			} else {
 				labelColumn = c;
 			}
+			if (c.caption().contains("parent")) {
+				parent=c;
+			}
 		}
-		fillIItems(t, labelColumn, clazzColumn);
+		fillIItems(t, labelColumn, clazzColumn,parent);
 		this.dataset = t;
 	}
 
@@ -65,13 +69,41 @@ public class LabelsSet {
 		return this.dataset;
 	}
 
-	protected void fillIItems(ITabularDataSet t, IColumn labelColumn, IColumn clazzColumn) {
+	protected void fillIItems(ITabularDataSet t, IColumn labelColumn, IColumn clazzColumn, IColumn parent) {
+		HashMap<String, String>parents=new HashMap<>();
+		HashMap<String, String>classes=new HashMap<>();
 		t.items().forEach(v -> {
 			LabelItem labelItem = new LabelItem();
 			labelItem.clazz = clazzColumn.getValueAsString(v);
-			labelItem.label = labelColumn.getValueAsString(v);
+			String valueAsString = labelColumn.getValueAsString(v);
+			if (parent!=null) {
+				String value = parent.getValueAsString(v);
+				if (!value.isEmpty()) {
+					parents.put(labelItem.clazz, value);
+				}
+			}
+			
+			if (valueAsString.isEmpty()) {
+				valueAsString=labelItem.clazz;
+			}
+			labelItem.label = valueAsString;
+			classes.put(labelItem.clazz, labelItem.label);
 			items.add(labelItem);
 		});
+		if (parent!=null) {
+			for (LabelItem l:items) {
+				String cl=l.clazz;
+				while (parents.containsKey(cl)){
+					String string = parents.get(cl);
+					String string2 = classes.get(string);
+					
+					cl=string;
+					if (string2!=null) {
+						l.label=string2+"->"+l.label;
+					}
+				}
+			}
+		}
 	}
 
 	protected HashMap<String, String> clazzToLabel;
