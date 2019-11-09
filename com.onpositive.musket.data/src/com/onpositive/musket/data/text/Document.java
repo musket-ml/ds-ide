@@ -28,6 +28,10 @@ public class Document implements ITextItem, IImageItem {
 
 	protected ArrayList<Sentence> contents = new ArrayList<>();
 
+	public ArrayList<Sentence> getContents() {
+		return contents;
+	}
+
 	protected TextSequenceDataSet parent;
 
 	private int num;
@@ -60,6 +64,8 @@ public class Document implements ITextItem, IImageItem {
 	public IDataSet getDataSet() {
 		return parent;
 	}
+	
+	
 
 	@Override
 	public String getText() {

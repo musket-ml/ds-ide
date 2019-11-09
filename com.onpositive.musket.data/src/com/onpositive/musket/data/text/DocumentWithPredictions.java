@@ -1,6 +1,7 @@
 package com.onpositive.musket.data.text;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -105,4 +106,10 @@ public class DocumentWithPredictions extends Document {
 			}
 		}
 	}
+
+	public Document getPredictions() {
+		return this.prediction;
+	}
+
+	
 }

@@ -65,4 +65,8 @@ public class Sentence {
 		});
 		return classes;
 	}
+
+	public ArrayList<Token> tokens() {
+		return tokens;
+	}
 }

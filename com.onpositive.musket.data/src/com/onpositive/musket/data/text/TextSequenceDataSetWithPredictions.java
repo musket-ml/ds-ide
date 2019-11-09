@@ -1,6 +1,8 @@
 package com.onpositive.musket.data.text;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -24,6 +26,20 @@ public class TextSequenceDataSetWithPredictions extends TextSequenceDataSet{
 	}
 	public static final String FOCUS_ON_DIFFERENCES="Only highlight differences";
 
+	@Override
+	public IDataSet subDataSet(String string, List<? extends IItem> arrayList) {
+		ArrayList<DocumentWithPredictions>d=(ArrayList<DocumentWithPredictions>) arrayList;
+		ArrayList<Document>gt=new ArrayList<>();
+		ArrayList<Document>pt=new ArrayList<>();
+		d.forEach(v->{
+			gt.add(v);
+			pt.add(v.getPredictions());
+		});
+		TextSequenceDataSetWithPredictions textSequenceDataSet = new TextSequenceDataSetWithPredictions(new TextSequenceDataSet(gt),new TextSequenceDataSet(pt));
+		textSequenceDataSet.name=string;
+		return textSequenceDataSet;
+	}
+	
 	@Override
 	public IVisualizerProto getVisualizer() {
 		return new IVisualizerProto() {

@@ -170,7 +170,7 @@ public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGrou
 
 	protected ArrayList<IItem> items ;
 	protected Map<String, Object> settings = new LinkedHashMap<String, Object>();
-	private String name = "";
+	protected String name = "";
 	private ArrayList<LinkedHashSet<String>> classGroups;
 	private ClassVisibilityOptions classVisibility;
 	private ClassGroupSelector lastModel;
