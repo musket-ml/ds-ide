@@ -69,8 +69,13 @@ public class DataProject {
 						Object fromJson = new Gson().fromJson(readLine, Object.class);
 						//System.out.println(fromJson);
 						data.add(fromJson);
+						if (data.size()>10000) {
+							break;
+						}
 					}
 					bufferedReader.close();
+					return TextSequenceDataSet.tryParse(data);
+					
 				}catch (Exception e) {
 					e.printStackTrace();
 				}

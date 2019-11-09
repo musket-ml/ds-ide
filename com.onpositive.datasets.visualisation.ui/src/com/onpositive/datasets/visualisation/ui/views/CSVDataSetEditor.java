@@ -57,6 +57,7 @@ import com.onpositive.musket.data.project.DataProjectAccess;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.text.TextClassificationDataSet;
+import com.onpositive.musket.data.text.TextSequenceDataSet;
 import com.onpositive.semantic.model.ui.generic.HyperlinkEvent;
 import com.onpositive.semantic.model.ui.generic.IHyperlinkListener;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
@@ -433,6 +434,9 @@ public class CSVDataSetEditor extends AnalistsEditor {
 		if (original instanceof TextClassificationDataSet) {
 			temp = new TextClassificationTemplate();
 		}
+		if (original instanceof TextSequenceDataSet) {
+			temp = new TextSequenceTemplate();
+		}
 		if (temp != null) {
 			temp.projectPath = project.getLocation().toFile().getAbsolutePath();
 			boolean openQuestion = MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Please confirm",
@@ -477,6 +481,16 @@ public class CSVDataSetEditor extends AnalistsEditor {
 				if (size>2&&b) {
 					classificationTemplate.numClasses = size;
 				}
+			}
+			if (classificationTemplate instanceof TextSequenceTemplate) {
+				TextSequenceTemplate ts=(TextSequenceTemplate) classificationTemplate;
+				if (ts.add_crf) {
+					classificationTemplate.activation="softmax";
+				}
+				else{
+					classificationTemplate.activation="crf_loss";
+				}
+				classificationTemplate.numClasses=((TextSequenceDataSet)original).lastClassCount();
 			}
 		}
 		boolean createObject = WidgetRegistry.createObject(classificationTemplate);

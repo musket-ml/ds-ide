@@ -2,6 +2,7 @@ package com.onpositive.musket.data.text;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -10,12 +11,14 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import com.onpositive.musket.data.actions.BasicDataSetActions;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
 import com.onpositive.musket.data.core.IItem;
+import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.core.IVisualizerProto;
 import com.onpositive.musket.data.core.Parameter;
 import com.onpositive.musket.data.generic.GenericDataSet;
@@ -23,8 +26,10 @@ import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.text.SequenceLabelingFactories.SequenceLayout;
+import com.onpositive.semantic.model.api.property.java.annotations.Display;
+import com.onpositive.semantic.model.api.property.java.annotations.Required;
 
-public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGroups{
+public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGroups,IPythonStringGenerator{
 
 	private SequenceLayout extension;
 
@@ -49,7 +54,7 @@ public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGrou
 				classColumns.add(tb.getColumn(s.trim()));
 			}
 		}
-		SequenceLayout ll=new SequenceLayout(tb.getColumn("sentence_id"),tb.getColumn("doc_id"), tb.getColumn(WORD_COLUMN), classColumns);
+		SequenceLayout ll=new SequenceLayout(tb.getColumn("sentence_id"),tb.getColumn("doc_id"), tb.getColumn((String) options.get(WORD_COLUMN)), classColumns);
 		doRead(ll, tb);
 		this.extension=ll;
 		this.settings.putAll(options);
@@ -163,12 +168,12 @@ public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGrou
 	
 	protected static String CLAZZ_COLUMNS="CLAZZ_COLUMNS";
 
-	protected IColumn textColumn;
 	protected ArrayList<IItem> items ;
 	protected Map<String, Object> settings = new LinkedHashMap<String, Object>();
 	private String name = "";
 	private ArrayList<LinkedHashSet<String>> classGroups;
 	private ClassVisibilityOptions classVisibility;
+	private ClassGroupSelector lastModel;
 	
 	
 	
@@ -291,10 +296,7 @@ public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGrou
 		return new ArrayList<>();
 	}
 
-	@Override
-	public List<ConversionAction> conversions() {
-		return new ArrayList<>();
-	}
+	
 
 	@Override
 	public ArrayList<LinkedHashSet<String>> classGroups() {
@@ -302,5 +304,144 @@ public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGrou
 			this.init();
 		}
 		return this.classGroups;
+	}
+	
+	static class Span implements Comparable<Span>{
+		public Span(int st, int end2, String type2) {
+			this.start=st;
+			this.end=end2;
+			this.type=type2;
+		}
+		int start;
+		int end;
+		String type;
+		
+		@Override		
+		public int compareTo(Span o) {
+			return this.start-o.start;
+		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	static Document toDocumentFromJSONObject(TextSequenceDataSet parent,Object o, int num) {
+		Document d=new Document(parent, num);
+		Sentence cn=new Sentence(d);
+		d.add(cn);
+		Map<String,Object>mp=(Map<String, Object>) o;
+		String text = (String) mp.get("content").toString();
+		ArrayList<Map>z=(ArrayList<Map>) mp.get("annotations");
+		ArrayList<Span>sm=new ArrayList<>();
+		for (Map q:z) {
+			Map object2 = (Map) q.get("span");
+			int st=(int) ((Double)object2.get("start")).intValue();
+			int end=(int)( (Double)object2.get("end")).intValue();
+			String type=(String) q.get("type");
+			Span span=new Span(st,end,type);
+			sm.add(span);		
+		}
+		Collections.sort(sm);
+		int contentStart=0;
+		for (Span s:sm) {
+			if (s.start>contentStart) {
+				String substring = text.substring(contentStart,s.start);
+				Token t=new Token(cn, new String[] {substring,"O"});
+				cn.add(t);
+			}
+			String subSequence = text.substring(s.start, s.end);
+			Token t=new Token(cn, new String[] {subSequence,s.type});
+			cn.add(t);
+			contentStart=s.end;
+		}
+		return d;		
+	}
+
+	public static IDataSet tryParse(ArrayList<Object> data) {
+		Object object = data.get(0);
+		if  (object instanceof Map) {
+			Map m1=(Map) object;
+			if (m1.containsKey("content")&&m1.get("content") instanceof String) {
+				if (m1.containsKey("annotations")) {
+					Object object2 = m1.get("annotations");
+					if (object2 instanceof ArrayList) {
+						ArrayList<Object>tokens=new ArrayList<>();
+						ArrayList<Document>documents=new ArrayList<>();
+						int num=0;
+						TextSequenceDataSet textSequenceDataSet = new TextSequenceDataSet();
+						for (Object o:data) {
+							documents.add(toDocumentFromJSONObject(textSequenceDataSet,o,num));
+							num++;
+						}			
+						textSequenceDataSet.docs.addAll(documents);
+						return textSequenceDataSet;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	@Display("dlf/classGroups.dlf")
+	public static class ClassGroupSelector{
+		
+		public ClassGroupSelector(ArrayList<LinkedHashSet<String>> classGroups2) {
+			this.classGroups=classGroups2;
+		}
+
+		ArrayList<LinkedHashSet<String>>classGroups;
+		
+		@Required("Please select group of tags")
+		LinkedHashSet<String>classGroup;
+		
+	}
+
+	@Override
+	public Object modelObject() {
+		if (this.classGroups==null) {
+			init();
+		}
+		if (this.classGroups.size()>1) {
+			return new ClassGroupSelector(this.classGroups);
+		}
+		else {
+			return 0;
+		}
+	}
+
+	@Override
+	public List<ConversionAction> conversions() {
+		return BasicDataSetActions.getActions(this);
+	}
+	
+	@Override
+	public String generatePythonString(String sourcePath,Object model) {
+		this.lastModel=(ClassGroupSelector) model;
+		return "text_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath,model).stream().collect(Collectors.joining(","))+")";
+	}
+	
+	public int lastClassCount() {
+		if (lastModel!=null) {
+			return lastModel.classGroup.size()+1;
+		}
+		return classGroups.get(0).size()+1;		
+	}
+
+	protected String getPythonName() {
+		return "SequenceLabelingColumnDataSet";		
+	}
+
+	protected  ArrayList<String> getDataSetArgs(String sourcePath, Object model) {
+		ArrayList<String> arrayList = new ArrayList<>();
+		arrayList.add('"'+sourcePath+'"');
+		if (model!=null) {
+			ClassGroupSelector m=(ClassGroupSelector) model;
+			int indexOf = m.classGroups.indexOf(m.classGroup);
+			arrayList.add(""+indexOf);
+		}
+		return arrayList;
+	}
+
+	@Override
+	public String getImportString() {
+		return "from musket_text import text_datasets"+System.lineSeparator()+"from musket_core import datasets";
 	}
 }

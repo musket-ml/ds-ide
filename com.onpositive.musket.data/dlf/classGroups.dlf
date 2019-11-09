@@ -1,0 +1,7 @@
+<composite-editor xmlns="http://jetface.org/JetFace1.0/" caption="Please select group of tags" 
+description="Please select group of tags that we want to predict">
+	<model class="com.onpositive.musket.data.text.TextSequenceDataSet.ClassGroupSelector" 
+	/>
+	<list bindTo="classGroups" bindSelectionTo="classGroup" hint="400,200"/>
+	
+</composite-editor>

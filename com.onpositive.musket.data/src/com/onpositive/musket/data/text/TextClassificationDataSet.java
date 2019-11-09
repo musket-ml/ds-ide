@@ -189,7 +189,6 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		return base;
 	}
  
-	
 	@Override
 	public String getImportString() {
 		return "from musket_text import text_datasets"+System.lineSeparator()+"from musket_core import datasets";

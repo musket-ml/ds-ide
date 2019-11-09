@@ -1,0 +1,21 @@
+<dialog xmlns="http://jetface.org/JetFace1.0/widgets"
+	title="New Classification Experiment"
+	message="Please check basic named entity recognition experiment settings">
+	<composite-editor
+		xmlns="http://jetface.org/JetFace1.0/" hint="-1,780" >
+		<model
+			class="com.onpositive.datasets.visualisation.ui.views.TextClassificationTemplate" />
+		<string bindTo="name" caption="Experiment name" />
+		<string bindTo="embeddings" />
+		<string bindTo="numClasses" />
+		<string bindTo="maxLen" />
+		<group caption="Architecture">
+			<radio bindTo="rnn_classifier" />
+			<radio bindTo="cnn_classifier" />			
+		</group>
+		<group caption="Head">
+			<checkbox bindTo="dropout"/>
+			<checkbox bindTo="add_crf"/>
+		</group>
+	</composite-editor>
+</dialog>

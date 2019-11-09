@@ -1,0 +1,52 @@
+#%Musket Generic 1.0
+imports: [musket_text.preprocessors]
+declarations: 
+   lstm2: 
+      parameters: [count]
+      body:       
+       - bidirectional:             
+           - cuDNNLSTM: [count, true]
+       - bidirectional:    
+           - cuDNNLSTM: [count/2, true]                                            
+   net:
+     body:
+       - transform-concat: 
+          - word_indexes_embedding:  [ {embeddings} ]
+          - pass:    
+       - lstm2: [300]
+{head}     
+folds_count: 5       
+preprocessing:
+  - pad_sequence_labeling: {maxLen}  
+  - split-preprocessor: 
+      - seq-preprocessor:
+           - lowercase:
+           - tokens_to_indexes:   
+      - tokens_to_case: #preprocessor to generate meta features                  
+  - disk-cache:
+          
+architecture: net  
+optimizer: adam   
+batch: 32  
+stages:
+  - epochs: 20   
+loss: crf_loss         
+primary_metric: val_categorical_accuracy
+experiment_result: connll2003_entity_level_f1
+dumpPredictionsToCSV: true
+callbacks:
+  EarlyStopping:
+    patience: 100
+    monitor: val_categorical_accuracy
+    verbose: 1
+  ReduceLROnPlateau: 
+    patience: 8
+    factor: 0.5
+    monitor: val_categorical_accuracy
+    mode: auto  
+    cooldown: 5
+    verbose: 1     
+metrics: [categorical_accuracy  , macro_f1  ]
+final_metrics: [connll2003_entity_level_precision,connll2003_entity_level_f1,connll2003_entity_level_recall]    
+dataset: 
+    {dataset}
