@@ -48,7 +48,7 @@ public class ImageDataSetFactories implements IDataSetFactory {
 			if (inner_Create != null) {
 				Object object2 = settings.get(LABELS_PATH);
 				if (object2 != null && inner_Create instanceof IHasLabels) {
-					IDataSet load = DataSetIO.load("file://" + object2.toString());
+					IDataSet load = DataSetIO.load("file://" + object2.toString(),"UTF-8");
 					ITabularDataSet as = load.as(ITabularDataSet.class);
 					if (as != null) {
 						IHasLabels hl = (IHasLabels) inner_Create;
@@ -207,7 +207,7 @@ public class ImageDataSetFactories implements IDataSetFactory {
 				for (File f : file.listFiles()) {
 					if ((f.getName().contains("label")||f.getName().contains("categories")) && f.getName().endsWith(".csv")) {
 						try {
-							IDataSet load = DataSetIO.load("file://" + f.getAbsolutePath());
+							IDataSet load = DataSetIO.load("file://" + f.getAbsolutePath(),spec.getEncoding());
 							ITabularDataSet as = load.as(ITabularDataSet.class);
 							if (as != null) {
 								LabelsSet labelsSet = new LabelsSet(as,

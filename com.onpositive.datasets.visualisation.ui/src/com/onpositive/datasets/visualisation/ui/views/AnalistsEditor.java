@@ -543,6 +543,9 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		if (viewer == null) {
 			viewer = "image";
 		}
+		if (visualizerFeature.getKind().equals("Table visualizer")) {
+			viewer="text";
+		}
 		if (results.getOriginal() instanceof AbstractTextDataSet) {
 			Collection<? extends IItem> items = results.getOriginal().items();
 			boolean shouldText=true;

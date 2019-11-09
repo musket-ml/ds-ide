@@ -16,7 +16,14 @@ public class DataSetSpec {
 	public final DataProject prj;
 	public final IQuestionAnswerer answerer;
 	public final ImageRepresenter representer;
+	public String encoding="UTF-8";
 
+	public String getEncoding() {
+		return encoding;
+	}
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
+	}
 	public DataSetSpec(ColumnLayout layout, ITabularDataSet tb, DataProject prj, IQuestionAnswerer answerer) {
 		this.layout = layout;
 		this.tb = tb;

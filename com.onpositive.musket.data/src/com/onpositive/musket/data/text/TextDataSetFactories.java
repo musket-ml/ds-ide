@@ -25,6 +25,8 @@ import com.onpositive.musket.data.table.ImageDataSetFactories;
 public class TextDataSetFactories implements IDataSetFactory {
 
 
+	
+
 	protected static ArrayList<IColumn> findClassColumns(ArrayList<IColumn> arrayList) {
 		ArrayList<IColumn> clazzColumns = new ArrayList<>();
 		for (IColumn m : arrayList) {
@@ -68,8 +70,12 @@ public class TextDataSetFactories implements IDataSetFactory {
 		if (options!=null) {
 			TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(spec.tb,options);
 			Object object2 = options.get(ImageDataSetFactories.LABELS_PATH);
+			String encoding = (String) options.get(IDataSet.ENCODING);
+			if (encoding==null) {
+				encoding="UTF-8";
+			}
 			if (object2 != null ) {
-				IDataSet load = DataSetIO.load("file://" + object2.toString());
+				IDataSet load = DataSetIO.load("file://" + object2.toString(),encoding);
 				ITabularDataSet as = load.as(ITabularDataSet.class);
 				if (as != null) {
 					IHasLabels hl = (IHasLabels) textClassificationDataSet;
@@ -110,6 +116,7 @@ public class TextDataSetFactories implements IDataSetFactory {
 		}
 		List<IColumn> optimize = ClassColumnsOptimizer.optimize(allClasses, spec.answerer);
 		TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(spec.tb, strictColumn, new ArrayList<>(optimize));
+		textClassificationDataSet.getSettings().put(IDataSet.ENCODING, spec.getEncoding());
 		ImageDataSetFactories.trySetupLabels(spec, textClassificationDataSet);
 		return textClassificationDataSet;		
 	}

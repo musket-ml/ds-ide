@@ -53,7 +53,7 @@ public class DataProject {
 	}
 
 	@SuppressWarnings("unchecked")
-	public IDataSet getDataSet(File file2, IQuestionAnswerer answerer, IProgressMonitor monitor) {
+	public IDataSet getDataSet(File file2, IQuestionAnswerer answerer, IProgressMonitor monitor, String encoding) {
 		try {
 			long l0=System.currentTimeMillis();
 			monitor.onProgress("Loading dataset into memory", 0);
@@ -100,7 +100,7 @@ public class DataProject {
 				}
 				
 			}
-			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath());
+			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath(),encoding);
 			if (load == null) {
 				return null;
 			}
@@ -123,7 +123,9 @@ public class DataProject {
 							if (!onProgress) {
 								return null;
 							}
-							IDataSet create = factory.create(new DataSetSpec(null, t1, this, answerer), loadAs);
+							DataSetSpec spec = new DataSetSpec(null, t1, this, answerer);
+							spec.setEncoding(encoding);
+							IDataSet create = factory.create(spec, loadAs);
 							monitor.onDone("All done", 2);
 							return create;
 						} catch (Exception e) {
@@ -146,6 +148,7 @@ public class DataProject {
 			
 			ColumnLayout layout = new ColumnLayout(columns, this, answerer,monitor);
 			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);
+			spec.setEncoding(encoding);
 			// make it a little bit smarter
 			IDataSetFactory factory = null;
 			long l2=System.currentTimeMillis();

@@ -45,8 +45,15 @@ public class DataSetIO implements IDataSetIO{
 		iDataSetIO.saveDataset(memento, set, monitor);
 	}
 	
-	public static IDataSet load(String url) {
+//	public static IDataSet load(String url) {
+//		DataSetMemento dataSetMemento = new DataSetMemento(url);
+//		IDataSet loadDataSet = DataSetIO.getInstance().loadDataSet(dataSetMemento, null);
+//		return loadDataSet;
+//	}
+	
+	public static IDataSet load(String url,String encoding) {
 		DataSetMemento dataSetMemento = new DataSetMemento(url);
+		dataSetMemento.setEncoding(encoding);
 		IDataSet loadDataSet = DataSetIO.getInstance().loadDataSet(dataSetMemento, null);
 		return loadDataSet;
 	}

@@ -33,25 +33,24 @@ public class CSVKind implements IDataSetIO{
 		String url=memento.getUrl();
 		String path=url.substring(url.indexOf("://")+3);
 		try {
-			return doReadApacheCSV(path);
+			return doReadApacheCSV(path,memento.getEncoding());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	protected IDataSet doReadApacheCSV(String path) {
+	protected IDataSet doReadApacheCSV(String path,String encoding) {
 		CSVFormat default1 = CSVFormat.DEFAULT;
 		InputStreamReader fileReader=null;
 		FileInputStream fileInputStream=null;
 		try {
 			fileInputStream = new FileInputStream(path);
-			fileReader = new InputStreamReader(fileInputStream,"UTF-8");
+			fileReader = new InputStreamReader(fileInputStream,encoding);
 		} catch (FileNotFoundException e1) {
 			return null;
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IllegalStateException(e);
 		}
 		ArrayList<Column>cs=new ArrayList<>();
 		ArrayList<BasicItem>items=new ArrayList<BasicItem>();

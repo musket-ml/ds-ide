@@ -155,7 +155,10 @@ public class AnalisysEngine implements IAnalisysEngine {
 		dataset.getSettings();
 		IVisualizerProto visualizer = dataset.getVisualizer();
 		if (visualizer != null) {
-			result.getVisualizers().add(protoToFeature(visualizer));
+			List<IVisualizerProto> visualizers = dataset.getVisualizers();
+			visualizers.forEach(v->{
+				result.getVisualizers().add(protoToFeature(v));
+			});			
 		} else {
 			result.getVisualizers().add(instrospectedFeature);
 		}

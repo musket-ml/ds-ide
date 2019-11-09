@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
@@ -142,7 +143,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 
 				@Override
 				protected IStatus run(org.eclipse.core.runtime.IProgressMonitor monitor) {
-					ds = DataProjectAccess.getDataSet(file2, new BasicQuestionAnswerer(), new PM(monitor));
+					ds = DataProjectAccess.getDataSet(file2, new BasicQuestionAnswerer(), new PM(monitor),encoding);
 					if (ds != null) {
 						Display.getDefault().asyncExec(new Runnable() {
 
@@ -191,7 +192,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 					return true;
 				}
 
-			});
+			},encoding);
 			ds = dataSet.withPredictions(f2);
 			setPartName(f1.getName() + "-" + f2.getName());
 			init();
@@ -304,6 +305,8 @@ public class CSVDataSetEditor extends AnalistsEditor {
 
 	boolean uiPatched;
 
+	private String encoding;
+
 	private void init() {
 		if (ds == null) {
 			((Container) getUIRoot()).getElement("sl").setEnabled(false);
@@ -404,10 +407,16 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			}
 		});
 	}
+	
 
 	private File fromINput(IEditorInput editorInput) {
 		IFileEditorInput input = (IFileEditorInput) editorInput;
 		IFile file = input.getFile();
+		try {
+			this.encoding=file.getCharset();
+		} catch (CoreException e) {
+			this.encoding="UTF-8";
+		}
 		this.project = file.getProject();
 		File file3 = file.getLocation().toFile();
 		return file3;

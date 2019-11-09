@@ -29,6 +29,16 @@ public class DataSetMemento {
 		this.url = url;
 	}
 	
+	protected String encoding="UTF-8";
+	
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
+	}
+
 	public final static String ORIGIN="origin";
 
 	public static final String TARGET = "location";
