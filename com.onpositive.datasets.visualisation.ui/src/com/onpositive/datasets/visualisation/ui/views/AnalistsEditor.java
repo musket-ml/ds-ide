@@ -543,29 +543,29 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		if (viewer == null) {
 			viewer = "image";
 		}
-		if (visualizerFeature.getKind().equals("Table visualizer")) {
+		if (visualizerFeature.getKind()!=null&&visualizerFeature.getKind().equals("Table visualizer")) {
 			viewer="text";
 		}
-		if (results.getOriginal() instanceof AbstractTextDataSet) {
-			Collection<? extends IItem> items = results.getOriginal().items();
-			boolean shouldText=true;
-			int num=0;
-			for (IItem i:items) {
-				ITextItem ta=(ITextItem) i;
-				String text = ta.getText();
-				if (text.length()>200) {
-					shouldText=false;
-					break;
-				}
-				num++;
-				if (num>200) {
-					break;
-				}
-			}
-			if (shouldText) {
-				viewer = "text";
-			}
-		}
+//		if (results.getOriginal() instanceof AbstractTextDataSet) {
+//			Collection<? extends IItem> items = results.getOriginal().items();
+//			boolean shouldText=true;
+//			int num=0;
+//			for (IItem i:items) {
+//				ITextItem ta=(ITextItem) i;
+//				String text = ta.getText();
+//				if (text.length()>200) {
+//					shouldText=false;
+//					break;
+//				}
+//				num++;
+//				if (num>200) {
+//					break;
+//				}
+//			}
+//			if (shouldText) {
+//				viewer = "text";
+//			}
+//		}
 		g = null;
 		if (viewer.equals("html")) {
 			VirtualTable v = new VirtualTable();

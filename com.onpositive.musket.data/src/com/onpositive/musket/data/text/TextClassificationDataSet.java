@@ -120,7 +120,9 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
 		TextClassificationDataSet ts=new TextClassificationDataSet(t2.as(ITabularDataSet.class),this.textColumn, this.clazzColumns);
-		return new TextClassificationDataSetWithPredictions(base, textColumn, clazzColumns, ts);
+		TextClassificationDataSetWithPredictions textClassificationDataSetWithPredictions = new TextClassificationDataSetWithPredictions(base, textColumn, clazzColumns, ts);
+		textClassificationDataSetWithPredictions.setLabels(this.labels);
+		return textClassificationDataSetWithPredictions;
 	}
 
 	@Override
@@ -146,7 +148,9 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
 		ITabularDataSet filter = filter(clazz, base, clazzColumn.caption());
-		return new TextClassificationDataSet(filter, this.textColumn, this.clazzColumns);
+		TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(filter, this.textColumn, this.clazzColumns);
+		textClassificationDataSet.labels=this.labels;
+		return textClassificationDataSet;
 	}
 
 	protected static ITabularDataSet filter(String clazz, ITabularDataSet base2, String clazzColumn) {
