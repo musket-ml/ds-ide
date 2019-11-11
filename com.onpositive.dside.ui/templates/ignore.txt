@@ -1,0 +1,8 @@
+**/weights
+**/predictions
+**/.meta
+**/.metadata
+**/data
+**/__pycache__
+**/.cache
+**/.settings

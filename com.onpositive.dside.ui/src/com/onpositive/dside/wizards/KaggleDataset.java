@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +64,7 @@ import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class KaggleDataset extends Wizard implements INewWizard {
-	private static final String DEPS_FILE = "deps.yaml";
+	private static final String DEPS_FILE = "project.yaml";
 	
 	private IStructuredSelection selection;
 
@@ -295,8 +296,8 @@ public class KaggleDataset extends Wizard implements INewWizard {
 		return config;
 	}
 	
-	private Map<String, Object> serializeDataLinks(List<DataLink> links) {
-		Map<String, Object> result = new HashMap<>();
+	private Map<String, Object> serializeDataLinks(Map<String,Object> result,List<DataLink> links) {
+		
 		
 		List<Object> deps = new ArrayList<>();
 		
@@ -344,14 +345,26 @@ public class KaggleDataset extends Wizard implements INewWizard {
 		
 		Yaml yaml = new Yaml();
 		
-		String txt = yaml.dump(serializeDataLinks(dataLinks));
+		IFile depsFile = project.getFile(DEPS_FILE);
+		Map<String,Object>parsed=new LinkedHashMap<String, Object>();
+		try {
+			if(depsFile.exists()) {
+				parsed = (Map<String, Object>) yaml.load(depsFile.getContents());
+				
+				
+			}
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		
+		String txt = yaml.dump(serializeDataLinks(parsed,dataLinks));
 		
 		bin = new ByteArrayInputStream(txt.getBytes(StandardCharsets.UTF_8));
 		
-		IFile depsFile = project.getFile(DEPS_FILE);
+		
 		
 		if(depsFile.exists()) {
-			depsFile.delete(true, null);
+			depsFile.setContents(bin, true, true, null);
 		}
 				
 		depsFile.create(bin, true, null);

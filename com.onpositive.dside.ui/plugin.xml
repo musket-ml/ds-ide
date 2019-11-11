@@ -161,7 +161,6 @@
             class="com.onpositive.dside.ui.editors.ExperimentMultiPageEditor"
             contributorClass="com.onpositive.dside.ui.editors.MultiPageEditorContributor"
             default="true"
-            extensions="yaml"
             filenames="config.yaml, config_concrete.yaml"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.editors.ExperimentMultiPageEditor"
