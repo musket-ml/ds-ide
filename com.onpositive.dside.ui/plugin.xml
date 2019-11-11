@@ -308,6 +308,11 @@
             image="icons/history_working_set_obj.png"
             name="history">
       </image>
+      <image
+            id="refresh"
+            image="icons/refresh.png"
+            name="refresh">
+      </image>
    </extension>
 	 <extension point="org.eclipse.ui.newWizards">
       <category

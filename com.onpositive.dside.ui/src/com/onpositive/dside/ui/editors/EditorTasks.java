@@ -128,8 +128,20 @@ public class EditorTasks {
 			}
 		}
 	}
+	public static class RegreshMetadata extends EditorTask{
+
+		public RegreshMetadata() {
+			super("Refresh project metadata", "refresh");
+		}
+
+		@Override
+		public void perform(ExperimentOverivewEditorPart editor, Experiment exp) {
+			editor.getProject().refresh(null);
+		}
+		
+	}
 
 	public static EditorTask[] getTasks() {
-		return new EditorTask[] { new LaunchExperiment(), new ValidateModelTask(), new AnalizeDataTask(), new AnalizePredictionsTask(), new DuplicateExperimentTask() };
+		return new EditorTask[] { new LaunchExperiment(), new ValidateModelTask(), new AnalizeDataTask(), new AnalizePredictionsTask(), new DuplicateExperimentTask(),new RegreshMetadata() };
 	}
 }
