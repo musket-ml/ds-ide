@@ -60,6 +60,10 @@ public class DynamicUI {
 
 	protected LinkedHashMap<String, Object> args = new MapWithProvider();
 	protected InstrospectedFeature feature;
+	
+	public DynamicUI() {
+		// TODO Auto-generated constructor stub
+	}
 
 	public class MapWithProvider extends LinkedHashMap<String, Object> implements IHasPropertyProvider {
 
@@ -264,6 +268,7 @@ public class DynamicUI {
 					
 					if (createObject) {
 						binding.setValue(options.toString());
+						onUpdate();
 					}
 					
 				}
@@ -313,6 +318,7 @@ public class DynamicUI {
 							return ((ColumnInfo)x).getColumn().caption();
 						}).collect(Collectors.joining(","));
 						binding.setValue(collect);
+						onUpdate();
 					}
 					
 				}
@@ -334,4 +340,8 @@ public class DynamicUI {
 		return args;
 	}
 
+	
+	public void onUpdate() {
+		
+	}
 }

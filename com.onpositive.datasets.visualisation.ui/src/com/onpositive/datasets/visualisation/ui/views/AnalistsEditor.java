@@ -433,6 +433,10 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				}
 			}
 		}
+		@Override
+		public void onUpdate() {
+			recalcView();		
+		}
 
 		public IDataSet getDataSet() {
 			return results.getOriginal();
