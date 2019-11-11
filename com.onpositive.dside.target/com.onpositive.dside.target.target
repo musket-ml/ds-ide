@@ -63,7 +63,7 @@
 			<unit id="feature4.feature.group" version="1.0.0.201909271900"/>
 			<unit id="feature5.feature.group" version="1.0.0.201909271900"/>
 			<unit id="sui_feature.feature.group" version="1.0.0.201909271900"/>
-			<repository location="../update_site/"/>
+			<repository location="file:../update_site/"/>
 		</location>
 	</locations>
 </target>
