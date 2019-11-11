@@ -63,7 +63,7 @@
 			<unit id="feature4.feature.group" version="1.0.0.201909271900"/>
 			<unit id="feature5.feature.group" version="1.0.0.201909271900"/>
 			<unit id="sui_feature.feature.group" version="1.0.0.201909271900"/>
-			<repository location="file:/C:/Users/%D0%9F%D0%B0%D0%B2%D0%B5%D0%BB/git/ds-ide/update_site/"/>
+			<repository location="../update_site/"/>
 		</location>
 	</locations>
 </target>
