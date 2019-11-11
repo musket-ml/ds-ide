@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
@@ -157,10 +158,13 @@ public class TaskManager {
 			value.put("PYTHONUNBUFFERED", "1");
 			launchConfig.setAttribute(DebugPlugin.ATTR_ENVIRONMENT, value);
 			if (task.save()) {
-				launchConfig.doSave();
+				ILaunchConfiguration savedCfg = launchConfig.doSave();
+				ILaunch launch = savedCfg.launch(task.isDebug() ? "debug" : "run",
+						new NullProgressMonitor());
+			} else {
+				ILaunch launch = launchConfig.launch(task.isDebug() ? "debug" : "run",
+						new NullProgressMonitor());
 			}
-			ILaunch launch = launchConfig.launch(task.isDebug() ? "debug" : "run",
-					new NullProgressMonitor());
 			
 
 		} catch (Exception e) {
