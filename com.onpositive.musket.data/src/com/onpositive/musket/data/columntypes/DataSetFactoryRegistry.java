@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.onpositive.musket.data.table.ImageDataSetFactories;
-import com.onpositive.musket.data.table.TextDataSetFactories;
+import com.onpositive.musket.data.text.SequenceLabelingFactories;
+import com.onpositive.musket.data.text.TextDataSetFactories;
 
 public class DataSetFactoryRegistry {
 
@@ -16,6 +17,7 @@ public class DataSetFactoryRegistry {
 	public DataSetFactoryRegistry() {
 		factories.add(new ImageDataSetFactories());
 		factories.add(new TextDataSetFactories());
+		factories.add(new SequenceLabelingFactories());
 	}
 
 	public List<IDataSetFactory>knownFactories(){

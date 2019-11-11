@@ -27,6 +27,10 @@ public class ColumnLayout {
 
 		protected HashMap<Class<? extends IColumnType>, ColumnPreference> prefs = new HashMap<>();
 
+		public HashMap<Class<? extends IColumnType>, ColumnPreference> getPrefs() {
+			return prefs;
+		}
+
 		public ArrayList<SubColumn> subColumns;
 
 		public ColumnInfo(IColumn cln) {
@@ -65,6 +69,7 @@ public class ColumnLayout {
 			}
 			return nb;
 		}
+		
 
 		@Override
 		public String toString() {

@@ -20,3 +20,7 @@ templates:
      kind: instance_segmentation
      description: Basic instance segmentation template
      file: instance_segmentation.yaml
+   - name: Named Entity Recognition
+     kind: text_seq_classification
+     description: Named Entity Recognition template
+     file: sequence_labeling.yaml

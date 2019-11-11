@@ -11,18 +11,18 @@ import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IDataSet;
-import com.onpositive.musket.data.core.IDataSetWithGroundTruth;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
-import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
-import com.onpositive.musket.data.images.IBinaryClassificationItemWithPrediction;
-import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
-import com.onpositive.musket.data.images.IMulticlassClassificationItem;
+import com.onpositive.musket.data.text.Document;
+import com.onpositive.musket.data.text.DocumentWithPredictions;
+import com.onpositive.musket.data.text.Sentence;
+import com.onpositive.musket.data.text.TextSequenceDataSetWithPredictions;
+import com.onpositive.musket.data.text.Token;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
 @Caption("Multiclass F1")
-public class F1Analizer extends BinaryConfusionMatrix implements IAnalizer<IDataSetWithGroundTruth>{
+public class F1SeqAnalizer extends SequenceMatchAnalizer implements IAnalizer<TextSequenceDataSetWithPredictions>{
 
 	private List<String> classes;
 	
@@ -59,55 +59,52 @@ public class F1Analizer extends BinaryConfusionMatrix implements IAnalizer<IData
 
 	@Override
 	public IAnalizeResults analize(IDataSet ds) {
-		if (ds instanceof IMulticlassClassificationDataSet) {
-			IMulticlassClassificationDataSet ms=(IMulticlassClassificationDataSet) ds;
-			LinkedHashSet<String>sm=new LinkedHashSet<>();
-			ms.items().forEach(v->{
-				ArrayList<String> classes2 = v.classes();
-				sm.addAll(classes2);
-			});
-			classes=new ArrayList<>(sm);
-			Collections.sort(classes);
-		}
-		else if (ds instanceof IBinaryClassificationDataSet) {
-			classes=new ArrayList<>();
-			classes.add("pos");
-		}
+		TextSequenceDataSetWithPredictions tf=(TextSequenceDataSetWithPredictions) ds;
+		LinkedHashSet<String> linkedHashSet = tf.classGroups().get(0);
+		classes=new ArrayList<>(linkedHashSet);
+		Collections.sort(classes);
 		for (String s:classes) {
 			stat.put(s,new Stat());
 		}
 		return super.analize(ds);
 	}
+	
 	@Override
 	protected Object group(IItem v) {
+		DocumentWithPredictions d=(DocumentWithPredictions) v;
+		ArrayList<Sentence> contents = d.getContents();
 		
-		IBinaryClassificationItemWithPrediction b1=(IBinaryClassificationItemWithPrediction) v;
-		if (v instanceof IMulticlassClassificationItem) {
-			IMulticlassClassificationItem m1=(IMulticlassClassificationItem) v;
-			IMulticlassClassificationItem item=(IMulticlassClassificationItem) m1;
-			ArrayList<String> classes = item.classes();
-			
-			IMulticlassClassificationItem prediction=(IMulticlassClassificationItem) b1.getPrediction();
-			ArrayList<String> classes2 = prediction.classes();			
-			HashSet<String> gt = new HashSet<>(classes);
-			HashSet<String> pr = new HashSet<>(classes2);			
-			count(gt,pr);
-		}
-		else {
-			HashSet<String>gt=new HashSet<>();
-			HashSet<String> pr = new HashSet<>();
-			if (b1.isPositive()) {
-				gt.add("pos");
-			}
-			if (b1.isPredictionPositive()) {
-				pr.add("pos");
-			}
-			
-			count(gt, pr);
+		Document predictions = d.getPredictions();
+		ArrayList<Sentence> contents2 = predictions.getContents();
+		
+		int size = contents.size();
+		for (int i=0;i<size;i++) {
+			Sentence sentence = contents.get(i);
+			Sentence sentence2 = contents2.get(i);
+			process(sentence,sentence2);
 		}
 		return super.group(v);
 	}
 	
+	private void process(Sentence sentence, Sentence sentence2) {
+		ArrayList<Token> tokens = sentence.tokens();
+		ArrayList<Token> tokens2 = sentence2.tokens();
+		int size = tokens.size();
+		for (int i=0;i<size;i++) {
+			HashSet<String>gt=new HashSet<>();
+			HashSet<String>pr=new HashSet<>();
+			Token token = tokens.get(i);
+			gt.addAll(token.classes());
+			if (i>=tokens2.size()) {
+				pr.add("Not matched");
+			}
+			else {
+				pr.addAll(tokens2.get(i).classes());
+			}
+			count(gt, pr);
+		}
+	}
+
 	private void count(HashSet<String> gt, HashSet<String> pr) {
 		
 		for (String s:classes) {
@@ -146,6 +143,7 @@ public class F1Analizer extends BinaryConfusionMatrix implements IAnalizer<IData
 		visualizationSpec.full=basicChartData;
 		return visualizationSpec;
 	}
+	
 	protected String getYName() {
 		return "F1";
 	}

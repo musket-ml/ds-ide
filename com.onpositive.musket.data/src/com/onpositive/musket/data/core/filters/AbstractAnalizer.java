@@ -64,7 +64,9 @@ public abstract class AbstractAnalizer {
 		maps.keySet().forEach(k->{
 			basicChartData.values.put(k.toString(), (double)maps.get(k).size());
 		});
-		visualizationSpec.full=basicChartData;
+		if (visualizationSpec.full==null) {
+			visualizationSpec.full=basicChartData;
+		}
 		return new IAnalizeResults() {
 
 			@Override

@@ -1,5 +1,4 @@
 package com.onpositive.musket.data.generic;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -116,7 +115,7 @@ public class GenericItem implements IImageItem {
 		for (ColumnInfo i : infos) {
 			IColumn column = i.getColumn();
 			Class<? extends IColumnType> preferredType = i.preferredType();
-			
+
 			if (preferredType == TextColumnType.class || preferredType == ImageColumnType.class
 					|| preferredType == RLEMaskColumnType.class) {
 
@@ -125,7 +124,6 @@ public class GenericItem implements IImageItem {
 				// this is small thing
 				String title = column.caption();
 
-				
 				if (large.isEmpty()) {
 					bld.append("<li><bold>" + StringUtils.encodeHtml(title) + ": </bold>");
 				} else {
@@ -134,41 +132,42 @@ public class GenericItem implements IImageItem {
 				appendSimpleValue(bld, column, preferredType);
 			}
 		}
+		int pos=0;
+		if (!bld.toString().isEmpty()) {
+			JLabel label = new JLabel("<html>" + bld.toString() + "</html>");
+			Border createEmptyBorder = BorderFactory.createEmptyBorder(5, 5, 0, 5);
 
-		JLabel label = new JLabel("<html>" + bld.toString() + "</html>");
-		Border createEmptyBorder = BorderFactory.createEmptyBorder(5, 5, 0, 5);
+			TitledBorder titledBorder = new TitledBorder(BorderFactory
+					.createCompoundBorder(BorderFactory.createTitledBorder("").getBorder(), createEmptyBorder));
 
-		TitledBorder titledBorder = new TitledBorder(BorderFactory
-				.createCompoundBorder(BorderFactory.createTitledBorder("").getBorder(), createEmptyBorder));
+			titledBorder.setTitle("Simple properties");
+			label.setBorder(titledBorder);
+			label.setOpaque(true);
+			label.setFont(font);
+			label.setSize(350, 350);
+			Dimension preferredSize = label.getPreferredSize();
+			pos = preferredSize.height;
+			if (pos > 100 && large.size() > 0) {
+				pos = 100;
+			}
+			if (preferredSize.width > 400) {
+				pos = 100;
+			}
+			if (large.isEmpty()) {
+				pos = 300;
+			}
 
-		titledBorder.setTitle("Simple properties");
-		label.setBorder(titledBorder);
-		label.setOpaque(true);
-
-		label.setFont(font);
-		label.setSize(350, 350);
-		Dimension preferredSize = label.getPreferredSize();
-		int pos = preferredSize.height;
-		if (pos > 100 && large.size() > 0) {
-			pos = 100;
+			label.setLocation(0, 0);
+			label.setSize(350, pos);
+			label.paint(g2);
 		}
-		if (preferredSize.width>400) {
-			pos = 100;
-		}
-		if (large.isEmpty()) {
-			pos = 300;
-		}
-
-		label.setLocation(0, 0);
-		label.setSize(350, pos);
-		label.paint(g2);
 		if (large.size() > 0) {
 			int height = (350 - pos - 10) / large.size();
 			int num = 0;
 			for (ColumnInfo i : large) {
 				IColumn column = i.getColumn();
 				Class<? extends IColumnType> preferredType = i.preferredType();
-				
+
 				if (preferredType == TextColumnType.class) {
 					JTextArea area = new JTextArea();
 					area.setWrapStyleWord(true);

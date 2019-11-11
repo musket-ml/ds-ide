@@ -13,15 +13,17 @@ import com.onpositive.musket.data.core.IPythonStringGenerator;
 import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.ClassColumnsOptimizer;
 import com.onpositive.musket.data.table.ComputableColumn;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.IColumn;
+import com.onpositive.musket.data.table.IHasLabels;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 
 public class TextClassificationDataSet extends AbstractTextDataSet
-		implements IBinaryClassificationDataSet, IMulticlassClassificationDataSet,ICSVOVerlay,IPythonStringGenerator {
+		implements IBinaryClassificationDataSet, IMulticlassClassificationDataSet,ICSVOVerlay,IPythonStringGenerator,IHasLabels {
 
 	protected ArrayList<IColumn> clazzColumns;
 
@@ -34,6 +36,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	protected ArrayList<String> classes = new ArrayList<>();
 
 	private boolean isMulti;
+	
 	
 	
 	public TextClassificationDataSet(ITabularDataSet tb, Map<String, Object> options) {
@@ -117,7 +120,9 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
 		TextClassificationDataSet ts=new TextClassificationDataSet(t2.as(ITabularDataSet.class),this.textColumn, this.clazzColumns);
-		return new TextClassificationDataSetWithPredictions(base, textColumn, clazzColumns, ts);
+		TextClassificationDataSetWithPredictions textClassificationDataSetWithPredictions = new TextClassificationDataSetWithPredictions(base, textColumn, clazzColumns, ts);
+		textClassificationDataSetWithPredictions.setLabels(this.labels);
+		return textClassificationDataSetWithPredictions;
 	}
 
 	@Override
@@ -143,7 +148,9 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
 		ITabularDataSet filter = filter(clazz, base, clazzColumn.caption());
-		return new TextClassificationDataSet(filter, this.textColumn, this.clazzColumns);
+		TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(filter, this.textColumn, this.clazzColumns);
+		textClassificationDataSet.labels=this.labels;
+		return textClassificationDataSet;
 	}
 
 	protected static ITabularDataSet filter(String clazz, ITabularDataSet base2, String clazzColumn) {
@@ -186,7 +193,6 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		return base;
 	}
  
-	
 	@Override
 	public String getImportString() {
 		return "from musket_text import text_datasets"+System.lineSeparator()+"from musket_core import datasets";
@@ -235,6 +241,16 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	public TextClassificationDataSet withIds(ITabularDataSet filter) {
 		ITabularDataSet withIds = this.base.withIds(filter);
 		return new TextClassificationDataSet(withIds, this.settings);
+	}
+
+	@Override
+	public void setLabels(LabelsSet labelsSet) {
+		this.labels=labelsSet;
+	}
+
+	@Override
+	public LabelsSet labels() {
+		return this.labels;
 	}
 	
 }

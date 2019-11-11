@@ -247,6 +247,9 @@ public class ImageRepresenter implements Iterable<String> {
 		ArrayList<String> result = new ArrayList<>();
 		this.children.forEach(v -> {
 			String string = v.folders.get(0);
+			if (string.startsWith("\\")||string.startsWith("/")){
+				string=string.substring(1);
+			}					
 			result.add('"' + string + '"');
 		});
 		return "[" + result.stream().collect(Collectors.joining(",")) + "]";

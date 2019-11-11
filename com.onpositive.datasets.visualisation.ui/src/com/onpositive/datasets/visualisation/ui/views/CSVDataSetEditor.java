@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
@@ -57,6 +58,7 @@ import com.onpositive.musket.data.project.DataProjectAccess;
 import com.onpositive.musket.data.table.ICSVOVerlay;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.text.TextClassificationDataSet;
+import com.onpositive.musket.data.text.TextSequenceDataSet;
 import com.onpositive.semantic.model.ui.generic.HyperlinkEvent;
 import com.onpositive.semantic.model.ui.generic.IHyperlinkListener;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
@@ -141,7 +143,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 
 				@Override
 				protected IStatus run(org.eclipse.core.runtime.IProgressMonitor monitor) {
-					ds = DataProjectAccess.getDataSet(file2, new BasicQuestionAnswerer(), new PM(monitor));
+					ds = DataProjectAccess.getDataSet(file2, new BasicQuestionAnswerer(), new PM(monitor),encoding);
 					if (ds != null) {
 						Display.getDefault().asyncExec(new Runnable() {
 
@@ -190,7 +192,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 					return true;
 				}
 
-			});
+			},encoding);
 			ds = dataSet.withPredictions(f2);
 			setPartName(f1.getName() + "-" + f2.getName());
 			init();
@@ -303,6 +305,8 @@ public class CSVDataSetEditor extends AnalistsEditor {
 
 	boolean uiPatched;
 
+	private String encoding;
+
 	private void init() {
 		if (ds == null) {
 			((Container) getUIRoot()).getElement("sl").setEnabled(false);
@@ -403,10 +407,16 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			}
 		});
 	}
+	
 
 	private File fromINput(IEditorInput editorInput) {
 		IFileEditorInput input = (IFileEditorInput) editorInput;
 		IFile file = input.getFile();
+		try {
+			this.encoding=file.getCharset();
+		} catch (CoreException e) {
+			this.encoding="UTF-8";
+		}
 		this.project = file.getProject();
 		File file3 = file.getLocation().toFile();
 		return file3;
@@ -432,6 +442,9 @@ public class CSVDataSetEditor extends AnalistsEditor {
 		}
 		if (original instanceof TextClassificationDataSet) {
 			temp = new TextClassificationTemplate();
+		}
+		if (original instanceof TextSequenceDataSet) {
+			temp = new TextSequenceTemplate();
 		}
 		if (temp != null) {
 			temp.projectPath = project.getLocation().toFile().getAbsolutePath();
@@ -477,6 +490,16 @@ public class CSVDataSetEditor extends AnalistsEditor {
 				if (size>2&&b) {
 					classificationTemplate.numClasses = size;
 				}
+			}
+			if (classificationTemplate instanceof TextSequenceTemplate) {
+				TextSequenceTemplate ts=(TextSequenceTemplate) classificationTemplate;
+				if (ts.add_crf) {
+					classificationTemplate.activation="softmax";
+				}
+				else{
+					classificationTemplate.activation="crf_loss";
+				}
+				classificationTemplate.numClasses=((TextSequenceDataSet)original).lastClassCount();
 			}
 		}
 		boolean createObject = WidgetRegistry.createObject(classificationTemplate);

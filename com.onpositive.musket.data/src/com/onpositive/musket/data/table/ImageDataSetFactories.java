@@ -34,7 +34,7 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class ImageDataSetFactories implements IDataSetFactory {
 
-	private static final String LABELS_PATH = "LABELS_PATH";
+	public static final String LABELS_PATH = "LABELS_PATH";
 
 	public ImageDataSetFactories() {
 		super();
@@ -48,7 +48,7 @@ public class ImageDataSetFactories implements IDataSetFactory {
 			if (inner_Create != null) {
 				Object object2 = settings.get(LABELS_PATH);
 				if (object2 != null && inner_Create instanceof IHasLabels) {
-					IDataSet load = DataSetIO.load("file://" + object2.toString());
+					IDataSet load = DataSetIO.load("file://" + object2.toString(),"UTF-8");
 					ITabularDataSet as = load.as(ITabularDataSet.class);
 					if (as != null) {
 						IHasLabels hl = (IHasLabels) inner_Create;
@@ -199,15 +199,15 @@ public class ImageDataSetFactories implements IDataSetFactory {
 		return null;
 	}
 
-	protected void trySetupLabels(DataSetSpec spec, IHasLabels multiClassificationDataset) {
+	public static void trySetupLabels(DataSetSpec spec, IHasLabels multiClassificationDataset) {
 		List<String> classNames = multiClassificationDataset.classNames();
 		if (classNames.size() > 2) {
 			if (!BinaryClassificationDataSet.isStringClasses(multiClassificationDataset.classNames())) {
 				File file = spec.prj.getFile();
 				for (File f : file.listFiles()) {
-					if (f.getName().contains("label") && f.getName().endsWith(".csv")) {
+					if ((f.getName().contains("label")||f.getName().contains("categories")) && f.getName().endsWith(".csv")) {
 						try {
-							IDataSet load = DataSetIO.load("file://" + f.getAbsolutePath());
+							IDataSet load = DataSetIO.load("file://" + f.getAbsolutePath(),spec.getEncoding());
 							ITabularDataSet as = load.as(ITabularDataSet.class);
 							if (as != null) {
 								LabelsSet labelsSet = new LabelsSet(as,

@@ -28,6 +28,10 @@ public class Document implements ITextItem, IImageItem {
 
 	protected ArrayList<Sentence> contents = new ArrayList<>();
 
+	public ArrayList<Sentence> getContents() {
+		return contents;
+	}
+
 	protected TextSequenceDataSet parent;
 
 	private int num;
@@ -60,6 +64,8 @@ public class Document implements ITextItem, IImageItem {
 	public IDataSet getDataSet() {
 		return parent;
 	}
+	
+	
 
 	@Override
 	public String getText() {
@@ -113,39 +119,7 @@ public class Document implements ITextItem, IImageItem {
 		try {
 			StringBuilder bld = new StringBuilder();
 			bld.append("<font size='4'>");
-			l2:for (Sentence s : this.contents) {
-				bld.append("<p>");
-				for (Token t : s.tokens) {
-					
-					List<String> classes = t.classes();
-					classes=visibility.filter(classes);					
-					if (!classes.isEmpty()&&(visibility.showInText||classes.size()>1)) {
-						bld.append(StringUtils.encodeHtml(t.toString()+" "));
-						bld.append("<font color='blue'>");
-						bld.append('(');
-						
-						bld.append(classes.stream().collect(Collectors.joining(", ")));
-						bld.append(") ");
-						bld.append("</font>");
-					}
-					else {
-						if (classes.size()>0) {
-						Color color = visibility.getColor(classes.get(0));
-							bld.append("<b><font color='#"+Integer.toHexString(color.getRGB()).substring(2)+"'>");
-							bld.append(StringUtils.encodeHtml(t.toString())+" ");
-							bld.append("</font></b>");
-						}
-						else {
-							bld.append(StringUtils.encodeHtml(t.toString()+" "));
-						}
-					}
-					if (bld.length()>mxch) {
-						bld.append("...");
-						break l2;
-					}
-				}
-				bld.append("</p>");
-			}
+			drawText(mxch, visibility, bld);
 			bld.append("</font>");
 			kit.insertHTML(doc, doc.getLength(), bld.toString(), 0, 0, null);
 
@@ -161,6 +135,42 @@ public class Document implements ITextItem, IImageItem {
 
 		return img;
 
+	}
+
+	protected void drawText(int mxch, ClassVisibilityOptions visibility, StringBuilder bld) {
+		l2:for (Sentence s : this.contents) {
+			bld.append("<p>");
+			for (Token t : s.tokens) {
+				
+				List<String> classes = t.classes();
+				classes=visibility.filter(classes);					
+				if (!classes.isEmpty()&&(visibility.showInText||classes.size()>1)) {
+					bld.append(StringUtils.encodeHtml(t.toString()+" "));
+					bld.append("<font color='blue'>");
+					bld.append('(');
+					
+					bld.append(classes.stream().collect(Collectors.joining(", ")));
+					bld.append(") ");
+					bld.append("</font>");
+				}
+				else {
+					if (classes.size()>0) {
+					Color color = visibility.getColor(classes.get(0));
+						bld.append("<b><font color='#"+Integer.toHexString(color.getRGB()).substring(2)+"'>");
+						bld.append(StringUtils.encodeHtml(t.toString())+" ");
+						bld.append("</font></b>");
+					}
+					else {
+						bld.append(StringUtils.encodeHtml(t.toString()+" "));
+					}
+				}
+				if (bld.length()>mxch) {
+					bld.append("...");
+					break l2;
+				}
+			}
+			bld.append("</p>");
+		}
 	}
 
 

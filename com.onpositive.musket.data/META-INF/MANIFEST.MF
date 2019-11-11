@@ -14,7 +14,8 @@ Require-Bundle: org.junit,
  com.onpositive.semantic.model.core,
  com.onpositive.yamledit;bundle-version="1.0.0",
  com.onpositive.semantic.ui.swt,
- org.eclipse.jface
+ org.eclipse.jface,
+ com.google.gson
 Export-Package: com.onpositive.musket.data.actions,
  com.onpositive.musket.data.column.analisys,
  com.onpositive.musket.data.columntypes,

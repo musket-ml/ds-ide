@@ -19,17 +19,17 @@ public class DataProjectAccess {
 	}
 	
 	public static IDataSet getDataSet(File file, IQuestionAnswerer answerer) {
-		return getDataSet(file, answerer, IProgressMonitor.nullProgressMonitor());
+		return getDataSet(file, answerer, IProgressMonitor.nullProgressMonitor(),"UTF-8");
 	}
 
-	public static IDataSet getDataSet(File file, IQuestionAnswerer answerer, IProgressMonitor monitor) {
+	public static IDataSet getDataSet(File file, IQuestionAnswerer answerer, IProgressMonitor monitor,String encoding) {
 		File dataRoot = findDataRoot(file);
 		if (dataRoot == null) {
 			dataRoot = file.getParentFile();
 		}
 		if (dataRoot != null) {
 			DataProject project = getProject(dataRoot);
-			return project.getDataSet(file, answerer, monitor);
+			return project.getDataSet(file, answerer, monitor,encoding);
 		}
 		return null;
 	}

@@ -16,7 +16,14 @@ public class DataSetSpec {
 	public final DataProject prj;
 	public final IQuestionAnswerer answerer;
 	public final ImageRepresenter representer;
+	public String encoding="UTF-8";
 
+	public String getEncoding() {
+		return encoding;
+	}
+	public void setEncoding(String encoding) {
+		this.encoding = encoding;
+	}
 	public DataSetSpec(ColumnLayout layout, ITabularDataSet tb, DataProject prj, IQuestionAnswerer answerer) {
 		this.layout = layout;
 		this.tb = tb;
@@ -40,7 +47,14 @@ public class DataSetSpec {
 		}
 		return null;		
 	}
+	protected Object extension;
 
+	public Object getExtension() {
+		return extension;
+	}
+	public void setExtension(Object extension) {
+		this.extension = extension;
+	}
 	public List<? extends IColumn> columns() {
 		return tb.columns();
 	}

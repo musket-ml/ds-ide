@@ -2,6 +2,7 @@ package com.onpositive.musket.data.table;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +12,9 @@ import com.onpositive.musket.data.images.MultiClassClassificationItem;
 public class ClassColumnsOptimizer {
 
 	public static List<IColumn>optimize(Collection<IColumn>clazzColumn,IQuestionAnswerer anwerer) {
+		if (clazzColumn.size()==1) {
+			return Collections.singletonList(clazzColumn.iterator().next());
+		}
 		ArrayList<IColumn>binaryColumns=new ArrayList<>();
 		ArrayList<IColumn>multiClassColumns=new ArrayList<>();
 		ArrayList<IColumn>categoricalColumns=new ArrayList<>();
@@ -27,6 +31,7 @@ public class ClassColumnsOptimizer {
 				categoricalColumns.add(c);
 			}
 		}
+		
 		boolean binaryConsumed=false;
 		if (!binaryColumns.isEmpty()&&binaryColumns.size()>1) {
 			boolean askQuestion = anwerer.askQuestion("Do you want to join binary columns: "+name(binaryColumns,", "), true);

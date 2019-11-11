@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
-
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IProgressMonitor;
 import com.onpositive.musket.data.core.IPythonStringGenerator;
@@ -17,7 +15,6 @@ import com.onpositive.musket.data.images.IBinaryClassificationDataSet;
 import com.onpositive.musket.data.images.IBinarySegmentationDataSet;
 import com.onpositive.musket.data.images.IImageDataSet;
 import com.onpositive.musket.data.images.IImageItem;
-import com.onpositive.musket.data.images.IInstanceSegmentationDataSet;
 import com.onpositive.musket.data.images.IMultiClassSegmentationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationItem;

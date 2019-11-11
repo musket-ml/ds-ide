@@ -17,8 +17,15 @@ public class EmbeddingsRealmProvider implements IRealmProvider<String>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public IRealm<String> getRealm(IHasMeta arg0, Object arg1, Object arg2) {
-		TextClassificationTemplate ts=(TextClassificationTemplate) arg1;
-		String p=ts.projectPath;
+		String p=null;
+		if (arg1 instanceof TextClassificationTemplate) {
+			TextClassificationTemplate ts=(TextClassificationTemplate) arg1;
+			p=ts.projectPath;
+		}
+		if (arg1 instanceof TextSequenceTemplate) {
+			TextSequenceTemplate ts=(TextSequenceTemplate) arg1;
+			p=ts.projectPath;
+		}
 		
 		@SuppressWarnings("rawtypes")
 		Realm realm = new Realm();

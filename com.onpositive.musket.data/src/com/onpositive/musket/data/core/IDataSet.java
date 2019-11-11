@@ -2,6 +2,7 @@ package com.onpositive.musket.data.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +16,8 @@ import com.onpositive.musket.data.table.ITabularDataSet;
 public interface IDataSet extends Iterable<IItem>{
 	
 	Collection<? extends IItem>items();
+	
+	public static final String ENCODING = "ENCODING";
 	
 	int length();
 
@@ -71,12 +74,24 @@ public interface IDataSet extends Iterable<IItem>{
 	default Map<String,Object> getSettings(){return new LinkedHashMap<>();}
 	
 	public default IVisualizerProto getVisualizer() {return null;}
+	
+	public default List<IVisualizerProto> getVisualizers() {
+		return Collections.singletonList(getVisualizer());
+	}
 
 	default IDataSet withPredictions(File f2) {
-		return withPredictions(DataSetIO.load("file://"+f2.getAbsolutePath()).as(ITabularDataSet.class));
+		return withPredictions(DataSetIO.load("file://"+f2.getAbsolutePath(),getEncoding()).as(ITabularDataSet.class));
 	}
 	
 	public List<DescriptionEntry>description();
 
 	public List<ConversionAction>conversions();
+	
+	default String getEncoding() {
+		Map<String, Object> settings = getSettings();
+		if (settings.containsKey(ENCODING)) {
+			return (String) settings.get(ENCODING);
+		}
+		return "UTF-8";
+	}
 }

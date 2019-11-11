@@ -2,13 +2,18 @@ package com.onpositive.musket.data.project;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.onpositive.musket.data.columntypes.ColumnLayout;
 import com.onpositive.musket.data.columntypes.DataSetFactoryRegistry;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -48,10 +53,33 @@ public class DataProject {
 	}
 
 	@SuppressWarnings("unchecked")
-	public IDataSet getDataSet(File file2, IQuestionAnswerer answerer, IProgressMonitor monitor) {
+	public IDataSet getDataSet(File file2, IQuestionAnswerer answerer, IProgressMonitor monitor, String encoding) {
 		try {
 			long l0=System.currentTimeMillis();
 			monitor.onProgress("Loading dataset into memory", 0);
+			if (file2.getName().endsWith(".jsonl")) {
+				try {
+					ArrayList<Object>data=new ArrayList<>();
+					BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file2),"UTF8"));
+					while (true) {
+						String readLine = bufferedReader.readLine();
+						if (readLine==null) {
+							break;
+						}
+						Object fromJson = new Gson().fromJson(readLine, Object.class);
+						//System.out.println(fromJson);
+						data.add(fromJson);
+						if (data.size()>10000) {
+							break;
+						}
+					}
+					bufferedReader.close();
+					return TextSequenceDataSet.tryParse(data);
+					
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			if (file2.getName().endsWith(".txt")) {
 				try {
 					FileReader fileReader = new FileReader(file2);
@@ -72,7 +100,7 @@ public class DataProject {
 				}
 				
 			}
-			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath());
+			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath(),encoding);
 			if (load == null) {
 				return null;
 			}
@@ -95,7 +123,9 @@ public class DataProject {
 							if (!onProgress) {
 								return null;
 							}
-							IDataSet create = factory.create(new DataSetSpec(null, t1, this, answerer), loadAs);
+							DataSetSpec spec = new DataSetSpec(null, t1, this, answerer);
+							spec.setEncoding(encoding);
+							IDataSet create = factory.create(spec, loadAs);
 							monitor.onDone("All done", 2);
 							return create;
 						} catch (Exception e) {
@@ -118,6 +148,7 @@ public class DataProject {
 			
 			ColumnLayout layout = new ColumnLayout(columns, this, answerer,monitor);
 			DataSetSpec spec = new DataSetSpec(layout, layout.getNewDataSet(), this, answerer);
+			spec.setEncoding(encoding);
 			// make it a little bit smarter
 			IDataSetFactory factory = null;
 			long l2=System.currentTimeMillis();

@@ -44,6 +44,7 @@ import com.onpositive.datasets.visualisation.ui.views.GenericExperimentTemplate;
 import com.onpositive.datasets.visualisation.ui.views.InstanceSegmentationTemplate;
 import com.onpositive.datasets.visualisation.ui.views.SegmentationTemplate;
 import com.onpositive.datasets.visualisation.ui.views.TextClassificationTemplate;
+import com.onpositive.datasets.visualisation.ui.views.TextSequenceTemplate;
 import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.dside.ui.navigator.ExperimentGroup;
 import com.onpositive.musket.data.core.IDataSet;
@@ -179,6 +180,9 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 		}
 		else if (template.kind.equals("text_classification")) {
 			rs = new TextClassificationTemplate();
+		}
+		else if (template.kind.equals("text_seq_classification")) {
+			rs = new TextSequenceTemplate();
 		}
 		else if(template.kind.equals("instance_segmentation")){
 			ProjectWrapper wrapper = ProjectManager.getInstance(prj);

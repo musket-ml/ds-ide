@@ -3,6 +3,7 @@ package com.onpositive.datasets.visualisation.ui.views;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,11 +57,13 @@ import com.onpositive.musket.data.core.ChartData.BasicChartData;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
+import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
 import com.onpositive.musket.data.text.AbstractTextDataSet;
+import com.onpositive.musket.data.text.ITextItem;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
@@ -430,6 +433,10 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				}
 			}
 		}
+		@Override
+		public void onUpdate() {
+			recalcView();		
+		}
 
 		public IDataSet getDataSet() {
 			return results.getOriginal();
@@ -540,8 +547,28 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		if (viewer == null) {
 			viewer = "image";
 		}
+		if (visualizerFeature.getKind()!=null&&visualizerFeature.getKind().equals("Table visualizer")) {
+			viewer="text";
+		}
 //		if (results.getOriginal() instanceof AbstractTextDataSet) {
-//			viewer = "text";
+//			Collection<? extends IItem> items = results.getOriginal().items();
+//			boolean shouldText=true;
+//			int num=0;
+//			for (IItem i:items) {
+//				ITextItem ta=(ITextItem) i;
+//				String text = ta.getText();
+//				if (text.length()>200) {
+//					shouldText=false;
+//					break;
+//				}
+//				num++;
+//				if (num>200) {
+//					break;
+//				}
+//			}
+//			if (shouldText) {
+//				viewer = "text";
+//			}
 //		}
 		g = null;
 		if (viewer.equals("html")) {

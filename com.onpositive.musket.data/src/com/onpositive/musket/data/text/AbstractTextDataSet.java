@@ -2,6 +2,7 @@ package com.onpositive.musket.data.text;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,6 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 	protected IColumn idColumn;
 	
 	protected LabelsSet labels;
-	
 	protected static String TEXT_COLUMN="TEXT_COLUMN";
 	
 	protected static String CLAZZ_COLUMNS="CLAZZ_COLUMNS";
@@ -118,6 +118,51 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 				return null;
 			}
 		};
+	}
+	
+	
+	public IVisualizerProto getTextVisualizer() {
+		return new IVisualizerProto() {
+
+			@Override
+			public Parameter[] parameters() {
+			
+				Parameter parameter = new Parameter();
+				parameter.name=GenericDataSet.FONT_SIZE;
+				Map<String, Object> settings2 = getSettings();
+				parameter.defaultValue=settings2.get(GenericDataSet.FONT_SIZE).toString();
+				parameter.type=Integer.class;
+				
+				Parameter parameter1 = new Parameter();
+				parameter1.name=GenericDataSet.MAX_CHARS_IN_TEXT;
+				parameter1.defaultValue=settings2.get(GenericDataSet.MAX_CHARS_IN_TEXT).toString();
+				parameter1.type=Integer.class;
+				
+				return new Parameter[] {parameter,parameter1};
+			}
+
+			@Override
+			public String name() {
+				return "Table visualizer";
+			}
+
+			@Override
+			public String id() {
+				return "Table visualizer";
+			}
+
+			@Override
+			public Supplier<Collection<String>> values(IDataSet ds) {
+				return null;
+			}
+		};
+	}
+	
+	public List<IVisualizerProto> getVisualizers() {
+		ArrayList<IVisualizerProto>ps=new ArrayList<>();
+		ps.add(getVisualizer());
+		ps.add(getTextVisualizer());
+		return ps;
 	}
 
 	@Override

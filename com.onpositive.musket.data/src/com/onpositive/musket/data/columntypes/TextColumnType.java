@@ -18,6 +18,9 @@ public class TextColumnType extends AbstractColumnType{
 
 	@Override
 	public ColumnPreference is(IColumn c, DataProject prj, IQuestionAnswerer answerer) {
+		if (c.caption().toLowerCase().contains("title")||c.caption().toLowerCase().contains("text")) {
+			return ColumnPreference.STRICT;
+		}
 		if (isText(c)) {
 			
 			return ColumnPreference.STRICT;
@@ -45,7 +48,7 @@ public class TextColumnType extends AbstractColumnType{
 				else {
 					notTextCount++;
 				}
-				if (notTextCount>2000) {
+				if (notTextCount>2000&&textCount<200) {
 					return false;
 				}
 				if (textCount>10000) {

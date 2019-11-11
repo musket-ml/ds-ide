@@ -273,6 +273,12 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 		folder.create(true, true, monitor);
 		IFile common=newProjectHandle.getFile("common.yaml");		
 		common.create(MusketProjectWizard.class.getResourceAsStream("/templates/common.yaml"), true, monitor);
+		
+		IFile gitIgnore=newProjectHandle.getFile(".gitignore");
+		gitIgnore.create(MusketProjectWizard.class.getResourceAsStream("/templates/ignore.txt"), true, monitor);
+		
+		IFile deps=newProjectHandle.getFile("project.yaml");
+		deps.create(MusketProjectWizard.class.getResourceAsStream("/templates/project.txt"), true, monitor);
 	}
 
 	/**
