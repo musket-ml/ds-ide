@@ -21,12 +21,15 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.events.IHyperlinkListener;
 import org.eclipse.ui.forms.widgets.Hyperlink;
 import org.eclipse.ui.forms.widgets.ImageHyperlink;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.MultiEditorInput;
+import org.python.pydev.shared_ui.EditorUtils;
 
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.dside.ui.datasets.CompareCSVDataSets;
@@ -93,11 +96,11 @@ public class ExperimentResultsEditorPart extends EditorPart {
 				lsa.setText(ExperimentsResultViewer.metricString(metric));
 			}
 			if (!predictions.isEmpty()) {
-				Label h=new Label(ca, SWT.None);
+				Label h = new Label(ca, SWT.None);
 				h.setText("Predictions:");
 				h.setFont(JFaceResources.getHeaderFont());
 				h.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).indent(0, 20).create());
-				h=new Label(ca, SWT.SEPARATOR|SWT.HORIZONTAL);
+				h = new Label(ca, SWT.SEPARATOR | SWT.HORIZONTAL);
 				h.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).indent(0, 0).create());
 				for (PredictionPair p : predictions) {
 					ImageHyperlink hl = new ImageHyperlink(ca, SWT.NONE);
@@ -121,16 +124,27 @@ public class ExperimentResultsEditorPart extends EditorPart {
 
 						@Override
 						public void linkActivated(HyperlinkEvent e) {
-							IFile iFile = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(p.groundTruth.toURI())[0];
-							
-							IFile iFile1 = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(p.prediction.toURI())[0];
-							try {
-							iFile.refreshLocal(0, new NullProgressMonitor());
-							iFile1.refreshLocal(0, new NullProgressMonitor());
-							}catch (Exception ex) {
-								ex.printStackTrace();
+							IFile iFile = ResourcesPlugin.getWorkspace().getRoot()
+									.findFilesForLocationURI(p.groundTruth.toURI())[0];
+							if (p.prediction != null) {
+								IFile iFile1 = ResourcesPlugin.getWorkspace().getRoot()
+										.findFilesForLocationURI(p.prediction.toURI())[0];
+								try {
+									iFile.refreshLocal(0, new NullProgressMonitor());
+									iFile1.refreshLocal(0, new NullProgressMonitor());
+								} catch (Exception ex) {
+									ex.printStackTrace();
+								}
+								CompareCSVDataSets.open(iFile, iFile1);
 							}
-							CompareCSVDataSets.open(iFile, iFile1);
+							else {
+								try {
+									PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(new FileEditorInput(iFile),"com.onpositive.datasets.visualisation.ui.datasetEditor");
+								} catch (PartInitException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
 						}
 					});
 					;
@@ -153,7 +167,7 @@ public class ExperimentResultsEditorPart extends EditorPart {
 
 			ll.setLayoutData(GridDataFactory.fillDefaults().span(4, 1).hint(-1, 20).create());
 			for (String s : metrics) {
-				if (s.equals("min")||s.equals("max")||s.equals("mean")) {
+				if (s.equals("min") || s.equals("max") || s.equals("mean")) {
 					continue;
 				}
 				Label ls = new Label(ca, SWT.NONE);
@@ -164,7 +178,7 @@ public class ExperimentResultsEditorPart extends EditorPart {
 				lsa.setText(ExperimentsResultViewer.metricString(metric));
 			}
 			ca.setLayout(layout);
-			Composite c1=new Composite(c, SWT.NONE);
+			Composite c1 = new Composite(c, SWT.NONE);
 			ExperimentsResultViewer experimentsResultViewer = new ExperimentsResultViewer(c1);
 			experimentsResultViewer.setResults(results);
 			Control tree = experimentsResultViewer.getControl();

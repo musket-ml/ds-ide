@@ -403,7 +403,7 @@ public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGrou
 			return new ClassGroupSelector(this.classGroups);
 		}
 		else {
-			return 0;
+			return null;
 		}
 	}
 
