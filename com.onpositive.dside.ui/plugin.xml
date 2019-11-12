@@ -121,13 +121,20 @@
         public="true">
 	</launchConfigurationType>
    </extension>
+   <extension point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+	  <launchConfigurationTypeImage
+	     id="com.onpositive.dside.ui.musket.LaunchImage"
+	     configTypeID="com.onpositive.dside.musket.launch"
+	     icon="icons/experiment.png">
+	  </launchConfigurationTypeImage>
+	</extension>
     <extension
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="com.onpositive.dside.tasks.MusketLaunchShortcut"
             icon="icons/experiment.png"
             id="com.onpositive.dside.tasks.MusketLaunchShortcut"
-            label="Launch Musket Experiment"
+            label="Musket Experiment"
             modes="run, debug">
          <description
                description="Run Musket Experiment Launch"
