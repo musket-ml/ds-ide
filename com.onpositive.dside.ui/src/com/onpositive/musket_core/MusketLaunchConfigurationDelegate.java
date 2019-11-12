@@ -37,6 +37,7 @@ import com.onpositive.dside.tasks.TaskManager.TaskStatus;
 public class MusketLaunchConfigurationDelegate extends AbstractLaunchConfigurationDelegate implements IMusketLaunchDelegate{
 	
 	
+	private static final String DEBUG_PROP = "debug:";
 	private static final String TEMP_FILE_PREFFIX = "ds_ide";
 	private IServerTask<?> task;
 	
@@ -54,6 +55,8 @@ public class MusketLaunchConfigurationDelegate extends AbstractLaunchConfigurati
 		
 		try {
 			String yaml = conf.getAttribute(ITaskConstants.YAML_SETTINGS, (String)null);
+			
+			yaml = setMode(yaml, mode);
 			
 			Path taskFilePath = Files.createTempFile(TEMP_FILE_PREFFIX, "task").toAbsolutePath();
 			Path resultFilePath = Files.createTempFile(TEMP_FILE_PREFFIX, "result").toAbsolutePath();
@@ -105,6 +108,20 @@ public class MusketLaunchConfigurationDelegate extends AbstractLaunchConfigurati
 		}
 	}
 	
+	private String setMode(String yaml, String mode) {
+		boolean isDebug = "debug".equalsIgnoreCase(mode);
+		int idx = yaml.indexOf(DEBUG_PROP);
+		String newValue = DEBUG_PROP + " " + String.valueOf(isDebug);
+		if (idx >= 0) {
+			int endIdx = yaml.indexOf('\n', idx);
+			String substr = yaml.substring(idx, endIdx);
+			yaml = yaml.replace(substr, newValue);
+		} else {
+			yaml = yaml + "\n" + newValue;
+		}
+		return yaml;
+	}
+
 	protected IServerTask<?> obtainTask(ILaunchConfiguration conf) {
 		if (task != null) {
 			return task;

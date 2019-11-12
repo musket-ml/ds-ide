@@ -134,7 +134,7 @@
             class="com.onpositive.dside.tasks.MusketLaunchShortcut"
             icon="icons/experiment.png"
             id="com.onpositive.dside.tasks.MusketLaunchShortcut"
-            label="Launch Musket Experiment"
+            label="Musket Experiment"
             modes="run, debug">
          <description
                description="Run Musket Experiment Launch"
