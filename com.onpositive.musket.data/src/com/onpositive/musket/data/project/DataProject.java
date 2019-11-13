@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,7 @@ public class DataProject {
 			}
 			if (file2.getName().endsWith(".txt")) {
 				try {
-					FileReader fileReader = new FileReader(file2);
+					InputStreamReader fileReader = new InputStreamReader(new FileInputStream(file2),encoding);
 					try {
 					TextSequenceDataSet read = new ConnlFormatReader().read(new BufferedReader(fileReader));
 					return read;
@@ -97,6 +98,9 @@ public class DataProject {
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} catch (UnsupportedEncodingException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 				
 			}

@@ -1,10 +1,10 @@
 package com.onpositive.musket.data.images;
-import java.awt.Image;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.BasicDataSetImpl;
 import com.onpositive.musket.data.table.BasicItem;
 import com.onpositive.musket.data.table.Column;
@@ -12,6 +12,7 @@ import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageRepresenter;
+import com.onpositive.musket.data.text.ConnlFormatReader;
 
 public class FolderDataSet extends MultiClassificationDataset{
 
@@ -21,7 +22,7 @@ public class FolderDataSet extends MultiClassificationDataset{
 	}
 
 	
-	public static FolderDataSet createDataSetFromFolder(File folder) {
+	public static IDataSet createDataSetFromFolder(File folder,String encoding) {
 		HashMap<String, ArrayList<File>>images=new HashMap<>();
 		fillMap(images,folder);
 		List<Column> cs=new ArrayList<>();
@@ -41,7 +42,7 @@ public class FolderDataSet extends MultiClassificationDataset{
 		ImageRepresenter rep = new ImageRepresenter(folder.getAbsolutePath());
 		rep.configure();
 		if (rep.isEmpty()) {
-			return null;
+			return new ConnlFormatReader().read(folder, encoding);
 		}
 		return new FolderDataSet(impl, cs.get(0), cs.get(1), 400, 400, rep);
 	}
@@ -72,9 +73,4 @@ public class FolderDataSet extends MultiClassificationDataset{
 	}
 
 
-	public static void main(String[] args) {
-		FolderDataSet createDataSetFromFolder = createDataSetFromFolder(new File("D:\\tstw\\cats_vs_dogs\\data\\training_set\\training_set"));
-		Image image = createDataSetFromFolder.items().iterator().next().getImage();
-		System.out.println(image);
-	}
 }

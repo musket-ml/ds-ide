@@ -165,10 +165,17 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			FolderEditorInput ed=(FolderEditorInput) editorInput;
 			File file = ed.getFolder().getLocation().toFile();
 			file2=file;
-			FolderDataSet createDataSetFromFolder = FolderDataSet.createDataSetFromFolder(file);
-			this.ds=createDataSetFromFolder;
-			project=ed.getFolder().getProject();
-			init();
+			IDataSet createDataSetFromFolder;
+			try {
+				createDataSetFromFolder = FolderDataSet.createDataSetFromFolder(file, ed.getFolder().getDefaultCharset());
+				this.ds=createDataSetFromFolder;
+				project=ed.getFolder().getProject();
+				init();
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
 		if (editorInput instanceof MultiEditorInput) {
 			IEditorInput[] input = ((MultiEditorInput) editorInput).getInput();

@@ -1,12 +1,11 @@
 package com.onpositive.dside.ui.datasets;
 
-import java.io.File;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -16,6 +15,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.onpositive.datasets.visualisation.ui.views.FolderEditorInput;
+import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.images.FolderDataSet;
 
 public class CreateDataSetFromFolder implements IHandler {
@@ -39,21 +39,28 @@ public class CreateDataSetFromFolder implements IHandler {
 		if (selection instanceof IStructuredSelection) {
 			IAdaptable r = (IAdaptable) ((IStructuredSelection) selection).getFirstElement();
 			IFolder adapter = r.getAdapter(IFolder.class);
-			FolderDataSet createDataSetFromFolder = FolderDataSet
-					.createDataSetFromFolder(adapter.getLocation().toFile());
-			if (createDataSetFromFolder == null) {
-				MessageDialog.openError(Display.getCurrent().getActiveShell(), "Can not create dataset",
-						"Sorry at this moment we only support folders that contain images, or folder that contain folders containing image files");
-				return null;
-			}
-
-			FolderEditorInput folderEditorInput = new FolderEditorInput(adapter);
+			IDataSet createDataSetFromFolder;
 			try {
-				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(folderEditorInput,
-						"com.onpositive.datasets.visualisation.ui.datasetEditor");
-			} catch (PartInitException e) {
+				createDataSetFromFolder = FolderDataSet.createDataSetFromFolder(adapter.getLocation().toFile(),
+						adapter.getDefaultCharset());
+
+				if (createDataSetFromFolder == null) {
+					MessageDialog.openError(Display.getCurrent().getActiveShell(), "Can not create dataset",
+							"Sorry at this moment we only support folders that contain images or conll text files, or folder that contain folders containing image files");
+					return null;
+				}
+
+				FolderEditorInput folderEditorInput = new FolderEditorInput(adapter);
+				try {
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(folderEditorInput,
+							"com.onpositive.datasets.visualisation.ui.datasetEditor");
+				} catch (PartInitException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} catch (CoreException e1) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e1.printStackTrace();
 			}
 		}
 		return null;
