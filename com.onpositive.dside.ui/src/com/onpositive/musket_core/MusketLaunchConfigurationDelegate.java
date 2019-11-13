@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
@@ -111,13 +110,18 @@ public class MusketLaunchConfigurationDelegate extends AbstractLaunchConfigurati
 	private String setMode(String yaml, String mode) {
 		boolean isDebug = "debug".equalsIgnoreCase(mode);
 		int idx = yaml.indexOf(DEBUG_PROP);
-		String newValue = DEBUG_PROP + " " + String.valueOf(isDebug);
-		if (idx >= 0) {
-			int endIdx = yaml.indexOf('\n', idx);
-			String substr = yaml.substring(idx, endIdx);
-			yaml = yaml.replace(substr, newValue);
-		} else {
-			yaml = yaml + "\n" + newValue;
+		int curr = idx + DEBUG_PROP.length();
+		while (Character.isWhitespace(yaml.charAt(curr))) {
+			curr++;
+		}
+		StringBuilder builder = new StringBuilder();
+		while (Character.isLetter(yaml.charAt(curr))) {
+			builder.append(yaml.charAt(curr));
+			curr++;
+		}
+		if (Boolean.valueOf(builder.toString()) != isDebug) {
+			String substr = yaml.substring(idx, curr);
+			return yaml.replace(substr, DEBUG_PROP + " " + String.valueOf(isDebug));
 		}
 		return yaml;
 	}
