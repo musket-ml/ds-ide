@@ -48,6 +48,14 @@ public class SequenceLabelingFactories implements IDataSetFactory{
 		IColumn sec=null;
 		IColumn doc=null;
 		for (ColumnInfo i:infos) {
+			if (i.getColumn().id().equals("sentence_id")) {
+				sec=i.getColumn();
+				continue;
+			}
+			if (i.getColumn().id().equals("doc_id")) {
+				doc=i.getColumn();
+				continue;
+			}			
 			if (i.preferredType()==ClassColumnType.class) {
 				classificationColumns.add(i.getColumn());
 			}
@@ -60,14 +68,7 @@ public class SequenceLabelingFactories implements IDataSetFactory{
 					return 0;
 				}				
 			}
-			if (i.preferredType()==NumberColumn.class) {
-				if (i.getColumn().id().equals("sentence_id")) {
-					sec=i.getColumn();
-				}
-				if (i.getColumn().id().equals("doc_id")) {
-					doc=i.getColumn();
-				}
-			}
+			
 		}
 		if (bi!=null&&!classificationColumns.isEmpty()&&(sec!=null||doc!=null)){
 			parameterObject.setExtension(new SequenceLayout(sec, doc, bi.getColumn(), classificationColumns));

@@ -37,6 +37,7 @@ public class TextSequenceDataSetWithPredictions extends TextSequenceDataSet{
 		});
 		TextSequenceDataSetWithPredictions textSequenceDataSet = new TextSequenceDataSetWithPredictions(new TextSequenceDataSet(gt),new TextSequenceDataSet(pt));
 		textSequenceDataSet.name=string;
+		textSequenceDataSet.settings=this.settings;
 		return textSequenceDataSet;
 	}
 	

@@ -105,6 +105,17 @@ public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGrou
 			});
 		}
 		this.docs.addAll(dt.values());
+		if (this.docs.size()==1) {
+			Document document = this.docs.get(0);
+			int num=0;
+			this.docs.clear();
+			for (Sentence s:document.contents) {
+				Document d1=new Document(this, num++);
+				d1.contents.add(s);
+				s.document=d1;
+				this.docs.add(d1);
+			};
+		}
 	}
 
 	protected ArrayList<Document>docs=new ArrayList<>();
