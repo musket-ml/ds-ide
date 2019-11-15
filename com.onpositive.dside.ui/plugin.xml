@@ -621,7 +621,7 @@
              categoryId="com.onpositive.dside.ui.musketNature.category"
              defaultHandler="com.onpositive.dside.ui.builder.AddRemoveMusketNatureHandler"
              id="com.onpositive.dside.ui.addRemoveMusketNature"
-             name="Add/RemoveMusket Project Nature">
+             name="Add/Remove Musket Project Nature">
        </command>
        <command
              defaultHandler="com.onpositive.dside.ui.datasets.CompareCSVDataSets"
@@ -798,4 +798,79 @@
 	        type="com.onpositive.dside.musket.launch">
 	    </launchConfigurationTabGroup>
 	</extension>
+	<extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="DS IDE"
+            icon="icons/experiment.png"
+            class="com.onpositive.dside.ui.perspective.DSIDEPerspectiveFactory"
+            id="com.onpositive.dside.ui.perspective">
+      </perspective>
+   </extension>
+   <extension point="org.eclipse.ui.intro"> 
+      <intro
+            class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+            id="com.onpositive.dside.ui.intro"
+            icon="icons/experiment.png"/>
+      <introProductBinding
+            introId="com.onpositive.dside.ui.intro"
+            productId="com.onpositive.dside.ui.product">
+      </introProductBinding>
+   </extension> 
+    <extension   
+         id="intro"
+         point="org.eclipse.ui.intro.config">
+      <config
+            introId="com.onpositive.dside.ui.intro"
+            id="com.onpositive.dside.ui.intro.config"
+            content="introcontent.xml">
+      	<presentation
+               home-page-id="root"
+               standby-page-id="standby">
+            <implementation
+                  ws="win32"
+                  style="css/shared.css"
+                  kind="html"
+                  os="win32">
+            </implementation>
+            <implementation
+                  kind="swt">
+            </implementation>
+         </presentation>      
+      </config>
+    </extension>           
+   <extension
+         point="org.eclipse.ui.intro.quicklinks">
+      <!-- Reuses command definition label and icons -->
+      <!--<quicklink
+            command="org.eclipse.epp.mpc.ui.command.showMarketplaceWizard"
+            icon="icons/mpcdrag.png">
+      </quicklink>-->
+      
+      <!-- Invoke a particular new wizard; place the Welcome/Intro in Standby mode on success -->
+      <command
+            id="org.eclipse.ui.newWizard(newWizardId=org.python.pydev.ui.wizards.project.MusketProjectWizard)"            
+            label="Create a new Musket Project">
+      </command>
+      
+      <!-- Allow overriding theme and icons for all newWizard-related commands -->
+      <!--<override
+            command="org.eclipse.ui.newWizard*"
+            icon="icons/solstice/new-project.png"
+            theme="org.eclipse.ui.intro.universal.solstice">
+      </override>-->
+      <command
+            id="com.onpositive.dside.ui.compare"
+            label="Compare CSV datasets">
+      </command>
+      <command
+            id="com.onpositive.dside.ui.createFromFolder"
+            label="Create Dataset from folder">
+      </command>
+     <!-- <url
+            description="description"
+            label="label"
+            location="com.onpositive.dside.ui.url1">
+      </url>-->
+   </extension>
 </plugin>

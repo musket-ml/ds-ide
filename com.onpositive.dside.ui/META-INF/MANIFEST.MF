@@ -45,7 +45,8 @@ Require-Bundle: org.eclipse.nebula.widgets.gallery;bundle-version="1.0.0",
  com.onpositive.musket.data;bundle-version="1.0.0",
  com.onpositive.datasets.visualisation.ui;bundle-version="1.0.0",
  org.apache.commons.csv;bundle-version="1.4.0",
- org.python.pydev.shared_ui
+ org.python.pydev.shared_ui,
+ org.eclipse.ui.intro
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: com.onpositive.dside.ui
 Bundle-ActivationPolicy: lazy
