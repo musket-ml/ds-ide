@@ -530,7 +530,11 @@ public class AnalistsView extends XMLView {
 
 	private void update(JFreeChart createChart, Container element2) {
 		Point size = element2.getControl().getSize();
-		BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, size.y - 3);
+		int height = size.y - 3;
+		if (size.x == 0 || height <= 0) {
+			return;
+		}
+		BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, height);
 		ImageData convertToSWT = ExperimentLogs.convertToSWT(createBufferedImage);
 		if (image != null) {
 			image.dispose();
