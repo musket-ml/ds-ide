@@ -534,8 +534,8 @@ public class AnalistsView extends XMLView {
 		if (size.x == 0 || height <= 0) {
 			return;
 		}
-		BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, height);
-		ImageData convertToSWT = ExperimentLogs.convertToSWT(createBufferedImage);
+		BufferedImage bufferedImage = createChart.createBufferedImage(size.x, height);
+		ImageData convertToSWT = ExperimentLogs.convertToSWT(bufferedImage);
 		if (image != null) {
 			image.dispose();
 		}

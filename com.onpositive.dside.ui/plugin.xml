@@ -332,7 +332,7 @@
       <wizard
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.KaggleDataset"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.kaggle_dataset"
@@ -342,7 +342,7 @@
       <wizard
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.KaggleRunView"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.kaggle_run"
@@ -354,17 +354,17 @@
             canFinishEarly="false"
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.MusketProjectWizard"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
-            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
+            icon="icons/lab16.png"
             id="org.python.pydev.ui.wizards.project.MusketProjectWizard"
             name="Musket Project"
-            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            preferredPerspectives="com.onpositive.dside.ui.perspective, org.python.pydev.ui.PythonPerspective"
             project="true"/>
       <wizard
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.NewMusketExperimentWizard"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.musket"
@@ -374,9 +374,9 @@
       <wizard
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.NewMusketGroupWizard"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
-            icon="icons/packagefolder_test_obj.png"
+            icon="icons/experiments16.png"
             id="com.onpositive.dside.ui.groupWizard"
             name="New Experiment Group">
       </wizard>
@@ -802,75 +802,20 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="DS IDE"
-            icon="icons/experiment.png"
+            icon="icons/lab16.png"
             class="com.onpositive.dside.ui.perspective.DSIDEPerspectiveFactory"
             id="com.onpositive.dside.ui.perspective">
       </perspective>
    </extension>
    <extension point="org.eclipse.ui.intro"> 
       <intro
-            class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+            class="com.onpositive.dside.ui.welcome.DSIDEIntroPart"
+            icon="icons/welcome16.png"
             id="com.onpositive.dside.ui.intro"
-            icon="icons/experiment.png"/>
+            label="Welcome"/>
       <introProductBinding
             introId="com.onpositive.dside.ui.intro"
             productId="com.onpositive.dside.ui.product">
       </introProductBinding>
-   </extension> 
-    <extension   
-         id="intro"
-         point="org.eclipse.ui.intro.config">
-      <config
-            introId="com.onpositive.dside.ui.intro"
-            id="com.onpositive.dside.ui.intro.config"
-            content="introcontent.xml">
-      	<presentation
-               home-page-id="root"
-               standby-page-id="standby">
-            <implementation
-                  ws="win32"
-                  style="css/shared.css"
-                  kind="html"
-                  os="win32">
-            </implementation>
-            <implementation
-                  kind="swt">
-            </implementation>
-         </presentation>      
-      </config>
-    </extension>           
-   <extension
-         point="org.eclipse.ui.intro.quicklinks">
-      <!-- Reuses command definition label and icons -->
-      <!--<quicklink
-            command="org.eclipse.epp.mpc.ui.command.showMarketplaceWizard"
-            icon="icons/mpcdrag.png">
-      </quicklink>-->
-      
-      <!-- Invoke a particular new wizard; place the Welcome/Intro in Standby mode on success -->
-      <command
-            id="org.eclipse.ui.newWizard(newWizardId=org.python.pydev.ui.wizards.project.MusketProjectWizard)"            
-            label="Create a new Musket Project">
-      </command>
-      
-      <!-- Allow overriding theme and icons for all newWizard-related commands -->
-      <!--<override
-            command="org.eclipse.ui.newWizard*"
-            icon="icons/solstice/new-project.png"
-            theme="org.eclipse.ui.intro.universal.solstice">
-      </override>-->
-      <command
-            id="com.onpositive.dside.ui.compare"
-            label="Compare CSV datasets">
-      </command>
-      <command
-            id="com.onpositive.dside.ui.createFromFolder"
-            label="Create Dataset from folder">
-      </command>
-     <!-- <url
-            description="description"
-            label="label"
-            location="com.onpositive.dside.ui.url1">
-      </url>-->
-   </extension>
+   </extension>     
 </plugin>

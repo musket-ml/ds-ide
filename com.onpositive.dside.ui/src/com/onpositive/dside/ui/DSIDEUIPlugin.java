@@ -33,7 +33,6 @@ public class DSIDEUIPlugin extends AbstractUIPlugin {
 		plugin = this;
 	}
 
-	
 
 	/*
 	 * (non-Javadoc)
@@ -78,5 +77,9 @@ public class DSIDEUIPlugin extends AbstractUIPlugin {
 	
 	public static void log(int severity, String message, Exception exception) {
 		getDefault().getLog().log(new Status(severity,PLUGIN_ID,message, exception));
+	}
+	
+	public static ImageDescriptor loadImageDescriptor(String relativePath) {
+		return getDefault().imageDescriptorFromPlugin(PLUGIN_ID, relativePath);
 	}
 }
