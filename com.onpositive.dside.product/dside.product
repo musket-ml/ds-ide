@@ -22,8 +22,8 @@
 
    <splash
       location="com.onpositive.dside.ui"
-      startupProgressRect="2,255,500,10"
-      startupMessageRect="7,265,320,15"
+      startupProgressRect="20,250,560,10"
+      startupMessageRect="20,265,320,15"
       startupForegroundColor="e6e8ff" />
    <launcher name="ds-ide">
       <win useIco="false">
