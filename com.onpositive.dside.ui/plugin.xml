@@ -357,7 +357,7 @@
       <wizard
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.KaggleDataset"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.kaggle_dataset"
@@ -367,7 +367,7 @@
       <wizard
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.KaggleRunView"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.kaggle_run"
@@ -379,17 +379,17 @@
             canFinishEarly="false"
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.MusketProjectWizard"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
-            icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
+            icon="icons/lab16.png"
             id="org.python.pydev.ui.wizards.project.MusketProjectWizard"
             name="Musket Project"
-            preferredPerspectives="org.python.pydev.ui.PythonPerspective"
+            preferredPerspectives="com.onpositive.dside.ui.perspective, org.python.pydev.ui.PythonPerspective"
             project="true"/>
       <wizard
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.NewMusketExperimentWizard"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.musket"
@@ -399,9 +399,9 @@
       <wizard
             category="org.musket.pydev.PythonCategory"
             class="com.onpositive.dside.wizards.NewMusketGroupWizard"
-            finalPerspective="org.python.pydev.ui.PythonPerspective"
+            finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
-            icon="icons/packagefolder_test_obj.png"
+            icon="icons/experiments16.png"
             id="com.onpositive.dside.ui.groupWizard"
             name="New Experiment Group">
       </wizard>
@@ -646,7 +646,7 @@
              categoryId="com.onpositive.dside.ui.musketNature.category"
              defaultHandler="com.onpositive.dside.ui.builder.AddRemoveMusketNatureHandler"
              id="com.onpositive.dside.ui.addRemoveMusketNature"
-             name="Add/RemoveMusket Project Nature">
+             name="Add/Remove Musket Project Nature">
        </command>
        <command
              defaultHandler="com.onpositive.dside.ui.datasets.CompareCSVDataSets"
@@ -823,4 +823,24 @@
 	        type="com.onpositive.dside.musket.launch">
 	    </launchConfigurationTabGroup>
 	</extension>
+	<extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="DS IDE"
+            icon="icons/lab16.png"
+            class="com.onpositive.dside.ui.perspective.DSIDEPerspectiveFactory"
+            id="com.onpositive.dside.ui.perspective">
+      </perspective>
+   </extension>
+   <extension point="org.eclipse.ui.intro"> 
+      <intro
+            class="com.onpositive.dside.ui.welcome.DSIDEIntroPart"
+            icon="icons/welcome16.png"
+            id="com.onpositive.dside.ui.intro"
+            label="Welcome"/>
+      <introProductBinding
+            introId="com.onpositive.dside.ui.intro"
+            productId="com.onpositive.dside.ui.product">
+      </introProductBinding>
+   </extension>     
 </plugin>
