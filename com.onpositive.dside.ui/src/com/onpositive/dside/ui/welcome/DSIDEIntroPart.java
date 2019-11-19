@@ -105,8 +105,7 @@ public class DSIDEIntroPart extends IntroPart {
 			
 			@Override
 			public void changed(ProgressEvent event) {
-				// TODO Auto-generated method stub
-				
+				// Do nothing
 			}
 		});
 	}

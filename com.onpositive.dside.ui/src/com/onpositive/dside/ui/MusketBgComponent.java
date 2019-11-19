@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
 /**
- * Component providing backgroung showing simple Dense neural network
+ * Component providing background showing simple Dense neural network
  * Not used currently
  *  
  * @author 32kda
