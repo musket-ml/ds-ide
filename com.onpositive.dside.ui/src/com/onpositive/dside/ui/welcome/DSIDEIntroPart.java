@@ -10,12 +10,17 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.browser.ProgressListener;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
@@ -71,10 +76,39 @@ public class DSIDEIntroPart extends IntroPart {
 						closeIntro();
 					}
 				});
-
-		browser = new Browser(parent, SWT.BORDER);
-		GridDataFactory.fillDefaults().grab(true, true).applyTo(browser);
+		
+		Composite browserComp = new Composite(parent, SWT.NONE);
+		GridDataFactory.fillDefaults().grab(true, true).applyTo(browserComp);
+		browserComp.setBackground(bgColor);
+		StackLayout stackLayout = new StackLayout();
+		browserComp.setLayout(stackLayout);
+		
+		Composite loadingComp = new Composite(browserComp, SWT.NONE);
+		loadingComp.setLayout(new GridLayout());
+		Label loadingLbl = new Label(loadingComp,SWT.NONE);
+		loadingLbl.setImage(DSIDEUIPlugin.getImageDescriptor("images/welcome/hourglass_256.png").createImage());
+		GridDataFactory.fillDefaults().grab(true, true).align(SWT.CENTER, SWT.CENTER).applyTo(loadingLbl);
+		stackLayout.topControl = loadingComp;
+		
+		browser = new Browser(browserComp, SWT.BORDER); 
 		browser.setUrl("https://musket-ml.github.io/webdocs/");
+		
+		browser.addProgressListener(new ProgressListener() {
+			
+			@Override
+			public void completed(ProgressEvent event) {
+				Display.getDefault().asyncExec(() -> {
+					stackLayout.topControl = browser;
+					parent.layout(true, true);
+				});
+			}
+			
+			@Override
+			public void changed(ProgressEvent event) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 	}
 
 	protected TitledHyperlink createTitledButton(Composite topBarComposite, String title, Image image, Image hoverImage,
@@ -93,7 +127,7 @@ public class DSIDEIntroPart extends IntroPart {
 
 	@Override
 	public void setFocus() {
-		browser.setFocus();
+//		browser.setFocus();
 	}
 
 	public void openWizard(String id) {

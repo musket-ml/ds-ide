@@ -1,6 +1,5 @@
 package com.onpositive.dside.wizards;
 
-import java.io.ByteArrayInputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +42,6 @@ import org.python.pydev.ui.dialogs.PyDialogHelpers;
 import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectExistingSourcesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
-import org.python.pydev.ui.wizards.project.NewProjectExistingSourcesWizardPage;
-import org.python.pydev.ui.wizards.project.NewProjectNameAndLocationWizardPage;
 
 import com.onpositive.dside.ui.builder.MusketNature;
 
