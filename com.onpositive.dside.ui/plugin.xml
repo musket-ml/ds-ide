@@ -319,6 +319,31 @@
             image="icons/refresh.png"
             name="refresh">
       </image>
+      <image
+            id="export"
+            image="icons/export.gif"
+            name="Export">
+      </image>
+      <image
+            id="export_wiz"
+            image="icons/export_wiz.png"
+            name="export_wiz">
+      </image>
+      <image
+            id="export_web"
+            image="icons/webstatic_deploy.gif"
+            name="export_web">
+      </image>
+      <image
+            id="tensorflow"
+            image="icons/tensorflow.gif"
+            name="tensorflow">
+      </image>
+      <image
+            id="web_prj_wiz"
+            image="icons/newwprj_wiz.png"
+            name="name">
+      </image>
    </extension>
 	 <extension point="org.eclipse.ui.newWizards">
       <category

@@ -1,0 +1,6 @@
+<composite-editor
+	xmlns="http://jetface.org/JetFace1.0/" caption="Export experiment"
+	description="Please select type of the export" icon="export_wiz">
+	<model class="com.onpositive.dside.ui.editors.ExportOptions" />
+	<list bindTo="options" bindSelectionTo="selected" />
+</composite-editor>

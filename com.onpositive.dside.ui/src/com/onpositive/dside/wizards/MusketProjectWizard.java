@@ -230,7 +230,7 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 			final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
 			List<IContainer> ret = new ArrayList<IContainer>();
 
-			IContainer folder = projectHandle.getFolder("modules");
+			IContainer folder = projectHandle.getFolder(getSourceFolderPath());
 			ret = new ArrayList<IContainer>();
 			ret.add(folder);
 			return ret;
@@ -350,5 +350,9 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
 			throws CoreException {
 		this.fConfigElement = config;
+	}
+
+	protected String getSourceFolderPath() {
+		return "modules";
 	}
 }

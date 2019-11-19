@@ -48,9 +48,13 @@ public class Experiment {
 
 	public String getProjectPath() {
 		File file = new File(path);
+		if (file.getName().equals("assets")) {
+			return file.getParentFile().getAbsolutePath();
+		}
 		if (new File(file, "experiments").exists() && new File(file, "experiments").isDirectory()) {
 			return path;
 		}
+		
 		while (true) {
 			if (file.getParentFile() == null) {
 				break;
@@ -58,7 +62,7 @@ public class Experiment {
 			file = file.getParentFile();
 			if (file.getName().equals("experiments")) {
 				return file.getParentFile().getAbsolutePath();
-			}
+			}			
 		}
 		return file.getAbsolutePath();
 	}

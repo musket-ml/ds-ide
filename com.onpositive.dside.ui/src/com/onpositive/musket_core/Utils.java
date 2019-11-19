@@ -21,6 +21,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.onpositive.dside.dto.PythonError.StackElement;
+import com.onpositive.semantic.model.api.property.Predicate;
 
 public class Utils {
 
@@ -54,14 +55,26 @@ public class Utils {
 	}
 	
 	public static void copyDir(File source,File target) {
+		copyDirInner(source, target,new Predicate<File>() {
+
+			@Override
+			public boolean apply(File arg0) {
+				return true;
+			}
+		});
+	}
+
+	public static void copyDirInner(File source, File target,Predicate<File>needToCopy) {
+		if (!needToCopy.apply(source)) {
+			return ;
+		}
 		if (source.isDirectory()) {
 			File[] listFiles = source.listFiles();
 			if (!target.exists()) {
 				target.mkdirs();
 			}
 			for (File f:listFiles) {
-				
-				copyDir(f, new File(target,f.getName()));
+				copyDirInner(f, new File(target,f.getName()),needToCopy);
 			}
 		}
 		else {			

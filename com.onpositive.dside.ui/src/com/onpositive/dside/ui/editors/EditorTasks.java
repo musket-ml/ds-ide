@@ -4,7 +4,11 @@ package com.onpositive.dside.ui.editors;
 import java.util.Collections;
 import java.util.Map;
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.onpositive.dside.tasks.GateWayRelatedTask;
@@ -16,6 +20,7 @@ import com.onpositive.dside.ui.ExperimentsView;
 import com.onpositive.dside.ui.HumanCaption;
 import com.onpositive.dside.ui.TaskConfiguration;
 import com.onpositive.musket_core.Experiment;
+import com.onpositive.musket_core.ProjectWrapper;
 import com.onpositive.musket_core.ValidateTask;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
@@ -131,7 +136,7 @@ public class EditorTasks {
 	public static class RegreshMetadata extends EditorTask{
 
 		public RegreshMetadata() {
-			super("Refresh project metadata", "refresh");
+			super("Refresh", "refresh");
 		}
 
 		@Override
@@ -140,8 +145,27 @@ public class EditorTasks {
 		}
 		
 	}
+	
+	public static class ExportTask extends EditorTask{
+
+		public ExportTask() {
+			super("Export", "export");
+		}
+
+		@Override
+		public void perform(ExperimentOverivewEditorPart editor, Experiment exp) {
+			ExportOptions opts=new ExportOptions();
+			ProjectWrapper project = editor.getProject();
+			IContainer containerForLocation = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(new Path(project.getPath()));
+			boolean createObject = WidgetRegistry.createObject(opts);
+			if (createObject) {
+				opts.selected.run((IProject) containerForLocation, exp.getPath().toPortableString());
+			}
+		}
+		
+	}
 
 	public static EditorTask[] getTasks() {
-		return new EditorTask[] { new LaunchExperiment(), new ValidateModelTask(), new AnalizeDataTask(), new AnalizePredictionsTask(), new DuplicateExperimentTask(),new RegreshMetadata() };
+		return new EditorTask[] { new LaunchExperiment(), new ValidateModelTask(), new AnalizeDataTask(), new AnalizePredictionsTask(), new DuplicateExperimentTask(),new RegreshMetadata() , new ExportTask()};
 	}
 }
