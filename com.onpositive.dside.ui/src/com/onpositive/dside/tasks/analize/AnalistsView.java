@@ -80,7 +80,7 @@ public class AnalistsView extends XMLView {
 	private HashMap<String, Object> analisisParams = new HashMap<>();
 	private Image image;
 	private InstrospectedFeature visualizerFeature;
-	private ComboEnumeratedValueSelector<String> stage;
+	private ComboEnumeratedValueSelector<String> stageSelector;
 
 	protected ArrayList<DataSetFilter> filters = new ArrayList<>();
 	private ArrayList<String> datasetStages;
@@ -127,17 +127,17 @@ public class AnalistsView extends XMLView {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		Container element = (Container) getElement("f1");
-		stage = new ComboEnumeratedValueSelector<>();
-		stage.setCaption("Stage");
+		stageSelector = new ComboEnumeratedValueSelector<>();
+		stageSelector.setCaption("Stage");
 
 		visualizers = new ComboEnumeratedValueSelector<>();
 		visualizers.setCaption("Visualizer");
-		element.add(stage);
+		element.add(stageSelector);
 		element.add(visualizers);
 		analizers = new ComboEnumeratedValueSelector<>();
 		analizers.setCaption("Analizers");
 		element.add(analizers);
-		stage.getControl().addListener(SWT.Selection, (x) -> {
+		stageSelector.getControl().addListener(SWT.Selection, (x) -> {
 			update();
 		});
 		analizers.getControl().addListener(SWT.Selection, (x) -> {
@@ -233,7 +233,7 @@ public class AnalistsView extends XMLView {
 	protected void update() {
 		Combo v = (Combo) visualizers.getControl();
 		Combo a = (Combo) analizers.getControl();
-		Combo s = (Combo) stage.getControl();
+		Combo s = (Combo) stageSelector.getControl();
 		String visualizer = v.getText();
 		String analizer = a.getText();
 		String stage = s.getText();
@@ -484,35 +484,35 @@ public class AnalistsView extends XMLView {
 
 	boolean initedCharts;
 	private Action bindedAction;
-	private VisualizerViewer<?> g;
+	private VisualizerViewer<?> visualizerViewer;
 	private IAnalizeResults results;
 
-	private void display(IAnalizeResults r) {
-		this.results=r;
+	private void display(IAnalizeResults results) {
+		this.results=results;
 		getElement("empty").setEnabled(false);
 		Container element = (Container) getElement("content");
 		new ArrayList<>(element.getChildren()).forEach(v -> element.remove(v));
 		String viewer = visualizerFeature.getViewer();
-		g = null;
+		visualizerViewer = null;
 		if (viewer.equals("html")) {
-			g = new VirtualTable();
-			g.setHtml(true);
-			g.setWrap(wrap);
+			visualizerViewer = new VirtualTable();
+			visualizerViewer.setHtml(true);
+			visualizerViewer.setWrap(wrap);
 		} else if (viewer.equals("image")) {
-			g = new DataSetGallery();
+			visualizerViewer = new DataSetGallery();
 		} else {
-			g = new VirtualTable();
-			g.setWrap(wrap);
+			visualizerViewer = new VirtualTable();
+			visualizerViewer.setWrap(wrap);
 		}
-		g.getLayoutHints().setGrabHorizontal(true);
-		g.getLayoutHints().setGrabVertical(true);
+		visualizerViewer.getLayoutHints().setGrabHorizontal(true);
+		visualizerViewer.getLayoutHints().setGrabVertical(true);
 		element.setMargin(new Rectangle(0, 0, 0, 0));
-		g.setInput(r);
-		element.add(g);
+		visualizerViewer.setInput(results);
+		element.add(visualizerViewer);
 		element.setEnabled(true);
-		String visualizationSpec = r.visualizationSpec();
+		String visualizationSpec = results.visualizationSpec();
 		Object loadAs = YamlIO.loadAs(visualizationSpec, Object.class);
-		createChart = createChart(createDataset(r, loadAs), loadAs);
+		createChart = createChart(createDataset(results, loadAs), loadAs);
 		element2 = (Container) getElement("stat");
 		update(createChart, element2);
 		if (!initedCharts) {
@@ -586,7 +586,7 @@ public class AnalistsView extends XMLView {
 		datasetStages = r.getDatasetStages();
 		this.filterKinds = r.getDatasetFilters();
 		Realm stage = new Realm(datasetStages);
-		this.stage.setRealm(stage);
+		this.stageSelector.setRealm(stage);
 		visualizers.setRealm(realm);
 		if (isData) {
 			realm = new Realm(r.getData_analizers());
@@ -596,13 +596,19 @@ public class AnalistsView extends XMLView {
 		analizers.setRealm(realm);
 		FormEditor de = (FormEditor) getRoot();
 		de.setCaption(dataset + "(" + experiment.toString() + ")");
+		
+		if (datasetStages.size() > 0) {
+			((Combo) stageSelector.getControl()).select(0);
+			update();
+		}
+		
 		this.task = task;
 	}
 
 	public void recalcView() {
 		Combo v = (Combo) visualizers.getControl();
 		Combo a = (Combo) analizers.getControl();
-		Combo s = (Combo) stage.getControl();
+		Combo s = (Combo) stageSelector.getControl();
 		String visualizer = v.getText();
 		String analizer = a.getText();
 		if (visualizer == null || visualizer.isEmpty()) {

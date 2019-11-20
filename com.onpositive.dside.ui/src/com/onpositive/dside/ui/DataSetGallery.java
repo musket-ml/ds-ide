@@ -1,8 +1,6 @@
 package com.onpositive.dside.ui;
 
 import java.util.LinkedHashMap;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -39,21 +37,16 @@ import com.onpositive.semantic.ui.core.Point;
 
 public class DataSetGallery extends VisualizerViewer<Control> {
 
-	private LinkedHashMap<It, Image> images;
-	private Gallery gallery;
-
-	@Override
-	public boolean needsLabel() {
-		return false;
-	}
-
-	
-
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
+	private static final int SIZE_STEP = 16;
+	private static final int ITEM_HEIGHT = 56;
+	
+	private LinkedHashMap<It, Image> images;
+	private Gallery gallery;
 
 	private static ImageDescriptor zoom = AbstractUIPlugin.imageDescriptorFromPlugin((String) "com.onpositive.dside.ui",
 			(String) "/icons/zoom_in.gif");
@@ -65,13 +58,13 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 			(String) "/icons/collapseall.gif");
 	private static ImageDescriptor expand = AbstractUIPlugin.imageDescriptorFromPlugin((String) "com.onpositive.dside.ui",
 			(String) "/icons/expandall.gif");
-	private com.onpositive.dside.ui.GalleryTooltip tt;
+	private com.onpositive.dside.ui.GalleryTooltip tooltip;
 
 	@Override
 	protected Control createControl(Composite conComposite) {
 		images = new LinkedHashMap<>();
 		gallery = new Gallery(conComposite, SWT.V_SCROLL | SWT.VIRTUAL);
-		this.tt = new GalleryTooltip((Control)gallery, gallery);
+		this.tooltip = new GalleryTooltip((Control)gallery, gallery);
 		conComposite.setLayout(new FillLayout());
 		DefaultGalleryGroupRenderer gr = new DefaultGalleryGroupRenderer();
 		gr.setItemSize(356, 356);
@@ -121,9 +114,6 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 		fillContextMenu(gallery, gr);
 		return gallery;
 	}
-
-	private static final int SIZE_STEP = 16;
-	private static final int ITEM_HEIGHT = 56;
 
 	private class CopyAction extends Action {
 
@@ -203,7 +193,6 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 		action2.setImageDescriptor(this.zoomout);
 		manager.add((IAction) action2);
 		Menu createContextMenu = manager.createContextMenu((Control) gallery);
-		System.out.println(createContextMenu.getItems());
 		gallery.setMenu(createContextMenu);
 	}
 
@@ -235,20 +224,20 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 				} catch (Exception e) {
 				}
 				final String lid=""+id;
-				String s = item != null ? item.toString() : null;
+				String filename = item != null ? item.toString() : null;
 				if (images != null) {
 
 					Image image = null;
-					if (s != null) {
-						image = new Image(Display.getDefault(), s);
+					if (filename != null) {
+						image = new Image(Display.getDefault(), filename);
 					} else {
 						image = PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_DEC_FIELD_ERROR);
-						Image i = new Image(Display.getDefault(), 256, 256);
-						GC gc = new GC(i);
+						Image newImg = new Image(Display.getDefault(), 256, 256);
+						GC gc = new GC(newImg);
 						gc.drawImage(image, 80, 122);
 						gc.drawText("Error during visualization", 100, 120);
 						gc.dispose();
-						image = i;
+						image = newImg;
 					}
 					images.put(key, image);
 				}
@@ -273,6 +262,11 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 				e.printStackTrace();
 			}
 		});
+	}
+	
+	@Override
+	public boolean needsLabel() {
+		return false;
 	}
 
 }
