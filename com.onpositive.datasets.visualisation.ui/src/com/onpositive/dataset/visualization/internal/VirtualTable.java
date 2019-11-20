@@ -114,7 +114,6 @@ public class VirtualTable extends VisualizerViewer<Control> {
 
 				@Override
 				public StyledString getColoredLabel(Item item, int index) {
-					System.out.println(index);
 					Integer data = (Integer) item.getData();
 					if (data == null) {
 						data = virtualTable.indexOf((TableItem) item);

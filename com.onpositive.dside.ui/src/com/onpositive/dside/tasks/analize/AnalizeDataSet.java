@@ -90,7 +90,6 @@ public class AnalizeDataSet implements IGateWayServerTaskDelegate {
 		lastSpec=this.model;
 		if (this.exportToCSV||this.exportGroundTruthToCSV) {
 			task.perform(new ExportDataSet(model,dataset,this.experiment.getPath().toOSString(),this.exportGroundTruthToCSV), String.class, (r)->{
-				System.out.println(r);
 				String[] split = r.split("::::");
 				if (split.length==2) {
 					IFile iFile = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(new File(split[1]).toURI())[0];

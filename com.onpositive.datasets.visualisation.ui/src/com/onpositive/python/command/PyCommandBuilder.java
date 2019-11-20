@@ -101,7 +101,6 @@ public class PyCommandBuilder {
 //						}
 //					}
 //				});
-				System.out.println(esBld.toString());
 				return null;
 			}
 			String result = isBld.toString().replace("\\", "/");

@@ -92,11 +92,9 @@ public class DataSetViewer extends EditorPart{
 		
 		RootElement rl=new RootElement(parent);
 		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(dataset,null,null);
-		System.out.println(widgetObject);
 		IUIElement<?> createWidget = widgetObject.createWidget(new Binding(dataset));
 		rl.add((AbstractUIElement<?>) createWidget);
 		parent=(Composite) rl.getElement("inner").getControl();
-		ArrayList<Object>items=new ArrayList<>();
 		images = new LinkedHashMap<>();
 		gallery = new Gallery(parent, SWT.V_SCROLL | SWT.VIRTUAL);
 		
@@ -130,14 +128,7 @@ public class DataSetViewer extends EditorPart{
 					item.setExpanded(true);
 					item.setText(dataset.getName()); //$NON-NLS-1$
 					item.setData(index);
-					
-					//item.setItemCount(100);
 				}
-				
-				
-				System.out.println( "setData index " + index); //$NON-NLS-1$
-				// Your image here
-				// item.setImage(eclipseImage);				
 			}
 
 		});

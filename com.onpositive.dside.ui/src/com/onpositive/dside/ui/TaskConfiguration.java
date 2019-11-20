@@ -196,10 +196,8 @@ public class TaskConfiguration extends PrivateServerTask<Object> {
 									}
 								}
 							}
-							System.out.println(fl);
 						}
 					}
-					System.out.println(mmm);
 				}
 			}
 		});

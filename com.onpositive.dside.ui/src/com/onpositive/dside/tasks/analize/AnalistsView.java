@@ -119,7 +119,6 @@ public class AnalistsView extends XMLView {
 			CompositeEditor element = (CompositeEditor) c.getChildren().get(c.getChildren().size() - 1);
 			c.remove(element);
 			filters.remove(element.getBinding().getObject());
-			System.out.println(filters);
 		}
 	}
 
@@ -331,7 +330,6 @@ public class AnalistsView extends XMLView {
 
 				return d;
 			}
-			System.out.println(loadAs);
 		}
 		DefaultPieDataset dataset = new DefaultPieDataset();
 		int size = r.size();

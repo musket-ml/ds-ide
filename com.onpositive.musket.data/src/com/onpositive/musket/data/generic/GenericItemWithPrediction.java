@@ -22,14 +22,6 @@ public class GenericItemWithPrediction extends GenericItem{
 		return prediction;
 	}
 
-	@Override
-	public Image getImage() {
-		if (this.prediction!=null) {
-			System.out.println("A");
-		}
-		return super.getImage();
-	}
-	
 	protected String getTextValue(int mxch, IColumn column) {
 		String value = column.getValueAsString(base);
 		if (value.length() > mxch) {

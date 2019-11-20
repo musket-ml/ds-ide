@@ -33,7 +33,6 @@ public class ExperimentErrorsEditorPart extends EditorPart {
 	public void createPartControl(Composite parent) {
 		RootElement rl=new RootElement(parent);
 		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(errors,null,null);
-		System.out.println(widgetObject);
 		IUIElement<?> createWidget = widgetObject.createWidget(new Binding(errors));
 		rl.add((AbstractUIElement<?>) createWidget);
 	}

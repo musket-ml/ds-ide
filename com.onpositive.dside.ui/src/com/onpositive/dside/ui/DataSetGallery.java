@@ -103,7 +103,6 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 					item.setData(data);
 				}
 
-				System.out.println("setData index " + index); //$NON-NLS-1$
 				// Your image here
 				// item.setImage(eclipseImage);
 			}

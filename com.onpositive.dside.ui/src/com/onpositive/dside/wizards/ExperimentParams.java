@@ -38,10 +38,6 @@ public class ExperimentParams{
 
 	public void setDataset(String dataset) {
 		this.dataset = dataset;
-		if (!dataset.isEmpty()) {
-			
-			System.out.println("A");
-		}
 	}
 
 	public Collection<String>getTemplates(){

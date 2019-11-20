@@ -91,7 +91,6 @@ public class DynamicUI {
 								IntrospectedParameter parameter = feature.getParameter(s);
 								if (parameter!=null) {
 									String type2 = parameter.getType();
-									System.out.println(type2);
 								}
 								Map targetMap=(Map) target;
 								targetMap.put(id, object);

@@ -62,7 +62,6 @@ public class ChartUtils {
 
 				return d;
 			}
-			System.out.println(loadAs);
 		}
 		if (loadAs.type == VisualizationSpec.ChartType.BAR) {
 

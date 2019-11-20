@@ -275,7 +275,6 @@ public class CSVDataSetEditor extends AnalistsEditor {
 					});
 
 				});
-				System.out.println("AAA");
 			} else {
 				focus.setChecked(false);
 

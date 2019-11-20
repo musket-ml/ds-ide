@@ -177,7 +177,6 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 			CompositeEditor element = (CompositeEditor) c.getChildren().get(c.getChildren().size() - 1);
 			c.remove(element);
 			filters.remove(element.getBinding().getObject());
-			System.out.println(filters);
 		}
 	}
 

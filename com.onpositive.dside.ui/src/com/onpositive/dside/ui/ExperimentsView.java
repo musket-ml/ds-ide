@@ -65,12 +65,9 @@ public class ExperimentsView extends XMLView {
 		try {
 		ObjectChangeManager.markChanged(this);
 		ObjectChangeManager.markChanged((Object)this.experiments);
-		System.out.println(this.experiments);		
 		}catch (Exception e) {
-			e.printStackTrace();
-			// TODO: handle exception
+			DSIDEUIPlugin.log(e);
 		}
-		//this.getBinding("experiments").refresh();
 	}
 	
 	Runnable launchListener=new Runnable() {
