@@ -35,7 +35,7 @@ import com.onpositive.semantic.ui.workbench.elements.XMLView;
 
 public class ExperimentsView extends XMLView {
 
-	private final class AA extends org.eclipse.jface.action.Action implements IAction{
+	private final class MockAction extends org.eclipse.jface.action.Action implements IAction{
 		
 	}
 
@@ -58,14 +58,15 @@ public class ExperimentsView extends XMLView {
 		Collection<Experiment> ex = ExperimentFinder.find(find);
 		this.setExperiments(ex);
 	}
+
 	public void setExperiments(Collection<Experiment> find) {
-		experiments=new ArrayList<>();
+		experiments = new ArrayList<>();
 		ObjectChangeManager.markChanged(this);
 		this.experiments = find;
 		try {
-		ObjectChangeManager.markChanged(this);
-		ObjectChangeManager.markChanged((Object)this.experiments);
-		}catch (Exception e) {
+			ObjectChangeManager.markChanged(this);
+			ObjectChangeManager.markChanged((Object) this.experiments);
+		} catch (Exception e) {
 			DSIDEUIPlugin.log(e);
 		}
 	}
@@ -177,7 +178,7 @@ public class ExperimentsView extends XMLView {
 		CompareAction compareAction = new CompareAction();
 		
 		StructuredSelection selection = new StructuredSelection(objects);
-		AA action = new AA();
+		MockAction action = new MockAction();
 		compareAction.setActivePart(action,this);
 		compareAction.selectionChanged(action, selection);
 		if (action.isEnabled()) {
@@ -194,7 +195,7 @@ public class ExperimentsView extends XMLView {
 		ArrayList<Object>objects=new ArrayList<>();
 		for (Object o : collection) {
 			Experiment e = (Experiment) o;
-			
+			//TODO finish this
 		}
 				
 	}
