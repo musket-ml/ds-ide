@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
-import com.onpositive.semantic.model.api.property.ValueUtils;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 
 @Display("dlf/classSettings.dlf")
