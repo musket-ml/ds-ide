@@ -28,7 +28,7 @@ public class BinaryInstanceSegmentationDataSet extends  AbstractRLEImageDataSet<
 		if (items==null) {
 			items=new ArrayList<BinaryInstanceSegmentationItem>();
 			LinkedHashMap<String, ArrayList<ITabularItem>>items=new LinkedHashMap<>();
-		    base.items().forEach(v->{
+		    tabularBase.items().forEach(v->{
 		    	String value = imageColumn.getValueAsString(v);
 		    	ArrayList<ITabularItem> arrayList = items.get(value);
 		    	if (arrayList==null) {

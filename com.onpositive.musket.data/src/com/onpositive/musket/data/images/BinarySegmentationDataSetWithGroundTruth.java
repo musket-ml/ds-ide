@@ -40,7 +40,7 @@ public class BinarySegmentationDataSetWithGroundTruth extends BinarySegmentation
 		Map<String, ITabularItem> itemMap = this.predictions.getItemMap();
 		if (items==null) {
 			items=new ArrayList<>();
-		    base.items().forEach(v->{
+		    tabularBase.items().forEach(v->{
 		    	items.add(new BinarySegmentationItemWithGroundTruth(this,v,itemMap.get(v.id())));
 		    });
 		}

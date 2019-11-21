@@ -29,7 +29,7 @@ public class PyCommandBuilder {
 			t.printStackTrace();
 		}
 		
-		String pyExe = whichResult.isEmpty() ? PYTHON_EXECUTABLE : PYTHON3_EXECUTABLE;
+		String pyExe = PYTHON_EXECUTABLE;
 		ArrayList<String> fullArgsList = new ArrayList<>(1 + args.size());
 		fullArgsList.add(pyExe);
 		fullArgsList.addAll(args);

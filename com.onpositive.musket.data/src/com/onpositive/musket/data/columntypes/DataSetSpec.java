@@ -49,7 +49,7 @@ public class DataSetSpec {
 		return representer;
 	}
 
-	public ITabularDataSet base() {
+	public ITabularDataSet tabularOrigin() {
 		return tb;
 	}
 }

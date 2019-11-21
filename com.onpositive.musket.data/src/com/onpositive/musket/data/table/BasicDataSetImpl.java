@@ -29,8 +29,8 @@ public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 		items.forEach(v->{
 			if (v instanceof BasicItem) {
 				BasicItem b=(BasicItem) v;
-				if (b.source==null) {
-					b.source=this;
+				if (b.getDataSet()==null) {
+					b.setOwner(this);
 				}
 			}
 		});
@@ -174,7 +174,7 @@ public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 				}
 				a=a+1;
 			}
-			items.add(new BasicItem(num, newValues));			
+			items.add(new BasicItem(null,num, newValues));			
 		}
 		for (IColumn c:this.columns) {
 			c.clone();

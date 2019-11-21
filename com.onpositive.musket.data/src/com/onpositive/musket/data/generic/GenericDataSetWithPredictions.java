@@ -42,7 +42,7 @@ public class GenericDataSetWithPredictions extends GenericDataSet implements IDa
 				// this is a potentinal id
 				Collection<Object> values = new LinkedHashSet<>(column.uniqueValues());
 				Collection<Object> values1 = new LinkedHashSet<>(
-						predictions.base.getColumn(column.id()).uniqueValues());
+						predictions.tabularBase.getColumn(column.id()).uniqueValues());
 				if (values.equals(values1)) {
 					// this column seems identical
 					stable.add(column);
@@ -57,7 +57,7 @@ public class GenericDataSetWithPredictions extends GenericDataSet implements IDa
 			});
 		}
 		if (items == null) {
-			items = base.items().stream().map(x -> {
+			items = tabularBase.items().stream().map(x -> {
 				GenericItem genericItem = nitems.get(id1(stable, x));
 				return new GenericItemWithPrediction(this, x, genericItem);
 			}).collect(Collectors.toList());
@@ -81,7 +81,7 @@ public class GenericDataSetWithPredictions extends GenericDataSet implements IDa
 		GenericItem v1 = (GenericItem) v;
 		for (IColumn c : stable) {
 
-			bld.append(c.getValueAsString(v1.base()));
+			bld.append(c.getValueAsString(v1.generic_base()));
 		}
 		String string = bld.toString();
 		return string;

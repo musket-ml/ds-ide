@@ -64,9 +64,9 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		
 	}
 	
-	private List<String> basicPaths = Arrays.asList(new String[] {"htc/htc_dconv_c3-c5_mstrain_400_1400_x101_64x4d_fpn_20e.py", "mask_rcnn_x101_64x4d_fpn_1x.py"});
+	private List<String> basicPaths = Arrays.asList(new String[] {"faster_rcnn_x101_64x4d_fpn_1x.py", "faster_rcnn_r50_fpn_1x.py", "htc/htc_dconv_c3-c5_mstrain_400_1400_x101_64x4d_fpn_20e.py", "mask_rcnn_x101_64x4d_fpn_1x.py"});
 	
-	private List<String> basicCaptions = Arrays.asList(new String[] {"Hyper Task Cascade 1", "Mask RCNN" });
+	private List<String> basicCaptions = Arrays.asList(new String[] {"Faster RCNN 101", "Faster RCNN 50","Hyper Task Cascade 1", "Mask RCNN" });
 	
 	private List<MMDetCfgData> configs = null;
 	
@@ -190,9 +190,13 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		result=result.replace((CharSequence)"{numClasses}", ""+this.numClasses);
 		result=result.replace((CharSequence)"{imagesPerGpu}", ""+this.imagesPerGpu);
 		result=result.replace((CharSequence)"{configPath}", "configPath: ./" + configName  + ".py");
+		
+		String weightsStr = "";
 		if(this.weightsPath != null) {
-			result=result.replace((CharSequence)"{weightsPath}", "weightsPath: "+this.weightsPath);
-		}				
+			weightsStr = "weightsPath: "+this.weightsPath;
+		}
+		result=result.replace((CharSequence)"{weightsPath}", weightsStr);
+		
 		return result; 
 		}catch (Exception e) {
 			throw new IllegalStateException(e);
@@ -262,6 +266,7 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 	
 	public void findWeihtsForConfig() {
 		
+		this.weightsPath = null;
 		for(String wpFull: this.checkpointNames) {			
 			if(conforms(_selectedConfig.getPath(),wpFull)) {
 				this.weightsPath = "open-mmlab://" + fileName(_selectedConfig.getPath());				
@@ -343,20 +348,54 @@ public class InstanceSegmentationTemplate extends GenericExperimentTemplate {
 		return this.basicPaths.get(ind);
 	}
 	
-	@Caption("Hybrid Task Cascade")
+	@Caption("Faster RCNN 101")
 	public void setConfig0() {
-		setConfig(0);
+		setConfigBasicWay(0);
+	}
+	
+	public boolean getConfig0() {
+		return checkConfigBasicWay(0);
+	}
+	
+	@Caption("Faster RCNN 50")	
+	public void setConfig1() {
+		setConfigBasicWay(1);
+	}
+	
+	public boolean getConfig1() {
+		return checkConfigBasicWay(1);
+	}
+	
+	@Caption("Hybrid Task Cascade")
+	public void setConfig2() {
+		setConfigBasicWay(2);
+	}
+	
+	public boolean getConfig2() {
+		return checkConfigBasicWay(2);
 	}
 	
 	@Caption("Mask RCNN")	
-	public void setConfig1() {
-		setConfig(1);
+	public void setConfig3() {
+		setConfigBasicWay(3);
 	}
 	
-	private void setConfig(int ind) {
+	public boolean getConfig3() {
+		return checkConfigBasicWay(3);
+	}
+	
+	private void setConfigBasicWay(int ind) {
 		String url = this.basicPaths.get(ind);
 		MMDetCfgData cfg = this.configsByPath.get(url);
 		this.setSelectedConfig(cfg);
 		this.findWeihtsForConfig();
 	}
+	
+	private boolean checkConfigBasicWay(int ind) {
+		if(this._selectedConfig==null) {
+			return false;
+		}
+		String url = this.basicPaths.get(ind);
+		return url.equals(this._selectedConfig.getPath());
+	}  
 }

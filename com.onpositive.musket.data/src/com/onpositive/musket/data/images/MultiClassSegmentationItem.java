@@ -1,52 +1,58 @@
 package com.onpositive.musket.data.images;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
+import com.onpositive.musket.data.core.AbstractItem;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 
-public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegmentationItem,IMultiClassSegmentationItem{
+public class MultiClassSegmentationItem extends AbstractItem<MultiClassSegmentationDataSet> implements ISegmentationItem,IBinarySegmentationItem,IMultiClassSegmentationItem{
 	
-	protected MultiClassSegmentationDataSet base;
+	
 	protected ArrayList<ITabularItem> items;
 	private ArrayList<IMask> rleMasks;
 	private String id;
 	
 	public MultiClassSegmentationItem(String id,MultiClassSegmentationDataSet binarySegmentationDataSet, ArrayList<ITabularItem> items) {
-		this.base=binarySegmentationDataSet;
+		super(binarySegmentationDataSet);
+		this.owner=binarySegmentationDataSet;
 		this.items=items;
 		this.id=id;
 	}
 
 	@Override
 	public Image getImage() {
-		BufferedImage bufferedImage = base.representer.get(id);
+		BufferedImage bufferedImage = owner.representer.get(id);
 		BufferedImage image=new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),BufferedImage.TYPE_INT_ARGB);
 		image.getGraphics().drawImage(bufferedImage, 0, 0, null);
 		getMask().drawOn(image,0x777777);
 		
-		Object object = base.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_ALPHA);
+		Object object = owner.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_ALPHA);
 		drawMasks(image,object);
 		
-		base.drawOverlays(this.id(),image);
+		owner.drawOverlays(this.id(),image);
 		return image;
 	}
 
 	protected void drawMasks(BufferedImage image,Object object) {
 		
-		int[] rgbs=new int[base.classes.size()];
+		Set<Object> ownerClasses = new LinkedHashSet<Object>(owner.classes);
+		int[] rgbs=new int[ownerClasses.size()];
 		int num=0;
 		int a=0;
-		for (Object o:base.classes) {
-			String classMaskKey = base.getClassMaskKey(o);
-			Object object2 = base.getSettings().get(classMaskKey);
+		for (Object o:ownerClasses) {
+			String classMaskKey = owner.getClassMaskKey(o);
+			Object object2 = owner.getSettings().get(classMaskKey);
 			if (classMaskKey==null||object2==null) {
 				rgbs[num++]=new Color(new Random().nextInt(255), new Random().nextInt(255), new Random().nextInt(255)).getRGB();
 			}
@@ -54,11 +60,32 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 			rgbs[num++]=AbstractRLEImageDataSet.parse(object.toString(),object2.toString());
 			}
 		}
-		
-		for (IMask m:getMasks()) {
-			m.drawOn(image, rgbs[a]);
-			a++;
+		Object alphaObj = owner.getSettings().get(AbstractRLEImageDataSet.MASK_ALPHA);		
+		float alpha = 1.0f;
+		if(alphaObj instanceof Float) {
+			alpha = (Float) alphaObj;			
 		}
+		else if(alphaObj instanceof Integer) {
+			alpha = (0.0f + (Integer)alphaObj)/255.0f;
+		}
+		else if(alphaObj instanceof String) {
+			try {
+				float fVal = Float.parseFloat((String) alphaObj);
+				alpha = fVal/255.0f;
+				
+			}
+			catch(Exception e) {}
+		}
+		for (IMask m:getMasks()) {
+			if(fits(m, ownerClasses)) {
+				m.drawOn(image, rgbs[a % rgbs.length], alpha);
+				a++;
+			}
+		}
+	}
+	
+	protected boolean fits(IMask m, Set<Object> ownerClasses) {
+        return true;
 	}
 
 	@Override
@@ -68,18 +95,14 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 
 	
 	
-	@Override
-	public IDataSet getDataSet() {
-		return base;
-	}
-
+	
 	@Override
 	public ArrayList<IMask> getMasks() {
 		if (this.rleMasks==null) {
 			ArrayList<IMask>mssk=new ArrayList<IMask>();
 			this.items.forEach(v->{
-				RLEMask createMask = base.createMask(base.rleColumn.getValueAsString(v), base.height, base.width,this);
-				Object value = base.clazzColumn.getValue(v);
+				RLEMask createMask = owner.createMask(owner.rleColumn.getValueAsString(v), owner.height, owner.width,this);
+				Object value = owner.clazzColumn.getValue(v);
 				if (value!=null) {
 				createMask.setClazz(value.toString());
 				}
@@ -102,7 +125,7 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 			}
 		}
 		if (r==null) {
-			return base.createMask("-1", base.height, base.width,this);
+			return owner.createMask("-1", owner.height, owner.width,this);
 		}
 		return r;
 	}
@@ -123,7 +146,7 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 	public List<? extends ISegmentationItem> items() {
 		ArrayList<BinarySegmentationItem>result=new ArrayList<BinarySegmentationItem>();
 		this.items.forEach(v->{
-			BinarySegmentationItem bi=new BinarySegmentationItem(this.base, v);
+			BinarySegmentationItem bi=new BinarySegmentationItem(this.owner, v);
 			if (bi.isPositive()) {
 				result.add(bi);
 			}
@@ -144,8 +167,8 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 				continue;
 			}
 			String clazz = m.clazz();
-			if (this.base.labels!=null) {
-				result.add(this.base.labels.map(clazz));
+			if (this.owner.labels!=null) {
+				result.add(this.owner.labels.map(clazz));
 				continue;
 			}
 			result.add(clazz);
@@ -170,25 +193,25 @@ public class MultiClassSegmentationItem implements ISegmentationItem,IBinarySegm
 	@Override
 	public BinarySegmentationItem getItem(String clazz) {
 		for (ITabularItem v:this.items) {
-			String string = base.clazzColumn.getValue(v).toString();
+			String string = owner.clazzColumn.getValue(v).toString();
 			if (string.equals(clazz)) {
-				BinarySegmentationItem bi=new BinarySegmentationItem(this.base, v);
+				BinarySegmentationItem bi=new BinarySegmentationItem(this.owner, v);
 				return bi;
 			}
 			
 		}
-		return new BinarySegmentationItem(this.base, new RLEMask("-1", this.base.width, this.base.height));
+		return new BinarySegmentationItem(this.owner, new RLEMask("-1", this.owner.width, this.owner.height));
 	}
 
 	@Override
 	public Point getImageDimensions() {
-		return base.representer.getDimensions(id());
+		return owner.representer.getDimensions(id());
 	}
 
 	public boolean hasSameClass() {
 		HashSet<String>classes=new HashSet<>();
 		for (ITabularItem i:this.items) {
-			Object value = base.clazzColumn.getValue(i);
+			Object value = owner.clazzColumn.getValue(i);
 			if (value==null) {
 				return false;
 			}

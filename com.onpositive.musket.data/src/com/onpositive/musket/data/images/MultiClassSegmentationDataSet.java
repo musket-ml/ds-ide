@@ -28,7 +28,14 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	public static final String CLAZZ_COLUMN = "CLAZZ_COLUMN";
 	protected IColumn clazzColumn;
-	protected ArrayList<Object> classes;
+	protected List<Object> classes;
+	
+	public static String FOCUS_ON_TARGET_CLASS = "Focus on target class";
+	public static boolean FOCUS_ON_TARGET_CLASS_DEFAULT = true;
+	
+	{
+		parameters.put(FOCUS_ON_TARGET_CLASS, FOCUS_ON_TARGET_CLASS_DEFAULT);
+	}
 
 	@SuppressWarnings("unchecked")
 	public MultiClassSegmentationDataSet(DataSetSpec base, IColumn image, IColumn rle, int width2, int height2, IColumn clazzColumn) {
@@ -72,7 +79,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return new MultiClassSegmentationDataSetWithGrounTruth(new DataSetSpec(base, representer),imageColumn,rleColumn,width,height,clazzColumn,t2.as(ITabularDataSet.class));
+		return new MultiClassSegmentationDataSetWithGrounTruth(new DataSetSpec(tabularBase, representer),imageColumn,rleColumn,width,height,clazzColumn,t2.as(ITabularDataSet.class));
 	}
 
 	@Override
@@ -92,7 +99,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 		if (items == null) {
 			items = new ArrayList<>();
 			LinkedHashMap<String, ArrayList<ITabularItem>> items = new LinkedHashMap<>();
-			base.items().forEach(v -> {
+			tabularBase.items().forEach(v -> {
 				String value = imageColumn.getValueAsString(v);
 				ArrayList<ITabularItem> arrayList = items.get(value);
 				if (arrayList == null) {
@@ -152,6 +159,11 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 					nk.name = MASK_COLOR;
 					rs.add(nk);
 				}
+				Parameter focus = new Parameter();
+				focus.defaultValue = parameters.get(FOCUS_ON_TARGET_CLASS).toString();
+				focus.type = boolean.class;
+				focus.name = FOCUS_ON_TARGET_CLASS;
+				rs.add(focus);
 				addExtraParameters(rs);
 				return rs.toArray(new Parameter[rs.size()]);
 			}
@@ -216,7 +228,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
 		Map<String, Object> settings = this.getSettings();
-		return new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.id()), settings, representer);
+		return new BinarySegmentationDataSet(filter(clazz,this.tabularBase,clazzColumn.id()), settings, representer);
 	}
 
 	@Override
@@ -232,5 +244,9 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	public LabelsSet labels() {
 		return this.labels;
+	}
+
+	public void setClasses(List<Object> asList) {
+		this.classes=asList;
 	}
 }

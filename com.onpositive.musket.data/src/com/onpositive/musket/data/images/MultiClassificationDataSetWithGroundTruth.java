@@ -39,7 +39,7 @@ public class MultiClassificationDataSetWithGroundTruth extends BinaryClassificat
 		Map<String, ITabularItem> itemMap = this.predictions.getItemMap();
 		if (items==null) {
 			items=new ArrayList<>();
-		    base.items().forEach(v->{
+		    tabularBase.items().forEach(v->{
 		    	items.add(new MultiClassificationItemWithGroundTruth(this,v,itemMap.get(v.id())));
 		    });
 		}
@@ -52,7 +52,7 @@ public class MultiClassificationDataSetWithGroundTruth extends BinaryClassificat
 
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
-		ITabularDataSet filter = MultiClassificationDataset.filter(clazz, base,this.clazzColumn.caption());
+		ITabularDataSet filter = MultiClassificationDataset.filter(clazz, tabularBase,this.clazzColumn.caption());
 		ITabularDataSet pred = MultiClassificationDataset.filter(clazz,predictions, this.clazzColumn.caption());;
 		return new BinaryClassificationDataSetWithGroundTruth(filter,imageColumn,clazzColumn,representer,width,height,pred);
 	}

@@ -16,13 +16,13 @@ public class ConvertResolutionAction {
 	static class ImageAndName{
 		protected BufferedImage image;
 		protected String name;
-		protected String base;
+		protected String image_base;
 		
 		public ImageAndName(BufferedImage image, String name,String base) {
 			super();
 			this.image = image;
 			this.name = name;
-			this.base=base;
+			this.image_base=base;
 		}		
 	}
 	
@@ -44,7 +44,7 @@ public class ConvertResolutionAction {
 			}
 		}).forEach(i->{			
 			try {
-				ImageIO.write(i.image, i.name.substring(i.name.lastIndexOf('.')+1), new File(targetDir,i.base+"/"+i.name));
+				ImageIO.write(i.image, i.name.substring(i.name.lastIndexOf('.')+1), new File(targetDir,i.image_base+"/"+i.name));
 				monitor.onProgress(i.name, 1);
 			} catch (IOException e) {
 				throw new IllegalStateException(e);

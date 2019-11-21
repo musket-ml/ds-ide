@@ -14,12 +14,12 @@ public class MultiClassificationItemWithGroundTruth extends BinaryClassification
 
 	@Override
 	public ArrayList<String> classes() {
-		String value = (String) this.base.clazzColumn.getValue(item);
-		return MultiClassClassificationItem.splitByClass(value,this.base.labels);
+		String value = (String) this.owner.clazzColumn.getValue(item);
+		return MultiClassClassificationItem.splitByClass(value,this.owner.labels);
 	}
 	
 	public IItem getPrediction() {
-		return new MultiClassClassificationItem(base, prediction);
+		return new MultiClassClassificationItem(owner, prediction);
 	}
 	
 }

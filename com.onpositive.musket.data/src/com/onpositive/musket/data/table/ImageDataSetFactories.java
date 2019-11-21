@@ -68,22 +68,22 @@ public class ImageDataSetFactories implements IDataSetFactory {
 	protected IDataSet inner_Create(DataSetSpec spec, Map<String, Object> settings, Object object) {
 		if (object != null) {
 			if (object.toString().equals(BinarySegmentationDataSet.class.getName())) {
-				return new BinarySegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+				return new BinarySegmentationDataSet(spec.tabularOrigin(), settings, spec.getRepresenter());
 			}
 			if (object.toString().equals(MultiClassInstanceSegmentationDataSet.class.getName())) {
-				return new MultiClassInstanceSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+				return new MultiClassInstanceSegmentationDataSet(spec.tabularOrigin(), settings, spec.getRepresenter());
 			}
 			if (object.toString().equals(BinaryInstanceSegmentationDataSet.class.getName())) {
-				return new BinaryInstanceSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+				return new BinaryInstanceSegmentationDataSet(spec.tabularOrigin(), settings, spec.getRepresenter());
 			}
 			if (object.toString().equals(MultiClassSegmentationDataSet.class.getName())) {
-				return new MultiClassSegmentationDataSet(spec.base(), settings, spec.getRepresenter());
+				return new MultiClassSegmentationDataSet(spec.tabularOrigin(), settings, spec.getRepresenter());
 			}
 			if (object.toString().equals(MultiClassificationDataset.class.getName())) {
-				return new MultiClassificationDataset(spec.base(), settings, spec.getRepresenter());
+				return new MultiClassificationDataset(spec.tabularOrigin(), settings, spec.getRepresenter());
 			}
 			if (object.toString().equals(BinaryClassificationDataSet.class.getName())) {
-				return new BinaryClassificationDataSet(spec.base(), settings, spec.getRepresenter());
+				return new BinaryClassificationDataSet(spec.tabularOrigin(), settings, spec.getRepresenter());
 			}
 		}
 		return null;
@@ -170,7 +170,7 @@ public class ImageDataSetFactories implements IDataSetFactory {
 				Optional<IMultiClassSegmentationItem> findAny = filter.findAny();
 				trySetupLabels(spec, multiClassSegmentationDataSet);
 				if (findAny.isPresent()) {
-					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(spec.base(),
+					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(spec.tabularOrigin(),
 							multiClassSegmentationDataSet.getSettings(), images);
 					multiClassSegmentationDataSet.setLabels(multiClassSegmentationDataSet.labels());
 					return multiClassSegmentationDataSet;
@@ -183,11 +183,11 @@ public class ImageDataSetFactories implements IDataSetFactory {
 			Collection<Object> values2 = new LinkedHashSet<>(clazzColumn.values());
 			if (values2.size() == 2) {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
-				return new BinaryClassificationDataSet(spec.base(), imageColumn, clazzColumn, bufferedImage.getHeight(),
+				return new BinaryClassificationDataSet(spec.tabularOrigin(), imageColumn, clazzColumn, bufferedImage.getHeight(),
 						bufferedImage.getWidth(), images);
 			} else {
 				BufferedImage bufferedImage = images.get(images.iterator().next());
-				MultiClassificationDataset multiClassificationDataset = new MultiClassificationDataset(spec.base(),
+				MultiClassificationDataset multiClassificationDataset = new MultiClassificationDataset(spec.tabularOrigin(),
 						imageColumn, clazzColumn, bufferedImage.getHeight(), bufferedImage.getWidth(), images);
 				trySetupLabels(spec, multiClassificationDataset);
 				return multiClassificationDataset;

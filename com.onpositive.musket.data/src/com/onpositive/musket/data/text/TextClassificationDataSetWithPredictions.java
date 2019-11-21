@@ -27,7 +27,7 @@ public class TextClassificationDataSetWithPredictions extends TextClassification
 	protected ArrayList<IItem> createItems() {
 		ArrayList<IItem> items = new ArrayList<>();
 		Map<String, IItem> itemMap = predictions.itemMap();
-		base.items().forEach(v -> {
+		tabularBase.items().forEach(v -> {
 			items.add(new TextItemWithPrediction(this, v, (TextItem) itemMap.get(v.id())));
 		});
 		return items;

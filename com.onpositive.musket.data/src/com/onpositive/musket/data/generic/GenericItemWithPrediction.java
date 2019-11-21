@@ -31,11 +31,11 @@ public class GenericItemWithPrediction extends GenericItem{
 	}
 	
 	protected String getTextValue(int mxch, IColumn column) {
-		String value = column.getValueAsString(base);
+		String value = column.getValueAsString(item_base);
 		if (value.length() > mxch) {
 			value = value.substring(0, mxch) + "...";
 		}
-		String valueAsString = column.getValueAsString(prediction.base);
+		String valueAsString = column.getValueAsString(prediction.item_base);
 		if (!value.equals(valueAsString)) {
 			 value=value+"<>"+valueAsString;
 		}				
@@ -43,8 +43,8 @@ public class GenericItemWithPrediction extends GenericItem{
 	}
 
 	protected void appendSimpleValue(StringBuilder bld, IColumn column, Class<? extends IColumnType> preferredType) {
-		String value = column.getValueAsString(base);
-		String value0 = column.getValueAsString(base);
+		String value = column.getValueAsString(item_base);
+		String value0 = column.getValueAsString(item_base);
 		if (preferredType == NumberColumn.class) {
 			try {
 				value = NumberFormat.getInstance().format(Double.parseDouble(value));
@@ -55,7 +55,7 @@ public class GenericItemWithPrediction extends GenericItem{
 			value = value.substring(0, 100);
 		}
 		bld.append("<FONT COLOR=BLUE>" + StringUtils.encodeHtml(value) + "</FONT>");
-		String valueAsString = column.getValueAsString(prediction.base);
+		String valueAsString = column.getValueAsString(prediction.item_base);
 		if (!value0.equals(valueAsString)) {
 			if (preferredType == NumberColumn.class) {
 				try {
@@ -69,13 +69,13 @@ public class GenericItemWithPrediction extends GenericItem{
 	}
 
 	public boolean allMatch() {
-		List<? extends IColumn> columns = this.ds.getSpec().columns();
+		List<? extends IColumn> columns = this.owner.getSpec().columns();
 		for (IColumn c:columns) {
-			String valueAsString = c.getValueAsString(this.base);
+			String valueAsString = c.getValueAsString(this.item_base);
 			if (this.prediction==null) {
 				return false;
 			}
-			String valueAsString2 = c.getValueAsString(this.prediction.base);
+			String valueAsString2 = c.getValueAsString(this.prediction.item_base);
 			if (!valueAsString.equals(valueAsString2)) {
 				return false;
 			}

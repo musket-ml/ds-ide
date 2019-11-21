@@ -16,6 +16,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
+import com.onpositive.musket.data.core.AbstractItem;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.IBinaryClasificationItem;
@@ -24,29 +25,26 @@ import com.onpositive.musket.data.images.IMulticlassClassificationItem;
 import com.onpositive.musket.data.images.MultiClassClassificationItem;
 import com.onpositive.musket.data.table.ITabularItem;
 
-public class TextItem implements ITextItem, IBinaryClasificationItem, IMulticlassClassificationItem, IImageItem {
+public class TextItem extends AbstractItem<AbstractTextDataSet> implements ITextItem, IBinaryClasificationItem, IMulticlassClassificationItem, IImageItem {
 
 	protected AbstractTextDataSet textDataSet;
-	protected ITabularItem baseItem;
+	protected ITabularItem tabularBase;
 
 	public TextItem(AbstractTextDataSet textDataSet, ITabularItem baseItem) {
-		super();
+		super(textDataSet);
 		this.textDataSet = textDataSet;
-		this.baseItem = baseItem;
+		this.tabularBase = baseItem;
 	}
 
 	@Override
 	public String id() {
 		if (textDataSet.idColumn != null) {
-			return textDataSet.idColumn.getValueAsString(this.baseItem);
+			return textDataSet.idColumn.getValueAsString(this.tabularBase);
 		}
-		return this.baseItem.id();
+		return this.tabularBase.id();
 	}
 
-	@Override
-	public IDataSet getDataSet() {
-		return textDataSet;
-	}
+	
 
 	protected static HashMap<Integer, Font> fonts = new HashMap<>();
 
@@ -110,7 +108,7 @@ public class TextItem implements ITextItem, IBinaryClasificationItem, IMulticlas
 
 	@Override
 	public String getText() {
-		return textDataSet.textColumn.getValueAsString(baseItem);
+		return textDataSet.textColumn.getValueAsString(tabularBase);
 	}
 
 	public Object binaryLabel() {
@@ -124,7 +122,7 @@ public class TextItem implements ITextItem, IBinaryClasificationItem, IMulticlas
 
 	@Override
 	public ArrayList<String> classes() {
-		String value = (String) ((TextClassificationDataSet) this.textDataSet).clazzColumn.getValue(baseItem);
+		String value = (String) ((TextClassificationDataSet) this.textDataSet).clazzColumn.getValue(tabularBase);
 		return MultiClassClassificationItem.splitByClass(value, this.textDataSet.labels);
 	}
 

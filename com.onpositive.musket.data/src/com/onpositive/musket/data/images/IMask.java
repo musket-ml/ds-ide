@@ -41,10 +41,14 @@ public interface IMask {
 		
 		return intersection.cardinality()/(union.cardinality()+0.01);
 	}
-
+	
 	default void drawOn(Image image,int color) {
+		drawOn(image, color, 1.0f);		
+	}
+
+	default void drawOn(Image image,int color, float alpha) {
 		Graphics2D g=(Graphics2D) image.getGraphics();
-		Composite composite=AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
+		Composite composite=AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha);
 		g.setComposite(composite);
 		//AffineTransform affineTransform = new AffineTransform(); 
 		//rotate the image by 45 degrees 

@@ -32,7 +32,7 @@ public class FolderDataSet extends MultiClassificationDataset{
 			ArrayList<File> arrayList = images.get(s);
 			int num=0;
 			for (File f:arrayList) {
-				BasicItem it=new BasicItem(num, new String[] {f.getName(),s});
+				BasicItem it=new BasicItem(null,num, new String[] {f.getName(),s});
 				num++;
 				items2.add(it);
 			}

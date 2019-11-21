@@ -54,7 +54,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		
 		for (IColumn c:new ArrayList<>(base.columns())) {
 			if (c instanceof ComputableColumn) {
-				this.base.columns().remove(c);
+				this.tabularBase.columns().remove(c);
 			}
 		}
 		
@@ -94,7 +94,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 					return nc.stream().map(x -> doMap(v, x)).collect(Collectors.joining(" "));
 				});
 			}
-			this.base = this.base.addColumn(clazzColumn);
+			this.tabularBase = this.tabularBase.addColumn(clazzColumn);
 
 			for (IColumn m : this.clazzColumns) {
 				LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(m.values());
@@ -138,13 +138,13 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
 		TextClassificationDataSet ts=new TextClassificationDataSet(t2.as(ITabularDataSet.class),this.textColumn, this.clazzColumns);
-		return new TextClassificationDataSetWithPredictions(base, textColumn, clazzColumns, ts);
+		return new TextClassificationDataSetWithPredictions(tabularBase, textColumn, clazzColumns, ts);
 	}
 
 	@Override
 	protected ArrayList<IItem> createItems() {
 		ArrayList<IItem> items = new ArrayList<>();
-		base.items().forEach(v -> {
+		tabularBase.items().forEach(v -> {
 			items.add(new TextItem(this, v));
 		});
 		return items;
@@ -162,7 +162,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
-		ITabularDataSet filter = filter(clazz, base, clazzColumn.caption());
+		ITabularDataSet filter = filter(clazz, tabularBase, clazzColumn.caption());
 		return new TextClassificationDataSet(filter, this.textColumn, this.clazzColumns);
 	}
 
@@ -175,7 +175,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public boolean isPositive(TextItem textItem) {
-		Object value = binaryColumn.getValue(textItem.baseItem);
+		Object value = binaryColumn.getValue(textItem.tabularBase);
 		String vl = value.toString().trim();
 		if (binaryValues.indexOf(vl) > 0) {
 			return true;
@@ -185,7 +185,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public Object binaryLabel(TextItem textItem) {
-		String value = binaryColumn.getValueAsString(textItem.baseItem).trim();
+		String value = binaryColumn.getValueAsString(textItem.tabularBase).trim();
 		if (binaryValues.size() == 2) {
 			String vl = value.toString().trim();
 			return vl;
@@ -203,7 +203,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public ITabularDataSet original() {
-		return base;
+		return tabularBase;
 	}
  
 	
@@ -215,7 +215,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	public List<ITabularItem> represents(IItem i) {
 		TextItem it=(TextItem) i;
-		return Collections.singletonList(it.baseItem);
+		return Collections.singletonList(it.tabularBase);
 	}
 	@Override
 	public String generatePythonString(String sourcePath,Object model) {
