@@ -41,7 +41,7 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 	public Collection<? extends IBinaryClasificationItem> items() {
 		if (items==null) {
 			items=new ArrayList<>();
-		    base.items().forEach(v->{
+		    tabularBase.items().forEach(v->{
 		    	items.add(createItem(v));
 		    });
 		}
@@ -92,7 +92,7 @@ public class BinaryClassificationDataSet extends AbstractImageDataSet<BinaryClas
 
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return new BinaryClassificationDataSetWithGroundTruth(base, imageColumn, clazzColumn, representer, width, height, (ITabularDataSet) t2);		
+		return new BinaryClassificationDataSetWithGroundTruth(tabularBase, imageColumn, clazzColumn, representer, width, height, (ITabularDataSet) t2);		
 	}
 
 	@Override

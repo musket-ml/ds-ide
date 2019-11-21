@@ -35,7 +35,7 @@ public class BasicDataSetActions {
 		cs.add(new Column("Class", "Class", 1, String.class));
 		ArrayList<BasicItem> items = new ArrayList<>();
 		ds.items().forEach(v -> {
-			BasicItem item = new BasicItem(0, new Object[] { v.id(), v.isPositive() ? "1" : "0" });
+			BasicItem item = new BasicItem(null,0, new Object[] { v.id(), v.isPositive() ? "1" : "0" });
 			items.add(item);
 		});
 		return new BasicDataSetImpl(items, cs);
@@ -47,7 +47,7 @@ public class BasicDataSetActions {
 		cs.add(new Column("Class", "Class", 1, String.class));
 		ArrayList<BasicItem> items = new ArrayList<>();
 		ds.items().forEach(v -> {
-			BasicItem item = new BasicItem(0,
+			BasicItem item = new BasicItem(null,0,
 					new Object[] { v.id(), v.originalclasses().stream().map(va->{
 						if (va.equals("Empty")) {
 							return "";
@@ -67,7 +67,7 @@ public class BasicDataSetActions {
 		cs.add(new Column("EncodedPixels", "EncodedPixels", 1, String.class));
 		ArrayList<BasicItem> items = new ArrayList<>();
 		ds.items().forEach(v -> {
-			BasicItem item = new BasicItem(0, new Object[] { v.id(), v.getMask().rle() });
+			BasicItem item = new BasicItem(null,0, new Object[] { v.id(), v.getMask().rle() });
 			items.add(item);
 		});
 		return new BasicDataSetImpl(items, cs);
@@ -93,7 +93,7 @@ public class BasicDataSetActions {
 				if(ind>=0) {
 					classId = classId.substring(0, ind);
 				}
-				BasicItem item = new BasicItem(0, new Object[] {
+				BasicItem item = new BasicItem(null,0, new Object[] {
 						imageId, rle, height, width, classId});
 				items.add(item);
 			});

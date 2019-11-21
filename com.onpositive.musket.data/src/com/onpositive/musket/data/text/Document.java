@@ -198,4 +198,13 @@ public class Document implements ITextItem, IImageItem {
 		});
 		return classes;
 	}
+	
+	public Document clone() {
+		try {
+			return (Document)super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

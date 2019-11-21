@@ -20,6 +20,7 @@ import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageDataSetFactories;
 import com.onpositive.musket.data.table.ImageRepresenter;
+import com.onpositive.musket.data.text.AbstractImageItem;
 
 public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends AbstractImageDataSet<T>
 		implements IImageDataSet, Cloneable {
@@ -37,8 +38,8 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 	}
 
 	public AbstractRLEImageDataSet(DataSetSpec spec, IColumn image, IColumn rle, int width2, int height2) {
-		super(spec.base(), image, width2, height2, spec.getRepresenter());
-		this.base = spec.base();
+		super(spec.tabularOrigin(), image, width2, height2, spec.getRepresenter());
+		this.tabularBase = spec.tabularOrigin();
 		this.imageColumn = image;
 		this.rleColumn = rle;
 		if (this.isMultiResolution) {
@@ -99,19 +100,17 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 		this.widthFirst = c;
 		try {
 
-			Optional<? extends ITabularItem> findAny = this.base.items().parallelStream().filter(v -> {
+			Optional<? extends ITabularItem> findAny = this.tabularBase.items().parallelStream().filter(v -> {
+				@SuppressWarnings("rawtypes")
 				RLEMask createMask = (RLEMask) this.createMask(this.rleColumn.getValueAsString(v), this.width,
-						this.height, new IImageItem() {
+						this.height, new AbstractImageItem<AbstractRLEImageDataSet>(this) {
 
 							@Override
 							public String id() {
 								return v.id();
 							}
 
-							@Override
-							public IDataSet getDataSet() {
-								return AbstractRLEImageDataSet.this;
-							}
+							
 
 							@Override
 							public Image getImage() {

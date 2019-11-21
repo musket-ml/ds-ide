@@ -28,7 +28,7 @@ public class TextClassificationDataSetWithPredictions extends TextClassification
 	protected ArrayList<IItem> createItems() {
 		ArrayList<IItem> items = new ArrayList<>();
 		Map<String, IItem> itemMap = predictions.itemMap();
-		base.items().forEach(v -> {
+		tabularBase.items().forEach(v -> {
 			items.add(new TextItemWithPrediction(this, v, (TextItem) itemMap.get(v.id())));
 		});
 		return items;
@@ -36,7 +36,7 @@ public class TextClassificationDataSetWithPredictions extends TextClassification
 
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
-		ITabularDataSet filter = filter(clazz, base, clazzColumn.caption());
+		ITabularDataSet filter = filter(clazz, tabularBase, clazzColumn.caption());
 		TextClassificationDataSet filter1 = (TextClassificationDataSet) predictions.withIds(filter);
 		return new TextClassificationDataSetWithPredictions(filter, this.textColumn, this.clazzColumns, filter1);
 	}

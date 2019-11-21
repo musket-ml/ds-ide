@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
+import com.onpositive.musket.data.core.AbstractDataSet;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
@@ -22,7 +23,7 @@ import com.onpositive.musket.data.table.ITabularDataSet;
 
 public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextDataSet{
 
-	protected ITabularDataSet base;
+	protected ITabularDataSet tabularBase;
 	protected IColumn idColumn;
 	
 	protected LabelsSet labels;
@@ -32,7 +33,7 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 
 	public AbstractTextDataSet(ITabularDataSet base, IColumn textColumn, IColumn idColumn) {
 		super();
-		this.base = base;
+		this.tabularBase = base;
 		this.textColumn = textColumn;
 		this.idColumn = idColumn;
 		settings.put(GenericDataSet.FONT_SIZE, "13");
@@ -41,16 +42,15 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 	}
 
 	public AbstractTextDataSet(ITabularDataSet clone, Map<String, Object> options) {
-		this.base=clone;
+		this.tabularBase=clone;
 		this.settings=options;
-		this.textColumn=base.getColumn((String) settings.get(TEXT_COLUMN));
+		this.textColumn=tabularBase.getColumn((String) settings.get(TEXT_COLUMN));
 	}
 
 	protected IColumn textColumn;
 	protected ArrayList<IItem> items ;
 	protected Map<String, Object> settings = new LinkedHashMap<String, Object>();
-	private String name = "";
-	
+	private String name = "";	
 
 	@Override
 	public int length() {

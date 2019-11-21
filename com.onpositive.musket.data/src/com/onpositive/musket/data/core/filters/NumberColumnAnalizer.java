@@ -23,7 +23,7 @@ public class NumberColumnAnalizer extends AbstractAnalizer implements IColumnDep
 	@Override
 	protected Object group(IItem v) {
 		GenericItem gr=(GenericItem) v;
-		ITabularItem base = gr.base();
+		ITabularItem base = gr.generic_base();
 		try {
 			return Double.parseDouble(column.getValueAsString(base));
 		}catch (NumberFormatException e) {

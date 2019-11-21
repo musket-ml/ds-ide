@@ -17,18 +17,18 @@ public class BinarySegmentationItemWithGroundTruth extends BinarySegmentationIte
 	}
 
 	public IItem getPrediction() {
-		return new BinarySegmentationItem(base, prediction);
+		return new BinarySegmentationItem(owner, prediction);
 	}
 
 	@Override
 	public Image getImage() {
-		BufferedImage bufferedImage = base.representer.get(id());
+		BufferedImage bufferedImage = owner.representer.get(id());
 		BufferedImage image=new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),BufferedImage.TYPE_INT_ARGB);
 		image.getGraphics().drawImage(bufferedImage, 0, 0, null);
 		
-		Object object = base.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_ALPHA);
+		Object object = owner.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_ALPHA);
 		
-		Object color = base.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_COLOR);
+		Object color = owner.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_COLOR);
 		
 		int acolor=AbstractRLEImageDataSet.parse(object.toString(),color.toString());
 		
@@ -36,27 +36,27 @@ public class BinarySegmentationItemWithGroundTruth extends BinarySegmentationIte
 		
 		getMask().drawOn(image,acolor);
 		
-		object = base.getSettings().get(BinarySegmentationDataSetWithGroundTruth.PREDICTION_ALPHA);
+		object = owner.getSettings().get(BinarySegmentationDataSetWithGroundTruth.PREDICTION_ALPHA);
 		
-		color = base.getSettings().get(BinarySegmentationDataSetWithGroundTruth.PREDICTION_COLOR);
+		color = owner.getSettings().get(BinarySegmentationDataSetWithGroundTruth.PREDICTION_COLOR);
 		
 		acolor=AbstractRLEImageDataSet.parse(object.toString(),color.toString());
 		
 		getPredictionMask().drawOn(image,acolor);
-		base.drawOverlays(this.id(),image);
+		owner.drawOverlays(this.id(),image);
 		return image;
 		
 	}
 	
 	public IMask getPredictionMask() {
 		if (this.prleMask==null) {
-			prleMask = base.createMask(base.rleColumn.getValueAsString(prediction), base.height, base.width,this);
+			prleMask = owner.createMask(owner.rleColumn.getValueAsString(prediction), owner.height, owner.width,this);
 		}
 		return this.prleMask;
 	}
 
 	public boolean isPredictionPositive() {
-		String valueAsString = base.rleColumn.getValueAsString(prediction);
+		String valueAsString = owner.rleColumn.getValueAsString(prediction);
 		if (valueAsString.isEmpty()||valueAsString.trim().equals("-1")) {
 			return false;
 		}

@@ -29,5 +29,7 @@ Require-Bundle: org.eclipse.jface,
  org.eclipse.jface.text;bundle-version="3.13.0"
 Export-Package: com.onpositive.datasets.visualisation.ui.views,
  com.onpositive.python.command
-Import-Package: org.eclipse.ui.editors.text,
- org.eclipse.ui.texteditor
+Import-Package: org.eclipse.debug.core,
+ org.eclipse.ui.editors.text,
+ org.eclipse.ui.texteditor,
+ org.python.pydev.debug.ui.launching

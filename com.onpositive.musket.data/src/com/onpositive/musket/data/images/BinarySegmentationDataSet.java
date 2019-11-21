@@ -30,7 +30,7 @@ public class BinarySegmentationDataSet extends AbstractRLEImageDataSet<BinarySeg
 	public Collection<BinarySegmentationItem> items() {
 		if (items==null) {
 			items=new ArrayList<>();
-		    base.items().forEach(v->{
+		    tabularBase.items().forEach(v->{
 		    	items.add(new BinarySegmentationItem(this,v));
 		    });
 		}
@@ -39,7 +39,7 @@ public class BinarySegmentationDataSet extends AbstractRLEImageDataSet<BinarySeg
 
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return new BinarySegmentationDataSetWithGroundTruth(new DataSetSpec(base, representer), imageColumn, rleColumn, width, height, (ITabularDataSet) t2);
+		return new BinarySegmentationDataSetWithGroundTruth(new DataSetSpec(tabularBase, representer), imageColumn, rleColumn, width, height, (ITabularDataSet) t2);
 	}
 
 	@Override

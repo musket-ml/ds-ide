@@ -57,7 +57,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 		
 		for (IColumn c:new ArrayList<>(base.columns())) {
 			if (c instanceof ComputableColumn) {
-				this.base.columns().remove(c);
+				this.tabularBase.columns().remove(c);
 			}
 		}
 		settings.put(CLAZZ_COLUMNS, clazzColumns.stream().map(x->x.id()).collect(Collectors.joining(",")));
@@ -79,9 +79,10 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 					linkedHashSet.stream().map(x -> ("" + x).trim()).collect(Collectors.toList()));
 			Collections.sort(binaryValues);
 		} else {
+
 			IColumn clazzColumn = ClassColumnsOptimizer.createCompositeColumn(clazzColumns);
 			this.clazzColumn=clazzColumn;
-			this.base = this.base.addColumn(clazzColumn);
+			this.tabularBase = this.tabularBase.addColumn(clazzColumn);
 
 			for (IColumn m : this.clazzColumns) {
 				LinkedHashSet<Object> linkedHashSet = new LinkedHashSet<>(m.values());
@@ -120,7 +121,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
 		TextClassificationDataSet ts=new TextClassificationDataSet(t2.as(ITabularDataSet.class),this.textColumn, this.clazzColumns);
-		TextClassificationDataSetWithPredictions textClassificationDataSetWithPredictions = new TextClassificationDataSetWithPredictions(base, textColumn, clazzColumns, ts);
+		TextClassificationDataSetWithPredictions textClassificationDataSetWithPredictions = new TextClassificationDataSetWithPredictions(tabularBase, textColumn, clazzColumns, ts);
 		textClassificationDataSetWithPredictions.setLabels(this.labels);
 		return textClassificationDataSetWithPredictions;
 	}
@@ -128,7 +129,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	protected ArrayList<IItem> createItems() {
 		ArrayList<IItem> items = new ArrayList<>();
-		base.items().forEach(v -> {
+		tabularBase.items().forEach(v -> {
 			items.add(new TextItem(this, v));
 		});
 		return items;
@@ -147,7 +148,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
-		ITabularDataSet filter = filter(clazz, base, clazzColumn.caption());
+		ITabularDataSet filter = filter(clazz, tabularBase, clazzColumn.caption());
 		TextClassificationDataSet textClassificationDataSet = new TextClassificationDataSet(filter, this.textColumn, this.clazzColumns);
 		textClassificationDataSet.labels=this.labels;
 		return textClassificationDataSet;
@@ -162,7 +163,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public boolean isPositive(TextItem textItem) {
-		Object value = binaryColumn.getValue(textItem.baseItem);
+		Object value = binaryColumn.getValue(textItem.tabularBase);
 		String vl = value.toString().trim();
 		if (binaryValues.indexOf(vl) > 0) {
 			return true;
@@ -172,7 +173,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public Object binaryLabel(TextItem textItem) {
-		String value = binaryColumn.getValueAsString(textItem.baseItem).trim();
+		String value = binaryColumn.getValueAsString(textItem.tabularBase).trim();
 		if (binaryValues.size() == 2) {
 			String vl = value.toString().trim();
 			return vl;
@@ -190,7 +191,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 
 	@Override
 	public ITabularDataSet original() {
-		return base;
+		return tabularBase;
 	}
  
 	@Override
@@ -201,7 +202,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	@Override
 	public List<ITabularItem> represents(IItem i) {
 		TextItem it=(TextItem) i;
-		return Collections.singletonList(it.baseItem);
+		return Collections.singletonList(it.tabularBase);
 	}
 	@Override
 	public String generatePythonString(String sourcePath,Object model) {
@@ -239,7 +240,7 @@ public class TextClassificationDataSet extends AbstractTextDataSet
 	}
 
 	public TextClassificationDataSet withIds(ITabularDataSet filter) {
-		ITabularDataSet withIds = this.base.withIds(filter);
+		ITabularDataSet withIds = this.tabularBase.withIds(filter);
 		return new TextClassificationDataSet(withIds, this.settings);
 	}
 

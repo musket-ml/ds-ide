@@ -2,16 +2,17 @@ package com.onpositive.musket.data.table;
 
 import java.util.Arrays;
 
+import com.onpositive.musket.data.core.AbstractItem;
 import com.onpositive.musket.data.core.IDataSet;
 
-public class BasicItem implements ITabularItem{
+public class BasicItem extends AbstractItem<BasicDataSetImpl> implements ITabularItem{
 
-	BasicDataSetImpl source;
+	
 	
 	protected BasicItemExtra extra;
 	
-	public BasicItem(int id, Object[] values) {
-		super();
+	public BasicItem(BasicDataSetImpl owner,int id, Object[] values) {
+		super(owner);
 		this.id = id;
 		this.values = values;
 	}
@@ -23,8 +24,8 @@ public class BasicItem implements ITabularItem{
 
 	@Override
 	public String id() {
-		if (source.idColumn!=-1) {
-			return this.values[source.idColumn].toString();
+		if (owner.idColumn!=-1) {
+			return this.values[owner.idColumn].toString();
 		}
 		return ""+id;
 	}
@@ -51,14 +52,10 @@ public class BasicItem implements ITabularItem{
 		return true;
 	}
 
-	@Override
-	public IDataSet getDataSet() {
-		return source;
-	}
 
 	@Override
 	public Object value(String string) {
-		return source.getColumn(string).getValue(this);
+		return owner.getColumn(string).getValue(this);
 	}
 	
 	@Override

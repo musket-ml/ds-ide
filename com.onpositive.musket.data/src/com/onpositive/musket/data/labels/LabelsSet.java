@@ -56,7 +56,7 @@ public class LabelsSet {
 	protected void toTabular() {
 		ArrayList<ITabularItem> items = new ArrayList<>();
 		this.items.forEach(labelItem -> {
-			items.add(new BasicItem(0, new String[] { labelItem.clazz, labelItem.label }));
+			items.add(new BasicItem(null,0, new String[] { labelItem.clazz, labelItem.label }));
 		});
 		ArrayList<IColumn> cs = new ArrayList<>();
 		cs.add(new Column("Clazz", "Clazz", 0, String.class));

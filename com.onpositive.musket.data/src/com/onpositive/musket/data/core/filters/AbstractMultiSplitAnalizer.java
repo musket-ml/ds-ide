@@ -1,6 +1,7 @@
 package com.onpositive.musket.data.core.filters;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 import com.onpositive.musket.data.core.ChartData;
@@ -9,6 +10,7 @@ import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
+import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
 
 public abstract class AbstractMultiSplitAnalizer {
 
@@ -32,7 +34,12 @@ public abstract class AbstractMultiSplitAnalizer {
 		ArrayList<IDataSet> results = new ArrayList<IDataSet>();
 		LinkedHashMap<Object, ArrayList<IItem>> maps1 = AbstractAnalizer.optimize(maps);
 		maps1.keySet().forEach(v -> {
-			results.add(ds.subDataSet(v.toString(), maps1.get(v)));
+			IDataSet subDS = ds.subDataSet(v.toString(), maps1.get(v));
+			if (subDS instanceof MultiClassSegmentationDataSet) {
+				MultiClassSegmentationDataSet subDS2 = (MultiClassSegmentationDataSet)subDS;
+				subDS2.setClasses(Arrays.asList(new Object[] {v}));
+			}
+			results.add(subDS);
 
 		});
 		VisualizationSpec visualizationSpec = new VisualizationSpec("", "", ChartType.BAR);

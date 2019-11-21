@@ -42,12 +42,12 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 		return spec;
 	}
 	
-	protected ITabularDataSet base;
+	protected ITabularDataSet tabularBase;
 	protected String name="";
 
 	public GenericDataSet(DataSetSpec spec, ITabularDataSet t1) {
 		this.spec=spec;
-		this.base=t1;
+		this.tabularBase=t1;
 		settings.put(FONT_SIZE, "12");
 		settings.put(MAX_CHARS_IN_TEXT, "300");
 		settings.put(VISIBLE_COLUMNS, "");
@@ -62,7 +62,7 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	@Override
 	public List<? extends IItem> items() {
 		if (items==null) {
-			items=base.items().stream().map(x->{
+			items=tabularBase.items().stream().map(x->{
 				return new GenericItem(this,x);
 				
 			}).collect(Collectors.toList());;
@@ -75,7 +75,7 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	}
 	@Override
 	public IDataSetDelta compare(IDataSet d) {
-		return base.compare(d);
+		return tabularBase.compare(d);
 	}
 	@Override
 	public IItem item(int num) {
@@ -93,7 +93,7 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	@SuppressWarnings("unchecked")
 	@Override
 	public IDataSet subDataSet(String string, List<? extends IItem> arrayList) {
-		GenericDataSet genericDataSet = new GenericDataSet(spec, base);
+		GenericDataSet genericDataSet = new GenericDataSet(spec, tabularBase);
 		genericDataSet.name=string;
 		genericDataSet.items=(List<IItem>) arrayList;
 		return genericDataSet;
@@ -103,7 +103,7 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	public IDataSet withPredictions(IDataSet t2) {
 		if (t2 instanceof ITabularDataSet) {
 			GenericDataSet genericDataSet = new GenericDataSet(getSpec(), t2.as(ITabularDataSet.class));
-			return new GenericDataSetWithPredictions(getSpec(), base, genericDataSet);
+			return new GenericDataSetWithPredictions(getSpec(), tabularBase, genericDataSet);
 		}
 		return null;
 	}
@@ -122,18 +122,19 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 		return BasicDataSetActions.getActions(this);
 	}
 
+	
 	@Override
 	public IAnalizerProto[] analizers() {
 		return IDataSet.super.analizers();
 	}
 	@Override
 	public ITabularDataSet original() {
-		return base;
+		return tabularBase;
 	}
 	@Override
 	public List<ITabularItem> represents(IItem i) {
 		GenericItem ti=(GenericItem) i;
-		return Collections.singletonList(ti.base);
+		return Collections.singletonList(ti.item_base);
 	}
 	@Override
 	public Object modelObject() {

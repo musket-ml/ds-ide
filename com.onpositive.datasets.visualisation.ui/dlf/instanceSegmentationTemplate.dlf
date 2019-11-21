@@ -15,8 +15,10 @@
 			<vc grabVertical="true" grabHorizontal="true" caption="Basic">
 				<hc>
 					<group caption="MMDetection configs">
-						<button hAlign="right" bindTo="$$.setConfig0"/>
-						<button hAlign="right" bindTo="$$.setConfig1"/>
+						<radio hAlign="left" bindTo="$$.setConfig0"/>
+						<radio hAlign="left" bindTo="$$.setConfig1"/>
+						<radio hAlign="left" bindTo="$$.setConfig2"/>
+						<radio hAlign="left" bindTo="$$.setConfig3"/>
 					</group>
 					<group caption="Details">
 						<string bindTo="architecture"/>	

@@ -1,6 +1,7 @@
 package com.onpositive.musket.data.core.filters;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IItem;
@@ -15,7 +16,7 @@ public class HasClassAnalizer extends AbstractMultiSplitAnalizer implements IAna
 	@Override
 	protected ArrayList<Object> group(IItem v) {
 		IMulticlassClassificationItem item= (IMulticlassClassificationItem) v;
-		return (ArrayList)item.classes();
+		return new ArrayList<>(new LinkedHashSet<>(item.classes()));
 	}
 
 }
