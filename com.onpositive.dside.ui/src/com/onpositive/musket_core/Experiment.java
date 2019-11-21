@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.dside.ui.ModelEvaluationSpec;
 import com.onpositive.musket_core.ProjectWrapper.BasicDataSetDesc;
@@ -251,48 +252,54 @@ public class Experiment {
 		return sm.stream().collect(Collectors.joining("/"));
 	}
 
-	private void gatherResults(String baseName, String path2, ArrayList<ExperimentResults> r) {
-		File[] listFiles = new java.io.File(path2).listFiles();
-		for (File f : listFiles) {
-			if (f.getName().equals("summary.yaml")) {
-				r.add(new ExperimentResults(baseName, f.getAbsolutePath()));
+	private void gatherResults(String baseName, String fullPath, ArrayList<ExperimentResults> r) {
+		java.io.File currentDir = new java.io.File(fullPath);
+		if (!currentDir.isDirectory()) {
+			return;
+		}
+		File[] listFiles = currentDir.listFiles();
+		for (File current : listFiles) {
+			if (current.getName().equals("summary.yaml")) {
+				r.add(new ExperimentResults(baseName, current.getAbsolutePath()));
 			} else {
-				if (f.getName().startsWith("trial")) {
-					gatherResults("trial: " + f.getName(), f.getAbsolutePath(), r);
+				if (current.getName().startsWith("trial")) {
+					gatherResults("trial: " + current.getName(), current.getAbsolutePath(), r);
 				}
 				try {
-					int parseInt = Integer.parseInt(f.getName());
-					gatherResults(baseName + " split:" + f.getName(), f.getAbsolutePath(), r);
+					gatherResults(baseName + " split:" + current.getName(), current.getAbsolutePath(), r);
 				} catch (Exception e) {
-					// TODO: handle exception
+					DSIDEUIPlugin.log(e);
 				}
 			}
 		}
 	}
 
-	private void gatherLogs(String baseName, String path2, ArrayList<ExperimentLogs> r) {
-		File[] listFiles = new java.io.File(path2).listFiles();
-		for (File f : listFiles) {
-			if (f.getName().equals("metrics") && f.isDirectory()) {
-				for (File f1 : f.listFiles()) {
-					String name = f1.getName();
+	private void gatherLogs(String baseName, String fullPath, ArrayList<ExperimentLogs> logsList) {
+		java.io.File currentDir = new java.io.File(fullPath);
+		if (!currentDir.isDirectory()) {
+			return;
+		}
+		File[] listFiles = currentDir.listFiles();
+		for (File current : listFiles) {
+			if (current.getName().equals("metrics") && current.isDirectory()) {
+				for (File file : current.listFiles()) {
+					String name = file.getName();
 					int indexOf = name.indexOf('-');
 					if (indexOf != -1) {
 						String[] split = name.substring(indexOf + 1).split("\\.");
-						ExperimentLogs rs = new ExperimentLogs(baseName + " fold:" + split[0] + " stage:" + split[1],
-								f1.getAbsolutePath());
-						r.add(rs);
+						ExperimentLogs logs = new ExperimentLogs(baseName + " fold:" + split[0] + " stage:" + split[1],
+								file.getAbsolutePath());
+						logsList.add(logs);
 					}
 				}
 			} else {
-				if (f.getName().startsWith("trial")) {
-					gatherLogs("trial: " + f.getName(), f.getAbsolutePath(), r);
+				if (current.getName().startsWith("trial")) {
+					gatherLogs("trial: " + current.getName(), current.getAbsolutePath(), logsList);
 				}
 				try {
-					int parseInt = Integer.parseInt(f.getName());
-					gatherLogs(baseName + " split:" + f.getName(), f.getAbsolutePath(), r);
+					gatherLogs(baseName + " split: " + current.getName(), current.getAbsolutePath(), logsList);
 				} catch (Exception e) {
-					// TODO: handle exception
+					DSIDEUIPlugin.log(e);
 				}
 			}
 		}
@@ -395,7 +402,7 @@ public class Experiment {
 				}
 			});
 		} catch (Exception e) {
-			// TODO: handle exception
+			DSIDEUIPlugin.log(e);
 		}
 		return datasets;
 	}
@@ -485,7 +492,7 @@ public class Experiment {
 					maxNum = parseInt;
 				}
 			} catch (NumberFormatException e) {
-				// TODO: handle exception
+				// Best effort
 			}
 		}
 		return maxNum;
