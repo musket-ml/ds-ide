@@ -658,6 +658,11 @@
              id="com.onpositive.dside.ui.createFromFolder"
              name="Create dataset from folder">
        </command>
+       <command
+             defaultHandler="com.onpositive.dside.ui.handlers.AnalyzeAugmentationsHandler"
+             id="com.onpositive.dside.ui.config.analyzeAugmentations"
+             name="Analyze augmentations">
+       </command>
     </extension>
     <extension
           point="org.eclipse.ui.menus">
@@ -762,6 +767,13 @@
              </visibleWhen>
           </command>
        </menuContribution>
+       <menuContribution
+            locationURI="popup:yamleditor.editors.YamlEditor.context?after=additions">
+         <command
+               commandId="com.onpositive.dside.ui.config.analyzeAugmentations"
+               icon="icons/swatches.png">
+	 	 </command>
+       </menuContribution>	 	 
     </extension>
     <extension
           id="com.onpositive.musketProblem"

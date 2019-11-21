@@ -61,6 +61,10 @@ public class YamlIO {
 	public static Object load(Reader reader) {
 		return new Yaml().load(reader);
 	}
+	
+	public static Object load(String yaml) {
+		return new Yaml().load(yaml);
+	}
 
 	public static Object load(InputStream inputStream) {
 		return new Yaml().load(inputStream);

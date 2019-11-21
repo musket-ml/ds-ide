@@ -5,11 +5,8 @@ import java.util.HashMap;
 
 import com.onpositive.dside.ui.ModelEvaluationSpec;
 
-public class DataSetAnalisysRequest {
+public class DataSetAnalisysRequest extends AbstractDataSetRequest {
 
-	protected ModelEvaluationSpec modelSpec;
-	protected String datasetName;
-	protected String experimentPath;
 	private String visualizer;
 	private String analizer;
 	private boolean isData;
@@ -22,31 +19,11 @@ public class DataSetAnalisysRequest {
 	protected ArrayList<DataSetFilter>filters=new ArrayList<>();
 	
 	public DataSetAnalisysRequest(ModelEvaluationSpec model, String dataset,String experimentPath,String visualizer,String analizer,boolean isData,String stage) {
-		this.modelSpec=model;
-		this.datasetName=dataset;
-		this.experimentPath=experimentPath;
+		super(model, dataset, experimentPath);
 		this.visualizer=visualizer;
 		this.analizer=analizer;
 		this.isData=isData;
 		this.stage=stage;
-	}
-	public ModelEvaluationSpec getSpec() {
-		return modelSpec;
-	}
-	public void setSpec(ModelEvaluationSpec spec) {
-		this.modelSpec = spec;
-	}
-	public String getDatasetName() {
-		return datasetName;
-	}
-	public void setDatasetName(String datasetName) {
-		this.datasetName = datasetName;
-	}
-	public String getExperimentPath() {
-		return experimentPath;
-	}
-	public void setExperimentPath(String experimentPath) {
-		this.experimentPath = experimentPath;
 	}
 	public String getVisualizer() {
 		return visualizer;
