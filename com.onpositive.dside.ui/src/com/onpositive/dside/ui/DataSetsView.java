@@ -33,8 +33,6 @@ public class DataSetsView extends XMLView {
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		for (Object o : collection) {
 			DataSet e = (DataSet) o;
-				
-			
 			
 			ObjectEditorInput er=new ObjectEditorInput(e);
 			try {

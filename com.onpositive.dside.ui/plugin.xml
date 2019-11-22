@@ -181,6 +181,13 @@
             id="com.onpositive.dside.ui.dsviewer"
             name="DataSet Viewer">
       </editor>
+      <editor
+            class="com.onpositive.dside.ui.editors.AugmentationOverviewEditorPart"
+            default="false"
+            icon="icons/swatches.png"
+            id="com.onpositive.dside.ui.editors.augmentation"
+            name="Augmntation Preview">
+      </editor>
    </extension>
    <extension
          point="com.onpositive.semantic.model.images">

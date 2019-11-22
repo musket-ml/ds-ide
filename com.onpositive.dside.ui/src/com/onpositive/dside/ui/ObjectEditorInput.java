@@ -36,7 +36,7 @@ public class ObjectEditorInput implements IEditorInput,IPersistableElement{
 
 	@Override
 	public String getName() {
-		return object.toString();
+		return object.getClass().getSimpleName();
 	}
 
 	@Override

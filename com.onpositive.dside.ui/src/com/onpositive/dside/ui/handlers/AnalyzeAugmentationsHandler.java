@@ -2,6 +2,10 @@ package com.onpositive.dside.ui.handlers;
 
 import java.util.Map;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.onpositive.dside.dto.ImageDataSetAugmentRequest;
@@ -11,6 +15,8 @@ import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.tasks.analize.AnalyzeAugmentationsDialogModel;
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
 import com.onpositive.dside.ui.DSIDEUIPlugin;
+import com.onpositive.dside.ui.ObjectEditorInput;
+import com.onpositive.dside.ui.editors.AugmentationOverviewEditorPart;
 import com.onpositive.dside.ui.editors.ExperimentMultiPageEditor;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
@@ -75,8 +81,15 @@ public class AnalyzeAugmentationsHandler extends AbstractExperimentEditorHandler
 		}
 	}
 
-	protected void display(IAnalizeResults r) {
-		// TODO Auto-generated method stub
+	protected void display(IAnalizeResults results) {
+		ObjectEditorInput er=new ObjectEditorInput(results);
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
+					er, AugmentationOverviewEditorPart.ID);
+		} catch (PartInitException e1) {
+			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", e1.getMessage());
+		}
+		
 		
 	}
 
