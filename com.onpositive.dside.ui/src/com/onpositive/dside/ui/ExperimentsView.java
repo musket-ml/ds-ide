@@ -171,9 +171,11 @@ public class ExperimentsView extends XMLView {
 		ArrayList<Object>objects=new ArrayList<>();
 		for (Object o : collection) {
 			Experiment e = (Experiment) o;
-			IFile file = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(e.getPath())
-					.getFile(new Path(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
-			objects.add(file);
+			IContainer container = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(e.getPath());
+			IFile file = container.getFile(new Path(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
+			if (container != null) {
+				objects.add(file);
+			}
 		}
 		CompareAction compareAction = new CompareAction();
 		

@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui;
+package com.onpositive.dside.ui.editors;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
@@ -36,7 +36,10 @@ public class ObjectEditorInput implements IEditorInput,IPersistableElement{
 
 	@Override
 	public String getName() {
-		return object.getClass().getSimpleName();
+		if (object != null) {
+			return object.getClass().getSimpleName();
+		}
+		return "Deprecated editor";
 	}
 
 	@Override
@@ -56,7 +59,7 @@ public class ObjectEditorInput implements IEditorInput,IPersistableElement{
 
 	@Override
 	public String getFactoryId() {
-		return "";
+		return ObjectEditorInputFactory.ID;
 	}
 
 }

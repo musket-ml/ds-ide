@@ -4,17 +4,13 @@ package com.onpositive.dside.ui;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.FileEditorInput;
 
+import com.onpositive.dside.ui.editors.ObjectEditorInput;
 import com.onpositive.musket_core.DataSet;
-import com.onpositive.musket_core.Experiment;
 import com.onpositive.semantic.model.api.property.ValueUtils;
 import com.onpositive.semantic.model.ui.generic.widgets.ISelectorElement;
 import com.onpositive.semantic.ui.workbench.elements.XMLView;

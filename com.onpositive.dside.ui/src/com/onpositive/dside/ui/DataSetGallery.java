@@ -267,5 +267,14 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 	public boolean needsLabel() {
 		return false;
 	}
+	
+	@Override
+	public Control getControl() {
+		Control control = super.getControl();
+		if (control != null) {
+			return control;
+		}
+		return gallery;
+	}
 
 }

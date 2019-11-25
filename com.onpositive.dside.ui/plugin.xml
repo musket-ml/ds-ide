@@ -186,7 +186,7 @@
             default="false"
             icon="icons/swatches.png"
             id="com.onpositive.dside.ui.editors.augmentation"
-            name="Augmntation Preview">
+            name="Augmentation Preview">
       </editor>
    </extension>
    <extension
@@ -861,5 +861,12 @@
             introId="com.onpositive.dside.ui.intro"
             productId="com.onpositive.dside.ui.product">
       </introProductBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.elementFactories">
+      <factory
+            class="com.onpositive.dside.ui.editors.ObjectEditorInputFactory"
+            id="com.onpositive.dside.ui.editors.ObjectEditorInputFactory">
+      </factory>
    </extension>     
 </plugin>

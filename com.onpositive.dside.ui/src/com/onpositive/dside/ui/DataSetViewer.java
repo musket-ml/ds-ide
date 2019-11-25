@@ -1,6 +1,5 @@
 package com.onpositive.dside.ui;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -12,24 +11,24 @@ import org.eclipse.nebula.widgets.gallery.Gallery;
 import org.eclipse.nebula.widgets.gallery.GalleryItem;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.EditorPart;
 
 import com.onpositive.commons.elements.AbstractUIElement;
 import com.onpositive.commons.elements.RootElement;
+import com.onpositive.dside.ui.editors.DeprecatableEditorPart;
+import com.onpositive.dside.ui.editors.ObjectEditorInput;
 import com.onpositive.musket_core.DataSet;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.generic.widgets.IUIElement;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
-public class DataSetViewer extends EditorPart{
+public class DataSetViewer extends DeprecatableEditorPart{
 
 	private DataSet dataset;
 	private LinkedHashMap<Integer, Image> images;
@@ -69,15 +68,6 @@ public class DataSetViewer extends EditorPart{
 	}
 
 	@Override
-	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		super.setSite(site);
-		super.setInput(input);
-		ObjectEditorInput ed=(ObjectEditorInput) input;
-		this.dataset=(DataSet) ed.getObject();
-		
-	}
-
-	@Override
 	public boolean isDirty() {
 		return false;
 	}
@@ -88,15 +78,77 @@ public class DataSetViewer extends EditorPart{
 	}
 
 	@Override
-	public void createPartControl(Composite parent) {
-		
-		RootElement rl=new RootElement(parent);
+	public void dispose() {
+		images.values().forEach(i->i.dispose());
+		//executor.shutdown();
+		super.dispose();
+		images=null;		
+	}
+	
+	protected void loadImage(GalleryItem item) {
+		Integer idx = (Integer)item.getData();
+		if (images.containsKey(idx)) {
+			item.setImage(images.get(idx));
+		}
+		tasks.offerLast(()->{	
+			try {
+			String s=dataset.item(idx).toString();
+			Object id=dataset.id(idx);
+			if (images!=null) {
+				Image image = new Image(Display.getDefault(),s);
+				images.put(idx, image);
+				
+			}
+			
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					Integer data = (Integer)item.getData();
+					if (images==null) {
+						return;
+					}
+					if (images.containsKey(data)) {
+						item.setImage(images.get(data));
+						item.setText(""+id);
+					}					
+				}
+			});
+			}catch (Throwable e) {
+				e.printStackTrace();
+			}
+		});		
+	}
+
+	@Override
+	public void setFocus() {
+		if (gallery != null) {
+			gallery.setFocus();
+		}
+	}
+	
+	@Override
+	protected void setInput(IEditorInput input) {
+		if (input instanceof ObjectEditorInput) {
+			ObjectEditorInput objectEditorInput = (ObjectEditorInput) input;
+			Object object = objectEditorInput.getObject();
+			if (object instanceof DataSet) {
+				this.dataset=(DataSet) object;
+			}
+		}				
+	}
+
+	@Override
+	protected void createRegularContent(Composite parent) {
+		Composite con = new Composite(parent, SWT.NONE);
+		con.setLayout(new FillLayout());
+		RootElement rl=new RootElement(con);
 		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(dataset,null,null);
 		IUIElement<?> createWidget = widgetObject.createWidget(new Binding(dataset));
 		rl.add((AbstractUIElement<?>) createWidget);
-		parent=(Composite) rl.getElement("inner").getControl();
+		con=(Composite) rl.getElement("inner").getControl();
 		images = new LinkedHashMap<>();
-		gallery = new Gallery(parent, SWT.V_SCROLL | SWT.VIRTUAL);
+		gallery = new Gallery(con, SWT.V_SCROLL | SWT.VIRTUAL);
 		
 		DefaultGalleryGroupRenderer gr = new DefaultGalleryGroupRenderer();
 		gr.setItemSize(356, 356);
@@ -135,54 +187,5 @@ public class DataSetViewer extends EditorPart{
 		
 		gallery.setItemCount(1);
 	}
-	@Override
-	public void dispose() {
-		images.values().forEach(i->i.dispose());
-		//executor.shutdown();
-		super.dispose();
-		images=null;		
-	}
-	
-	protected void loadImage(GalleryItem num) {
-		Integer data = (Integer)num.getData();
-		if (images.containsKey(num)) {
-			num.setImage(images.get(data));
-		}
-		tasks.offerLast(()->{	
-			try {
-			String s=dataset.item(data).toString();
-			Object id=dataset.id(data);
-			if (images!=null) {
-				Image image = new Image(Display.getDefault(),s);
-				images.put(data, image);
-				
-			}
-			
-			Display.getDefault().asyncExec(new Runnable() {
-				
-				@Override
-				public void run() {
-					Integer data = (Integer)num.getData();
-					if (images==null) {
-						return;
-					}
-					if (images.containsKey(data)) {
-						num.setImage(images.get(data));
-						num.setText(""+id);
-					}					
-				}
-			});
-			}catch (Throwable e) {
-				e.printStackTrace();
-			}
-		});		
-	}
-
-	@Override
-	public void setFocus() {
-		
-	}
-	
-	
 
 }

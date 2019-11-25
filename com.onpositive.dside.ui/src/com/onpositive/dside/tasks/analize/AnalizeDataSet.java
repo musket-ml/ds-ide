@@ -5,6 +5,7 @@ import java.io.File;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
@@ -17,6 +18,7 @@ import com.onpositive.dside.dto.GetPossibleAnalisisResult;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.ui.ModelEvaluationSpec;
+import com.onpositive.dside.ui.WorkbenchUIUtils;
 import com.onpositive.dside.ui.datasets.CompareCSVDataSets;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.project.DataProjectAccess;
@@ -29,8 +31,25 @@ import com.onpositive.semantic.model.api.property.java.annotations.Required;
 @Display("dlf/analizePredictions.dlf")
 public class AnalizeDataSet implements IGateWayServerTaskDelegate {
 
+	static ModelEvaluationSpec lastSpec;
+	static String lastDataSet;
+	
 	protected Experiment experiment;
 	protected ModelEvaluationSpec model = new ModelEvaluationSpec(true, true, true);
+	protected boolean debug;
+
+	@RealmProvider(expression = "experiment.DataSets")
+	@Required
+	protected String dataset = "validation";
+	private AnalistsView showView;
+	private GateWayRelatedTask task;
+	public boolean data=false;
+	
+	@Caption("Export to CSV")
+	protected boolean exportToCSV;
+	
+	@Caption("Export Ground Truth to CSV")
+	protected boolean exportGroundTruthToCSV;
 
 	public AnalizeDataSet(Experiment experiment) {
 		super();
@@ -51,24 +70,6 @@ public class AnalizeDataSet implements IGateWayServerTaskDelegate {
 			}
 		}
 	}
-	
-	static ModelEvaluationSpec lastSpec;
-	static String lastDataSet; 
-
-	protected boolean debug;
-
-	@RealmProvider(expression = "experiment.DataSets")
-	@Required
-	protected String dataset = "validation";
-	private AnalistsView showView;
-	private GateWayRelatedTask task;
-	public boolean data=false;
-	
-	@Caption("Export to CSV")
-	protected boolean exportToCSV;
-	
-	@Caption("Export Ground Truth to CSV")
-	protected boolean exportGroundTruthToCSV;
 
 	@Override
 	public void terminated() {
@@ -77,7 +78,10 @@ public class AnalizeDataSet implements IGateWayServerTaskDelegate {
 			@Override
 			public void run() {
 				if (showView!=null) {
-					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().hideView(showView);
+					IWorkbenchPage activePage = WorkbenchUIUtils.getActivePage();
+					if (activePage != null) {
+						activePage.hideView(showView);
+					}
 				}
 			}
 		});
