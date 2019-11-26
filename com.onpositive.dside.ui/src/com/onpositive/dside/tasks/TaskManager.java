@@ -19,14 +19,15 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.ILaunchesListener2;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.python.pydev.debug.core.Constants;
 import org.python.pydev.debug.ui.launching.FileOrResource;
 import org.python.pydev.debug.ui.launching.LaunchShortcut;
 
 import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.IHasName;
+import com.onpositive.dside.ui.WorkbenchUIUtils;
 import com.onpositive.yamledit.io.YamlIO;
 
 public class TaskManager {
@@ -120,11 +121,13 @@ public class TaskManager {
 	public static void perform(IServerTask<?> task) {
 		task.beforeStart();
 		String dump = YamlIO.dump(task);
-		try {
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("org.eclipse.ui.console.ConsoleView");
-		} catch (PartInitException e1) {
-			DSIDEUIPlugin.log(e1);
-		}
+		Display.getDefault().asyncExec(() -> {
+			try {
+				WorkbenchUIUtils.getActivePage().showView("org.eclipse.ui.console.ConsoleView");
+			} catch (PartInitException e1) {
+				DSIDEUIPlugin.log(e1);
+			}
+		});
 		
 
 		try {

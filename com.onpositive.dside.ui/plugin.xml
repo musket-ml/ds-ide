@@ -186,7 +186,14 @@
             default="false"
             icon="icons/swatches.png"
             id="com.onpositive.dside.ui.editors.augmentation"
-            name="Augmentation Preview">
+            name="Augmentations Overview">
+      </editor>
+      <editor
+            class="com.onpositive.dside.ui.editors.preview.AugmentationsPreviewEditorPart"
+            default="false"
+            icon="icons/swatches.png"
+            id="com.onpositive.dside.ui.editors.augmentation.preview"
+            name="Augmentations Overview">
       </editor>
    </extension>
    <extension
