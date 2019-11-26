@@ -25,7 +25,7 @@ public class MultiClassInstanceSegmentationItem extends MultiClassSegmentationIt
 			}
 			catch (Exception e) {}
 		}
-        return !focus || ownerClasses.contains(m.clazz());
+        return !focus || ownerClasses.contains(""+m.clazz());
 	}
 
 }

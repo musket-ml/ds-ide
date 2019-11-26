@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -37,6 +39,8 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	public static final String CLASS_VISIBILITY_OPTIONS = "Visible Classes";
 	
 	private DataSetSpec spec;
+	
+	private IDataSet parent;
 	
 	public DataSetSpec getSpec() {
 		return spec;
@@ -248,6 +252,27 @@ public class GenericDataSet implements IDataSet,ICSVOVerlay,IPythonStringGenerat
 	@Override
 	public Map<String, Object> getSettings() {
 		return settings;
+	}
+
+	public IDataSet getParent() {
+		return parent;
+	}
+
+	public void setParent(IDataSet parent) {
+		this.parent = parent;
+	}
+	
+	public IDataSet getRoot() {
+		IDataSet result = this;
+		IDataSet p = this.getParent();
+		Set<IDataSet> s = Collections.newSetFromMap(new IdentityHashMap<>());
+		s.add(this);
+		while(p!=null && !s.contains(p)) {
+			s.add(p);
+			result = p;
+			p = p.getParent();
+		}
+		return result;
 	}
 	
 }

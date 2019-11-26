@@ -1,0 +1,25 @@
+<composite-editor
+	xmlns="http://jetface.org/JetFace1.0/" hint="300,600"
+	caption="Class visualization"
+	description="You may configure per class visualization options here">
+	<model
+		class="com.onpositive.musket.data.text.ClassVisibilityOptions2" />
+	<table bindTo="settings"  hint="300,300" enableDirectEdit="true" initialSortExpression="$.name" bindSelectionTo="selection">
+		<columns>
+			<column id="name" caption="Class" resizeWeight="3" editable="false"/>			
+			<column id="RGB" caption="Color" resizeWeight="1"
+			
+			  
+			 imageFromBase="true" imageProvider="com.onpositive.musket.data.text.ClassColorLabelProvider" />
+			<column id="show" caption="Show" resizeWeight="1"/>
+			
+		</columns>
+	</table>
+	<hc>
+		<button caption="Show all" bindTo="showAll" />
+		<button caption="Hide all" bindTo="hideAll" />
+		<button caption="Show selected" bindTo="showSelected" />
+		<button caption="Hide selected" bindTo="hideSelected" />
+	</hc>
+	<checkbox caption="Show labels in text" bindTo="showInText"/>
+</composite-editor>

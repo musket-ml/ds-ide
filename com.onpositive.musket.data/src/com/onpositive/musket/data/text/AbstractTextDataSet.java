@@ -3,9 +3,11 @@ package com.onpositive.musket.data.text;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
@@ -28,6 +30,7 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 	
 	protected LabelsSet labels;
 	protected static String TEXT_COLUMN="TEXT_COLUMN";
+	private IDataSet parent;
 	
 	protected static String CLAZZ_COLUMNS="CLAZZ_COLUMNS";
 
@@ -203,4 +206,25 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 	public abstract boolean isPositive(TextItem textItem);
 
 	public abstract Object binaryLabel(TextItem textItem);
+
+	public IDataSet getParent() {
+		return parent;
+	}
+
+	public void setParent(IDataSet parent) {
+		this.parent = parent;
+	}
+	
+	public IDataSet getRoot() {
+		IDataSet result = this;
+		IDataSet p = this.getParent();
+		Set<IDataSet> s = Collections.newSetFromMap(new IdentityHashMap<>());
+		s.add(this);
+		while(p!=null && !s.contains(p)) {
+			s.add(p);
+			result = p;
+			p = p.getParent();
+		}
+		return result;
+	}
 }

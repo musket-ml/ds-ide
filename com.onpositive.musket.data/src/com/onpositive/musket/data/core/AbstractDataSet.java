@@ -2,10 +2,14 @@ package com.onpositive.musket.data.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.filters.FilterRegistry;
@@ -17,6 +21,8 @@ public abstract class AbstractDataSet<T extends IItem> implements IDataSet, Clon
 	protected List<T> items;
 	
 	protected String name = "";
+	
+	private IDataSet parent;
 
 	public <T> T as(Class<T> z) {
 		return z.cast(this);
@@ -84,5 +90,26 @@ public abstract class AbstractDataSet<T extends IItem> implements IDataSet, Clon
 
 	public IDataSet withPredictions(File f2) {
 		return withPredictions(DataSetIO.load("file://" + f2.getAbsolutePath(),getEncoding()).as(ITabularDataSet.class));
+	}
+
+	public IDataSet getParent() {
+		return parent;
+	}
+
+	public void setParent(IDataSet parent) {
+		this.parent = parent;
+	}
+	
+	public IDataSet getRoot() {
+		IDataSet result = this;
+		IDataSet p = this.getParent();
+		Set<IDataSet> s = Collections.newSetFromMap(new IdentityHashMap<>());
+		s.add(this);
+		while(p!=null && !s.contains(p)) {
+			s.add(p);
+			result = p;
+			p = p.getParent();
+		}
+		return result;
 	}
 }

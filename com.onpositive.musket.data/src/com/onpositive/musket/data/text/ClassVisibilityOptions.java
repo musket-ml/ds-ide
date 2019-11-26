@@ -182,4 +182,13 @@ public class ClassVisibilityOptions {
 		}
 		return null;		
 	}
+	
+	public boolean isVisible(String string) {
+		for (ClassVisibilitySetting s:this.settings) {
+			if (s.name.equals(string)) {
+				return s.show;
+			}
+		}
+		return true;		
+	}
 }

@@ -2,11 +2,14 @@ package com.onpositive.musket.data.images;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.actions.BasicDataSetActions;
@@ -31,6 +34,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	protected ITabularDataSet tabularBase;
 	protected IColumn imageColumn;
 	protected ImageRepresenter representer;
+	private IDataSet parent;
 	public ImageRepresenter getRepresenter() {
 		return representer;
 	}
@@ -109,6 +113,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 				}).collect(Collectors.toList());				
 			rs.items = (ArrayList) cloned;			
 			rs.name = string;
+			rs.setParent(this);
 			return rs;
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -186,5 +191,26 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	@Override
 	public String getImportString() {
 		return "from musket_core import image_datasets,datasets";
+	}
+
+	public IDataSet getParent() {
+		return parent;
+	}
+
+	public void setParent(IDataSet parent) {
+		this.parent = parent;
+	}
+	
+	public IDataSet getRoot() {
+		IDataSet result = this;
+		IDataSet p = this.getParent();
+		Set<IDataSet> s = Collections.newSetFromMap(new IdentityHashMap<>());
+		s.add(this);
+		while(p!=null && !s.contains(p)) {
+			s.add(p);
+			result = p;
+			p = p.getParent();
+		}
+		return result;
 	}
 }

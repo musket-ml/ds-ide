@@ -15,6 +15,9 @@ import java.util.Set;
 import com.onpositive.musket.data.core.AbstractItem;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
+import com.onpositive.musket.data.text.ClassVisibilityOptions;
+import com.onpositive.musket.data.text.ClassVisibilityOptions2;
+import com.onpositive.musket.data.text.IHasClassGroups;
 
 public class MultiClassSegmentationItem extends AbstractItem<MultiClassSegmentationDataSet> implements ISegmentationItem,IBinarySegmentationItem,IMultiClassSegmentationItem{
 	
@@ -76,10 +79,16 @@ public class MultiClassSegmentationItem extends AbstractItem<MultiClassSegmentat
 			}
 			catch(Exception e) {}
 		}
+		Object coloursStr = owner.getSettings().get(MultiClassInstanceSegmentationDataSet.CLASSES_COLOURS);
+		ClassVisibilityOptions2 colorOpts = new ClassVisibilityOptions2(coloursStr.toString(),(IHasClassGroups) this.owner.getRoot());
 		for (IMask m:getMasks()) {
 			if(fits(m, ownerClasses)) {
-				m.drawOn(image, rgbs[a % rgbs.length], alpha);
-				a++;
+				if(colorOpts.isVisible(m.clazz())) {
+					Color color = colorOpts.getColor(m.clazz());
+					int colorInt = color.getRGB();
+					m.drawOn(image, colorInt, alpha);
+					a++;
+				}
 			}
 		}
 	}

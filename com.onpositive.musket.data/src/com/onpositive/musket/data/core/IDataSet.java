@@ -94,4 +94,9 @@ public interface IDataSet extends Iterable<IItem>{
 		}
 		return "UTF-8";
 	}
+	
+	IDataSet getParent();
+	
+	IDataSet getRoot();
+	
 }

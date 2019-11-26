@@ -33,6 +33,7 @@ import com.onpositive.musket.data.generic.Columns;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.text.ClassVisibilityOptions;
+import com.onpositive.musket.data.text.ClassVisibilityOptions2;
 import com.onpositive.musket.data.text.IHasClassGroups;
 import com.onpositive.semantic.model.api.meta.BaseMeta;
 import com.onpositive.semantic.model.api.meta.DefaultMetaKeys;
@@ -275,6 +276,31 @@ public class DynamicUI {
 			bs.getLayoutHints().setGrabHorizontal(true);
 			bs.getLayoutHints().setAlignmentHorizontal(Alignment.FILL);
 			bs.setCaption("Visible Classes...");
+			cm.add(bs);
+		}else if (type.equals("ClassVisibilityOptions2")) {
+			ButtonSelector bs=new ButtonSelector();
+			bs.addListener(SWT.Selection, new SWTEventListener<Button>() {
+				
+				@Override
+				public void handleEvent(AbstractUIElement<Button> arg0, Event arg1) {
+					AnalizerOrVisualizerUI b=(AnalizerOrVisualizerUI) (DynamicUI.this);					
+					Object value = binding.getValue();
+					if (value==null) {
+						value="";
+					}
+					ClassVisibilityOptions2 options=new ClassVisibilityOptions2(value.toString(),(IHasClassGroups) b.getDataSet());
+					boolean createObject = WidgetRegistry.createObject(options);
+					
+					if (createObject) {
+						binding.setValue(options.toString());
+						onUpdate();
+					}
+					
+				}
+			});
+			bs.getLayoutHints().setGrabHorizontal(true);
+			bs.getLayoutHints().setAlignmentHorizontal(Alignment.FILL);
+			bs.setCaption("Classes Colors...");
 			cm.add(bs);
 		}
 		else if (type.equals("columns")) {

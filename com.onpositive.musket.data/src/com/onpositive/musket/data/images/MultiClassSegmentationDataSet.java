@@ -2,6 +2,7 @@ package com.onpositive.musket.data.images;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -22,15 +23,18 @@ import com.onpositive.musket.data.table.IHasLabels;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageRepresenter;
+import com.onpositive.musket.data.text.ClassVisibilityOptions2;
+import com.onpositive.musket.data.text.IHasClassGroups;
 
 public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImageItem>
-		implements IMultiClassSegmentationDataSet,IBinarySegmentationDataSet ,IHasLabels{
+		implements IMultiClassSegmentationDataSet,IBinarySegmentationDataSet ,IHasLabels, IHasClassGroups {
 
 	public static final String CLAZZ_COLUMN = "CLAZZ_COLUMN";
 	protected IColumn clazzColumn;
 	protected List<Object> classes;
 	
 	public static String FOCUS_ON_TARGET_CLASS = "Focus on target class";
+	public static String CLASSES_COLOURS = "Classes colours";
 	public static boolean FOCUS_ON_TARGET_CLASS_DEFAULT = true;
 	
 	{
@@ -152,13 +156,18 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 						rs.add(nk);
 					}
 				} else {
-
-					Parameter nk = new Parameter();
-					nk.defaultValue = parameters.get(MASK_COLOR).toString();
-					nk.type = Color.class;
-					nk.name = MASK_COLOR;
-					rs.add(nk);
+					
+					Parameter parameter2 = new Parameter();
+					parameter2.name=CLASSES_COLOURS;
+					Object object = MultiClassSegmentationDataSet.this.getSettings().get(CLASSES_COLOURS);
+					if (object==null) {
+						object="";
+					}
+					parameter2.defaultValue=object.toString();
+					parameter2.type=ClassVisibilityOptions2.class;
+					rs.add(parameter2);
 				}
+				
 				Parameter focus = new Parameter();
 				focus.defaultValue = parameters.get(FOCUS_ON_TARGET_CLASS).toString();
 				focus.type = boolean.class;
@@ -248,5 +257,10 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	public void setClasses(List<Object> asList) {
 		this.classes=asList;
+	}
+
+	@Override
+	public ArrayList<LinkedHashSet<String>> classGroups() {
+		return new ArrayList<>(this.classes.stream().map(x->new LinkedHashSet<String>(Arrays.asList(new String[] {x.toString()}))).collect(Collectors.toList()));
 	}
 }
