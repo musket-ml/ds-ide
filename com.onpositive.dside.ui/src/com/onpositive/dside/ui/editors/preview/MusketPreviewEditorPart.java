@@ -6,14 +6,12 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 
 import com.onpositive.dside.tasks.DebounceExecutor;
@@ -26,6 +24,8 @@ import de.jcup.yamleditor.YamlEditor;
 
 public abstract class MusketPreviewEditorPart extends YamlEditor {
 	
+	private static final String EDITOR_CONTEXT = "com.onpositive.dside.ui.editors.preview.context";
+
 	private IPreviewEditDelegate previewDelegate;
 	
 	private DebounceExecutor debounceExecutor = new DebounceExecutor();
@@ -46,7 +46,7 @@ public abstract class MusketPreviewEditorPart extends YamlEditor {
 			});
 		}
 	}
-
+	
 	protected abstract void createPreviewControl(Composite parent);
 
 	@Override
@@ -85,12 +85,28 @@ public abstract class MusketPreviewEditorPart extends YamlEditor {
 	}
 	
 	@Override
+	protected void initializeEditor() {
+		super.initializeEditor();
+		setEditorContextMenuId(EDITOR_CONTEXT);
+		setRulerContextMenuId(EDITOR_CONTEXT);
+	}
+
+	protected void activateYamlEditorContext() {
+		IContextService contextService = getSite().getService(IContextService.class);
+		if (contextService != null) {
+			contextService.activateContext(EDITOR_CONTEXT);
+		}
+	}
+	
+	@Override
 	protected boolean containsSavedState(IMemento memento) {
 		return false; //Avoid NPE while trying to restore
 	}
 
 	protected void handleError(Throwable exception) {
-		ErrorDialog.openError(getSite().getShell(), "Error refreshing preview", "Exception occured while processing request", new Status(IStatus.ERROR,DSIDEUIPlugin.PLUGIN_ID, "Exception", exception));
+//		Display.getDefault().asyncExec(() -> {
+//			ErrorDialog.openError(getSite().getShell(), "Error refreshing preview", "Exception occured while processing request", new Status(IStatus.ERROR,DSIDEUIPlugin.PLUGIN_ID, "Exception", exception));
+//		});
 	}
 
 	protected abstract void doRefreshPreview(IAnalizeResults results);

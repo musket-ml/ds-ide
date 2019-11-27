@@ -41,18 +41,17 @@ import org.eclipse.swt.graphics.Point;
 import com.onpositive.commons.SWTImageManager;
 import com.onpositive.dside.ui.editors.outline.OutlineLabelProvider;
 import com.onpositive.yamledit.ast.CompletionContext;
-import com.onpositive.yamledit.ast.TypeRegistryProvider;
 import com.onpositive.yamledit.ast.Universe.CompletionSuggestions;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
 
 import de.jcup.yamleditor.YamlEditorUtil;
 
-public class YamlEditorSimpleWordContentAssistProcessor implements IContentAssistProcessor, ICompletionListener {
+public class ExperimentConfigContentAssistProcessor implements IContentAssistProcessor, ICompletionListener {
 
 	private String errorMessage;
 	ExperimentMultiPageEditor editor;
 
-	public YamlEditorSimpleWordContentAssistProcessor(ExperimentMultiPageEditor editor) {
+	public ExperimentConfigContentAssistProcessor(ExperimentMultiPageEditor editor) {
 		super();
 		this.editor = editor;
 	}

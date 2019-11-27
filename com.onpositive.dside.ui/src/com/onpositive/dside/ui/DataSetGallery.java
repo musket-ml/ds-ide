@@ -206,12 +206,12 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 
 	
 
-	protected void loadImage(GalleryItem num) {
-		Integer data = (Integer) num.getData();
-		IDataSet ds = (IDataSet) num.getParentItem().getData();
+	protected void loadImage(GalleryItem galleryItem) {
+		Integer data = (Integer) galleryItem.getData();
+		IDataSet ds = (IDataSet) galleryItem.getParentItem().getData();
 		It key = new It(data, ds);
 		if (images.containsKey(key)) {
-			num.setImage(images.get(key));
+			galleryItem.setImage(images.get(key));
 		}
 		tasks.offerLast(() -> {
 			try {
@@ -245,15 +245,15 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 
 					@Override
 					public void run() {
-						Integer data = (Integer) num.getData();
-						IDataSet ds = (IDataSet) num.getParentItem().getData();
+						Integer data = (Integer) galleryItem.getData();
+						IDataSet ds = (IDataSet) galleryItem.getParentItem().getData();
 						It key = new It(data, ds);
 						if (images == null) {
 							return;
 						}
 						if (images.containsKey(key)) {
-							num.setImage(images.get(key));
-							num.setText(lid);
+							galleryItem.setImage(images.get(key));
+							galleryItem.setText(lid);
 						}
 					}
 				});

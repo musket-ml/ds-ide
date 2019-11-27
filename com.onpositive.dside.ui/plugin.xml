@@ -189,7 +189,7 @@
             name="Augmentations Overview">
       </editor>
       <editor
-            class="com.onpositive.dside.ui.editors.preview.AugmentationsPreviewEditorPart"
+            class="com.onpositive.dside.ui.editors.preview.augmentation.AugmentationsPreviewEditorPart"
             default="false"
             icon="icons/swatches.png"
             id="com.onpositive.dside.ui.editors.augmentation.preview"
@@ -875,5 +875,14 @@
             class="com.onpositive.dside.ui.editors.ObjectEditorInputFactory"
             id="com.onpositive.dside.ui.editors.ObjectEditorInputFactory">
       </factory>
-   </extension>     
+   </extension> 
+   <!-- Context for Yaml-based preview                                     -->
+   <extension point="org.eclipse.ui.contexts">
+	  <context
+	        name="Yaml context"
+	        description="Editing Yaml files"
+	        parentId="org.eclipse.ui.textEditorScope"
+	        id="com.onpositive.dside.ui.editors.preview.context">
+	  </context>
+   </extension>    
 </plugin>

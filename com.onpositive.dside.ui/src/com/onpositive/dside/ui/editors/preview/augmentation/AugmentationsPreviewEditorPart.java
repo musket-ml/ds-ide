@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui.editors.preview;
+package com.onpositive.dside.ui.editors.preview.augmentation;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Label;
 
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
 import com.onpositive.dside.ui.StandaloneDataSetGallery;
+import com.onpositive.dside.ui.editors.preview.MusketPreviewEditorPart;
 
 public class AugmentationsPreviewEditorPart extends MusketPreviewEditorPart {
 	
@@ -16,6 +17,10 @@ public class AugmentationsPreviewEditorPart extends MusketPreviewEditorPart {
 	private StandaloneDataSetGallery dataSetGallery;
 	private Composite hostComposite;
 
+	public AugmentationsPreviewEditorPart() {
+		setSourceViewerConfiguration(new AugmentationsSourceViewerConfiguration(this));
+	}
+	
 	@Override
 	protected void createPreviewControl(Composite parent) {
 		hostComposite = new Composite(parent, SWT.NONE);

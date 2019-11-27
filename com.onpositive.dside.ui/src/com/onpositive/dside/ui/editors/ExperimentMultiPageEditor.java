@@ -174,7 +174,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			editor.setSourceViewerConfiguration(new YamlSourceViewerConfiguration(editor) {
 
 				protected IContentAssistProcessor createContentAssistProcessor() {
-					return new YamlEditorSimpleWordContentAssistProcessor(ExperimentMultiPageEditor.this);
+					return new ExperimentConfigContentAssistProcessor(ExperimentMultiPageEditor.this);
 				}
 
 				@Override

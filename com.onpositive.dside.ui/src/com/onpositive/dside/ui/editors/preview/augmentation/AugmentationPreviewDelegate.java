@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui.editors.preview;
+package com.onpositive.dside.ui.editors.preview.augmentation;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -10,6 +10,7 @@ import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
+import com.onpositive.dside.ui.editors.preview.IPreviewEditDelegate;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.yamledit.io.YamlIO;
 
@@ -111,7 +112,13 @@ public class AugmentationPreviewDelegate implements IPreviewEditDelegate {
 				});
 		gateWayRelatedTask.setDebug(debug); 
 		TaskManager.perform(gateWayRelatedTask);
+	}
 
+	@Override
+	public void save() {
+		// TODO 1) Try finding editor for input file and fixing it's content 2) Fix file directly
+		//Don't forget to check whether original text was also changed
+		
 	}
 
 }

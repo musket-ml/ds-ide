@@ -669,7 +669,7 @@ public class YamlEditor extends TextEditor implements StatusMessageSupport, IRes
 		setRulerContextMenuId(EDITOR_RULER_CONTEXT_MENU_ID);
 	}
 
-	private void activateYamlEditorContext() {
+	protected void activateYamlEditorContext() {
 		IContextService contextService = getSite().getService(IContextService.class);
 		if (contextService != null) {
 			contextService.activateContext(EDITOR_CONTEXT_MENU_ID);

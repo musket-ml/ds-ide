@@ -16,4 +16,9 @@ public interface IPreviewEditDelegate {
 	
 	void refreshPreview(Consumer<IAnalizeResults> onSuccess, Consumer<Throwable> onFail);
 	
+	/**
+	 * Save modified text back, e.g. to original editor
+	 */
+	void save();
+	
 }
