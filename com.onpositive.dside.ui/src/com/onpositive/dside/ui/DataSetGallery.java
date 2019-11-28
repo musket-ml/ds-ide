@@ -31,6 +31,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.onpositive.dside.tasks.analize.IAnalizeResults;
 import com.onpositive.musket_core.IDataSet;
 import com.onpositive.semantic.ui.core.Alignment;
 import com.onpositive.semantic.ui.core.Point;
@@ -275,6 +276,14 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 			return control;
 		}
 		return gallery;
+	}
+	
+	@Override
+	public void setInput(IAnalizeResults input) {
+		super.setInput(input);
+		if (gallery != null && !gallery.isDisposed()) {
+			gallery.clearAll(true);
+		}
 	}
 
 }

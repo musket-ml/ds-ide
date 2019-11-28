@@ -31,11 +31,15 @@ public class AugmentationsPreviewEditorPart extends MusketPreviewEditorPart {
 
 	@Override
 	protected void doRefreshPreview(IAnalizeResults results) {
-		for (Control child : hostComposite.getChildren()) {
-			child.dispose();
+		if (dataSetGallery == null) {
+			for (Control child : hostComposite.getChildren()) {
+				child.dispose();
+			}
+			dataSetGallery = new StandaloneDataSetGallery(hostComposite, results);
+			hostComposite.getParent().layout(true, true);
+		} else {
+			dataSetGallery.setInput(results);
 		}
-		dataSetGallery = new StandaloneDataSetGallery(hostComposite, results);
-		hostComposite.getParent().layout(true, true);
 	}
 
 }

@@ -40,6 +40,7 @@ public class AugmentationPreviewDelegate implements IPreviewEditDelegate {
 	private String selectedDataset;
 	private String currentText;
 	private boolean debug;
+	private GateWayRelatedTask gateWayRelatedTask;
 
 	
 	public AugmentationPreviewDelegate(Experiment experiment, String yamlText, IFile inputFile, String selectedDataset, boolean debug) {
@@ -133,28 +134,40 @@ public class AugmentationPreviewDelegate implements IPreviewEditDelegate {
 		ImageDataSetAugmentRequest data = new ImageDataSetAugmentRequest(experiment.createModelSpec(),
 				selectedDataset, experiment.getPath().toOSString(), currentText);
 
+		callTask(onSuccess, onFail, data);
+	}
 
-		GateWayRelatedTask gateWayRelatedTask = new GateWayRelatedTask(
-				inputFile.getProject(), new IGateWayServerTaskDelegate() {
-
-					@Override
-					public void terminated() {
-						// TODO Auto-generated method stub
-
-					}
-
-					@Override
-					public void started(GateWayRelatedTask task) {
-
-						task.perform(data, IAnalizeResults.class, (r) -> {
-							onSuccess.accept(r);
-						}, (e) -> {
-							onFail.accept(e);
-						});
-					}
-				});
-		gateWayRelatedTask.setDebug(debug); 
-		TaskManager.perform(gateWayRelatedTask);
+	private synchronized void callTask(Consumer<IAnalizeResults> onSuccess, Consumer<Throwable> onFail,
+			ImageDataSetAugmentRequest data) {
+		if (gateWayRelatedTask == null) {
+			gateWayRelatedTask = new GateWayRelatedTask(
+					inputFile.getProject(), new IGateWayServerTaskDelegate() {
+						
+						@Override
+						public void terminated() {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void started(GateWayRelatedTask task) {
+							
+							task.perform(data, IAnalizeResults.class, (r) -> {
+								onSuccess.accept(r);
+							}, (e) -> {
+								onFail.accept(e);
+							});
+						}
+					});
+			gateWayRelatedTask.setDebug(debug); 
+			TaskManager.perform(gateWayRelatedTask);
+		} else {
+			gateWayRelatedTask.perform(data, IAnalizeResults.class, (r) -> {
+				onSuccess.accept(r);
+			}, (e) -> {
+				onFail.accept(e);
+			});
+		}
 	}
 
 	@Override
