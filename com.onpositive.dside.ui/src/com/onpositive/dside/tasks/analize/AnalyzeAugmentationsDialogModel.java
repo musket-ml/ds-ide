@@ -5,7 +5,7 @@ import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
 
-@Display("dlf/analizeData.dlf")
+@Display("dlf/analyzeAugmentations.dlf")
 public class AnalyzeAugmentationsDialogModel {
 	
 	protected Experiment experiment;
