@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Composite;
@@ -48,6 +49,12 @@ public abstract class MusketPreviewEditorPart extends YamlEditor {
 	}
 	
 	protected abstract void createPreviewControl(Composite parent);
+	
+	@Override
+	public void doSave(IProgressMonitor progressMonitor) {
+		super.doSave(progressMonitor); //We leave default behaviour to avoid inconsistency in editor/file state
+		previewDelegate.save();
+	}
 
 	@Override
 	protected void doSetInput(IEditorInput input) throws CoreException {
@@ -56,7 +63,7 @@ public abstract class MusketPreviewEditorPart extends YamlEditor {
 				previewDelegate = (IPreviewEditDelegate) ((ObjectEditorInput) input).getObject();
 				try {
 					File tempFile = File.createTempFile("preview", ".yaml");
-					FileUtils.writeStringToFile(tempFile, previewDelegate.getInitialText());
+					FileUtils.writeStringToFile(tempFile, previewDelegate.getText());
 					super.doSetInput(new FileStoreEditorInput(EFS.getStore(tempFile.toURI())));
 				} catch (IOException e) {
 					DSIDEUIPlugin.log(e);

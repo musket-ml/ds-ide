@@ -48,6 +48,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.python.pydev.editor.hover.AbstractPyEditorTextHover;
 
@@ -328,6 +329,9 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			return null;
 		}
 		if (YamlEditor.class.equals(adapter)) {
+			return (T) editor;
+		}
+		if (ITextEditor.class.equals(adapter)) {
 			return (T) editor;
 		}
 //		if (ISourceViewer.class.equals(adapter)) {

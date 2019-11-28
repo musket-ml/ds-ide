@@ -14,6 +14,7 @@ import com.onpositive.dside.ui.editors.preview.Suggestion;
 
 public class AugmentationsEditorSuggestionsComputer extends AbstractSuggestionsComputer {
 	
+	private static final String POSTFIX = ":";
 	private List<Suggestion> suggestionsList;
 
 	private List<Suggestion> loadSuggestions() {
@@ -27,7 +28,7 @@ public class AugmentationsEditorSuggestionsComputer extends AbstractSuggestionsC
 					String title = parts[0];
 					int idx = parts[0].indexOf('(');
 					String text = idx > 0 ? parts[0].substring(0, idx).trim() : parts[0];
-					suggestionsList.add(new Suggestion(text.trim(), title.trim(), parts[1].trim()));
+					suggestionsList.add(new Suggestion(text.trim() + POSTFIX, title.trim(), parts[1].trim()));
 				} else {
 					DSIDEUIPlugin.log("Ivalid augmenter description line: " + line);
 				}

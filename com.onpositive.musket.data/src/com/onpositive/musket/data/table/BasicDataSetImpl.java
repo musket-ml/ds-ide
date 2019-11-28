@@ -144,7 +144,7 @@ public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 
 	@Override
 	public ITabularDataSet mergeBy(IColumn cln) {
-		LinkedHashMap<Object, ArrayList<ITabularItem>> ids =new LinkedHashMap<Object, ArrayList<ITabularItem>>();
+		LinkedHashMap<Object, ArrayList<ITabularItem>> ids = new LinkedHashMap<Object, ArrayList<ITabularItem>>();
 		this.items.forEach(i->{
 			Object value = cln.getValue(i);
 			ArrayList<ITabularItem> arrayList = ids.get(value);
@@ -254,6 +254,18 @@ public class BasicDataSetImpl implements ITabularDataSet,Cloneable{
 			}
 		});
 		return (ITabularDataSet) this.subDataSet("", bi);
+	}
+
+	@Override
+	public IDataSet getParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IDataSet getRoot() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
