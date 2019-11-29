@@ -19,17 +19,25 @@ import com.onpositive.dside.tasks.DebounceExecutor;
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
 import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.editors.DeprecatedControl;
+import com.onpositive.dside.ui.editors.IExperimentConfigEditor;
 import com.onpositive.dside.ui.editors.ObjectEditorInput;
+import com.onpositive.musket_core.Experiment;
+import com.onpositive.musket_core.ProjectManager;
+import com.onpositive.musket_core.ProjectWrapper;
+import com.onpositive.yamledit.ast.TypeRegistryProvider;
+import com.onpositive.yamledit.ast.Universe;
 
 import de.jcup.yamleditor.YamlEditor;
 
-public abstract class MusketPreviewEditorPart extends YamlEditor {
+public abstract class MusketPreviewEditorPart extends YamlEditor implements IExperimentConfigEditor {
 	
 	private static final String EDITOR_CONTEXT = "com.onpositive.dside.ui.editors.preview.context";
 
-	private IPreviewEditDelegate previewDelegate;
+	private IExperimentPreviewEditDelegate previewDelegate;
 	
 	private DebounceExecutor debounceExecutor = new DebounceExecutor();
+	
+	private Experiment experiment;
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -60,7 +68,8 @@ public abstract class MusketPreviewEditorPart extends YamlEditor {
 	protected void doSetInput(IEditorInput input) throws CoreException {
 		if (input instanceof ObjectEditorInput) {
 			if (((ObjectEditorInput) input).getObject() != null) {	
-				previewDelegate = (IPreviewEditDelegate) ((ObjectEditorInput) input).getObject();
+				previewDelegate = (IExperimentPreviewEditDelegate) ((ObjectEditorInput) input).getObject();
+				experiment = previewDelegate.getExperiment();
 				try {
 					File tempFile = File.createTempFile("preview", ".yaml");
 					FileUtils.writeStringToFile(tempFile, previewDelegate.getText());
@@ -74,11 +83,6 @@ public abstract class MusketPreviewEditorPart extends YamlEditor {
 		} else { 
 			super.doSetInput(input);
 		}
-	}
-	
-	@Override
-	public String getPartName() {
-		return "Augmentations preview";
 	}
 	
 	public void updatePreview() {
@@ -117,5 +121,22 @@ public abstract class MusketPreviewEditorPart extends YamlEditor {
 	}
 
 	protected abstract void doRefreshPreview(IAnalizeResults results);
+	
+	@Override
+	public ProjectWrapper getProject() {
+		return ProjectManager.getInstance().getProject(experiment);
+	}
+
+	@Override
+	public Universe getRegistry() {
+		Universe registry = TypeRegistryProvider.getRegistry("basicConfig");
+		registry.setProjectContext(getProject().getProjectContext());
+		return registry;
+	}
+	
+	@Override
+	public Experiment getExperiment() {
+		return experiment;
+	}
 
 }

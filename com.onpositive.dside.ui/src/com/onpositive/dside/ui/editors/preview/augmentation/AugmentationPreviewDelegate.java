@@ -26,11 +26,11 @@ import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
 import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.WorkbenchUIUtils;
-import com.onpositive.dside.ui.editors.preview.IPreviewEditDelegate;
+import com.onpositive.dside.ui.editors.preview.IExperimentPreviewEditDelegate;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.yamledit.io.YamlIO;
 
-public class AugmentationPreviewDelegate implements IPreviewEditDelegate {
+public class AugmentationPreviewDelegate implements IExperimentPreviewEditDelegate {
 	
 	private static final String AUGMENTATION_PREFFIX = "augmentation:";
 	private String initialText;
@@ -228,4 +228,11 @@ public class AugmentationPreviewDelegate implements IPreviewEditDelegate {
 	    return s.substring(i);
 	}
 
+	@Override
+	public Experiment getExperiment() {
+		return experiment;
+	}
+
+	
+	
 }

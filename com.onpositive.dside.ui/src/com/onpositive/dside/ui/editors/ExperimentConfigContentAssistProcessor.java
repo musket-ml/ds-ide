@@ -15,7 +15,6 @@
  */
 package com.onpositive.dside.ui.editors;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,9 +48,9 @@ import de.jcup.yamleditor.YamlEditorUtil;
 public class ExperimentConfigContentAssistProcessor implements IContentAssistProcessor, ICompletionListener {
 
 	private String errorMessage;
-	ExperimentMultiPageEditor editor;
+	IExperimentConfigEditor editor;
 
-	public ExperimentConfigContentAssistProcessor(ExperimentMultiPageEditor editor) {
+	public ExperimentConfigContentAssistProcessor(IExperimentConfigEditor editor) {
 		super();
 		this.editor = editor;
 	}
@@ -72,7 +71,7 @@ public class ExperimentConfigContentAssistProcessor implements IContentAssistPro
 			extractFragment=null;
 		}
 		CompletionSuggestions suggestions = editor.getRegistry().find(completionContext,
-				editor.getProject().getDetails(),editor.getAdapter(File.class));
+				editor.getProject().getDetails(),editor.getExperiment().getPath().toFile());
 		LinkedHashSet<String> strs = new LinkedHashSet<>();
 		ArrayList<ICompletionProposal> proposals = new ArrayList<>();
 		if (suggestions != null) {

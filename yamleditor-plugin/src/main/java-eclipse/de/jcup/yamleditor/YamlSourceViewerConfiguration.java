@@ -92,7 +92,7 @@ public class YamlSourceViewerConfiguration extends TextSourceViewerConfiguration
 		
 		this.contentAssistant = new ContentAssistant();
 		this.contentAssistant.setInformationControlCreator(new PyInformationControlCreator());
-		contentAssistProcessor = createContentAssistProcessor();
+		contentAssistProcessor = createContentAssistProcessor(adaptable);
 		contentAssistant.enableColoredLabels(true);
 		
 		contentAssistant.setContentAssistProcessor(contentAssistProcessor, IDocument.DEFAULT_CONTENT_TYPE);
@@ -108,7 +108,7 @@ public class YamlSourceViewerConfiguration extends TextSourceViewerConfiguration
 				colorManager.getColor(getPreferences().getColor(COLOR_NORMAL_TEXT)));
 		this.adaptable=adaptable;
 	}
-	protected IContentAssistProcessor createContentAssistProcessor() {
+	protected IContentAssistProcessor createContentAssistProcessor(IAdaptable adaptable) {
 		return new YamlEditorSimpleWordContentAssistProcessor();
 	}
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {

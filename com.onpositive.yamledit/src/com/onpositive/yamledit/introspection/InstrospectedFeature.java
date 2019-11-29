@@ -4,74 +4,34 @@ import java.util.ArrayList;
 
 public class InstrospectedFeature {
 
-	public String getName() {
-		return name;
-	}
+	boolean custom;
 
-	public void setName(String name) {
-		this.name = name;
+	String doc;
+
+	String kind;
+
+	String name;
+
+	ArrayList<IntrospectedParameter>parameters=new ArrayList<>();
+
+	String source;
+
+	String sourcefile;
+
+	String viewer;
+
+	public String getDoc() {
+		return doc;
 	}
 
 	public String getKind() {
 		return kind;
 	}
 
-	public void setKind(String kind) {
-		this.kind = kind;
+	public String getName() {
+		return name;
 	}
 
-	public String getSourcefile() {
-		return sourcefile;
-	}
-
-	public void setSourcefile(String sourcefile) {
-		this.sourcefile = sourcefile;
-	}
-
-	public String getDoc() {
-		return doc;
-	}
-
-	public void setDoc(String doc) {
-		this.doc = doc;
-	}
-
-	public ArrayList<IntrospectedParameter> getParameters() {
-		return parameters;
-	}
-
-	public void setParameters(ArrayList<IntrospectedParameter> parameters) {
-		this.parameters = parameters;
-	}
-
-	String name;
-
-	String kind;
-	
-	String sourcefile;
-	String source;
-	String viewer;
-	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-
-	String doc;
-	boolean custom;
-	
-	public boolean isCustom() {
-		return custom;
-	}
-
-	public void setCustom(boolean custom) {
-		this.custom = custom;
-	}
-
-	ArrayList<IntrospectedParameter>parameters=new ArrayList<>();
-	
 	public IntrospectedParameter getParameter(String s) {
 		for (IntrospectedParameter p:parameters) {
 			if (p.getName().equals(s)) {
@@ -81,16 +41,58 @@ public class InstrospectedFeature {
 		return null;
 	}
 	
-	@Override
-	public String toString() {
-		return this.name;
+	public ArrayList<IntrospectedParameter> getParameters() {
+		return parameters;
 	}
-
+	public String getSource() {
+		return source;
+	}
+	public String getSourcefile() {
+		return sourcefile;
+	}
 	public String getViewer() {
 		return viewer;
+	}
+
+	public boolean isCustom() {
+		return custom;
+	}
+
+	public void setCustom(boolean custom) {
+		this.custom = custom;
+	}
+	public void setDoc(String doc) {
+		this.doc = doc;
+	}
+	
+	public void setKind(String kind) {
+		this.kind = kind;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setParameters(ArrayList<IntrospectedParameter> parameters) {
+		this.parameters = parameters;
+	}
+	
+	public void setSource(String source) {
+		this.source = source;
+	}
+	
+	public void setSourcefile(String sourcefile) {
+		this.sourcefile = sourcefile;
 	}
 
 	public void setViewer(String viewer) {
 		this.viewer = viewer;
 	}
+
+	@Override
+	public String toString() {
+		return this.kind != null ? this.name + ":" + this.kind : this.name;
+	}
+	
+	
 }

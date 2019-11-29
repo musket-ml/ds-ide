@@ -84,7 +84,7 @@ import de.jcup.yamleditor.YamlSourceViewerConfiguration;
  * <li>page 2 shows the words in page 0 in sorted order
  * </ul>
  */
-public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements IResourceChangeListener {
+public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements IResourceChangeListener, IExperimentConfigEditor {
 
 	/** The text editor used in page 0. */
 	private YamlEditor editor;
@@ -129,8 +129,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		try {
 			formEditor.init(getEditorSite(), getEditorInput());
 		} catch (PartInitException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			DSIDEUIPlugin.log(e1);
 		}
 		updatePages();
 		LaunchConfiguration.addListener(listener);

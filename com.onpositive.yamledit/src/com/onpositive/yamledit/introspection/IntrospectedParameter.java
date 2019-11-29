@@ -30,4 +30,9 @@ public class IntrospectedParameter {
 	public void setKind(String kind) {
 		this.kind = kind;
 	}
+	
+	@Override
+	public String toString() {
+		return type != null ? name + " : " + type : name;
+	}
 }

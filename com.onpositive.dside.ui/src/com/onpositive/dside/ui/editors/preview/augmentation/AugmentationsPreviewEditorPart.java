@@ -42,4 +42,10 @@ public class AugmentationsPreviewEditorPart extends MusketPreviewEditorPart {
 		}
 	}
 
+	
+	@Override
+	public String getPartName() {
+		return "Augmentations preview";
+	}
+
 }
