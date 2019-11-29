@@ -80,6 +80,9 @@ public class MultiClassSegmentationItem extends AbstractItem<MultiClassSegmentat
 			catch(Exception e) {}
 		}
 		Object coloursStr = owner.getSettings().get(MultiClassInstanceSegmentationDataSet.CLASSES_COLOURS);
+		if(coloursStr==null) {
+			coloursStr = "";
+		}
 		ClassVisibilityOptions2 colorOpts = new ClassVisibilityOptions2(coloursStr.toString(),(IHasClassGroups) this.owner.getRoot());
 		for (IMask m:getMasks()) {
 			if(fits(m, ownerClasses)) {

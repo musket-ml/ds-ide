@@ -34,6 +34,8 @@ import com.onpositive.musket.data.text.TextSequenceDataSet;
 import com.onpositive.yamledit.io.YamlIO;
 
 public class DataProject {
+	
+	public static String FILE_NAME = "SOURCE_FILE";
 
 	private static final String DATASET_FACTORY = "dataset_factory";
 	private ImageRepresenter imageRepresenter;
@@ -178,6 +180,7 @@ public class DataProject {
 			long l3=System.currentTimeMillis();
 			
 			System.out.println("Dataset creation:"+(l3-l2));
+			create.getSettings().put(FILE_NAME, file2.getAbsolutePath().replace("\\", "/"));
 			if (create != null) {
 				dumpSettings(file2, create, factory);
 				return create;
@@ -210,12 +213,18 @@ public class DataProject {
 		}
 	}
 
-	protected void dumpSettings(File file2, IDataSet create, IDataSetFactory factory) {
+	static File getMetaFile(File file2) {
+		return new File(file2.getParentFile(), "." + file2.getName() + ".dataset_desc");
+	}
+	
+	public static void dumpSettings(File file2, IDataSet create, IDataSetFactory factory) {
 		if (create != null) {
 			try {
 				FileWriter fileWriter = new FileWriter(getMetaFile(file2));
 				Map<String, Object> settings = create.getSettings();
-				settings.put(DATASET_FACTORY, factory.getClass().getName());
+				if(factory != null) {
+					settings.put(DATASET_FACTORY, factory.getClass().getName());
+				}
 				YamlIO.dump(settings, fileWriter);
 				fileWriter.close();
 			} catch (IOException e) {
@@ -223,10 +232,6 @@ public class DataProject {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	static File getMetaFile(File file2) {
-		return new File(file2.getParentFile(), "." + file2.getName() + ".dataset_desc");
 	}
 
 }

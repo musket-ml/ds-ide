@@ -3,6 +3,7 @@ package com.onpositive.musket.data.images;
 import java.util.ArrayList;
 import java.util.Set;
 
+import com.onpositive.musket.data.labels.LabelsSet;
 import com.onpositive.musket.data.table.ITabularItem;
 
 public class MultiClassInstanceSegmentationItem extends MultiClassSegmentationItem{
@@ -25,7 +26,16 @@ public class MultiClassInstanceSegmentationItem extends MultiClassSegmentationIt
 			}
 			catch (Exception e) {}
 		}
-        return !focus || ownerClasses.contains(""+m.clazz());
+		if(!focus) {
+			return true;
+		}
+        String maskClass = ""+m.clazz();
+        LabelsSet labels = owner.labels();
+        if(labels == null) {
+        	return false;
+        }
+		String ownerLabel = labels.map(maskClass);        
+		return ownerLabel != null && ownerClasses.contains(ownerLabel);
 	}
 
 }

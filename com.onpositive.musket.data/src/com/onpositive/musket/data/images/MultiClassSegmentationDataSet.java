@@ -259,6 +259,10 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 		this.classes=asList;
 	}
 
+	public List<Object> getClasses() {
+		return classes;
+	}
+
 	@Override
 	public ArrayList<LinkedHashSet<String>> classGroups() {
 		return new ArrayList<>(this.classes.stream().map(x->new LinkedHashSet<String>(Arrays.asList(new String[] {x.toString()}))).collect(Collectors.toList()));

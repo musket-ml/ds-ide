@@ -26,4 +26,5 @@ Export-Package: com.onpositive.musket.data.actions,
  com.onpositive.musket.data.project,
  com.onpositive.musket.data.registry,
  com.onpositive.musket.data.table,
- com.onpositive.musket.data.text
+ com.onpositive.musket.data.text,
+ com.onpositive.musket.data.utils

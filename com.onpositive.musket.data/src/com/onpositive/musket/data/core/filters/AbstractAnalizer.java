@@ -3,10 +3,14 @@ package com.onpositive.musket.data.core.filters;
 import java.awt.geom.Point2D;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.IAnalizeResults;
@@ -31,7 +35,8 @@ public abstract class AbstractAnalizer {
 				arrayList.add(v);	
 			}			
 		});
-		LinkedHashMap<Object, ArrayList<IItem>> mapsNew = optimize(maps);
+		OptimizationResult optimized = optimize(maps);
+		LinkedHashMap<Object, ArrayList<IItem>> mapsNew = optimized.getItems();
 		return toDs(ds, mapsNew,maps);
 	}
 	
@@ -101,8 +106,30 @@ public abstract class AbstractAnalizer {
 			}
 		};
 	}
+	
+	public static class OptimizationResult {
+		
+		private LinkedHashMap<Object, ArrayList<IItem>> items;
+		
+		private LinkedHashMap<Object, ArrayList<Object>> classes;
 
-	static LinkedHashMap<Object, ArrayList<IItem>> optimize(LinkedHashMap<Object, ArrayList<IItem>> maps) {
+		public OptimizationResult(LinkedHashMap<Object, ArrayList<IItem>> items,
+				LinkedHashMap<Object, ArrayList<Object>> classes) {
+			super();
+			this.items = items;
+			this.classes = classes;
+		}
+
+		public LinkedHashMap<Object, ArrayList<IItem>> getItems() {
+			return items;
+		}
+
+		public LinkedHashMap<Object, ArrayList<Object>> getClasses() {
+			return classes;
+		}
+	}
+
+	static OptimizationResult optimize(LinkedHashMap<Object, ArrayList<IItem>> maps) {
 		if (maps.size() > 20) {
 			boolean allNumber = true;
 			double min = Double.MAX_VALUE;
@@ -190,6 +217,7 @@ public abstract class AbstractAnalizer {
 					}
 				}
 				LinkedHashMap<Object, ArrayList<IItem>> bitems = new LinkedHashMap<>();
+				LinkedHashMap<Object, ArrayList<Object>> bclasses = new LinkedHashMap<>();
 				ArrayList<Point2D> arrayList = new ArrayList<>(items.keySet());
 				arrayList.sort(new Comparator<Point2D>() {
 
@@ -207,11 +235,17 @@ public abstract class AbstractAnalizer {
 				for (Point2D p: arrayList) {
 					String s=NumberFormat.getInstance().format(p.getX())+"-"+NumberFormat.getInstance().format(p.getY());
 					bitems.put(s,items.get(p));
+					bclasses.put(s, new ArrayList<Object>(Arrays.asList(new Object[] {s})) );
 				}				
 				if (!none.isEmpty()) {
 					bitems.put("None", none);
+					Set<Object> s = Collections.newSetFromMap(new LinkedHashMap<Object, Boolean>());
+					s.addAll(maps.keySet());
+					s.removeAll(bitems.keySet());
+					bclasses.put("None", new ArrayList<Object>(s));
 				}
-				return bitems;
+				OptimizationResult result = new OptimizationResult(bitems, bclasses);
+				return result;
 			}
 			else {
 				ArrayList<Entry>entr=new ArrayList<>();
@@ -220,20 +254,33 @@ public abstract class AbstractAnalizer {
 				});
 				Collections.sort(entr);
 				LinkedHashMap<Object, ArrayList<IItem>> bitems = new LinkedHashMap<>();
+				LinkedHashMap<Object, ArrayList<Object>> bclasses = new LinkedHashMap<>();
 				
 				for (int i=0;i<20;i++) {
 					Entry entry = entr.get(i);
 					bitems.put(entry.clazz, entry.items);
+					bclasses.put(entry.clazz, new ArrayList<Object>(Arrays.asList(new Object[] {entry.clazz})) );
 				}
 				ArrayList<IItem>allOthers=new ArrayList<>();
 				for (int i=20;i<entr.size();i++) {
 					allOthers.addAll(entr.get(i).items);
 				}
-				bitems.put("Others "+(entr.size()-20), allOthers);
-				return bitems;
+				String remainigKey = "Remaining "+(entr.size()-20);
+				bitems.put(remainigKey, allOthers);
+				Set<Object> s = Collections.newSetFromMap(new LinkedHashMap<Object, Boolean>());
+				s.addAll(maps.keySet());
+				s.removeAll(bitems.keySet());
+				bclasses.put(remainigKey, new ArrayList<Object>(s));
+				OptimizationResult result = new OptimizationResult(bitems, bclasses);
+				return result;
 			}
 		}
-		return maps;
+		LinkedHashMap<Object, ArrayList<Object>> classes = new LinkedHashMap<Object, ArrayList<Object>>(maps.entrySet().stream().collect(Collectors.toMap(
+	            e -> e.getKey(),
+	            e -> new ArrayList<Object>(Arrays.asList(new Object[]{e.getKey()}))
+	        )));
+		OptimizationResult result = new OptimizationResult(maps, classes);		
+		return result;
 	}
 	
 	static class Entry implements Comparable<Entry>{

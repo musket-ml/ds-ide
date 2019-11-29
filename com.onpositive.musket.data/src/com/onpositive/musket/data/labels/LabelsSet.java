@@ -1,16 +1,30 @@
 package com.onpositive.musket.data.labels;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.eclipse.swt.widgets.FileDialog;
+
 import com.onpositive.musket.data.table.BasicDataSetImpl;
 import com.onpositive.musket.data.table.BasicItem;
 import com.onpositive.musket.data.table.Column;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
+import com.onpositive.musket.data.utils.MusketFileReader;
+import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
+import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 
 @Display("dlf/labels.dlf")
@@ -111,13 +125,10 @@ public class LabelsSet {
 	public String map(String clazzName) {
 		synchronized (this) {
 			if (clazzToLabel == null) {
-
-				if (clazzToLabel == null) {
-					clazzToLabel = new LinkedHashMap<String, String>();
-					items.forEach(v -> {
-						clazzToLabel.put(v.clazz, v.label);
-					});
-				}
+				clazzToLabel = new LinkedHashMap<String, String>();
+				items.forEach(v -> {
+					clazzToLabel.put(v.clazz, v.label);
+				});
 			}
 
 		}
@@ -133,4 +144,39 @@ public class LabelsSet {
 	public boolean isOk() {
 		return this.isOk;
 	}
+	
+	@Caption("Import...")
+	public void importLabels() {
+		
+		FileDialog fd = new FileDialog(org.eclipse.swt.widgets.Display.getCurrent().getActiveShell());
+		String fPath = fd.open();
+		File f = new File(fPath);
+		if(!f.exists()) {
+			return;
+		}
+		String str = MusketFileReader.readStringFile(f);
+		List<String> lst = Arrays.asList(str.split("\n")).stream().map(x->x.trim()).collect(Collectors.toList());
+		if (clazzToLabel == null) {
+			clazzToLabel = new LinkedHashMap<String, String>();
+		}
+		for(int i = 0 ; i < lst.size() ; i++ ) {
+			this.clazzToLabel.put(""+i,lst.get(i));
+		}
+		for(LabelItem l : this.items) {
+			String lab = this.clazzToLabel.get(""+l.getClazz());
+			if(lab!= null) {
+				l.setLabel(lab);
+			}
+		}
+		ObjectChangeManager.markChanged(this.items.toArray());		
+	}
+	
+	public int size() {
+		return this.items.size();
+	}
+
+	public ArrayList<LabelItem> getItems() {
+		return items;
+	}
+	
 }

@@ -3,6 +3,7 @@ package com.onpositive.musket.data.core.filters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.IAnalizeResults;
@@ -10,6 +11,7 @@ import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
+import com.onpositive.musket.data.core.filters.AbstractAnalizer.OptimizationResult;
 import com.onpositive.musket.data.images.MultiClassSegmentationDataSet;
 
 public abstract class AbstractMultiSplitAnalizer {
@@ -32,12 +34,15 @@ public abstract class AbstractMultiSplitAnalizer {
 			}
 		});
 		ArrayList<IDataSet> results = new ArrayList<IDataSet>();
-		LinkedHashMap<Object, ArrayList<IItem>> maps1 = AbstractAnalizer.optimize(maps);
+		OptimizationResult optimized = AbstractAnalizer.optimize(maps);
+		LinkedHashMap<Object, ArrayList<IItem>> maps1 = optimized.getItems();
+		LinkedHashMap<Object, ArrayList<Object>> classes1 = optimized.getClasses();
 		maps1.keySet().forEach(v -> {
 			IDataSet subDS = ds.subDataSet(v.toString(), maps1.get(v));
 			if (subDS instanceof MultiClassSegmentationDataSet) {
 				MultiClassSegmentationDataSet subDS2 = (MultiClassSegmentationDataSet)subDS;
-				subDS2.setClasses(Arrays.asList(new Object[] {v}));
+				ArrayList<Object> clazzez = classes1.get(v);
+				subDS2.setClasses(clazzez);
 			}
 			results.add(subDS);
 

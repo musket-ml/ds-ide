@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -17,13 +18,17 @@ import com.onpositive.musket.data.images.IImageDataSet;
 import com.onpositive.musket.data.images.IImageItem;
 import com.onpositive.musket.data.images.IMultiClassSegmentationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
+import com.onpositive.musket.data.images.MultiClassInstanceSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationItem;
+import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.registry.CSVKind;
 import com.onpositive.musket.data.table.BasicDataSetImpl;
 import com.onpositive.musket.data.table.BasicItem;
 import com.onpositive.musket.data.table.Column;
 import com.onpositive.musket.data.table.ICSVOVerlay;
+import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
+import com.onpositive.musket.data.table.ImageRepresenter;
 import com.onpositive.musket.data.text.TextClassificationDataSet;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
 
@@ -111,6 +116,25 @@ public class BasicDataSetActions {
 		return (BasicDataSetImpl) ov.original().subDataSet("",bi);
 	}
 	
+	public static BasicDataSetImpl recreateAsInstanceSegmentationDataset(IMultiClassSegmentationDataSet ds) {
+		
+		if(!(ds instanceof AbstractImageDataSet)) {
+			throw new RuntimeException("Must implement '" + AbstractImageDataSet.class.getSimpleName() + "'");
+		}
+		AbstractImageDataSet<?> aids = (AbstractImageDataSet<?>)ds;
+		ITabularDataSet tabular = aids.original();
+		ImageRepresenter rep = aids.getRepresenter();		
+		Map<String, Object> settings = ds.getSettings();
+		MultiClassInstanceSegmentationDataSet mcisds = new MultiClassInstanceSegmentationDataSet(tabular, settings, rep);
+		Object fPath = settings.get(DataProject.FILE_NAME);
+		if(fPath==null) {
+			throw new RuntimeException("Can not conver to Instance segmentation as file path is null");
+		}
+		File file2 = new File(fPath.toString());
+		DataProject.dumpSettings(file2, mcisds, null);
+		return null;
+	}
+	
 	
 
 	@Image("")
@@ -175,7 +199,7 @@ public class BasicDataSetActions {
 	public static class ClearDataSetMeta extends ConversionAction{
 		public ClearDataSetMeta() {
 			super("Clear dataset metadata and reopen", null);
-		}		
+		}
 	}
 	
 
@@ -204,6 +228,10 @@ public class BasicDataSetActions {
 		if (d instanceof IBinarySegmentationDataSet) {
 			Function<IBinarySegmentationDataSet, BasicDataSetImpl> v = BasicDataSetActions::toBinarySegmentation;
 			actions.add(new ConversionAction("Convert to Binary Segmentation", v));
+		}
+		if (d instanceof IMultiClassSegmentationDataSet) {
+			Function<IMultiClassSegmentationDataSet, BasicDataSetImpl> v = BasicDataSetActions::recreateAsInstanceSegmentationDataset;
+			actions.add(new ConversionAction("Convert to Multiclass Instance Sgmentation", v));
 		}
 		if (d instanceof IImageDataSet) {
 			actions.add(new ConvertResolutionAction());

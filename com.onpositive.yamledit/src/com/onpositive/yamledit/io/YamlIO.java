@@ -8,6 +8,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.DumperOptions.FlowStyle;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.nodes.Node;
@@ -47,10 +49,14 @@ public class YamlIO {
 	}
 
 	public static void dump(Object data, Writer writer) {
-		new Yaml().dump(data,writer);
+		DumperOptions opts = new DumperOptions();
+		opts.setDefaultFlowStyle(FlowStyle.BLOCK);
+		new Yaml(opts).dump(data,writer);
 	}
 	
 	public static String dump(Object data) {
+		DumperOptions opts = new DumperOptions();
+		opts.setDefaultFlowStyle(FlowStyle.BLOCK);
 		return new Yaml().dump(data);
 	}
 

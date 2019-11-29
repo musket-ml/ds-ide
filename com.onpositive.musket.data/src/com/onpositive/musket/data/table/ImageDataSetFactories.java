@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.onpositive.musket.data.columntypes.ClassColumnType;
@@ -35,6 +36,7 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 public class ImageDataSetFactories implements IDataSetFactory {
 
 	public static final String LABELS_PATH = "LABELS_PATH";
+	public static final String INHERIT_CLASSES_FROM_LABELS = "INHERIT_CLASSES_FROM_LABELS";
 
 	public ImageDataSetFactories() {
 		super();
@@ -55,6 +57,11 @@ public class ImageDataSetFactories implements IDataSetFactory {
 						LabelsSet labelsSet = new LabelsSet(as, (ArrayList<String>) new ArrayList<>(hl.classNames()));
 						if (labelsSet.isOk()) {
 							hl.setLabels(labelsSet);
+						}
+						Object inheritClassesFromLabels = settings.get(INHERIT_CLASSES_FROM_LABELS);
+						if(inheritClassesFromLabels == Boolean.TRUE && (hl instanceof MultiClassSegmentationDataSet)) {
+							List<Object> classes = labelsSet.getItems().stream().map(x->x.getClazz()).collect(Collectors.toList());
+							((MultiClassSegmentationDataSet)hl).setClasses(classes);
 						}
 					}
 				}
@@ -170,10 +177,16 @@ public class ImageDataSetFactories implements IDataSetFactory {
 				Optional<IMultiClassSegmentationItem> findAny = filter.findAny();
 				trySetupLabels(spec, multiClassSegmentationDataSet);
 				if (findAny.isPresent()) {
+					LabelsSet labels = multiClassSegmentationDataSet.labels();
 					multiClassSegmentationDataSet = new MultiClassInstanceSegmentationDataSet(spec.tabularOrigin(),
 							multiClassSegmentationDataSet.getSettings(), images);
-					multiClassSegmentationDataSet.setLabels(multiClassSegmentationDataSet.labels());
-					return multiClassSegmentationDataSet;
+					multiClassSegmentationDataSet.setLabels(labels);
+				}
+				if(multiClassSegmentationDataSet.getClasses().size() != multiClassSegmentationDataSet.labels().size()) {
+					//TODO: use answerer
+					List<Object> classes = multiClassSegmentationDataSet.labels().getItems().stream().map(x->x.getClazz()).collect(Collectors.toList());
+					multiClassSegmentationDataSet.setClasses(classes);
+					multiClassSegmentationDataSet.getSettings().put(INHERIT_CLASSES_FROM_LABELS, true);
 				}
 				return multiClassSegmentationDataSet;
 			}
@@ -214,7 +227,7 @@ public class ImageDataSetFactories implements IDataSetFactory {
 										(ArrayList<String>) new ArrayList<>(multiClassificationDataset.classNames()));
 								if (labelsSet.isOk()) {
 									multiClassificationDataset.setLabels(labelsSet);
-									multiClassificationDataset.getSettings().put(LABELS_PATH, f.getAbsolutePath());
+									multiClassificationDataset.getSettings().put(LABELS_PATH, f.getAbsolutePath().replace("\\","/"));
 									return;
 								}
 							}
@@ -236,7 +249,7 @@ public class ImageDataSetFactories implements IDataSetFactory {
 						try {
 							CSVKind.writeCSV(data, absolutePath);
 							multiClassificationDataset.setLabels(ls);
-							multiClassificationDataset.getSettings().put(LABELS_PATH, absolutePath);
+							multiClassificationDataset.getSettings().put(LABELS_PATH, absolutePath.replace("\\","/"));
 							return;							
 						} catch (IOException e) {
 							e.printStackTrace();
