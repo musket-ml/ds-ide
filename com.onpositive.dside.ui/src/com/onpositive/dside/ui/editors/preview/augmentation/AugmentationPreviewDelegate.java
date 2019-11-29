@@ -58,9 +58,14 @@ public class AugmentationPreviewDelegate implements IExperimentPreviewEditDelega
 
 	private String unIndent(String indented) {
 		String[] parts = StringUtils.split(indented,'\n');
+		String whitespace = getWhitespace(parts[0]);
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < parts.length; i++) {
-			builder.append(ltrim(parts[i]));
+			if (parts[i].startsWith(whitespace)) {
+				builder.append(parts[i].substring(whitespace.length()));
+			} else {
+				builder.append(ltrim(parts[i]));
+			}
 			if (i < parts.length - 1) {
 				builder.append('\n');
 			}
@@ -74,7 +79,7 @@ public class AugmentationPreviewDelegate implements IExperimentPreviewEditDelega
 		String indent = getWhitespace(initialText);
 		for (int i = 0; i < parts.length; i++) {
 			builder.append(indent);
-			builder.append(ltrim(parts[i]));
+			builder.append(parts[i]);
 			builder.append('\n');
 		}
 		return builder.toString();
