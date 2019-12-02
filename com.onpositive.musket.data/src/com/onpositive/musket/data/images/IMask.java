@@ -55,7 +55,7 @@ public interface IMask {
 		//affineTransform.rotate(Math.toRadians(-90),1024,1024); 
 		//g2d.drawImage(image, m_affineTransform, null);
 		Image image2 = this.getImage(color);
-		g.drawImage(image2, 0,0, null);
+		g.drawImage(image2, 0,0, image.getWidth(null),image.getHeight(null), null);
 	}
 	default void drawOn(Image image) {
 		Graphics2D g=(Graphics2D) image.getGraphics();

@@ -35,8 +35,13 @@ public class MultiClassInstanceSegmentationDataSet extends MultiClassSegmentatio
 		return "Multi class instance segmentation";
 	}
 	
-	public String generatePythonString(String sourcePath) {
-		return "image_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
+	public String generatePythonString(String sourcePath,Object model) {
+		String classesString = "["+String.join(", ", this.classes.stream().map(x->"\""+x+"\"").collect(Collectors.toList()))+"]";
+		return "image_datasets."+getPythonName()+"("+
+				this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))
+				+ ", maskShape=(" + this.height + "," + this.width + ")"
+				+ ", classes=" + classesString
+				+ ")";
 	}
 	
 	protected String getPythonName() {
