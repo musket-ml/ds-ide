@@ -13,9 +13,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -35,6 +37,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -51,6 +55,7 @@ import com.onpositive.dataset.visualization.internal.Utils;
 import com.onpositive.dataset.visualization.internal.VirtualTable;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertResolutionAction;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertToInstanceSegmentation;
 import com.onpositive.musket.data.actions.BasicDataSetActions.GenerateDataSetAction;
 import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.ChartData.BasicChartData;
@@ -62,6 +67,7 @@ import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
+import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.text.AbstractTextDataSet;
 import com.onpositive.musket.data.text.ITextItem;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
@@ -313,6 +319,25 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				if (createObject) {
 					String targetFile = actionSelection.targetFile();
 					ConversionAction selectedAction = actionSelection.getSelectedAction();
+					if (selectedAction instanceof ConvertToInstanceSegmentation) {
+						IDataSet original = results.getOriginal();
+						String fPathString = original.getSettings().get(DataProject.FILE_NAME).toString();
+						IPath fPath = Path.fromOSString(fPathString);
+						IPath pPath = getProject().getLocation();
+						IPath relFPath = fPath.makeRelativeTo(pPath);
+						IFile file = getProject().getFile(relFPath);	
+						selectedAction.run(results.getOriginal(), null);
+						IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+						IEditorPart activeEditor = activePage.getActiveEditor();
+						activePage.closeEditor(activeEditor, false);
+						try {
+							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+									.openEditor(new FileEditorInput(file), "com.onpositive.datasets.visualisation.ui.datasetEditor");
+						} catch (PartInitException e) {
+							e.printStackTrace();
+						}
+						return;						
+					}
 					if (selectedAction instanceof GenerateDataSetAction) {
 						GenerateDataSetAction fm = (GenerateDataSetAction) selectedAction;
 						String name = targetFile;

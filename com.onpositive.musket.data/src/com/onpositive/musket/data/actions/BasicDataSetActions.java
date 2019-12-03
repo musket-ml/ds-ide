@@ -163,8 +163,9 @@ public class BasicDataSetActions {
 			@SuppressWarnings("unchecked")
 			BasicDataSetImpl ds = ((Function<IDataSet, BasicDataSetImpl>) this.func).apply(v);
 			try {
-				CSVKind.writeCSV(ds, target.getAbsolutePath());
-				
+				if(ds != null) {
+					CSVKind.writeCSV(ds, target.getAbsolutePath());
+				}				
 				
 			} catch (IOException e) {
 				throw new IllegalStateException();
@@ -202,6 +203,12 @@ public class BasicDataSetActions {
 		}
 	}
 	
+	public static class ConvertToInstanceSegmentation extends ConversionAction{
+		public ConvertToInstanceSegmentation() {
+			super("Convert to Multiclass Instance Sgmentation", (Function<IMultiClassSegmentationDataSet, BasicDataSetImpl>)BasicDataSetActions::recreateAsInstanceSegmentationDataset);
+		}		
+	}
+	
 
 	public static List<ConversionAction> getActions(IDataSet d) {
 		
@@ -229,9 +236,8 @@ public class BasicDataSetActions {
 			Function<IBinarySegmentationDataSet, BasicDataSetImpl> v = BasicDataSetActions::toBinarySegmentation;
 			actions.add(new ConversionAction("Convert to Binary Segmentation", v));
 		}
-		if (d instanceof IMultiClassSegmentationDataSet) {
-			Function<IMultiClassSegmentationDataSet, BasicDataSetImpl> v = BasicDataSetActions::recreateAsInstanceSegmentationDataset;
-			actions.add(new ConversionAction("Convert to Multiclass Instance Sgmentation", v));
+		if (d instanceof IMultiClassSegmentationDataSet && !(d instanceof MultiClassInstanceSegmentationDataSet)) {			
+			actions.add(new ConvertToInstanceSegmentation());
 		}
 		if (d instanceof IImageDataSet) {
 			actions.add(new ConvertResolutionAction());
