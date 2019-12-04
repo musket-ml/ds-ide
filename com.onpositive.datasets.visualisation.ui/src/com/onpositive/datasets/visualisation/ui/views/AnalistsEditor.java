@@ -329,10 +329,11 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 						selectedAction.run(results.getOriginal(), null);
 						IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 						IEditorPart activeEditor = activePage.getActiveEditor();
+						String editorId = activeEditor.getEditorSite().getId();
 						activePage.closeEditor(activeEditor, false);
 						try {
 							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
-									.openEditor(new FileEditorInput(file), "com.onpositive.datasets.visualisation.ui.datasetEditor");
+									.openEditor(new FileEditorInput(file), editorId);
 						} catch (PartInitException e) {
 							e.printStackTrace();
 						}
