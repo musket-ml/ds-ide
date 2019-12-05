@@ -55,7 +55,7 @@ public interface ITabularDataSet extends IDataSet,Cloneable {
 				}
 				else{
 					int sn = Integer.parseInt(substring);
-					SubColumn subColumn = new SubColumn(column.id(), split[sn], column.getNum(), String.class, sn);
+					SubColumn subColumn = new SubColumn(id, id, column.getNum(), String.class, sn);
 					subColumn.owner=this;
 					return subColumn;
 				}

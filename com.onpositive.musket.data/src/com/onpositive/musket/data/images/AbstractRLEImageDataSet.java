@@ -29,11 +29,11 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 		implements IImageDataSet, Cloneable {
 
 	public static final String CLAZZ = "CLASS";
-	private static final String RELATIVE_RLE = "RELATIVE_RLE";
+	public static final String RELATIVE_RLE = "RELATIVE_RLE";
 
-	private static final String RLE_COLUMN = "rle_column";
-	private static final String WIDTH_FIRST = "width_first";
-	private static final String MASK_IS_SAME_AS_IMAGE = "mask_is_same_as_image";
+	public static final String RLE_COLUMN = "rle_column";
+	public static final String WIDTH_FIRST = "width_first";
+	public static final String MASK_IS_SAME_AS_IMAGE = "mask_is_same_as_image";
 
 	{
 		parameters.put(MASK_ALPHA, MASK_ALPHA_DEFAULT);

@@ -182,7 +182,7 @@ public class ImageDataSetFactories implements IDataSetFactory {
 							multiClassSegmentationDataSet.getSettings(), images);
 					multiClassSegmentationDataSet.setLabels(labels);
 				}
-				if(multiClassSegmentationDataSet.getClasses().size() != multiClassSegmentationDataSet.labels().size()) {
+				if(multiClassSegmentationDataSet.labels() != null && multiClassSegmentationDataSet.getClasses().size() != multiClassSegmentationDataSet.labels().size()) {
 					//TODO: use answerer
 					List<Object> classes = multiClassSegmentationDataSet.labels().getItems().stream().map(x->x.getClazz()).collect(Collectors.toList());
 					multiClassSegmentationDataSet.setClasses(classes);
@@ -214,29 +214,30 @@ public class ImageDataSetFactories implements IDataSetFactory {
 
 	public static void trySetupLabels(DataSetSpec spec, IHasLabels multiClassificationDataset) {
 		List<String> classNames = multiClassificationDataset.classNames();
-		if (classNames.size() > 2) {
-			if (!BinaryClassificationDataSet.isStringClasses(multiClassificationDataset.classNames())) {
-				File file = spec.prj.getFile();
-				for (File f : file.listFiles()) {
-					if ((f.getName().contains("label")||f.getName().contains("categories")) && f.getName().endsWith(".csv")) {
-						try {
-							IDataSet load = DataSetIO.load("file://" + f.getAbsolutePath(),spec.getEncoding());
-							ITabularDataSet as = load.as(ITabularDataSet.class);
-							if (as != null) {
-								LabelsSet labelsSet = new LabelsSet(as,
-										(ArrayList<String>) new ArrayList<>(multiClassificationDataset.classNames()));
-								if (labelsSet.isOk()) {
-									multiClassificationDataset.setLabels(labelsSet);
-									multiClassificationDataset.getSettings().put(LABELS_PATH, f.getAbsolutePath().replace("\\","/"));
-									return;
-								}
+		if (!BinaryClassificationDataSet.isStringClasses(multiClassificationDataset.classNames())) {
+			File file = spec.prj.getFile();
+			for (File f : file.listFiles()) {
+				if ((f.getName().contains("label") || f.getName().contains("categories"))
+						&& f.getName().endsWith(".csv")) {
+					try {
+						IDataSet load = DataSetIO.load("file://" + f.getAbsolutePath(), spec.getEncoding());
+						ITabularDataSet as = load.as(ITabularDataSet.class);
+						if (as != null) {
+							LabelsSet labelsSet = new LabelsSet(as,
+									(ArrayList<String>) new ArrayList<>(multiClassificationDataset.classNames()));
+							if (labelsSet.isOk()) {
+								multiClassificationDataset.setLabels(labelsSet);
+								multiClassificationDataset.getSettings().put(LABELS_PATH,
+										f.getAbsolutePath().replace("\\", "/"));
+								return;
 							}
-						} catch (Exception e) {
-							e.printStackTrace();
 						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
-
+			}
+			if (classNames.size() > 2) {
 				boolean ddd = spec.answerer.askQuestion(
 						"This dataset has " + classNames.size() + " classes, do you want to configure labels for them?",
 						Boolean.TRUE);
@@ -245,12 +246,12 @@ public class ImageDataSetFactories implements IDataSetFactory {
 					boolean askQuestion = spec.answerer.askQuestion("", ls);
 					if (askQuestion) {
 						ITabularDataSet data = ls.getData();
-						String absolutePath = new File(spec.prj.getFile(),"labels.csv").getAbsolutePath();
+						String absolutePath = new File(spec.prj.getFile(), "labels.csv").getAbsolutePath();
 						try {
 							CSVKind.writeCSV(data, absolutePath);
 							multiClassificationDataset.setLabels(ls);
-							multiClassificationDataset.getSettings().put(LABELS_PATH, absolutePath.replace("\\","/"));
-							return;							
+							multiClassificationDataset.getSettings().put(LABELS_PATH, absolutePath.replace("\\", "/"));
+							return;
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
