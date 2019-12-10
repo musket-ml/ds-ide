@@ -16,17 +16,17 @@ public class ExperimentParams{
 	@Required
 	String project;
 	
-	@Caption("Experiment group")
+	@Caption("Group")
 	String group;
 	
 	@Required
-	@Caption("Experiment name")
+	@Caption("Name")
 	String name;
 	
 	String description;
 	
 	@Required
-	@Caption("Start from")
+	@Caption("Template")
 	String template;
 	
 	@Caption("DataSet")
