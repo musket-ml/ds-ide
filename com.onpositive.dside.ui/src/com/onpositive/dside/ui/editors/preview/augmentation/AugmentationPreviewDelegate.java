@@ -238,6 +238,10 @@ public class AugmentationPreviewDelegate implements IExperimentPreviewEditDelega
 		return experiment;
 	}
 
-	
-	
+	public void close() {
+		if (gateWayRelatedTask != null) {
+			gateWayRelatedTask.terminate();
+		}
+	}
+
 }

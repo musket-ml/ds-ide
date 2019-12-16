@@ -73,7 +73,7 @@ public abstract class MusketPreviewEditorPart extends YamlEditor implements IExp
 				try {
 					File tempFile = File.createTempFile("preview", ".yaml");
 					FileUtils.writeStringToFile(tempFile, previewDelegate.getText());
-					super.doSetInput(new FileStoreEditorInput(EFS.getStore(tempFile.toURI())));
+					super.doSetInput(createEditorInput(tempFile));
 				} catch (IOException e) {
 					DSIDEUIPlugin.log(e);
 				}
@@ -83,6 +83,15 @@ public abstract class MusketPreviewEditorPart extends YamlEditor implements IExp
 		} else { 
 			super.doSetInput(input);
 		}
+	}
+
+	private FileStoreEditorInput createEditorInput(File tempFile) throws CoreException {
+		return new FileStoreEditorInput(EFS.getStore(tempFile.toURI())) {
+			@Override
+			public String getName() {
+				return "preview for " + getExperiment().toString();
+			}
+		};
 	}
 	
 	public void updatePreview() {

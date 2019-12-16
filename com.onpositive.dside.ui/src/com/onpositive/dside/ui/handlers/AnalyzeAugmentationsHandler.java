@@ -5,6 +5,8 @@ import java.util.Map;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPartListener;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
@@ -61,6 +63,33 @@ public class AnalyzeAugmentationsHandler extends AbstractExperimentEditorHandler
 				} catch (PartInitException e) {
 					DSIDEUIPlugin.log(e);
 				}
+				editor.getSite().getPage().addPartListener(new IPartListener() {
+					
+					@Override
+					public void partOpened(IWorkbenchPart part) {
+						//Do nothing
+					}
+					
+					@Override
+					public void partDeactivated(IWorkbenchPart part) {
+						//Do nothing
+					}
+					
+					@Override
+					public void partClosed(IWorkbenchPart part) {
+						previewDelegate.close();
+					}
+					
+					@Override
+					public void partBroughtToTop(IWorkbenchPart part) {
+						//Do nothing
+					}
+					
+					@Override
+					public void partActivated(IWorkbenchPart part) {
+						//Do nothing
+					}
+				});
 			}
 			
 		}

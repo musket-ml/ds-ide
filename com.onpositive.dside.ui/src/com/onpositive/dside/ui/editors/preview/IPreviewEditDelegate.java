@@ -21,4 +21,8 @@ public interface IPreviewEditDelegate {
 	 */
 	void save();
 	
+	/**
+	 * Close preview session
+	 */
+	public void close(); 
 }

@@ -5,6 +5,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.IMemento;
 
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
 import com.onpositive.dside.ui.StandaloneDataSetGallery;
@@ -42,6 +43,12 @@ public class AugmentationsPreviewEditorPart extends MusketPreviewEditorPart {
 		}
 	}
 
+	@Override
+	public void saveState(IMemento memento) {
+		if (getSourceViewer() != null) {
+			super.saveState(memento);
+		}
+	}
 	
 	@Override
 	public String getPartName() {

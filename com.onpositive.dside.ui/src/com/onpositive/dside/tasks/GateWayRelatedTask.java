@@ -9,6 +9,7 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.swt.widgets.Display;
 
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.musket_core.IServer;
 import com.onpositive.yamledit.io.YamlIO;
 
@@ -129,7 +130,7 @@ public class GateWayRelatedTask extends PrivateServerTask<Object> {
 		try {
 			this.launch.terminate();
 		} catch (DebugException e) {
-			e.printStackTrace();
+			DSIDEUIPlugin.log(e);
 		}
 	}
 }
