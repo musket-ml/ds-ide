@@ -10,6 +10,8 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import com.onpositive.dside.ui.IMusketConstants;
+
 public class ExperimentGroup implements IAdaptable,IExperimentContribution{
 
 	protected ArrayList<ExperimentNode>experiments=new ArrayList<>();
@@ -29,13 +31,13 @@ public class ExperimentGroup implements IAdaptable,IExperimentContribution{
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
 		if (adapter==IFolder.class) {
-			return adapter.cast(project.getFolder(new Path("experiments").append(this.getPath())));
+			return adapter.cast(project.getFolder(new Path(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER).append(this.getPath())));
 		}
 		if (adapter==IContainer.class) {
-			return adapter.cast(project.getFolder(new Path("experiments").append(this.getPath())));
+			return adapter.cast(project.getFolder(new Path(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER).append(this.getPath())));
 		}
 		if (adapter==IResource.class) {
-			return adapter.cast(project.getFolder(new Path("experiments").append(this.getPath())));
+			return adapter.cast(project.getFolder(new Path(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER).append(this.getPath())));
 		}
 		return null;
 	}

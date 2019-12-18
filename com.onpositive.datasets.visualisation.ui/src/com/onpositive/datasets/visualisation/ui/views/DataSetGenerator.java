@@ -23,6 +23,12 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class DataSetGenerator {
 
+	private IDataSet ds;
+	private String name;
+	private boolean makePrimary;
+	private File inputFile;
+	private Object modelObject;
+
 	public static void modifyFile(IFile file, Consumer<ArrayList<String>> modifier) {
 		if (!file.exists()) {
 			try {
@@ -46,18 +52,12 @@ public class DataSetGenerator {
 			}
 		} catch (CoreException e) {
 			throw new IllegalStateException(e);
-
+	
 		} catch (UnsupportedEncodingException e1) {
 			throw new IllegalStateException(e1);
 		}
-
+	
 	}
-
-	private IDataSet ds;
-	private String name;
-	private boolean makePrimary;
-	private File inputFile;
-	private Object modelObject;
 
 	public boolean generateDataSet(IDataSet ds, File inputFile, String name, boolean makePrimary, IProject project) {
 		this.ds = ds;

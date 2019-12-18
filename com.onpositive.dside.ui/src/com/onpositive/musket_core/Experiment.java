@@ -52,20 +52,20 @@ public class Experiment {
 		if (file.getName().equals("assets")) {
 			return file.getParentFile().getAbsolutePath();
 		}
-		if (new File(file, "experiments").exists() && new File(file, "experiments").isDirectory()) {
-			return path;
-		}
 		
 		while (true) {
 			if (file.getParentFile() == null) {
-				break;
+				return null;
+			}
+			File experimentsFolder = new File(file, IMusketConstants.MUSKET_EXPERIMENTS_FOLDER);
+			if (experimentsFolder.exists() && experimentsFolder.isDirectory()) {
+				return file.getAbsolutePath();
 			}
 			file = file.getParentFile();
-			if (file.getName().equals("experiments")) {
+			if (file.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 				return file.getParentFile().getAbsolutePath();
 			}			
 		}
-		return file.getAbsolutePath();
 	}
 
 	public static class PredictionPair {
@@ -244,7 +244,7 @@ public class Experiment {
 			if (file == null) {
 				break;
 			}
-			if (file.getName().equals("experiments")) {
+			if (file.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 				break;
 			}
 		}
@@ -443,7 +443,7 @@ public class Experiment {
 	public void backup(boolean copyWeights) {
 		String projectPath = this.getProjectPath();
 		File modules = new File(projectPath, "modules");
-		File mcy = new File(projectPath, "common.yaml");
+		File mcy = new File(projectPath, IMusketConstants.COMMON_CONFIG_NAME);
 		File file2 = getHistoryDir();
 		file2.mkdirs();
 		int maxNum = getLaunchCount(file2);
@@ -454,7 +454,7 @@ public class Experiment {
 			Utils.copyDir(modules, new File(experimentHistory, "modules"));
 		}
 		if (mcy.exists()) {
-			Utils.copyDir(mcy, new File(experimentHistory, "common.yaml"));
+			Utils.copyDir(mcy, new File(experimentHistory, IMusketConstants.COMMON_CONFIG_NAME));
 		}
 		String name = new File(path).getName();
 		File ed = new File(experimentHistory, name);

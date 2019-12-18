@@ -264,7 +264,7 @@ public class ExperimentsView extends XMLView {
 					}
 				}
 			}
-			this.getBinding("experiments").refresh();
+			this.getBinding(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER).refresh();
 		}
 		fullRefresh();
 	}

@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.IMusketConstants;
 
 public class ExperimentsNode implements IAdaptable,IHasExperiments{
@@ -74,13 +75,11 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 					if (resource.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 						children.add(new ExperimentNode((IFolder) resource.getParent()));
 					}
-					// TODO Auto-generated method stub
 					return true;
 				}
 			});
 		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			DSIDEUIPlugin.log(e);
 		}
 		LinkedHashMap<IPath, ExperimentGroup>groups=new LinkedHashMap<>();
 		for (ExperimentNode n:children) {

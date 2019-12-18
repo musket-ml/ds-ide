@@ -110,7 +110,7 @@ public class NewMusketGroupWizard extends Wizard implements INewWizard {
 			protected void execute(IProgressMonitor monitor) throws CoreException {
 				org.eclipse.core.resources.IProject project = ResourcesPlugin.getWorkspace().getRoot()
 						.getProject(experimentParams.project);
-				IFolder folder = project.getFolder("experiments");
+				IFolder folder = project.getFolder(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER);
 				if (!folder.exists()) {
 					folder.create(true, true, monitor);
 				}

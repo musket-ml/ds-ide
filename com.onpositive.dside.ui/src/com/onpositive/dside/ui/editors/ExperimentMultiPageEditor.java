@@ -143,7 +143,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		if (editorInput instanceof FileEditorInput) {
 			FileEditorInput fl = (FileEditorInput) editorInput;
 			IFile file = fl.getFile();
-			if (file.getName().equals("common.yaml")) {
+			if (file.getName().equals(IMusketConstants.COMMON_CONFIG_NAME)) {
 				return;
 			}
 		}
@@ -509,7 +509,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 				if (!file.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 					return;
 				}
-				if( file.getName().equals("common.yaml")) {
+				if( file.getName().equals(IMusketConstants.COMMON_CONFIG_NAME)) {
 					return;
 				}
 				String string = editor.getDocument().get();

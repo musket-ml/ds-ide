@@ -9,9 +9,10 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.IMusketConstants;
 
-public class MusketNavigator implements ITreeContentProvider{
+public class MusketNavigatorContentProvider implements ITreeContentProvider{
 
 	@Override
 	public Object[] getElements(Object inputElement) {
@@ -21,28 +22,27 @@ public class MusketNavigator implements ITreeContentProvider{
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
-		// TODO Auto-generated method stub
 		if (parentElement instanceof IProject) {
-			IProject pr=(IProject) parentElement;
-			IFolder folder = pr.getFolder("experiments");
+			IProject project = (IProject) parentElement;
+			IFolder folder = project.getFolder(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER);
 			if (folder.exists()) {
-				return new Object[] {new ExperimentsNode(folder)};
+				return new Object[] { new ExperimentsNode(folder) };
 			}
 		}
 		if (parentElement instanceof ExperimentsNode) {
-			ExperimentsNode pm=(ExperimentsNode) parentElement;
-			return pm.getChildren();
+			ExperimentsNode experimentsNode = (ExperimentsNode) parentElement;
+			return experimentsNode.getChildren();
 		}
 		if (parentElement instanceof ExperimentGroup) {
-			ExperimentGroup pm=(ExperimentGroup) parentElement;
-			return pm.getChilden();
+			ExperimentGroup experimentGroup = (ExperimentGroup) parentElement;
+			return experimentGroup.getChilden();
 		}
 		if (parentElement instanceof ExperimentNode) {
-			ExperimentNode pm=(ExperimentNode) parentElement;
-			ArrayList<IResource>res=new ArrayList<>();
+			ExperimentNode pm = (ExperimentNode) parentElement;
+			ArrayList<IResource> res = new ArrayList<>();
 			try {
 				pm.folder.accept(new IResourceVisitor() {
-					
+
 					@Override
 					public boolean visit(IResource resource) throws CoreException {
 						if (resource.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
@@ -56,8 +56,7 @@ public class MusketNavigator implements ITreeContentProvider{
 					}
 				}, IResource.DEPTH_ONE, false);
 			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				DSIDEUIPlugin.log(e);
 			}
 			return res.toArray();
 		}

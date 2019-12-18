@@ -29,7 +29,7 @@
       </view>
       <view
             allowMultiple="false"
-            class="com.onpositive.dside.ui.navigator.MusketNavigator"
+            class="com.onpositive.dside.ui.navigator.MusketNavigatorContentProvider"
             icon="icons/maven.gif"
             id="com.onpositive.dside.ui.musket.navigator"
             name="Musket Navigator"
@@ -424,7 +424,7 @@
 
       <navigatorContent
             activeByDefault="true"
-            contentProvider="com.onpositive.dside.ui.navigator.MusketNavigator"
+            contentProvider="com.onpositive.dside.ui.navigator.MusketNavigatorContentProvider"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
             id="org.python.pydev.navigator.musketcontent"
             labelProvider="com.onpositive.dside.ui.navigator.MusketLabelProvider"
@@ -543,7 +543,7 @@
           </action>
           
        </objectContribution>
-          <objectContribution
+       <objectContribution
              adaptable="true"
              id="com.onpositive.dside.ui.objectContribution1"
              objectClass="com.onpositive.dside.ui.navigator.IHasExperiments">
@@ -553,7 +553,7 @@
                 id="com.onpositive.dside.ui.action3"
                 label="New Experiment"
                 menubarPath="group.new">
-          		</action>
+          	 </action>
              <action
                    class="com.onpositive.dside.ui.navigator.NewExperimentGroup"
                    icon="icons/packagefolder_test_obj.png"
@@ -562,6 +562,18 @@
                    menubarPath="group.new">
              </action>
          </objectContribution>  
+         <objectContribution
+             adaptable="true"
+             id="com.onpositive.dside.ui.experiments.duplicate"
+             objectClass="com.onpositive.dside.ui.navigator.ExperimentNode">
+             <action
+                class="com.onpositive.dside.ui.navigator.DuplicateExperimentAction"
+                icon="icons/duplicate_16.png"
+                id="com.onpositive.dside.ui.experiments.duplicate.action"
+                label="Duplicate Experiment"
+                menubarPath="group.new">
+          	 </action>             
+         </objectContribution>
     </extension>
     <extension
           point="org.eclipse.ui.decorators">
@@ -573,16 +585,14 @@
              lightweight="true"
              state="true">
           <enablement>
-             <and>
+         	<or>
                 <objectClass
                       name="com.onpositive.dside.ui.navigator.IHasExperiments">
                 </objectClass>
-                <or>
-                   <objectClass
-                         name="com.onpositive.dside.ui.navigator.ExperimentNode">
-                   </objectClass>
-                </or>
-             </and>
+               <objectClass
+                     name="com.onpositive.dside.ui.navigator.ExperimentNode">
+               </objectClass>
+            </or>
           </enablement>
        </decorator>
     </extension>

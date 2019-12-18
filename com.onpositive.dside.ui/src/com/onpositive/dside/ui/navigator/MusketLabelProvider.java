@@ -1,7 +1,5 @@
 package com.onpositive.dside.ui.navigator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.eclipse.core.resources.IFile;
@@ -15,6 +13,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 
 import com.onpositive.commons.SWTImageManager;
+import com.onpositive.dside.ui.IMusketConstants;
 
 /**
  * Provides the labels for the pydev package explorer.
@@ -79,7 +78,7 @@ public class MusketLabelProvider extends LabelProvider implements ILabelProvider
     @Override
     public String getText(Object element) {
         if (element instanceof ExperimentsNode) {
-            return "experiments";
+            return IMusketConstants.MUSKET_EXPERIMENTS_FOLDER;
         }
         if (element instanceof ExperimentNode) {
         	ExperimentNode n=(ExperimentNode) element;
