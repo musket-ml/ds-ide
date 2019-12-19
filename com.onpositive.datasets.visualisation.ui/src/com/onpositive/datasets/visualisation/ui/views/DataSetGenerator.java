@@ -23,7 +23,7 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class DataSetGenerator {
 
-	private IDataSet ds;
+	private IDataSet dataSet;
 	private String name;
 	private boolean makePrimary;
 	private File inputFile;
@@ -59,12 +59,12 @@ public class DataSetGenerator {
 	
 	}
 
-	public boolean generateDataSet(IDataSet ds, File inputFile, String name, boolean makePrimary, IProject project) {
-		this.ds = ds;
+	public boolean generateDataSet(IDataSet dataSet, File inputFile, String name, boolean makePrimary, IProject project) {
+		this.dataSet = dataSet;
 		this.name = name;
 		this.inputFile=inputFile;
 		this.makePrimary = makePrimary;
-		IPythonStringGenerator ps=(IPythonStringGenerator) ds;
+		IPythonStringGenerator ps=(IPythonStringGenerator) dataSet;
 		Object modelObject = ps.modelObject();
 		if (modelObject!=null) {
 			boolean createObject = WidgetRegistry.createObject(modelObject);
@@ -95,18 +95,18 @@ public class DataSetGenerator {
 
 	private void addDataSet(ArrayList<String> arrayList) {
 		boolean found = false;
-		IPythonStringGenerator as = this.ds.as(IPythonStringGenerator.class);
-		for (String s : arrayList) {
-			if (s.trim().equals(as.getImportString())) {
+		IPythonStringGenerator pythonStringGenerator = this.dataSet.as(IPythonStringGenerator.class);
+		for (String str : arrayList) {
+			if (str.trim().equals(pythonStringGenerator.getImportString())) {
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			arrayList.add(0, as.getImportString());
+			arrayList.add(0, pythonStringGenerator.getImportString());
 		}
 		arrayList.add("");
-		arrayList.add("@datasets.dataset_provider"+"(origin=\""+inputFile.getName()+"\",kind=\""+this.ds.getClass().getSimpleName()+"\""+")");
+		arrayList.add("@datasets.dataset_provider"+"(origin=\""+inputFile.getName()+"\",kind=\""+this.dataSet.getClass().getSimpleName()+"\""+")");
 		arrayList.add("def get" + this.name + "():");
 		File root=inputFile;
 		while (!root.getName().equals("data")) {
@@ -114,7 +114,7 @@ public class DataSetGenerator {
 		}
 		String substring = inputFile.getAbsolutePath().substring(root.getAbsolutePath().length()+1);
 		
-		arrayList.add("    return " + as.generatePythonString(substring.replace('\\', '/'),modelObject));
+		arrayList.add("    return " + pythonStringGenerator.generatePythonString(substring.replace('\\', '/'),modelObject));
 	}
 
 	private void addDataDeclaration(ArrayList<String> arrayList) {
