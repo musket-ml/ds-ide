@@ -554,5 +554,10 @@ public class CSVDataSetEditor extends AnalistsEditor {
 	public File getInputFile() {
 		return file2;
 	}
+	
+	@Override
+	public boolean isDirty() {
+		return false;
+	}
 
 }

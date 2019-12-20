@@ -182,18 +182,11 @@
             name="DataSet Viewer">
       </editor>
       <editor
-            class="com.onpositive.dside.ui.editors.AugmentationOverviewEditorPart"
-            default="false"
-            icon="icons/swatches.png"
-            id="com.onpositive.dside.ui.editors.augmentation"
-            name="Augmentations Overview">
-      </editor>
-      <editor
             class="com.onpositive.dside.ui.editors.preview.augmentation.AugmentationsPreviewEditorPart"
             default="false"
             icon="icons/swatches.png"
             id="com.onpositive.dside.ui.editors.augmentation.preview"
-            name="Augmentations Overview">
+            name="Augmentations Preview">
       </editor>
    </extension>
    <extension
