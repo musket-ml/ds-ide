@@ -3,7 +3,7 @@
 	<plugin id="com.onpositive.dside.ui" />
 	<plugin id="com.onpositive.musket.data" />
 	<plugin id="com.onpositive.yamledit" />
-	<plugin id="de.jcup.yamleditorcopy" />
+	<plugin id="de.jcup.yamleditor.fork" />
 	<plugin id="jfreechard_repackaged" />
 	<plugin id="opencsv-repackaged" />
 	<plugin id="com.google.gson" />
@@ -42,7 +42,6 @@
 	<plugin id="com.sun.el" />
 	<plugin id="com.sun.jna.platform" />
 	<plugin id="com.sun.jna" />
-	<plugin id="de.jcup.yamleditor" />
 	<plugin id="javaewah" />
 	<plugin id="javax.annotation.source" />
 	<plugin id="javax.annotation" />

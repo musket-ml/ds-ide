@@ -25,7 +25,7 @@ import org.osgi.framework.BundleContext;
 public class YamlEditorActivator extends AbstractUIPlugin  {
 
 	// The plug-in COMMAND_ID
-	public static final String PLUGIN_ID = "de.jcup.yamleditor"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "de.jcup.yamleditor.fork"; //$NON-NLS-1$
 
 	// The shared instance
 	private static YamlEditorActivator plugin;

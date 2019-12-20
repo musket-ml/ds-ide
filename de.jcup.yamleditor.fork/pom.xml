@@ -2,8 +2,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.onpositive.yamledit</groupId>
-	<artifactId>com.onpositive.yamledit</artifactId>
+	<groupId>de.jcup.yamleditor.fork</groupId>
+	<artifactId>de.jcup.yamleditor.fork</artifactId>
+	<version>1.3.0-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 
 	<parent>
@@ -12,7 +13,6 @@
 		<groupId>com.onpositive.dside</groupId>
 		<artifactId>com.onpositive.dside.parent</artifactId>
 	</parent>
-
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>

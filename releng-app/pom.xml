@@ -77,6 +77,7 @@
 
 
 	<modules>
+		<module>../de.jcup.yamleditor.fork</module>
 		<module>../com.onpositive.dside.target</module>
 		<module>../com.onpositive.yamledit</module>
 		<module>../aml/org.aml.typesystem</module>

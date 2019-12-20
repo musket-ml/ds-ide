@@ -567,7 +567,7 @@ public class YamlEditor extends TextEditor implements StatusMessageSupport, IRes
 	private boolean codeFoldingEnabled;
 
 	protected void updateFoldingStructure(SortedSet<FoldingPosition> positions) {
-		if (!isCodeFoldingEnabled()) {
+		if (viewer == null || !isCodeFoldingEnabled()) {
 			return;
 		}
 		

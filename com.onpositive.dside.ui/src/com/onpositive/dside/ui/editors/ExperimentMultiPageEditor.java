@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -173,7 +174,8 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 			editor = new YamlEditor();
 			editor.setSourceViewerConfiguration(new YamlSourceViewerConfiguration(editor) {
 
-				protected IContentAssistProcessor createContentAssistProcessor() {
+				@Override
+				protected IContentAssistProcessor createContentAssistProcessor(IAdaptable adaptable) {
 					return new ExperimentConfigContentAssistProcessor(ExperimentMultiPageEditor.this);
 				}
 

@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Yaml Editor
-Bundle-SymbolicName: de.jcup.yamleditorcopy;singleton:=true
-Bundle-Version: 1.3.0
+Bundle-SymbolicName: de.jcup.yamleditor.fork;singleton:=true
+Bundle-Version: 1.3.0.qualifier
 Bundle-Activator: de.jcup.yamleditor.YamlEditorActivator
 Bundle-Vendor: Albert Tregnaghi
 Require-Bundle: org.eclipse.ui,
@@ -16,8 +16,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.ui.ide,
  org.python.pydev,
- de.jcup.yamleditor,
- org.junit
+ org.junit,
+ org.yaml.snakeyaml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.ui
@@ -27,3 +27,4 @@ Bundle-ClassPath: .,
 Export-Package: de.jcup.yamleditor,
  de.jcup.yamleditor.outline,
  de.jcup.yamleditor.script
+Automatic-Module-Name: de.jcup.yamleditor.fork
