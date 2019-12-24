@@ -82,7 +82,7 @@ public class SegmentationTemplate extends ImageExperimentTemplate{
 		result=result.replace((CharSequence)"{negatives}", ""+negatives);
 		String secondStage="";
 		if (this.append) {
-			secondStage="  - epochs: 30 #let's go for 100 epochs\r\n" + 
+			secondStage="  - epochs: 30 #let's go for 30 epochs\r\n" + 
 					"    negatives: 2  \r\n" + 
 					"    validation_negatives: 0";
 		}
