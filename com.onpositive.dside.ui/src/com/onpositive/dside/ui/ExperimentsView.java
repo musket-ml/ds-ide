@@ -135,7 +135,7 @@ public class ExperimentsView extends XMLView {
 	}
 
 	public static void launchExperiment(Object currentValue) {
-		Collection<Experiment> collection = Collections.singletonList((Experiment)currentValue);
+		Collection<Experiment> collection = currentValue instanceof List<?> ? (List<Experiment>) currentValue : Collections.singletonList((Experiment)currentValue);
 		LaunchConfiguration cfg=new LaunchConfiguration(collection);
 		boolean createObject = WidgetRegistry.createObject(cfg);
 		if (createObject) {
