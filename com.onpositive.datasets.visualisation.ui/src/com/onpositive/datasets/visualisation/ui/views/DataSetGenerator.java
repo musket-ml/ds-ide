@@ -107,7 +107,7 @@ public class DataSetGenerator {
 		}
 		arrayList.add("");
 		arrayList.add("@datasets.dataset_provider"+"(origin=\""+inputFile.getName()+"\",kind=\""+this.dataSet.getClass().getSimpleName()+"\""+")");
-		arrayList.add("def get" + this.name + "():");
+		arrayList.add("def get_" + this.name + "():");
 		File root=inputFile;
 		while (!root.getName().equals("data")) {
 			root=root.getParentFile();
