@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.onpositive.musket.data.columntypes.ColumnLayout;
 import com.onpositive.musket.data.columntypes.DataSetFactoryRegistry;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -164,26 +163,26 @@ public class DataProject {
 				return null;
 			}
 			ArrayList<IDataSetFactory> matching = DataSetFactoryRegistry.getInstance().matching(spec);
-			IDataSet create = null;
+			IDataSet newDataSet = null;
 			if (!matching.isEmpty() && matching.size() > 1) {
 				FactoryModel model = new FactoryModel(matching);
 				boolean askQuestion = answerer.askQuestion("Please select factory", model);
 				if (askQuestion) {
-					create = model.selected.create(spec, null);
+					newDataSet = model.selected.create(spec, null);
 					factory = model.selected;
 				}
 			} else if (matching.size() == 1) {
 				IDataSetFactory iDataSetFactory = matching.get(0);
 				factory = iDataSetFactory;
-				create = iDataSetFactory.create(spec, null);
+				newDataSet = iDataSetFactory.create(spec, null);
 			}
 			long l3=System.currentTimeMillis();
 			
 			System.out.println("Dataset creation:"+(l3-l2));
-			create.getSettings().put(FILE_NAME, file2.getAbsolutePath().replace("\\", "/"));
-			if (create != null) {
-				dumpSettings(file2, create, factory);
-				return create;
+			if (newDataSet != null) {
+				newDataSet.getSettings().put(FILE_NAME, file2.getAbsolutePath().replace("\\", "/"));
+				dumpSettings(file2, newDataSet, factory);
+				return newDataSet;
 			}
 			GenericDataSet genericDataSet = new GenericDataSet(spec, t1);
 			dumpSettings(file2, genericDataSet, new GenericDataSetFactory());

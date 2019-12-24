@@ -40,9 +40,9 @@ public class DataSetSpec {
 	}
 	
 	public IColumn getStrictColumn(Class<? extends IColumnType>clazz) {
-		for (IColumn c:layout.infos.keySet()) {
-			if (layout.infos.get(c).prefs.get(clazz)==ColumnPreference.STRICT) {
-				return c;
+		for (IColumn column:layout.infos.keySet()) {
+			if (layout.infos.get(column).prefs.get(clazz)==ColumnPreference.STRICT) {
+				return column;
 			}
 		}
 		return null;		
