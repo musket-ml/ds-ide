@@ -33,6 +33,9 @@ class ActionSelection{
 	}
 	
 	public String targetFile() {
+		if (selection != null) {
+			return selection.getResultingFileName(target);
+		}
 		return target;
 	}
 	

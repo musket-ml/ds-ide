@@ -83,27 +83,19 @@ public class DataProject {
 				}
 			}
 			if (file2.getName().endsWith(".txt")) {
-				try {
-					InputStreamReader fileReader = new InputStreamReader(new FileInputStream(file2),encoding);
-					try {
-					TextSequenceDataSet read = new ConnlFormatReader().read(new BufferedReader(fileReader));
-					return read;
-					}finally {
-						try {
-							fileReader.close();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
+				try (InputStreamReader fileReader = new InputStreamReader(new FileInputStream(file2),encoding)) {
+					TextSequenceDataSet dataSet = new ConnlFormatReader().read(new BufferedReader(fileReader));
+					return dataSet;
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				} catch (IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
 				}
-				
 			}
 			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath(),encoding);
 			if (load == null) {

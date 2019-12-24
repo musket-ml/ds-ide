@@ -163,7 +163,7 @@ public class NewMusketExperimentWizard extends Wizard implements INewWizard {
 						dsName=d.functionName+": []";
 					}
 					else {
-						dsName="get"+d.name+": []";
+						dsName="get_"+d.name+": []";
 					}
 				}
 			}

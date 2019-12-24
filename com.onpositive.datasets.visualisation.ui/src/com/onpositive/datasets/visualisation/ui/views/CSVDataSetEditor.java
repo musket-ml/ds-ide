@@ -457,7 +457,7 @@ public class CSVDataSetEditor extends AnalistsEditor {
 			boolean openQuestion = MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Please confirm",
 					"Great, you have a dataset now, may be you want to configure an experiment?");
 			if (openQuestion) {
-				configureFromDataSetAndTemplate(project, "", original, temp, "get" + name + ": []");
+				configureFromDataSetAndTemplate(project, "", original, temp, "get_" + name + ": []");
 			}
 		}
 	}

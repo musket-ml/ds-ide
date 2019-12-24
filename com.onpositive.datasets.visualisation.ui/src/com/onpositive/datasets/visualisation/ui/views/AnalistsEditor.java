@@ -55,7 +55,7 @@ import com.onpositive.dataset.visualization.internal.VirtualTable;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertResolutionAction;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertToInstanceSegmentation;
-import com.onpositive.musket.data.actions.BasicDataSetActions.GenerateDataSetAction;
+import com.onpositive.musket.data.actions.BasicDataSetActions.GenerateMusketWrappersAction;
 import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.ChartData.BasicChartData;
 import com.onpositive.musket.data.core.DescriptionEntry;
@@ -312,7 +312,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				ActionSelection actionSelection = new ActionSelection(results.getOriginal().conversions());
 				boolean createObject = WidgetRegistry.createObject(actionSelection);
 				if (createObject) {
-					String targetFile = actionSelection.targetFile();
+					String targetId = actionSelection.targetFile();
 					ConversionAction selectedAction = actionSelection.getSelectedAction();
 					if (selectedAction instanceof ConvertToInstanceSegmentation) {
 						IDataSet original = results.getOriginal();
@@ -334,9 +334,9 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 						}
 						return;						
 					}
-					if (selectedAction instanceof GenerateDataSetAction) {
-						GenerateDataSetAction fm = (GenerateDataSetAction) selectedAction;
-						String name = targetFile;
+					if (selectedAction instanceof GenerateMusketWrappersAction) {
+						GenerateMusketWrappersAction fm = (GenerateMusketWrappersAction) selectedAction;
+						String name = targetId;
 						boolean generateDataSet = new DataSetGenerator().generateDataSet(results.getOriginal(),
 								getInputFile(), name, true, getProject());
 						if (!generateDataSet) {
@@ -360,7 +360,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 						}
 					}
 					if (selectedAction instanceof ConvertResolutionAction) {
-						String[] split = targetFile.split(",");
+						String[] split = targetId.split(",");
 						try {
 							int width = Integer.parseInt(split[0].trim());
 							int height = Integer.parseInt(split[1].trim());
@@ -402,7 +402,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 									"Target should be width, height");
 						}
 					}
-					File actualTarget = getActualTarget(targetFile);
+					File actualTarget = getActualTarget(targetId);
 					if (selectedAction.isUsesCurrentFilters()) {
 						selectedAction.run(results.getFiltered(), actualTarget);
 					} else {
@@ -673,7 +673,6 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		Object y;
 	}
 
-	@SuppressWarnings("unused")
 	private void update(JFreeChart createChart, Container element2) {
 		Point size = element2.getControl().getSize();
 		element2.getControl().setBackgroundImage(null);
@@ -682,7 +681,11 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 			visualizationSpec2=this.visualizationSpec;
 		}
 		if (visualizationSpec2.type!=ChartType.TABLE) {
-
+			
+			if (size.x == 0 || size.y == 0) {
+				return;
+			}
+			
 			BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, size.y - 3);
 			ImageData convertToSWT = Utils.convertToSWT(createBufferedImage);
 			if (image != null) {
@@ -691,8 +694,8 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 
 			TableEnumeratedValueSelector vs = (TableEnumeratedValueSelector) element2.getParent().getElement("v1");
 			vs.setEnabled(false);
-			for (Control c:vs.getAllControls()) {
-				setVisible(c,false);
+			for (Control control:vs.getAllControls()) {
+				setVisible(control,false);
 			}
 //		columns.get(0).setCaption("AAAA");
 			image = new Image(Display.getCurrent(), convertToSWT);

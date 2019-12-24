@@ -33,11 +33,11 @@ public class FileIO implements IDataSetIO{
 			return DataSetIO.getInstance().loadDataSet(original, monitor);
 		}
 		String kind = getKind(memento, file);
-		IDataSetIO iDataSetIO = loaders.get(kind);
-		if (iDataSetIO==null) {
+		IDataSetIO dataSetIO = loaders.get(kind);
+		if (dataSetIO==null) {
 			throw new IllegalArgumentException("Unknown kind");
 		}
-		return iDataSetIO.loadDataSet(memento, monitor);
+		return dataSetIO.loadDataSet(memento, monitor);
 	}
 
 	private String getKind(DataSetMemento memento, File file) {
