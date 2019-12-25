@@ -256,67 +256,7 @@
          </menu>
       </menuContribution>
       
-      </extension> 
-   <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-   <!--                          PREFERENCES                                 -->
-   <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
-   <extension
-      point = "org.eclipse.ui.preferencePages">
-      <page
-         id="yamleditor.eclipse.gradleeditor.preferences.YamlEditorEditorPreferencePage"
-         class="de.jcup.yamleditor.preferences.YamlEditorPreferencePage"
-         name="Yaml Editor"
-         >
-         <keywordReference
-               id="yamleditor.preferences.keyword.yaml">
-         </keywordReference>
-         <keywordReference
-               id="yamleditor.preferences.keyword.editor">
-         </keywordReference>
-         <keywordReference
-               id="yamleditor.preferences.keyword.folding">
-         </keywordReference>
-      </page>
-      <page
-         id="yamleditor.eclipse.gradleeditor.preferences.YamlEditorEditorSyntaxColorPreferencePage"
-         class="de.jcup.yamleditor.preferences.YamlEditorSyntaxColorPreferencePage"
-         name="Syntax coloring"
-         category="yamleditor.eclipse.gradleeditor.preferences.YamlEditorEditorPreferencePage">
-         <keywordReference
-               id="yamleditor.preferences.keyword.yaml">
-         </keywordReference>
-          <keywordReference
-               id="yamleditor.preferences.keyword.color">
-         </keywordReference>
-      </page>
-      <page
-         id="yamleditor.eclipse.gradleeditor.preferences.YamlEditorTaskTagsPreferencePage"
-         class="de.jcup.yamleditor.preferences.YamlTaskTagsPreferencePage"
-         name="Task Tags"
-         category="yamleditor.eclipse.gradleeditor.preferences.YamlEditorEditorPreferencePage">
-         <keywordReference
-               id="yamleditor.preferences.keyword.yaml">
-         </keywordReference>
-         <keywordReference
-               id="yamleditor.preferences.keyword.todo">
-         </keywordReference>
-         <keywordReference
-               id="yamleditor.preferences.keyword.task">
-         </keywordReference>
-          <keywordReference
-               id="yamleditor.preferences.keyword.tasks">
-         </keywordReference>
-      </page>
-    </extension>
-    <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="de.jcup.yamleditor.preferences.YamlEditorPreferenceInitializer">
-      </initializer>
-      <initializer
-            class="de.jcup.yamleditor.preferences.YamlTaskTagsPreferenceInitializer">
-      </initializer>
-   </extension>
+    </extension> 
    
    
    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->

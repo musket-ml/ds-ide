@@ -15,7 +15,9 @@ package de.jcup.yamleditor.preferences;
  *
  */
 
-import static de.jcup.yamleditor.preferences.YamlEditorPreferenceConstants.*;
+import static de.jcup.yamleditor.preferences.YamlEditorPreferenceConstants.P_CODE_FOLDING_ENABLED;
+import static de.jcup.yamleditor.preferences.YamlEditorPreferenceConstants.P_LINK_OUTLINE_WITH_EDITOR;
+import static de.jcup.yamleditor.preferences.YamlEditorPreferenceConstants.P_SPACES_TO_REPLACE_TAB;
 
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -31,7 +33,6 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import de.jcup.eclipse.commons.ui.ColorUtil;
 import de.jcup.yamleditor.EclipseUtil;
 import de.jcup.yamleditor.YamlEditor;
-import de.jcup.yamleditor.YamlEditorActivator;
 
 public class YamlEditorPreferences {
 
@@ -39,7 +40,7 @@ public class YamlEditorPreferences {
 	private IPreferenceStore store;
 
 	private YamlEditorPreferences() {
-		store = new ScopedPreferenceStore(InstanceScope.INSTANCE, YamlEditorActivator.PLUGIN_ID);
+		store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "de.jcup.yamleditor"); //Use same prefs with original editor
 		store.addPropertyChangeListener(new IPropertyChangeListener() {
 
 			@Override
