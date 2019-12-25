@@ -86,8 +86,8 @@ public class ImportKaggleDatasetWizard extends Wizard implements INewWizard {
 			public void createControl(Composite parent) {
 				setImageDescriptor(SWTImageManager.getDescriptor("dataset_wiz"));
 				el = new RootElement(parent);
-				setTitle("New Dataset");
-				setMessage("Let's have fun");
+				setTitle("Import Dataset");
+				setMessage("Search for either standalone dataset or dataset from competition");
 
 				datasetView = new KaggleDatasetParams();
 
