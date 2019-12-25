@@ -158,7 +158,7 @@ public class KaggleRunView extends Wizard implements INewWizard {
 		
 		KaggleDatasetParams datasetParams = new KaggleDatasetParams();
 		
-		KaggleDataset.readConfig(project, datasetParams);
+		ImportKaggleDatasetWizard.readConfig(project, datasetParams);
 		
 		DatasetTableElement datasource = datasetParams.getItem();
 		

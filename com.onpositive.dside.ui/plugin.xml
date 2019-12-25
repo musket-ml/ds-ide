@@ -363,7 +363,7 @@
       
       <wizard
             category="org.musket.pydev.PythonCategory"
-            class="com.onpositive.dside.wizards.KaggleDataset"
+            class="com.onpositive.dside.wizards.ImportKaggleDatasetWizard"
             finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
             icon="icons/experiment.png"
@@ -828,7 +828,7 @@
       
       <wizard
             category="org.musket.pydev.PythonCategory"
-            class="com.onpositive.dside.wizards.KaggleDataset"
+            class="com.onpositive.dside.wizards.ImportKaggleDatasetWizard"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/experiment.png"

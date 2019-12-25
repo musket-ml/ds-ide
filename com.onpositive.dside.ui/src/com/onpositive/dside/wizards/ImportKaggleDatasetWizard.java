@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,13 +24,11 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -50,6 +47,7 @@ import com.onpositive.commons.elements.RootElement;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.project.DataProjectAccess;
 import com.onpositive.musket_core.IServer;
@@ -63,14 +61,14 @@ import com.onpositive.semantic.model.ui.generic.widgets.IUIElement;
 import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
-public class KaggleDataset extends Wizard implements INewWizard {
+public class ImportKaggleDatasetWizard extends Wizard implements INewWizard {
 	private static final String DEPS_FILE = "project.yaml";
 	
 	private IStructuredSelection selection;
 
 	private KaggleDatasetParams datasetView;
 
-	public KaggleDataset() {
+	public ImportKaggleDatasetWizard() {
 
 	}
 
@@ -81,7 +79,6 @@ public class KaggleDataset extends Wizard implements INewWizard {
 
 	@Override
 	public void addPages() {
-		// TODO Auto-generated method stub
 		this.addPage(new DLFWizardPage("Hello") {
 
 			@SuppressWarnings("serial")
@@ -230,8 +227,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 									resource.refreshLocal(0, new NullProgressMonitor());
 								}
 							} catch (Exception e) {
-								e.printStackTrace();
-								// TODO: handle exception
+								DSIDEUIPlugin.log(e);
 							}
 						}
 						if (resource.equals(folder)) {
@@ -242,7 +238,7 @@ public class KaggleDataset extends Wizard implements INewWizard {
 				});
 				folder.refreshLocal(1, new NullProgressMonitor());
 			} catch (CoreException e) {
-				e.printStackTrace();
+				DSIDEUIPlugin.log(e);
 			}
 		});
 
@@ -336,7 +332,6 @@ public class KaggleDataset extends Wizard implements INewWizard {
 		for(DataLink item: dataLinks) {
 			if(link.equals(item)) {
 				dataLinks.remove(item);
-				
 				break;
 			}
 		}

@@ -4,13 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataLink {
-	DataLinkType type;
 	
-	public String destination;
-	
-	public String url;
-	
-	public boolean force;
+	public final DataLinkType type;
+	public final String destination;
+	public final String url;
+	public final boolean force;
 	
 	public DataLink(Object item) {
 		if(item instanceof String) {
@@ -29,6 +27,8 @@ public class DataLink {
 			this.force = (boolean) map.getOrDefault("force", false);
 			
 			this.type = DataLinkType.fromUrl(this.url);
+		} else {
+			throw new IllegalArgumentException();
 		}
 	}
 	
