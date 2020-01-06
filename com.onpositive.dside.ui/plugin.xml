@@ -68,7 +68,7 @@
             id="com.onpositive.dside.ui.objectContribution1"
             objectClass="org.eclipse.core.resources.IFolder">
          <action
-               class="com.onpositive.dside.ui.ShowExperiments"
+               class="com.onpositive.dside.ui.ShowExperimentsAction"
                icon="icons/experiment.png"
                id="com.onpositive.dside.ui.action1"
                label="Show Experiments">
@@ -96,7 +96,7 @@
       </objectContribution>
       <objectContribution
             adaptable="true"
-            id="com.onpositive.dside.ui.objectContribution3"
+            id="com.onpositive.dside.ui.expNodeContribution"
             objectClass="com.onpositive.dside.ui.navigator.ExperimentNode">
             <action
                class="com.onpositive.dside.ui.navigator.RunOnKaggleKernelsAction"
@@ -566,6 +566,13 @@
                 label="Duplicate Experiment"
                 menubarPath="group.new">
           	 </action>             
+          	 <action
+               class="com.onpositive.dside.ui.AddExperimentsToViewAction"
+               id="com.onpositive.dside.ui.AddExperimentsToViewAction"
+               icon="icons/experiment_add.png"
+               label="Add to Experiments View"
+               menubarPath="group.new">
+         	 </action>
          </objectContribution>
     </extension>
     <extension

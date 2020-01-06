@@ -61,7 +61,7 @@ public class EditorTasks {
 
 		@Override
 		public void perform(ExperimentOverivewEditorPart editor, Experiment exp) {
-			ExperimentsView.duplateExperiment(exp);
+			ExperimentsView.duplicateExperiment(exp);
 		}
 	}
 	

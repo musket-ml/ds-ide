@@ -1,10 +1,7 @@
 package com.onpositive.dside.ui;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -16,32 +13,24 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.onpositive.musket_core.Experiment;
-import com.onpositive.musket_core.ExperimentFinder;
 
-public class ShowExperiments extends Action implements IObjectActionDelegate {
+public class AddExperimentsToViewAction extends Action implements IObjectActionDelegate {
 
 	private ISelection selection;
 	private IWorkbenchPart part;
 
-	public ShowExperiments() {
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public void run() {
-		super.run();
-	}
-
 	@Override
 	public void run(IAction action) {
-		ArrayList<IContainer> flds = new ArrayList<>();
+		ArrayList<Experiment> toAdd = new ArrayList<>();
 		if (selection instanceof IStructuredSelection) {
-			IStructuredSelection dl = (IStructuredSelection) selection;
-			for (Object o : dl.toList()) {
-				if (o instanceof IAdaptable) {
-					IFolder adapter = ((IAdaptable) o).getAdapter(IFolder.class);
+			IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+			for (Object current : structuredSelection.toList()) {
+				if (current instanceof Experiment) {
+					toAdd.add((Experiment) current);
+				} else if (current instanceof IAdaptable) {
+					Experiment adapter = ((IAdaptable) current).getAdapter(Experiment.class);
 					if (adapter != null) {
-						flds.add(adapter);
+						toAdd.add(adapter);
 					}
 				}
 			}
@@ -50,10 +39,9 @@ public class ShowExperiments extends Action implements IObjectActionDelegate {
 		try {
 			ExperimentsView exp = (ExperimentsView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 					.showView("com.onpositive.dside.ui.experiments");
-			exp.setLocation(flds);
+			exp.addExperiments(toAdd);
 		} catch (PartInitException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			DSIDEUIPlugin.log(e);
 		}
 	}
 

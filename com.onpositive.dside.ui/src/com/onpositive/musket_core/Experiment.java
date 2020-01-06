@@ -12,16 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 
 import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.IMusketConstants;
@@ -172,23 +164,11 @@ public class Experiment {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, Object> getConfig() {
 		if (this.config != null) {
 			return config;
 		}
-		File file = new File(path, IMusketConstants.MUSKET_CONFIG_FILE_NAME);
-		try {
-			FileReader fileReader = new FileReader(file);
-			try {
-				Map<String, Object> config = (Map<String, Object>) YamlIO.load(fileReader);
-				this.config = config;
-			} finally {
-				fileReader.close();
-			}
-		} catch (Exception e) {
-			return new HashMap<>();
-		}
+		this.config = ExperimentIO.readConfig(path);
 		return config;
 	}
 
@@ -330,47 +310,6 @@ public class Experiment {
 		return (String) object;
 	}
 
-	public boolean delete() {
-		IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
-				.findContainersForLocation(new Path(this.path));
-		for (IContainer c : findContainersForLocation) {
-			try {
-				c.delete(true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public Experiment duplicate(String value) {
-		IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
-				.findContainersForLocation(new Path(this.path));
-		for (IContainer c : findContainersForLocation) {
-			IFile file = c.getFile(new Path(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
-			if (file.exists()) {
-				IContainer parent = c.getParent();
-				IFolder folder = parent.getFolder(new Path(value));
-				if (!folder.exists()) {
-					try {
-						folder.create(true, true, new NullProgressMonitor());
-						IPath append = folder.getFullPath().append(IMusketConstants.MUSKET_CONFIG_FILE_NAME);
-						file.copy(append, true, new NullProgressMonitor());
-						IFile file2 = ResourcesPlugin.getWorkspace().getRoot().getFile(append);
-						String portableString = file2.getParent().getLocation().toPortableString();
-						return new Experiment(portableString);
-					} catch (CoreException e) {
-						MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", e.getMessage());
-					}
-				} else {
-					MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
-							"Experiment with this name already exist at:" + parent.getFullPath().toPortableString());
-				}
-			}
-		}
-		return null;
-	}
-
 	public IPath getPath() {
 		return new Path(path);
 	}
@@ -440,70 +379,12 @@ public class Experiment {
 		this.config = null;
 	}
 
-	public void backup(boolean copyWeights) {
-		String projectPath = this.getProjectPath();
-		File modules = new File(projectPath, "modules");
-		File mcy = new File(projectPath, IMusketConstants.COMMON_CONFIG_NAME);
-		File file2 = getHistoryDir();
-		file2.mkdirs();
-		int maxNum = getLaunchCount(file2);
-		maxNum++;
-		File experimentHistory = new File(file2, "" + maxNum);
-		experimentHistory.mkdirs();
-		if (modules.exists()) {
-			Utils.copyDir(modules, new File(experimentHistory, "modules"));
-		}
-		if (mcy.exists()) {
-			Utils.copyDir(mcy, new File(experimentHistory, IMusketConstants.COMMON_CONFIG_NAME));
-		}
-		String name = new File(path).getName();
-		File ed = new File(experimentHistory, name);
-		ed.mkdir();
-		Utils.copyDir(new File(path, IMusketConstants.MUSKET_CONFIG_FILE_NAME), new File(ed, IMusketConstants.MUSKET_CONFIG_FILE_NAME));
-
-		experimentHistory = new File(file2, "" + (maxNum - 1));
-		if (experimentHistory.exists()) {
-			ed = new File(experimentHistory, name);
-			File metrics = new File(path, "metrics");
-			if (metrics.exists()) {
-				Utils.copyDir(metrics, new File(ed, "metrics"));
-			}
-			metrics = new File(path, "examples");
-			if (metrics.exists()) {
-				Utils.copyDir(metrics, new File(ed, "examples"));
-			}
-			if (copyWeights) {
-				metrics = new File(path, "weights");
-				if (metrics.exists()) {
-					Utils.copyDir(metrics, new File(ed, "weights"));
-				}
-			}
-		}
-	}
-
-	protected int getLaunchCount(File file2) {
-		File[] listFiles = file2.listFiles();
-		int maxNum = -1;
-		for (File f : listFiles) {
-			try {
-				String name = f.getName();
-				int parseInt = Integer.parseInt(name);
-				if (maxNum < parseInt) {
-					maxNum = parseInt;
-				}
-			} catch (NumberFormatException e) {
-				// Best effort
-			}
-		}
-		return maxNum;
-	}
-
-	protected File getHistoryDir() {
-		return new File(this.path, ".history");
-	}
-
 	public boolean hasSplits() {
 		return false;
+	}
+	
+	public String getPathString() {
+		return path;
 	}
 
 }

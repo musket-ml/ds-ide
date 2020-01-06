@@ -1,12 +1,16 @@
 <form xmlns="http://jetface.org/JetFace1.0/" caption="Experiments">
 	<model class="com.onpositive.dside.ui.ExperimentsView"/>
-	<pattern-filter targetId="e" />
-	<table bindTo="experiments" initialSortExpression="Score" id="e" openOnDoubleClick="true">
+	<pattern-filter targetId="experiments" />
+	<table bindTo="experiments" initialSortExpression="Score" id="experiments" openOnDoubleClick="true">
+	<actions toToolbar="true">
+		<binded-action bindTo="$.refreshList" caption="Refresh experiment list" image="com.onpositive.semantic.ui.refresh"/>
+	</actions>
 	<actions toMenu="true">
-		<binded-action bindTo="$.deleteExperiment" caption="Delete Experement" image="com.onpositive.semantic.ui.delete"/>
+		<binded-action bindTo="$.removeExperiment" caption="Remove from view"/>
+		<binded-action bindTo="$.deleteExperiment" caption="Delete Experiment" image="com.onpositive.semantic.ui.delete"/>
 		<binded-action bindTo="$.duplicate" caption="Create Duplicate" image="com.onpositive.semantic.ui.copy"/>
 		<binded-action bindTo="$.open" caption="Open Experiment" image="com.onpositive.semantic.ui.edit"/>
-		<binded-action bindTo="$.compare" caption="Compare Confifurations" image="com.onpositive.semantic.ui.settings"/>
+		<binded-action bindTo="$.compare" caption="Compare Configurations" image="com.onpositive.semantic.ui.settings"/>
 		<binded-action bindTo="$.launch" caption="Launch Experiments" image="com.onpositive.commons.namespace.ide.ui.element"/>
 		<binded-action bindTo="$.task" caption="Launch Tasks" image="com.onpositive.ide.ui.change"/>
 	</actions>	

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -32,7 +33,7 @@ import com.onpositive.yamledit.io.YamlIO;
 
 public class TaskManager {
 
-	private static ArrayList<Runnable> onJobComplete = new ArrayList<>();
+	private static ArrayList<Consumer<Object>> onJobComplete = new ArrayList<>();
 	
 	private static IdentityHashMap<ILaunch, TaskStatus> tasks = new IdentityHashMap<>();
 
@@ -82,11 +83,11 @@ public class TaskManager {
 		});
 	}
 
-	public static void addJobListener(Runnable r) {
+	public static void addJobListener(Consumer<Object> r) {
 		onJobComplete.add(r);
 	}
 
-	public static void removeJobListener(Runnable r) {
+	public static void removeJobListener(Consumer<Object> r) {
 		onJobComplete.remove(r);
 	}
 
@@ -107,8 +108,11 @@ public class TaskManager {
 			}
 			try {
 				byte[] readAllBytes = Files.readAllBytes(path);
-				Object loadAs = YamlIO.loadAs(new StringReader(new String(readAllBytes)), task.resultClass());
-				task.afterCompletion(loadAs);
+				Object result = YamlIO.loadAs(new StringReader(new String(readAllBytes)), task.resultClass());
+				task.afterCompletion(result);
+				for (Consumer<Object> consumer : onJobComplete) {
+					consumer.accept(result);
+				}
 			} catch (Exception e) {
 				DSIDEUIPlugin.log(e);
 			}

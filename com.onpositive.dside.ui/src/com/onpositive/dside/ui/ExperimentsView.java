@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.eclipse.compare.internal.CompareAction;
 import org.eclipse.core.resources.IContainer;
@@ -20,12 +22,15 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.musket_core.Experiment;
-import com.onpositive.musket_core.ExperimentFinder;
+import com.onpositive.musket_core.ExperimentIO;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.property.ValueUtils;
 import com.onpositive.semantic.model.ui.generic.widgets.ISelectorElement;
@@ -35,34 +40,50 @@ import com.onpositive.semantic.ui.workbench.elements.XMLView;
 
 public class ExperimentsView extends XMLView {
 
+	private static final String PATHS_SEPARATOR = ";";
+
+	private static final String EXPERIMENTS_KEY = "experiments";
+
+	private static final String TABLE_BND_ID = "experiments";
+
 	private final class MockAction extends org.eclipse.jface.action.Action implements IAction{
 		
 	}
 
-	Collection<Experiment> experiments = new ArrayList<Experiment>();
+	protected Collection<Experiment> experiments = new ArrayList<Experiment>();
 	
-	private List<IContainer> containers;
+	Consumer<Object> launchListener=new Consumer<Object>() {
 
+		@Override
+		public void accept(Object result) {
+			Display.getDefault().asyncExec(new Runnable() {
+				
+				@Override
+				public void run() {
+					refreshList();
+				}
+			});
+		}
+	};
+		
 	public ExperimentsView() {
 		super("dlf/experiments.dlf");
 	}
 
 	@Override
 	public void setFocus() {
-
+		AbstractEnumeratedValueSelector<?> element = (AbstractEnumeratedValueSelector<?>) getElement(TABLE_BND_ID);
+		element.getViewer().getControl().setFocus();
 	}
 	
-	
-	public void setLocation(List<IContainer> find) {
-		this.containers=find;
-		Collection<Experiment> ex = ExperimentFinder.find(find);
-		this.setExperiments(ex);
-	}
-
-	public void setExperiments(Collection<Experiment> find) {
+	public void setExperiments(Collection<Experiment> experiments) {
 		experiments = new ArrayList<>();
 		ObjectChangeManager.markChanged(this);
-		this.experiments = find;
+		this.experiments = experiments;
+		refreshList();
+	}
+
+	public void refreshList() {
 		try {
 			ObjectChangeManager.markChanged(this);
 			ObjectChangeManager.markChanged((Object) this.experiments);
@@ -71,25 +92,11 @@ public class ExperimentsView extends XMLView {
 		}
 	}
 	
-	Runnable launchListener=new Runnable() {
-		
-		@Override
-		public void run() {
-			Display.getDefault().asyncExec(new Runnable() {
-				
-				@Override
-				public void run() {
-					fullRefresh();
-				}
-			});
-		}
-	};
-
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		TaskManager.addJobListener(launchListener);
-		AbstractEnumeratedValueSelector<?> element = (AbstractEnumeratedValueSelector<?>) getElement("e");
+		AbstractEnumeratedValueSelector<?> element = (AbstractEnumeratedValueSelector<?>) getElement(TABLE_BND_ID);
 		element.getViewer().addDoubleClickListener(new IDoubleClickListener() {
 
 			@Override
@@ -97,8 +104,9 @@ public class ExperimentsView extends XMLView {
 				open();
 			}
 		});
-
+		getSite().setSelectionProvider(element.getViewer());
 	}
+	
 	@Override
 	public void dispose() {
 		TaskManager.removeJobListener(launchListener);
@@ -106,7 +114,7 @@ public class ExperimentsView extends XMLView {
 	}
 
 	public void open() {
-		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
+		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
 		Object currentValue = el.getSelectionBinding().getValue();
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		for (Object o : collection) {
@@ -129,7 +137,7 @@ public class ExperimentsView extends XMLView {
 	}
 	
 	public void launch() {
-		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
+		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
 		Object currentValue = el.getSelectionBinding().getValue();
 		launchExperiment(currentValue);
 	}
@@ -140,7 +148,7 @@ public class ExperimentsView extends XMLView {
 		boolean createObject = WidgetRegistry.createObject(cfg);
 		if (createObject) {
 			for (Experiment e:cfg.experiment) {
-				e.backup(true);
+				ExperimentIO.backup(e, true);
 				if (cfg.cleanSplits&&!cfg.onlyReports) {
 					new File(e.getPath().toFile(),"config.yaml.folds_split").delete();
 					new File(e.getPath().toFile(),"config.yaml.holdout_split").delete();					
@@ -153,7 +161,7 @@ public class ExperimentsView extends XMLView {
 		}
 	}
 	public void task() {
-		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
+		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
 		Object currentValue = el.getSelectionBinding().getValue();
 		Collection<Object> collection = ValueUtils.toCollection(currentValue); 
 		TaskConfiguration cfg=new TaskConfiguration(collection);
@@ -165,7 +173,7 @@ public class ExperimentsView extends XMLView {
 	}
 	
 	public void compare() {
-		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
+		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
 		Object currentValue = el.getSelectionBinding().getValue();
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		ArrayList<Object>objects=new ArrayList<>();
@@ -191,7 +199,7 @@ public class ExperimentsView extends XMLView {
 		}		
 	}
 	public void run() {
-		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
+		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
 		Object currentValue = el.getSelectionBinding().getValue();
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		ArrayList<Object>objects=new ArrayList<>();
@@ -203,20 +211,20 @@ public class ExperimentsView extends XMLView {
 	}
 
 	public void duplicate() {
-		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
+		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
 		Object currentValue = el.getSelectionBinding().getValue();
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		for (Object o : collection) {
 			Experiment e = (Experiment) o;
-			Experiment exp=duplateExperiment(e);
-			if (exp!=null) {
-			this.experiments.add(exp);
+			Experiment exp = duplicateExperiment(e);
+			if (exp != null) {
+				this.experiments.add(exp);
 			}
 		}
-		fullRefresh();
+		refreshList();
 	}
 
-	public static Experiment duplateExperiment(Experiment e) {
+	public static Experiment duplicateExperiment(Experiment e) {
 		IInputValidator validator = new IInputValidator() {
 
 			@Override
@@ -232,21 +240,25 @@ public class ExperimentsView extends XMLView {
 		inputDialog.open();
 		String value = inputDialog.getValue();
 		if (value != null && value.length() > 0) {
-			Experiment exp = e.duplicate(value);
+			Experiment exp = ExperimentIO.duplicate(e,value);
 			if (exp != null) {
-				
-				
-				
-				
 				open(exp);
 				return exp;
 			}
 		}
 		return null;
 	}
+	
+	public void removeExperiment() {
+		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
+		Object currentValue = el.getSelectionBinding().getValue();
+		Collection<Object> collection = ValueUtils.toCollection(currentValue);
+		this.experiments.removeAll(collection);
+		refreshList();
+	}
 
 	public void deleteExperiment() {
-		ISelectorElement<?> el = (ISelectorElement<?>) getElement("e");
+		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
 		Object currentValue = el.getSelectionBinding().getValue();
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		MessageDialog dialog = new MessageDialog(Display.getCurrent().getActiveShell(), "Delete experiments", null,
@@ -256,7 +268,7 @@ public class ExperimentsView extends XMLView {
 		if (result == 0) {
 			for (Object o : collection) {
 				if (o instanceof Experiment) {
-					if (((Experiment) o).delete()) {
+					if (ExperimentIO.delete(((Experiment) o))) {
 						this.experiments.remove(o);
 					} else {
 						MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
@@ -265,14 +277,34 @@ public class ExperimentsView extends XMLView {
 				}
 			}
 			this.getBinding(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER).refresh();
+			refreshList();
 		}
-		fullRefresh();
 	}
 
-	private void fullRefresh() {
-		
-		if (containers!=null) {
-			setLocation(containers);
+	public void addExperiments(List<Experiment> toAdd) {
+		toAdd.removeAll(experiments);
+		experiments.addAll(toAdd);
+		refreshList();
+	}
+	
+	@Override
+	public void init(IViewSite site, IMemento memento) throws PartInitException {
+		super.init(site, memento);
+		String stored = memento.getString(EXPERIMENTS_KEY);
+		if (stored != null) {
+			String[] paths = stored.split(PATHS_SEPARATOR);
+			for (String pathStr : paths) {
+				Experiment experiment = new Experiment(pathStr);
+				experiments.add(experiment);
+			}
+		}
+	}
+	
+	@Override
+	public void saveState(IMemento memento) {
+		super.saveState(memento);
+		if (!experiments.isEmpty()) {
+			memento.putString(EXPERIMENTS_KEY, experiments.stream().map(exp -> exp.getPathString()).collect(Collectors.joining(PATHS_SEPARATOR)));
 		}
 	}
 }
