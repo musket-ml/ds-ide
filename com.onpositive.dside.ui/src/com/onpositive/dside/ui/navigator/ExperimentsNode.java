@@ -2,6 +2,7 @@ package com.onpositive.dside.ui.navigator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -50,6 +51,9 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
+		if (adapter == getClass()) {
+			return adapter.cast(this);
+		}
 		if (adapter==IFolder.class) {
 			return adapter.cast(folder);
 		}
@@ -63,6 +67,26 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 	}
 	
 	public Object[] getChildren() {
+		List<ExperimentNode> children = getExperiments();
+		LinkedHashMap<IPath, ExperimentGroup>groups=new LinkedHashMap<>();
+		for (ExperimentNode n:children) {
+			IPath projectRelativePath = n.folder.getProjectRelativePath().removeFirstSegments(1).removeLastSegments(1);
+			if (groups.containsKey(projectRelativePath)) {
+				groups.get(projectRelativePath).experiments.add(n);
+			}
+			else {
+				ExperimentGroup g=new ExperimentGroup(folder.getProject(),projectRelativePath);
+				g.experiments.add(n);
+				groups.put(projectRelativePath, g);				
+			}
+		}
+		if (groups.values().size() == 1) {
+			return children.toArray();
+		}
+		return groups.values().toArray();		
+	}
+
+	public List<ExperimentNode> getExperiments() {
 		ArrayList<ExperimentNode>children=new ArrayList<>();
 		try {
 			folder.accept(new IResourceVisitor() {
@@ -81,18 +105,6 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 		} catch (CoreException e) {
 			DSIDEUIPlugin.log(e);
 		}
-		LinkedHashMap<IPath, ExperimentGroup>groups=new LinkedHashMap<>();
-		for (ExperimentNode n:children) {
-			IPath projectRelativePath = n.folder.getProjectRelativePath().removeFirstSegments(1).removeLastSegments(1);
-			if (groups.containsKey(projectRelativePath)) {
-				groups.get(projectRelativePath).experiments.add(n);
-			}
-			else {
-				ExperimentGroup g=new ExperimentGroup(folder.getProject(),projectRelativePath);
-				g.experiments.add(n);
-				groups.put(projectRelativePath, g);				
-			}
-		}
-		return groups.values().toArray();		
+		return children;
 	}
 }

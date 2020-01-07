@@ -450,7 +450,6 @@
          </commonWizard>
          <!-- that's so that we only have the python content shown, and not the resource content -->
 
-
       </navigatorContent>
       <commonFilter
             activeByDefault="true"
@@ -465,12 +464,6 @@
             priority="high">
          <enablement></enablement>
       </actionProvider>
-
-
-
-
-
-
 	  <!-- The ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'
 
 	  It seems that eclipse 3.6 fixed that, so, it's not needed anymore.
@@ -481,20 +474,6 @@
 	  	  class="org.python.pydev.navigator.filters.DotStartFilter">
       </commonFilter>
       -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </extension>
 
     <!-- Bind the content extension to the viewer -->

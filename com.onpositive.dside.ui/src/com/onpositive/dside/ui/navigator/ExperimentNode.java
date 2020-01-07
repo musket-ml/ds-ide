@@ -20,6 +20,9 @@ public class ExperimentNode implements IAdaptable,IExperimentContribution{
 
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
+		if (adapter == getClass()) {
+			return adapter.cast(this);
+		}
 		if (adapter==IFile.class||adapter==IResource.class) {
 			return adapter.cast(folder.getFile(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
 		}

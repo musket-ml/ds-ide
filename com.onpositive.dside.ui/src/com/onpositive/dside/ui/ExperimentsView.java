@@ -17,9 +17,13 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IMemento;
@@ -97,14 +101,24 @@ public class ExperimentsView extends XMLView {
 		super.createPartControl(parent);
 		TaskManager.addJobListener(launchListener);
 		AbstractEnumeratedValueSelector<?> element = (AbstractEnumeratedValueSelector<?>) getElement(TABLE_BND_ID);
-		element.getViewer().addDoubleClickListener(new IDoubleClickListener() {
+		getViewer().addDoubleClickListener(new IDoubleClickListener() {
 
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				open();
 			}
 		});
-		getSite().setSelectionProvider(element.getViewer());
+		getSite().setSelectionProvider(getViewer());
+
+		int operations = DND.DROP_COPY | DND.DROP_LINK;
+		Transfer[] transfers = new Transfer[] { LocalSelectionTransfer.getTransfer() };
+		ExpViewDropListener dropListener = new ExpViewDropListener(this);
+		getViewer().addDropSupport(operations, transfers, dropListener);
+	}
+	
+	public StructuredViewer getViewer() {
+		AbstractEnumeratedValueSelector<?> element = (AbstractEnumeratedValueSelector<?>) getElement(TABLE_BND_ID);
+		return element.getViewer();
 	}
 	
 	@Override
