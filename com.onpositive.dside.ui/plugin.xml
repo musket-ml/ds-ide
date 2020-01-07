@@ -444,6 +444,16 @@
                 <instanceof value="org.python.pydev.navigator.elements.ProjectConfigError"/>
             </or>
          </triggerPoints>
+         <commonSorter
+	      class="com.onpositive.dside.ui.navigator.ExperimentResourcesComparator"
+	            id="com.onpositive.dside.ui.navigator.defaultSorter">
+			  <parentExpression>
+			        <or>         
+				       <instanceof 
+			    	       value="com.onpositive.dside.ui.navigator.ExperimentNode" /> 
+				   </or>
+			  </parentExpression>
+	 	 </commonSorter>
          <commonWizard
                type="new"
                wizardId="org.python.pydev.ui.wizards.project.MusketProjectWizard">
