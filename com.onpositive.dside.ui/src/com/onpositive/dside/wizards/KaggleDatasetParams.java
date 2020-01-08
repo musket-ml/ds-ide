@@ -13,7 +13,7 @@ import com.google.gson.JsonParser;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
-import com.onpositive.dside.ui.DatasetTableElement;
+import com.onpositive.dside.ui.views.DatasetTableElement;
 import com.onpositive.musket_core.IServer;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;

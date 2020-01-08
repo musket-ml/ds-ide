@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui;
+package com.onpositive.dside.ui.views;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,9 +30,14 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.part.FileEditorInput;
 
 import com.onpositive.dside.tasks.TaskManager;
+import com.onpositive.dside.ui.DSIDEUIPlugin;
+import com.onpositive.dside.ui.IMusketConstants;
+import com.onpositive.dside.ui.LaunchConfiguration;
+import com.onpositive.dside.ui.TaskConfiguration;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ExperimentIO;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
@@ -42,6 +47,7 @@ import com.onpositive.semantic.model.ui.property.editors.structured.AbstractEnum
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 import com.onpositive.semantic.ui.workbench.elements.XMLView;
 
+@SuppressWarnings("restriction")
 public class ExperimentsView extends XMLView {
 
 	private static final String PATHS_SEPARATOR = ";";
@@ -100,7 +106,6 @@ public class ExperimentsView extends XMLView {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		TaskManager.addJobListener(launchListener);
-		AbstractEnumeratedValueSelector<?> element = (AbstractEnumeratedValueSelector<?>) getElement(TABLE_BND_ID);
 		getViewer().addDoubleClickListener(new IDoubleClickListener() {
 
 			@Override
@@ -114,8 +119,14 @@ public class ExperimentsView extends XMLView {
 		Transfer[] transfers = new Transfer[] { LocalSelectionTransfer.getTransfer() };
 		ExpViewDropListener dropListener = new ExpViewDropListener(this);
 		getViewer().addDropSupport(operations, transfers, dropListener);
+		
+		hookGlobalActionHandlers();
 	}
 	
+	private void hookGlobalActionHandlers() {
+		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.DELETE.getId(), new RemoveSelectedExperimentAction(this));
+	}
+
 	public StructuredViewer getViewer() {
 		AbstractEnumeratedValueSelector<?> element = (AbstractEnumeratedValueSelector<?>) getElement(TABLE_BND_ID);
 		return element.getViewer();
@@ -157,20 +168,22 @@ public class ExperimentsView extends XMLView {
 	}
 
 	public static void launchExperiment(Object currentValue) {
-		Collection<Experiment> collection = currentValue instanceof List<?> ? (List<Experiment>) currentValue : Collections.singletonList((Experiment)currentValue);
-		LaunchConfiguration cfg=new LaunchConfiguration(collection);
+		Collection<Experiment> collection = currentValue instanceof List<?> ? (List<Experiment>) currentValue
+				: Collections.singletonList((Experiment) currentValue);
+		LaunchConfiguration cfg = new LaunchConfiguration(collection);
 		boolean createObject = WidgetRegistry.createObject(cfg);
 		if (createObject) {
-			for (Experiment e:cfg.experiment) {
+			for (Experiment e : cfg.getExperiment()) {
 				ExperimentIO.backup(e, true);
-				if (cfg.cleanSplits&&!cfg.onlyReports) {
-					new File(e.getPath().toFile(),"config.yaml.folds_split").delete();
-					new File(e.getPath().toFile(),"config.yaml.holdout_split").delete();					
+				if (cfg.isCleanSplits() && !cfg.isOnlyReports()) {
+					new File(e.getPath().toFile(), "config.yaml.folds_split").delete();
+					new File(e.getPath().toFile(), "config.yaml.holdout_split").delete();
 				}
-				new File(e.getPath().toFile(),"error.yaml").delete();
+				new File(e.getPath().toFile(), "error.yaml").delete();
 			}
-			
-			//String collect = collection.stream().map(x->x.toString()).collect(Collectors.joining(","));
+
+			// String collect =
+			// collection.stream().map(x->x.toString()).collect(Collectors.joining(","));
 			TaskManager.perform(cfg);
 		}
 	}
@@ -263,7 +276,7 @@ public class ExperimentsView extends XMLView {
 		return null;
 	}
 	
-	public void removeExperiment() {
+	public void removeSelectedExperiment() {
 		ISelectorElement<?> el = (ISelectorElement<?>) getElement(TABLE_BND_ID);
 		Object currentValue = el.getSelectionBinding().getValue();
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);

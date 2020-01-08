@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui;
+package com.onpositive.dside.ui.views;
 
 import java.util.LinkedHashMap;
 
@@ -32,6 +32,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
+import com.onpositive.dside.ui.ImageTransferWrapper;
 import com.onpositive.musket_core.IDataSet;
 import com.onpositive.semantic.ui.core.Alignment;
 import com.onpositive.semantic.ui.core.Point;
@@ -59,7 +60,7 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 			(String) "/icons/collapseall.gif");
 	private static ImageDescriptor expand = AbstractUIPlugin.imageDescriptorFromPlugin((String) "com.onpositive.dside.ui",
 			(String) "/icons/expandall.gif");
-	private com.onpositive.dside.ui.GalleryTooltip tooltip;
+	private GalleryTooltip tooltip;
 
 	@Override
 	protected Control createControl(Composite conComposite) {

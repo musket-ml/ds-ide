@@ -3,6 +3,7 @@ package com.onpositive.dside.ui;
 import org.eclipse.swt.widgets.Composite;
 
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
+import com.onpositive.dside.ui.views.DataSetGallery;
 
 public class StandaloneDataSetGallery extends DataSetGallery {
 	

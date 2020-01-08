@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.Path;
 
 import com.onpositive.datasets.visualisation.ui.views.EnumRealmProvider;
 import com.onpositive.dside.tasks.IServerTask;
+import com.onpositive.dside.ui.views.ExperimentsView;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.IExperimentExecutionListener;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
@@ -217,6 +218,14 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 
 	public void setFitFromScratch(boolean fitFromScratch) {
 		this.fitFromScratch = fitFromScratch;
+	}
+
+	public List<Experiment> getExperiment() {
+		return experiment;
+	}
+
+	public void setExperiment(List<Experiment> experiment) {
+		this.experiment = experiment;
 	}
 
 	

@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui;
+package com.onpositive.dside.ui.views;
 
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -52,8 +52,10 @@ public abstract class VisualizerViewer<T extends Control> extends AbstractUIElem
 		this.input = input;
 	}
 	
-	static class It {
-		Integer data;
+	public static class It {
+		
+		public final Integer data;
+		public final IDataSet ds;
 
 		public It(Integer data, IDataSet ds) {
 			super();
@@ -61,7 +63,6 @@ public abstract class VisualizerViewer<T extends Control> extends AbstractUIElem
 			this.ds = ds;
 		}
 
-		IDataSet ds;
 
 		@Override
 		public int hashCode() {

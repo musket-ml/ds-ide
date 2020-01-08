@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui;
+package com.onpositive.dside.ui.views;
 
 import java.util.LinkedHashMap;
 import java.util.concurrent.LinkedBlockingDeque;

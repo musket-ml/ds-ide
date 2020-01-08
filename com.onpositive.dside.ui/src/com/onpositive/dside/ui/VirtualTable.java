@@ -36,6 +36,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
+import com.onpositive.dside.ui.views.VisualizerViewer;
 import com.onpositive.musket_core.IDataSet;
 import com.onpositive.semantic.model.ui.richtext.StyledString;
 import com.onpositive.semantic.model.ui.richtext.StyledString.Style;

@@ -1,5 +1,5 @@
 <form xmlns="http://jetface.org/JetFace1.0/" caption="Datasets">
-	<model class="com.onpositive.dside.ui.DataSetsView"/>
+	<model class="com.onpositive.dside.ui.views.DataSetsView"/>
 	<pattern-filter targetId="e" />
 	<table bindTo="datasets" initialSortExpression="Score" id="e" openOnDoubleClick="true">
 	<actions toMenu="true">		

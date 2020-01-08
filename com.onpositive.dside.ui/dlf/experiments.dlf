@@ -1,9 +1,9 @@
 <form xmlns="http://jetface.org/JetFace1.0/" caption="Experiments">
-	<model class="com.onpositive.dside.ui.ExperimentsView"/>
+	<model class="com.onpositive.dside.ui.views.ExperimentsView"/>
 	<pattern-filter targetId="experiments" />
 	<table bindTo="experiments" initialSortExpression="Score" id="experiments" openOnDoubleClick="true">
 	<actions toToolbar="true">
-		<binded-action bindTo="$.refreshList" caption="Refresh experiment list" image="com.onpositive.semantic.ui.refresh"/>
+		<binded-action bindTo="$.refreshList" caption="Refresh experiment list" image="icons/refresh.png"/>
 	</actions>
 	<actions toMenu="true">
 		<binded-action bindTo="$.removeExperiment" caption="Remove from view"/>

@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui;
+package com.onpositive.dside.ui.views;
 
 import com.google.gson.JsonElement;
 import com.onpositive.dside.wizards.DataLink;

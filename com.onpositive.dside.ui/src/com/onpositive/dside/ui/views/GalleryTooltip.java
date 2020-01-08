@@ -14,9 +14,7 @@
  *  org.eclipse.swt.widgets.Event
  *  org.eclipse.swt.widgets.Layout
  */
-package com.onpositive.dside.ui;
-
-import java.io.IOException;
+package com.onpositive.dside.ui.views;
 
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.nebula.widgets.gallery.Gallery;
@@ -26,7 +24,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
