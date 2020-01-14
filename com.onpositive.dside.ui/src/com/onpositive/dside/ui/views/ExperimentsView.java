@@ -317,6 +317,9 @@ public class ExperimentsView extends XMLView {
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
 		super.init(site, memento);
+		if (memento == null) {
+			return;
+		}
 		String stored = memento.getString(EXPERIMENTS_KEY);
 		if (stored != null) {
 			String[] paths = stored.split(PATHS_SEPARATOR);
