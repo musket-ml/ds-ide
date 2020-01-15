@@ -97,9 +97,9 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 	private IExperimentExecutionListener listener = new IExperimentExecutionListener() {
 
 		@Override
-		public void complete(Experiment e) {
+		public void complete(String experimentPath) {
 			if (experiment != null) {
-				if (e.getPath().equals(experiment.getPath())) {
+				if (experimentPath.equals(experiment.getPathString())) {
 					updatePages();
 				}
 			}

@@ -144,14 +144,13 @@ public class ExperimentsView extends XMLView {
 		Collection<Object> collection = ValueUtils.toCollection(currentValue);
 		for (Object o : collection) {
 			Experiment e = (Experiment) o;
-
-			open(e);
+			open(e.getPathString());
 		}
 
 	}
 
-	public static void open(Experiment e) {
-		IFile file = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(e.getPath())
+	public static void open(String path) {
+		IFile file = ResourcesPlugin.getWorkspace().getRoot().getContainerForLocation(new Path(path))
 				.getFile(new Path(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
 		try {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().openEditor(
@@ -173,13 +172,14 @@ public class ExperimentsView extends XMLView {
 		LaunchConfiguration cfg = new LaunchConfiguration(collection);
 		boolean createObject = WidgetRegistry.createObject(cfg);
 		if (createObject) {
-			for (Experiment e : cfg.getExperiment()) {
-				ExperimentIO.backup(e, true);
+			for (String pathStr : cfg.getExperiments()) {
+				Path path = new Path(pathStr);
+				ExperimentIO.backup(new Experiment(pathStr), true);
 				if (cfg.isCleanSplits() && !cfg.isOnlyReports()) {
-					new File(e.getPath().toFile(), "config.yaml.folds_split").delete();
-					new File(e.getPath().toFile(), "config.yaml.holdout_split").delete();
+					new File(path.toFile(), "config.yaml.folds_split").delete();
+					new File(path.toFile(), "config.yaml.holdout_split").delete();
 				}
-				new File(e.getPath().toFile(), "error.yaml").delete();
+				new File(path.toFile(), "error.yaml").delete();
 			}
 
 			// String collect =
@@ -269,7 +269,7 @@ public class ExperimentsView extends XMLView {
 		if (value != null && value.length() > 0) {
 			Experiment exp = ExperimentIO.duplicate(e,value);
 			if (exp != null) {
-				open(exp);
+				open(exp.getPathString());
 				return exp;
 			}
 		}
