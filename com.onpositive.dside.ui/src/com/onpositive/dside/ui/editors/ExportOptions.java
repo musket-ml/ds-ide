@@ -15,11 +15,15 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
 import org.eclipse.ui.model.WorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
-import org.python.pydev.ui.wizards.project.PythonProjectWizard;
 
+import com.onpositive.dside.tasks.GateWayRelatedTask;
+import com.onpositive.dside.tasks.TaskManager;
+import com.onpositive.dside.tasks.analize.ExportDataSetTaskDelegate;
+import com.onpositive.musket_core.Experiment;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
 import com.onpositive.semantic.model.ui.generic.IKnowsImageObject;
+import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 @Display("dlf/export.dlf")
 public class ExportOptions {
@@ -86,6 +90,24 @@ public class ExportOptions {
 				});
 				fl.open();
 				//System.out.println("Hello world");
+			}
+		});
+		options.add(new ExportOption("Export Predictions as CSV","com.onpositive.dside.ui.dataset") {
+			
+			@Override
+			public void run(IProject prj, String experiment) {
+				Experiment exp = new Experiment(experiment);
+				exp.readConfig();
+				ExportDataSetTaskDelegate initial = new ExportDataSetTaskDelegate(exp);
+				initial.data=true;
+				boolean createObject = WidgetRegistry.createObject(initial);
+				if (createObject) {
+					GateWayRelatedTask gateWayRelatedTask = new GateWayRelatedTask(prj,
+							initial);
+					gateWayRelatedTask.setDebug(initial.isDebug());
+					TaskManager.perform(gateWayRelatedTask);
+				}
+				
 			}
 		});
 	}

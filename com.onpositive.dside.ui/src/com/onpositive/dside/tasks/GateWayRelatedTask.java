@@ -72,21 +72,25 @@ public class GateWayRelatedTask extends PrivateServerTask<Object> {
 	
 	public <T,R> void perform(T data,Class<R>resultClass,Consumer<R>func,Consumer<Throwable>error){
 		if (launch.isTerminated()) {
-			
+			return;
 		}
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
 				try {
 					Object taskResult = musketServer.performTask(YamlIO.dump(data), null);
-					if (resultClass.isInstance(taskResult)) {
-						Display.getDefault().asyncExec(() -> func.accept(resultClass.cast(taskResult)));
-					} else if (taskResult != null) {
-						R loadAs = YamlIO.loadAs(new StringReader((String) taskResult), resultClass);
-						Display.getDefault().asyncExec(() -> func.accept(loadAs));
+					if (func != null) {
+						if (resultClass.isInstance(taskResult)) {
+							Display.getDefault().asyncExec(() -> func.accept(resultClass.cast(taskResult)));
+						} else if (taskResult != null) {
+							R loadAs = YamlIO.loadAs(new StringReader((String) taskResult), resultClass);
+							Display.getDefault().asyncExec(() -> func.accept(loadAs));
+						}
 					}
 				} catch (Exception e) {
-					error.accept(e);
+					if (error != null) {
+						error.accept(e);
+					}
 				}
 			}			
 		};
