@@ -6,18 +6,10 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.Display;
 
 @Display("dlf/classificationTemplate.dlf")
 public class ClassificationTemplate extends ImageExperimentTemplate{
-
-
-	
-	
-	
-	
-	
 	
 	public ArrayList<String>getActivations(){
 		ArrayList<String> arrayList = new ArrayList<>();
@@ -25,7 +17,6 @@ public class ClassificationTemplate extends ImageExperimentTemplate{
 		arrayList.add("softmax");
 		return arrayList;
 	}
-	
 	
 	public String finish() {
 		try {

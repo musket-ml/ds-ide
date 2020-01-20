@@ -27,11 +27,11 @@ public class DataSetFactoryRegistry {
 	public ArrayList<IDataSetFactory>matching(DataSetSpec spec){
 		HashMap<IDataSetFactory, Double>scores=new HashMap<>();
 		ArrayList<IDataSetFactory>results=new ArrayList<>();
-		for (IDataSetFactory f:knownFactories()) {
-			double estimate = f.estimate(spec);
+		for (IDataSetFactory factory:knownFactories()) {
+			double estimate = factory.estimate(spec);
 			if (estimate>0) {
-				scores.put(f, estimate);
-				results.add(f);
+				scores.put(factory, estimate);
+				results.add(factory);
 			}
 		}
 		results.sort((x,y)->{

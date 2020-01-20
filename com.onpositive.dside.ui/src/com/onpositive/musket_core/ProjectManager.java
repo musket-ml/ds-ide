@@ -2,7 +2,9 @@ package com.onpositive.musket_core;
 
 import java.util.HashMap;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 
 public class ProjectManager {
 	
@@ -17,6 +19,14 @@ public class ProjectManager {
 	public ProjectWrapper getProject(Experiment experiment) {
 		String projectPath = experiment.getProjectPath();
 		return getProject(projectPath);		
+	}
+	
+	public IProject getEclipseProject(Experiment experiment) {
+		IFile fileForLocation = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(experiment.getPath());
+		if (fileForLocation!=null) {
+			return fileForLocation.getProject();
+		}
+		return null;
 	}
 
 	public ProjectWrapper getProject(String projectPath) {
@@ -35,4 +45,6 @@ public class ProjectManager {
 	public static ProjectWrapper getInstance(IProject project) {
 		return getInstance().getProject(project.getLocation().toOSString());
 	}	
+	
+	
 }

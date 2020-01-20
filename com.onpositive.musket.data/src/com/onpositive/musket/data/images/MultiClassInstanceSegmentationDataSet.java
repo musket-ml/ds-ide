@@ -35,8 +35,22 @@ public class MultiClassInstanceSegmentationDataSet extends MultiClassSegmentatio
 		return "Multi class instance segmentation";
 	}
 	
-	public String generatePythonString(String sourcePath) {
-		return "image_datasets."+getPythonName()+"("+this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(","))+")";
+	public String generatePythonString(String sourcePath,Object model) {
+		String classesString = "["+String.join(", ", this.classes.stream().map(x->"\""+x+"\"").collect(Collectors.toList()))+"]";
+		Object misaiObject = this.getSettings().get(AbstractRLEImageDataSet.MASK_IS_SAME_AS_IMAGE);
+		boolean misai = misaiObject != null && misaiObject instanceof Boolean && (Boolean)misaiObject;
+		
+		StringBuilder bld = new StringBuilder();
+		
+		bld.append("image_datasets.").append(getPythonName()).append("(");
+		bld.append(this.getDataSetArgs(sourcePath).stream().collect(Collectors.joining(",")));
+		
+		if(!misai) {
+			bld.append(", maskShape=(").append(this.height).append(",").append(this.width).append(")");
+		}
+		bld.append(", classes=").append(classesString).append(")");
+		String result = bld.toString();
+		return result;
 	}
 	
 	protected String getPythonName() {

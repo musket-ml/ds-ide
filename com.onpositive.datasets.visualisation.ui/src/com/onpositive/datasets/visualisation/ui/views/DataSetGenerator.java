@@ -23,6 +23,12 @@ import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class DataSetGenerator {
 
+	private IDataSet dataSet;
+	private String name;
+	private boolean makePrimary;
+	private File inputFile;
+	private Object modelObject;
+
 	public static void modifyFile(IFile file, Consumer<ArrayList<String>> modifier) {
 		if (!file.exists()) {
 			try {
@@ -53,26 +59,21 @@ public class DataSetGenerator {
 
 	}
 
-	private IDataSet ds;
-	private String name;
-	private boolean makePrimary;
-	private File inputFile;
-	private Object modelObject;
-
-	public boolean generateDataSet(IDataSet ds, File inputFile, String name, boolean makePrimary, IProject project) {
-		this.ds = ds;
+	public boolean generateDataSet(IDataSet dataSet, File inputFile, String name, boolean makePrimary,
+			IProject project) {
+		this.dataSet = dataSet;
 		this.name = name;
-		this.inputFile=inputFile;
+		this.inputFile = inputFile;
 		this.makePrimary = makePrimary;
-		IPythonStringGenerator ps=(IPythonStringGenerator) ds;
+		IPythonStringGenerator ps = (IPythonStringGenerator) dataSet;
 		Object modelObject = ps.modelObject();
-		if (modelObject!=null) {
+		if (modelObject != null) {
 			boolean createObject = WidgetRegistry.createObject(modelObject);
 			if (!createObject) {
 				return false;
 			}
 		}
-		this.modelObject=modelObject;
+		this.modelObject = modelObject;
 		IFolder folder = getOrCreateFolder(project, "modules");
 		modifyFile(folder.getFile("datasets.py"), this::addDataSet);
 		modifyFile(project.getFile("common.yaml"), this::addDataDeclaration);
@@ -95,54 +96,60 @@ public class DataSetGenerator {
 
 	private void addDataSet(ArrayList<String> arrayList) {
 		boolean found = false;
-		IPythonStringGenerator as = this.ds.as(IPythonStringGenerator.class);
-		for (String s : arrayList) {
-			if (s.trim().equals(as.getImportString())) {
+		IPythonStringGenerator pythonStringGenerator = this.dataSet.as(IPythonStringGenerator.class);
+		for (String str : arrayList) {
+			if (str.trim().equals(pythonStringGenerator.getImportString())) {
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			arrayList.add(0, as.getImportString());
+			arrayList.add(0, pythonStringGenerator.getImportString());
 		}
 		arrayList.add("");
-		arrayList.add("@datasets.dataset_provider"+"(origin=\""+inputFile.getName()+"\",kind=\""+this.ds.getClass().getSimpleName()+"\""+")");
-		arrayList.add("def get" + this.name + "():");
-		File root=inputFile;
+		arrayList.add("@datasets.dataset_provider" + "(origin=\"" + inputFile.getName() + "\",kind=\""
+				+ this.dataSet.getClass().getSimpleName() + "\"" + ")");
+		arrayList.add("def " + calcGetMethodName(name) + "():");
+		File root = inputFile;
 		while (!root.getName().equals("data")) {
-			root=root.getParentFile();
+			root = root.getParentFile();
 		}
-		String substring = inputFile.getAbsolutePath().substring(root.getAbsolutePath().length()+1);
-		
-		arrayList.add("    return " + as.generatePythonString(substring.replace('\\', '/'),modelObject));
+		String substring = inputFile.getAbsolutePath().substring(root.getAbsolutePath().length() + 1);
+
+		arrayList.add(
+				"    return " + pythonStringGenerator.generatePythonString(substring.replace('\\', '/'), modelObject));
 	}
 
 	private void addDataDeclaration(ArrayList<String> arrayList) {
 		int index = 0;
-		int id=-1;
-		boolean hasDataSet=false;
+		int id = -1;
+		boolean hasDataSet = false;
 		for (String s : arrayList) {
 			if (s.trim().equals("datasets:")) {
-				id=index;
+				id = index;
 			}
 			if (s.trim().equals("dataset:")) {
-				hasDataSet=true;
+				hasDataSet = true;
 			}
 			index = index + 1;
 		}
-		if (id==-1) {
+		if (id == -1) {
 			arrayList.add("datasets:");
-			id=arrayList.size();
+			id = arrayList.size();
 		}
-		if (id>=arrayList.size()) {
-			id=arrayList.size()-1;
+		if (id >= arrayList.size()) {
+			id = arrayList.size() - 1;
 		}
-		arrayList.add(id+1,"    "+name+":");
-		arrayList.add(id+2,"      "+"get"+name+": []");
+		arrayList.add(id + 1, "    " + name + ":");
+		arrayList.add(id + 2, "      " + calcGetMethodName(name) + ": []");
 		if (!hasDataSet) {
 			arrayList.add("dataset:");
-			arrayList.add("    "+"get"+name+": []");			
+			arrayList.add("    " + calcGetMethodName(name) + ": []");
 		}
-		
+
+	}
+
+	private String calcGetMethodName(String id) {
+		return "get_" + name;
 	}
 }

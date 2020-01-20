@@ -34,8 +34,8 @@ import com.onpositive.commons.elements.RootElement;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
-import com.onpositive.dside.ui.DatasetTableElement;
 import com.onpositive.dside.ui.navigator.ExperimentNode;
+import com.onpositive.dside.ui.views.DatasetTableElement;
 import com.onpositive.musket_core.IServer;
 import com.onpositive.semantic.model.api.status.CodeAndMessage;
 import com.onpositive.semantic.model.api.status.IHasStatus;
@@ -158,7 +158,7 @@ public class KaggleRunView extends Wizard implements INewWizard {
 		
 		KaggleDatasetParams datasetParams = new KaggleDatasetParams();
 		
-		KaggleDataset.readConfig(project, datasetParams);
+		ImportKaggleDatasetWizard.readConfig(project, datasetParams);
 		
 		DatasetTableElement datasource = datasetParams.getItem();
 		

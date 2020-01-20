@@ -1,7 +1,6 @@
 package com.onpositive.datasets.visualisation.ui.views;
 
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
-import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 
 public abstract class ImageExperimentTemplate extends GenericExperimentTemplate {
 

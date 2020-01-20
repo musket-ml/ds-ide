@@ -31,6 +31,7 @@ import org.python.pydev.debug.ui.launching.PythonRunnerConfig;
 
 import com.onpositive.dside.tasks.InternalMusketLaunchShortcut;
 import com.onpositive.dside.ui.DSIDEUIPlugin;
+import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.dside.ui.introspection.IIntrospector;
 import com.onpositive.dside.ui.introspection.ShellIntrospector;
 import com.onpositive.python.command.IPythonPathProvider;
@@ -41,7 +42,40 @@ import com.onpositive.yamledit.project.IProjectContext;
 
 public class ProjectWrapper implements IPythonPathProvider {
 	
+	public static class BasicDataSetDesc {
+
+		public String functionName;
+		public String kind;
+		public String name;
+		public String origin;
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	protected static class FunctionDeclaration {
+		ArrayList<ParsedAnnotation> annotations = new ArrayList<>();
+		String name;
+	}
+
+	protected static class ParsedAnnotation {
+		String name;
+		Map<String, Object> namedParameters = new LinkedHashMap<String, Object>();
+		ArrayList<String> unnamedParameters = new ArrayList<>();
+	}
+
+	private InstrospectionResult details = new InstrospectionResult();
+
+	protected ArrayList<Runnable> listeners = new ArrayList<>();
+	protected Object mon = new Object();
+
+	protected String path;
+
 	protected IIntrospector projectIntrospector;
+
+	protected ArrayList<Runnable> requests = new ArrayList<>();
 
 	public ProjectWrapper(String projectPath) {
 		this.path = projectPath;
@@ -55,95 +89,52 @@ public class ProjectWrapper implements IPythonPathProvider {
 		projectIntrospector = createIntrospector();
 	}
 
-	protected IIntrospector createIntrospector() {
-		return new ShellIntrospector();
-	}
-
-	protected String path;
-
-	protected ArrayList<Runnable> requests = new ArrayList<>();
-	protected ArrayList<Runnable> listeners = new ArrayList<>();
-
-	private InstrospectionResult details = new InstrospectionResult();
-
-	protected Object mon = new Object();
-
-	public InstrospectionResult getDetails() {
-		return details;
-	}
-
 	public void addRefreshListener(Runnable r) {
 		this.listeners.add(r);
 	}
 
-	public void removeRefreshListener(Runnable r) {
-		this.listeners.remove(r);
-	}
-
-	public void setDetails(InstrospectionResult details) {
-		this.details = details;
+	protected IIntrospector createIntrospector() {
+		return new ShellIntrospector();
 	}
 	
-	public IProjectContext getProjectContext()	{
-		return new IProjectContext() {
-			
-			@Override
-			public File[] getAdditionalFiles() {
-				return new File[] {new File(path, "common.yaml")};
-			}
-		};
-	}
-	
-	public static class BasicDataSetDesc {
-
-		public String name;
-		public String kind;
-		public String origin;
-		public String functionName;
-
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
-
+	@SuppressWarnings("unchecked")
 	public ArrayList<BasicDataSetDesc> getDataSets() {
 
 		try {
 			ArrayList<FunctionDeclaration> introspectModules = introspectModules();
 			LinkedHashMap<String, FunctionDeclaration> maps = new LinkedHashMap<>();
 			introspectModules.forEach(m -> maps.put(m.name, m));
-			FileReader fileReader = new FileReader(new File(path, "common.yaml"));
+			FileReader fileReader = new FileReader(new File(path, IMusketConstants.COMMON_CONFIG_NAME));
 			Object loadAs = YamlIO.loadAs(fileReader, Object.class);
 			if (loadAs instanceof Map) {
-				Map<String, Object> m = (Map<String, Object>) loadAs;
-				Object object = m.get("datasets");
+				Map<String, Object> loadedMap = (Map<String, Object>) loadAs;
+				Object object = loadedMap.get("datasets");
 				if (object instanceof Map) {
 					Map<String, Object> vls = (Map<String, Object>) object;
 					ArrayList<BasicDataSetDesc> result = new ArrayList<>();
-					vls.keySet().forEach(v -> {
-						Object rs = vls.get(v);
-						BasicDataSetDesc ds = new BasicDataSetDesc();
-						ds.name = v;
+					vls.keySet().forEach(key -> {
+						Object rs = vls.get(key);
+						BasicDataSetDesc dataSetDesc = new BasicDataSetDesc();
+						dataSetDesc.name = key;
 						if (rs instanceof Map) {
 							Map<String, Object> d = (Map<String, Object>) rs;
 							String decl = d.keySet().iterator().next();
 							FunctionDeclaration functionDeclaration = maps.get(decl);
 							if (functionDeclaration != null) {
-								ds.functionName=functionDeclaration.name;
+								dataSetDesc.functionName=functionDeclaration.name;
 								functionDeclaration.annotations.forEach(a -> {
 									if (a.name.indexOf("dataset_provider") != -1) {
 										if (!a.namedParameters.isEmpty()) {
 											Object object2 = a.namedParameters.get("origin");
 											Object object3 = a.namedParameters.get("kind");
 											if (object2 != null) {
-												ds.origin = object2.toString();
+												dataSetDesc.origin = object2.toString();
 											}
 											if (object3 != null) {
-												ds.kind = object3.toString();
+												dataSetDesc.kind = object3.toString();
 											}
-											if (ds.origin.charAt(0) == '"') {
-												ds.origin = ds.origin.substring(1, ds.origin.length() - 1);
+											if (dataSetDesc.origin.charAt(0) == '"') {
+												dataSetDesc.origin = dataSetDesc.origin.substring(1, dataSetDesc.origin.length() - 1);
 											}
 										}
 									}
@@ -151,7 +142,7 @@ public class ProjectWrapper implements IPythonPathProvider {
 								
 							}
 						}
-						result.add(ds);
+						result.add(dataSetDesc);
 					});
 					return result;
 				}
@@ -165,16 +156,69 @@ public class ProjectWrapper implements IPythonPathProvider {
 		}
 		return new ArrayList<>();
 	}
-
-	protected static class ParsedAnnotation {
-		String name;
-		ArrayList<String> unnamedParameters = new ArrayList<>();
-		Map<String, Object> namedParameters = new LinkedHashMap<String, Object>();
+	
+	public InstrospectionResult getDetails() {
+		return details;
 	}
 
-	protected static class FunctionDeclaration {
-		ArrayList<ParsedAnnotation> annotations = new ArrayList<>();
-		String name;
+	private File getMetaDir() {
+		File file = new File(this.path, ".meta");
+		file.mkdirs();
+		return file;
+	}
+
+	public String getPath() {
+		return this.path;
+	}
+
+	public IProjectContext getProjectContext()	{
+		return new IProjectContext() {
+			
+			@Override
+			public File[] getAdditionalFiles() {
+				return new File[] {new File(path, IMusketConstants.COMMON_CONFIG_NAME)};
+			}
+		};
+	}
+
+	public PyInfo getPythonPath() {
+		String pythonPath = null;
+		try {
+			IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
+					.findContainersForLocation(new Path(this.path));
+			if (findContainersForLocation != null&&findContainersForLocation.length>0) {
+				IProject project = findContainersForLocation[0].getProject();
+				LaunchShortcut launchShortCut = new InternalMusketLaunchShortcut(new IProject[] { project }, "org.python.pydev.debug.musketLaunchConfigurationType");
+				ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
+						.createDefaultLaunchConfiguration(
+								new FileOrResource[] { new FileOrResource(project.getFolder(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER)) });
+				PythonRunnerConfig pythonRunner = new PythonRunnerConfig(createDefaultLaunchConfiguration,
+						"run", "run");
+				String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(
+						createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
+				pythonPath = pythonpathFromConfiguration;
+				return new PyInfo(pythonPath, pythonRunner.interpreter.toFile().getAbsolutePath());
+			}
+
+		} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
+			DSIDEUIPlugin.log(e1);
+		}
+		return null;
+	}
+
+	public List<InstrospectedFeature> getTasks() {
+		return details.getFeatures().stream().filter(x -> x.getKind().equals("task")).collect(Collectors.toList());
+	}
+	
+	
+	public void innerIntrospect(PyInfo pythonPath, String absolutePath) {
+		synchronized (mon) {
+			InstrospectionResult introspect = projectIntrospector.introspect(path, pythonPath, absolutePath);
+			if (introspect!=null) {
+				refreshed(introspect);
+			}
+		}
+
 	}
 
 	public ArrayList<FunctionDeclaration> introspectModules() {
@@ -240,6 +284,10 @@ public class ProjectWrapper implements IPythonPathProvider {
 		return declarations;
 	}
 
+	private String projectMetaPath() {
+		return new File(this.getMetaDir(), "meta.yaml").getAbsolutePath();
+	}
+
 	public synchronized void refresh(Runnable request) {
 		if (request != null) {
 			this.requests.add(request);
@@ -262,42 +310,6 @@ public class ProjectWrapper implements IPythonPathProvider {
 		create.schedule();
 
 	}
-	
-	
-	public PyInfo getPythonPath() {
-		String pythonPath = null;
-		try {
-			IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
-					.findContainersForLocation(new Path(this.path));
-			if (findContainersForLocation != null&&findContainersForLocation.length>0) {
-				IProject project = findContainersForLocation[0].getProject();
-				LaunchShortcut launchShortCut = new InternalMusketLaunchShortcut(new IProject[] { project }, "org.python.pydev.debug.musketLaunchConfigurationType");
-				ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
-						.createDefaultLaunchConfiguration(
-								new FileOrResource[] { new FileOrResource(project.getFolder("experiments")) });
-				PythonRunnerConfig pythonRunner = new PythonRunnerConfig(createDefaultLaunchConfiguration,
-						"run", "run");
-				String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(
-						createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
-				pythonPath = pythonpathFromConfiguration;
-				return new PyInfo(pythonPath, pythonRunner.interpreter.toFile().getAbsolutePath());
-			}
-
-		} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
-			DSIDEUIPlugin.log(e1);
-		}
-		return null;
-	}
-
-	private String projectMetaPath() {
-		return new File(this.getMetaDir(), "meta.yaml").getAbsolutePath();
-	}
-
-	private File getMetaDir() {
-		File file = new File(this.path, ".meta");
-		file.mkdirs();
-		return file;
-	}
 
 	protected void refreshed(InstrospectionResult details) {
 		try {
@@ -316,23 +328,18 @@ public class ProjectWrapper implements IPythonPathProvider {
 		}
 	}
 
-	public List<InstrospectedFeature> getTasks() {
-		return details.getFeatures().stream().filter(x -> x.getKind().equals("task")).collect(Collectors.toList());
-	}
-
-	public String getPath() {
-		return this.path;
+	public void removeRefreshListener(Runnable r) {
+		this.listeners.remove(r);
 	}
 	
 	
 
-	public void innerIntrospect(PyInfo pythonPath, String absolutePath) {
-		synchronized (mon) {
-			InstrospectionResult introspect = projectIntrospector.introspect(path, pythonPath, absolutePath);
-			if (introspect!=null) {
-				refreshed(introspect);
-			}
-		}
+	public void setDetails(InstrospectionResult details) {
+		this.details = details;
+	}
 
+	@Override
+	public String toString() {
+		return "ProjectWrapper [path=" + path + "]";
 	}
 }

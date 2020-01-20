@@ -3,6 +3,8 @@ package com.onpositive.musket.data.columntypes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 
 import com.onpositive.musket.data.project.DataProject;
@@ -52,6 +54,8 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 					boolean consistentLength = true;
 					boolean hasDubplicateClassValues = false;
 					int ln = -1;
+					HashMap<String,String> examples = new LinkedHashMap<String,String>();
+					int numExamples = 2;
 					for (Object o : uniqueValues) {
 						String string = o.toString();
 						String[] split = new String[] { string };
@@ -75,18 +79,30 @@ public class ClassColumnType extends AbstractColumnType implements ISmartColumnT
 						}
 						if (new LinkedHashSet<>(splitted).size() != splitted.size()) {
 							hasDubplicateClassValues = true;
+							if(!examples.values().contains(split[0])) {
+								examples.put(string,split[0]);
+							}
+							if(examples.size()>=numExamples) {
+								break;
+							}
 						}
 						if (splitted.size() != ln) {
 							consistentLength = false;
 						}
 					}
 					if (hasDubplicateClassValues) {
-						if (answerer.askQuestion("Column " + c.id()
-								+ " seems to contain several independent classses, should we split it on subcolumns?",
-								true)) {
+						String before = String.join("\n", examples.keySet());
+						String after = String.join("\n", examples.values());
+						String message = "The " + c.id()
+						+ " column appears to contain complex values, e.g.\n\n"
+						+ before
+						+ "\n\nshould we drop all but the heading values?\nFor the example complex values the result is going to be\n\n"
+						+ after;
+						
+						if (answerer.askQuestion(message, true)) {
 							ArrayList<SubColumn> cls = new ArrayList<>();
 							cls.add(new SubColumn(c.id(), c.caption() + ":0", (Column) c, 0));
-							cls.add(new SubColumn(c.id(), c.caption() + ":1", (Column) c, 1,-1));
+							//cls.add(new SubColumn(c.id(), c.caption() + ":1", (Column) c, 1,-1));
 							return new SmartColumnPref(check, cls);
 						}
 

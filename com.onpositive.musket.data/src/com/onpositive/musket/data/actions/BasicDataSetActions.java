@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -17,37 +18,41 @@ import com.onpositive.musket.data.images.IImageDataSet;
 import com.onpositive.musket.data.images.IImageItem;
 import com.onpositive.musket.data.images.IMultiClassSegmentationDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
+import com.onpositive.musket.data.images.MultiClassInstanceSegmentationDataSet;
 import com.onpositive.musket.data.images.MultiClassSegmentationItem;
+import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.musket.data.registry.CSVKind;
 import com.onpositive.musket.data.table.BasicDataSetImpl;
 import com.onpositive.musket.data.table.BasicItem;
 import com.onpositive.musket.data.table.Column;
 import com.onpositive.musket.data.table.ICSVOVerlay;
+import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
+import com.onpositive.musket.data.table.ImageRepresenter;
 import com.onpositive.musket.data.text.TextClassificationDataSet;
 import com.onpositive.semantic.model.api.property.java.annotations.Image;
 
 public class BasicDataSetActions {
 
-	public static BasicDataSetImpl toBinaryClassification(IBinaryClassificationDataSet ds) {
-		ArrayList<Column> cs = new ArrayList<>();
-		cs.add(new Column("ImageId", "ImageId", 0, String.class));
-		cs.add(new Column("Class", "Class", 1, String.class));
+	public static BasicDataSetImpl toBinaryClassification(IBinaryClassificationDataSet dataSet) {
+		ArrayList<Column> columns = new ArrayList<>();
+		columns.add(new Column("ImageId", "ImageId", 0, String.class));
+		columns.add(new Column("Class", "Class", 1, String.class));
 		ArrayList<BasicItem> items = new ArrayList<>();
-		ds.items().forEach(v -> {
-			BasicItem item = new BasicItem(0, new Object[] { v.id(), v.isPositive() ? "1" : "0" });
+		dataSet.items().forEach(v -> {
+			BasicItem item = new BasicItem(null,0, new Object[] { v.id(), v.isPositive() ? "1" : "0" });
 			items.add(item);
 		});
-		return new BasicDataSetImpl(items, cs);
+		return new BasicDataSetImpl(items, columns);
 	}
 
-	public static BasicDataSetImpl toMultiClassClassification(IMulticlassClassificationDataSet ds) {
-		ArrayList<Column> cs = new ArrayList<>();
-		cs.add(new Column("ImageId", "ImageId", 0, String.class));
-		cs.add(new Column("Class", "Class", 1, String.class));
+	public static BasicDataSetImpl toMultiClassClassification(IMulticlassClassificationDataSet dataSet) {
+		ArrayList<Column> columns = new ArrayList<>();
+		columns.add(new Column("ImageId", "ImageId", 0, String.class));
+		columns.add(new Column("Class", "Class", 1, String.class));
 		ArrayList<BasicItem> items = new ArrayList<>();
-		ds.items().forEach(v -> {
-			BasicItem item = new BasicItem(0,
+		dataSet.items().forEach(v -> {
+			BasicItem item = new BasicItem(null,0,
 					new Object[] { v.id(), v.originalclasses().stream().map(va->{
 						if (va.equals("Empty")) {
 							return "";
@@ -58,30 +63,30 @@ public class BasicDataSetActions {
 					}).collect(Collectors.joining(" ")) });
 			items.add(item);
 		});
-		return new BasicDataSetImpl(items, cs);
+		return new BasicDataSetImpl(items, columns);
 	}
 
-	public static BasicDataSetImpl toBinarySegmentation(IBinarySegmentationDataSet ds) {
-		ArrayList<Column> cs = new ArrayList<>();
-		cs.add(new Column("ImageId", "ImageId", 0, String.class));
-		cs.add(new Column("EncodedPixels", "EncodedPixels", 1, String.class));
+	public static BasicDataSetImpl toBinarySegmentation(IBinarySegmentationDataSet dataSet) {
+		ArrayList<Column> columns = new ArrayList<>();
+		columns.add(new Column("ImageId", "ImageId", 0, String.class));
+		columns.add(new Column("EncodedPixels", "EncodedPixels", 1, String.class));
 		ArrayList<BasicItem> items = new ArrayList<>();
-		ds.items().forEach(v -> {
-			BasicItem item = new BasicItem(0, new Object[] { v.id(), v.getMask().rle() });
+		dataSet.items().forEach(v -> {
+			BasicItem item = new BasicItem(null,0, new Object[] { v.id(), v.getMask().rle() });
 			items.add(item);
 		});
-		return new BasicDataSetImpl(items, cs);
+		return new BasicDataSetImpl(items, columns);
 	}
 	
-	public static BasicDataSetImpl dropAttributes(IMultiClassSegmentationDataSet ds) {
-		ArrayList<Column> cs = new ArrayList<>();
-		cs.add(new Column("ImageId", "ImageId", 0, String.class));
-		cs.add(new Column("EncodedPixels", "EncodedPixels", 1, String.class));
-		cs.add(new Column("Height", "Height", 2, Integer.class));
-		cs.add(new Column("Width", "Width", 3, Integer.class));
-		cs.add(new Column("ClassId", "ClassId", 4, String.class));
+	public static BasicDataSetImpl dropAttributes(IMultiClassSegmentationDataSet dataSet) {
+		ArrayList<Column> columns = new ArrayList<>();
+		columns.add(new Column("ImageId", "ImageId", 0, String.class));
+		columns.add(new Column("EncodedPixels", "EncodedPixels", 1, String.class));
+		columns.add(new Column("Height", "Height", 2, Integer.class));
+		columns.add(new Column("Width", "Width", 3, Integer.class));
+		columns.add(new Column("ClassId", "ClassId", 4, String.class));
 		ArrayList<BasicItem> items = new ArrayList<>();
-		ds.items().forEach(v -> {
+		dataSet.items().forEach(v -> {
 			String imageId = v.id();
 			MultiClassSegmentationItem vv = (MultiClassSegmentationItem)v;
 			vv.getMasks().forEach(m->{
@@ -93,24 +98,42 @@ public class BasicDataSetActions {
 				if(ind>=0) {
 					classId = classId.substring(0, ind);
 				}
-				BasicItem item = new BasicItem(0, new Object[] {
+				BasicItem item = new BasicItem(null,0, new Object[] {
 						imageId, rle, height, width, classId});
 				items.add(item);
 			});
 		});
-		return new BasicDataSetImpl(items, cs);
+		return new BasicDataSetImpl(items, columns);
 	}
 	
 	
-	public static BasicDataSetImpl saveWithCurrentFilters(IDataSet ds) {		
-		ICSVOVerlay ov=(ICSVOVerlay) ds;
+	public static BasicDataSetImpl saveWithCurrentFilters(IDataSet dataSet) {		
+		ICSVOVerlay ov=(ICSVOVerlay) dataSet;
 		ArrayList<ITabularItem>bi=new ArrayList<>();
-		ds.items().forEach(v->{
+		dataSet.items().forEach(v->{
 			bi.addAll(ov.represents(v));
 		});
 		return (BasicDataSetImpl) ov.original().subDataSet("",bi);
 	}
 	
+	public static BasicDataSetImpl recreateAsInstanceSegmentationDataset(IMultiClassSegmentationDataSet dataSet) {
+		
+		if(!(dataSet instanceof AbstractImageDataSet)) {
+			throw new RuntimeException("Must implement '" + AbstractImageDataSet.class.getSimpleName() + "'");
+		}
+		AbstractImageDataSet<?> aids = (AbstractImageDataSet<?>)dataSet;
+		ITabularDataSet tabular = aids.original();
+		ImageRepresenter rep = aids.getRepresenter();		
+		Map<String, Object> settings = dataSet.getSettings();
+		MultiClassInstanceSegmentationDataSet mcisds = new MultiClassInstanceSegmentationDataSet(tabular, settings, rep);
+		Object fPath = settings.get(DataProject.FILE_NAME);
+		if(fPath==null) {
+			throw new RuntimeException("Can not conver to Instance segmentation as file path is null");
+		}
+		File file2 = new File(fPath.toString());
+		DataProject.dumpSettings(file2, mcisds, null);
+		return null;
+	}
 	
 
 	@Image("")
@@ -139,8 +162,9 @@ public class BasicDataSetActions {
 			@SuppressWarnings("unchecked")
 			BasicDataSetImpl ds = ((Function<IDataSet, BasicDataSetImpl>) this.func).apply(v);
 			try {
-				CSVKind.writeCSV(ds, target.getAbsolutePath());
-				
+				if(ds != null) {
+					CSVKind.writeCSV(ds, target.getAbsolutePath());
+				}				
 				
 			} catch (IOException e) {
 				throw new IllegalStateException();
@@ -156,8 +180,27 @@ public class BasicDataSetActions {
 			AbstractImageDataSet<IImageItem>d=(AbstractImageDataSet<IImageItem>) iDataSet;
 			d.getRepresenter().convertToResolution(monitor, width, height);
 		}
+		public String getResultingFileName(String target) {
+			return target;
+		}
 
 	}
+	
+	public static class DatasetConversionAction extends ConversionAction {
+
+		public DatasetConversionAction(String caption, Function<? extends IDataSet, BasicDataSetImpl> v) {
+			super(caption, v);
+		}
+		
+		public String getResultingFileName(String target) {
+			if (target.indexOf('.') < 0) {
+				return target + ".csv";
+			}
+			return target;
+		}
+		
+	}
+	
 	public static class ConvertResolutionAction extends ConversionAction{
 
 		public ConvertResolutionAction() {
@@ -166,8 +209,8 @@ public class BasicDataSetActions {
 		
 	}
 	
-	public static class GenerateDataSetAction extends ConversionAction{
-		public GenerateDataSetAction() {
+	public static class GenerateMusketWrappersAction extends ConversionAction{
+		public GenerateMusketWrappersAction() {
 			super("Generate Musket wrappers", null);
 		}		
 	}
@@ -175,6 +218,12 @@ public class BasicDataSetActions {
 	public static class ClearDataSetMeta extends ConversionAction{
 		public ClearDataSetMeta() {
 			super("Clear dataset metadata and reopen", null);
+		}
+	}
+	
+	public static class ConvertToInstanceSegmentation extends DatasetConversionAction{
+		public ConvertToInstanceSegmentation() {
+			super("Convert to Multiclass Instance Sgmentation", (Function<IMultiClassSegmentationDataSet, BasicDataSetImpl>)BasicDataSetActions::recreateAsInstanceSegmentationDataset);
 		}		
 	}
 	
@@ -186,7 +235,7 @@ public class BasicDataSetActions {
 		conversionAction.setUsesCurrentFilters(true);
 		actions.add(conversionAction);
 		if (d instanceof IPythonStringGenerator) {
-			actions.add(new GenerateDataSetAction());
+			actions.add(new GenerateMusketWrappersAction());
 		}
 		if (d instanceof TextClassificationDataSet) {
 			TextClassificationDataSet td=(TextClassificationDataSet) d;
@@ -195,15 +244,18 @@ public class BasicDataSetActions {
 		
 		if (d instanceof IBinaryClassificationDataSet) {
 			Function<IBinaryClassificationDataSet, BasicDataSetImpl> v = BasicDataSetActions::toBinaryClassification;
-			actions.add(new ConversionAction("Convert to Binary Classification", v));
+			actions.add(new DatasetConversionAction("Convert to Binary Classification", v));
 		}
 		if (d instanceof IMulticlassClassificationDataSet) {
 			Function<IMulticlassClassificationDataSet, BasicDataSetImpl> v = BasicDataSetActions::toMultiClassClassification;
-			actions.add(new ConversionAction("Convert to Multiclass Classification", v));
+			actions.add(new DatasetConversionAction("Convert to Multiclass Classification", v));
 		}
 		if (d instanceof IBinarySegmentationDataSet) {
 			Function<IBinarySegmentationDataSet, BasicDataSetImpl> v = BasicDataSetActions::toBinarySegmentation;
-			actions.add(new ConversionAction("Convert to Binary Segmentation", v));
+			actions.add(new DatasetConversionAction("Convert to Binary Segmentation", v));
+		}
+		if (d instanceof IMultiClassSegmentationDataSet && !(d instanceof MultiClassInstanceSegmentationDataSet)) {			
+			actions.add(new ConvertToInstanceSegmentation());
 		}
 		if (d instanceof IImageDataSet) {
 			actions.add(new ConvertResolutionAction());

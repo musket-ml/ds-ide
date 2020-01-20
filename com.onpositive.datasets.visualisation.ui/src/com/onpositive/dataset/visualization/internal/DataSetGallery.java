@@ -124,7 +124,6 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 					item.setData(data);
 				}
 
-				System.out.println("setData index " + index); //$NON-NLS-1$
 				// Your image here
 				// item.setImage(eclipseImage);
 			}
@@ -217,7 +216,6 @@ public class DataSetGallery extends VisualizerViewer<Control> {
 		action2.setImageDescriptor(this.zoomout);
 		manager.add((IAction) action2);
 		Menu createContextMenu = manager.createContextMenu((Control) gallery);
-		System.out.println(createContextMenu.getItems());
 		gallery.setMenu(createContextMenu);
 	}
 

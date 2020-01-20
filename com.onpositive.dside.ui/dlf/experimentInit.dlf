@@ -4,8 +4,8 @@
 	<combo  bindTo="template" realmExpression="$$.templates"/>
 	<combo  bindTo="dataset" realmExpression="$$.datasets"/>
 	<hc>
-	<string bindTo="group" caption="Experiment group"/>
-	<string bindTo="project" caption="Experiment project"/>
+	<string bindTo="group"/>
+	<string bindTo="project"/>
 	</hc>	
 	<label caption="Optional experiment description:"/>
 	<text bindTo="description"/>

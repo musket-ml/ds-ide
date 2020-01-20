@@ -132,8 +132,7 @@ public class OutlineLabelProvider extends BaseLabelProvider implements IStyledLa
 		
 		if (element == null) {
 			styled.append("null");
-		}
-		if (element instanceof Item) {
+		} else if (element instanceof Item) {
 			Item item = (Item) element;
 
 			ItemType itemType = item.getItemType();
@@ -149,7 +148,6 @@ public class OutlineLabelProvider extends BaseLabelProvider implements IStyledLa
 			if (name != null) {
 				styled.append(name );//+" { ... }");
 			}
-
 		} else {
 			return styled.append(element.toString());
 		}

@@ -71,7 +71,7 @@
       <plugin id="com.sun.jna"/>
       <plugin id="com.sun.jna.platform"/>
       <plugin id="de.jcup.yamleditor"/>
-      <plugin id="de.jcup.yamleditorcopy"/>
+      <plugin id="de.jcup.yamleditor.fork"/>
       <plugin id="javaewah"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.annotation.source"/>

@@ -7,11 +7,11 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 import com.onpositive.datasets.visualisation.ui.views.EnumRealmProvider;
 import com.onpositive.dside.tasks.IServerTask;
+import com.onpositive.dside.ui.views.ExperimentsView;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.IExperimentExecutionListener;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
@@ -23,7 +23,7 @@ import com.onpositive.semantic.model.api.property.java.annotations.Required;
 @Display("dlf/launch.dlf")
 public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 
-	protected List<Experiment> experiment = new ArrayList<Experiment>();
+	protected List<String> experiments = new ArrayList<>();
 	
 	@Range(min = 1, max = 100)
 	protected int numWorkers = 1;
@@ -55,7 +55,7 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 	}
 
 	public LaunchConfiguration(Collection<Experiment> collection) {
-		experiment.addAll(collection);
+		experiments.addAll(collection.stream().map(item -> item.getPathString()).collect(Collectors.toList()));
 	}
 
 	public int getNumWorkers() {
@@ -139,14 +139,11 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 	}
 
 	public List<String> getExperiments() {
-		return experiment.stream().map(x -> x.getPath().toPortableString()).collect(Collectors.toList());
+		return experiments;
 	}
 
-	public void setExperiments(List<String> strings) {
-		experiment = new ArrayList<>();
-		for (String path : strings) {
-			experiment.add(new Experiment(path));
-		}
+	public void setExperiments(List<String> experiments) {
+		this.experiments = experiments;
 	}
 
 	static ArrayList<IExperimentExecutionListener> listeners = new ArrayList<>();
@@ -171,9 +168,9 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 			@Override
 			public void run() {
 				
-				experiment.forEach(e -> {
-					ExperimentsView.open(e);
-					listeners.forEach(l->l.complete(e));
+				experiments.forEach(path -> {
+					ExperimentsView.open(path);
+					listeners.forEach(l->l.complete(path));
 				});
 			}
 		});
@@ -187,9 +184,8 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 	@Override
 	public org.eclipse.core.resources.IProject[] getProjects() {
 		ArrayList<org.eclipse.core.resources.IProject>p=new ArrayList<>();
-		for(Experiment e:experiment) {
-			IPath path = e.getPath();
-			IFile fileForLocation = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(path);
+		for(String path:experiments) {
+			IFile fileForLocation = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(new Path(path));
 			if (fileForLocation!=null) {
 				p.add(fileForLocation.getProject());
 			}
@@ -204,9 +200,14 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 
 	@Override
 	public String getName() {
-		if (!experiment.isEmpty()) {
-			String projectPath = new Path(experiment.get(0).getProjectPath()).lastSegment();
-			return projectPath + " " + experiment.get(0).getPath().lastSegment();
+		if (!experiments.isEmpty()) {
+			Experiment experiment = new Experiment(experiments.get(0));
+			String projectPath = new Path(experiment.getProjectPath()).lastSegment();
+			String name = projectPath + " " + experiment.getPath().lastSegment();
+			if (experiments.size() > 1) {
+				name += " ...";
+			}
+			return name;
 		}
 		return "<experiment>";
 	}
@@ -218,6 +219,5 @@ public class LaunchConfiguration implements IServerTask<Object>, IHasName {
 	public void setFitFromScratch(boolean fitFromScratch) {
 		this.fitFromScratch = fitFromScratch;
 	}
-
 	
 }

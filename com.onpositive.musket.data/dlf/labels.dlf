@@ -12,5 +12,6 @@
 				editable="true" />
 		</columns>
 	</table>
+	<button bindTo="importLabels" hAlign="right"/>
 	</vc>
 </composite-editor>

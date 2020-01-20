@@ -6,23 +6,23 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.onpositive.musket.data.core.AbstractItem;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 
-public class BinarySegmentationItem implements ISegmentationItem,IBinarySegmentationItem{
+public class BinarySegmentationItem extends AbstractItem<AbstractRLEImageDataSet> implements ISegmentationItem,IBinarySegmentationItem{
 	
-	protected AbstractRLEImageDataSet<?> base;
 	protected ITabularItem item;
 	private IMask rleMask;
 	
 	
 	public BinarySegmentationItem(AbstractRLEImageDataSet<?> binarySegmentationDataSet, ITabularItem v) {
-		this.base=binarySegmentationDataSet;
+		super(binarySegmentationDataSet);
 		this.item=v;
 	}
 	
 	public BinarySegmentationItem(AbstractRLEImageDataSet<?> binarySegmentationDataSet, RLEMask t) {
-		this.base=binarySegmentationDataSet;
+		super(binarySegmentationDataSet);
 		this.item=null;
 		this.rleMask=t;
 	}
@@ -30,18 +30,18 @@ public class BinarySegmentationItem implements ISegmentationItem,IBinarySegmenta
 	
 	@Override
 	public Image getImage() {
-		BufferedImage bufferedImage = base.representer.get(id());
+		BufferedImage bufferedImage = owner.representer.get(id());
 		BufferedImage image=new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),BufferedImage.TYPE_INT_ARGB);
 		image.getGraphics().drawImage(bufferedImage, 0, 0, null);
 		
-		Object object = base.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_ALPHA);
+		Object object = owner.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_ALPHA);
 		
-		Object color = base.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_COLOR);
+		Object color = owner.getSettings().get(BinaryInstanceSegmentationDataSet.MASK_COLOR);
 		
 		int acolor=AbstractRLEImageDataSet.parse(object.toString(),color.toString());
 		
 		getMask().drawOn(image,acolor);
-		base.drawOverlays(this.id(),image);
+		owner.drawOverlays(this.id(),image);
 		return image;
 	}
 
@@ -50,14 +50,9 @@ public class BinarySegmentationItem implements ISegmentationItem,IBinarySegmenta
 
 	@Override
 	public String id() {
-		return base.imageColumn.getValueAsString(item);
+		return owner.imageColumn.getValueAsString(item);
 	}
-
 	
-	@Override
-	public IDataSet getDataSet() {
-		return base;
-	}
 
 	@Override
 	public Collection<IMask> getMasks() {
@@ -67,14 +62,14 @@ public class BinarySegmentationItem implements ISegmentationItem,IBinarySegmenta
 	@Override
 	public IMask getMask() {
 		if (this.rleMask==null) {
-			rleMask = base.createMask(base.rleColumn.getValueAsString(item), base.height, base.width,this);
+			rleMask = owner.createMask(owner.rleColumn.getValueAsString(item), owner.height, owner.width,this);
 		}
 		return this.rleMask;
 	}
 
 	@Override
 	public boolean isPositive() {
-		String valueAsString = base.rleColumn.getValueAsString(item);
+		String valueAsString = owner.rleColumn.getValueAsString(item);
 		if (valueAsString.isEmpty()||valueAsString.trim().equals("-1")) {
 			return false;
 		}
@@ -87,6 +82,6 @@ public class BinarySegmentationItem implements ISegmentationItem,IBinarySegmenta
 
 	@Override
 	public Point getImageDimensions() {
-		return base.representer.getDimensions(id());
+		return owner.representer.getDimensions(id());
 	}
 }

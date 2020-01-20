@@ -245,12 +245,12 @@ public class ImageRepresenter implements Iterable<String> {
 
 	public String getImageDirsString() {
 		ArrayList<String> result = new ArrayList<>();
-		this.children.forEach(v -> {
-			String string = v.folders.get(0);
-			if (string.startsWith("\\")||string.startsWith("/")){
-				string=string.substring(1);
+		this.children.forEach(child -> {
+			String folder = child.folders.get(0).replace('\\','/');
+			if (folder.startsWith("/")){
+				folder=folder.substring(1);
 			}					
-			result.add('"' + string + '"');
+			result.add('"' + folder + '"');
 		});
 		return "[" + result.stream().collect(Collectors.joining(",")) + "]";
 	}

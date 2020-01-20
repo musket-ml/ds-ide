@@ -90,6 +90,9 @@ public class MusketTab extends AbstractLaunchConfigurationTab {
 
 	@Override
 	public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+		if (launchConfiguration == null) {
+			launchConfiguration = new LaunchConfiguration();
+		}
 
 		launchConfiguration.setNumGpus(numGPUSpinner.getSelection());
 		launchConfiguration.setNumWorkers(numWorkersSpinner.getSelection());

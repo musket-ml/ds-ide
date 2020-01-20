@@ -16,17 +16,17 @@ public class ExperimentParams{
 	@Required
 	String project;
 	
-	@Caption("Experiment group")
+	@Caption("Group")
 	String group;
 	
 	@Required
-	@Caption("Experiment name")
+	@Caption("Name")
 	String name;
 	
 	String description;
 	
 	@Required
-	@Caption("Start from")
+	@Caption("Template")
 	String template;
 	
 	@Caption("DataSet")
@@ -38,10 +38,6 @@ public class ExperimentParams{
 
 	public void setDataset(String dataset) {
 		this.dataset = dataset;
-		if (!dataset.isEmpty()) {
-			
-			System.out.println("A");
-		}
 	}
 
 	public Collection<String>getTemplates(){

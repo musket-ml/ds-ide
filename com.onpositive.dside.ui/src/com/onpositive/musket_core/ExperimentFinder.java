@@ -17,7 +17,7 @@ public class ExperimentFinder {
 
 	
 	public static Collection<Experiment>find(List<IContainer>fld){
-		LinkedHashSet<Experiment>exp=new LinkedHashSet<>();
+		LinkedHashSet<Experiment>experiments=new LinkedHashSet<>();
 		fld.forEach(f->{
 			try {
 				f.accept(new IResourceVisitor() {
@@ -25,11 +25,9 @@ public class ExperimentFinder {
 					@Override
 					public boolean visit(IResource resource) throws CoreException {
 						if (resource instanceof IFolder) {
-							IFile file = ((IFolder) resource).getFile(IMusketConstants.MUSKET_CONFIG_FILE_NAME);
-							if (file.exists()) {
-								Experiment ex=new Experiment(resource.getLocation().toPortableString());
-								exp.add(ex);	
-								return false;
+							Experiment experiment = getExperiment(resource);
+							if (experiment != null) {
+								experiments.add(experiment);
 							}
 						}
 						
@@ -40,6 +38,19 @@ public class ExperimentFinder {
 				e.printStackTrace();
 			}
 		});
-		return exp;
+		return experiments;
+	}
+	
+	public static Experiment getExperiment(IResource resource) {
+		if (resource instanceof IFolder) {
+			IFile file = ((IFolder) resource).getFile(IMusketConstants.MUSKET_CONFIG_FILE_NAME);
+			if (file.exists()) {
+				return new Experiment(resource.getLocation().toPortableString());
+			}
+		} else if (resource instanceof IFile && resource.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
+			return new Experiment(resource.getParent().getLocation().toPortableString());
+		}
+		
+		return null;
 	}
 }

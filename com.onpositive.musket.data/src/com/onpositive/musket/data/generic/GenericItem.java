@@ -32,31 +32,26 @@ import com.onpositive.musket.data.images.RLEMask;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IColumnType;
 import com.onpositive.musket.data.table.ITabularItem;
+import com.onpositive.musket.data.text.AbstractImageItem;
 
-public class GenericItem implements IImageItem {
+public class GenericItem extends AbstractImageItem<GenericDataSet> implements IImageItem {
 
-	protected GenericDataSet ds;
-	protected ITabularItem base;
+	protected ITabularItem item_base;
 
 	public ITabularItem getBase() {
-		return base;
+		return item_base;
 	}
 
 	public GenericItem(GenericDataSet ds, ITabularItem base) {
-		super();
-		this.ds = ds;
-		this.base = base;
+		super(ds);
+		this.item_base = base;
 	}
 
 	@Override
 	public String id() {
-		return base.id();
+		return item_base.id();
 	}
 
-	@Override
-	public IDataSet getDataSet() {
-		return ds;
-	}
 
 	protected static HashMap<Integer, Font> fonts = new HashMap<>();
 
@@ -66,13 +61,13 @@ public class GenericItem implements IImageItem {
 		Graphics2D g2 = (Graphics2D) img.getGraphics();
 		g2.setColor(Color.RED);
 
-		DataSetSpec spec = this.ds.getSpec();
+		DataSetSpec spec = this.owner.getSpec();
 		int fs = 12;
 		int mxch = 300;
 		Font font = javax.swing.UIManager.getDefaults().getFont("TextArea.font");
 		try {
-			fs = Integer.parseInt(ds.getSettings().get(GenericDataSet.FONT_SIZE).toString());
-			mxch = Integer.parseInt(ds.getSettings().get(GenericDataSet.MAX_CHARS_IN_TEXT).toString());
+			fs = Integer.parseInt(owner.getSettings().get(GenericDataSet.FONT_SIZE).toString());
+			mxch = Integer.parseInt(owner.getSettings().get(GenericDataSet.MAX_CHARS_IN_TEXT).toString());
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -83,7 +78,7 @@ public class GenericItem implements IImageItem {
 			font = fonts.get(fs);
 		}
 		Collection<ColumnInfo> infos = spec.layout.infos();
-		Map<String, Object> settings = ds.getSettings();
+		Map<String, Object> settings = owner.getSettings();
 		ArrayList<ColumnInfo> large = new ArrayList<>();
 		Object object = settings.get(GenericDataSet.VISIBLE_COLUMNS);
 		String vs = object == null ? "" : object.toString();
@@ -186,8 +181,8 @@ public class GenericItem implements IImageItem {
 					num++;
 				}
 				if (preferredType == ImageColumnType.class) {
-					String valueAsString = column.getValueAsString(base);
-					BufferedImage bufferedImage = ds.getSpec().representer.get(valueAsString);
+					String valueAsString = column.getValueAsString(item_base);
+					BufferedImage bufferedImage = owner.getSpec().representer.get(valueAsString);
 					int width = bufferedImage.getWidth();
 					int height2 = bufferedImage.getHeight();
 					double sw = width / 350.0;
@@ -198,7 +193,7 @@ public class GenericItem implements IImageItem {
 					int nm = num;
 					int ps = pos;
 					rles.forEach(r -> {
-						String rleMask = r.getColumn().getValueAsString(base);
+						String rleMask = r.getColumn().getValueAsString(item_base);
 						try {
 							RLEMask ms = new RLEMask(rleMask, height2, width);
 							Image image = ms.getImage();
@@ -215,7 +210,7 @@ public class GenericItem implements IImageItem {
 	}
 
 	protected String getTextValue(int mxch, IColumn column) {
-		String value = column.getValueAsString(base);
+		String value = column.getValueAsString(item_base);
 		if (value.length() > mxch) {
 			value = value.substring(0, mxch) + "...";
 		}
@@ -223,7 +218,7 @@ public class GenericItem implements IImageItem {
 	}
 
 	protected void appendSimpleValue(StringBuilder bld, IColumn column, Class<? extends IColumnType> preferredType) {
-		String value = column.getValueAsString(base);
+		String value = column.getValueAsString(item_base);
 		if (preferredType == NumberColumn.class) {
 			try {
 				value = NumberFormat.getInstance().format(Double.parseDouble(value));
@@ -247,8 +242,8 @@ public class GenericItem implements IImageItem {
 		return new Point(350, 350);
 	}
 
-	public ITabularItem base() {
-		return base;
+	public ITabularItem generic_base() {
+		return item_base;
 	}
 
 }

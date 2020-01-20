@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.onpositive.musket.data.columntypes.ColumnLayout;
 import com.onpositive.musket.data.columntypes.DataSetFactoryRegistry;
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -34,6 +33,8 @@ import com.onpositive.musket.data.text.TextSequenceDataSet;
 import com.onpositive.yamledit.io.YamlIO;
 
 public class DataProject {
+	
+	public static String FILE_NAME = "SOURCE_FILE";
 
 	private static final String DATASET_FACTORY = "dataset_factory";
 	private ImageRepresenter imageRepresenter;
@@ -82,27 +83,19 @@ public class DataProject {
 				}
 			}
 			if (file2.getName().endsWith(".txt")) {
-				try {
-					InputStreamReader fileReader = new InputStreamReader(new FileInputStream(file2),encoding);
-					try {
-					TextSequenceDataSet read = new ConnlFormatReader().read(new BufferedReader(fileReader));
-					return read;
-					}finally {
-						try {
-							fileReader.close();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
+				try (InputStreamReader fileReader = new InputStreamReader(new FileInputStream(file2),encoding)) {
+					TextSequenceDataSet dataSet = new ConnlFormatReader().read(new BufferedReader(fileReader));
+					return dataSet;
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (UnsupportedEncodingException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				} catch (IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
 				}
-				
 			}
 			IDataSet load = DataSetIO.load("file://" + file2.getAbsolutePath(),encoding);
 			if (load == null) {
@@ -162,25 +155,26 @@ public class DataProject {
 				return null;
 			}
 			ArrayList<IDataSetFactory> matching = DataSetFactoryRegistry.getInstance().matching(spec);
-			IDataSet create = null;
+			IDataSet newDataSet = null;
 			if (!matching.isEmpty() && matching.size() > 1) {
 				FactoryModel model = new FactoryModel(matching);
 				boolean askQuestion = answerer.askQuestion("Please select factory", model);
 				if (askQuestion) {
-					create = model.selected.create(spec, null);
+					newDataSet = model.selected.create(spec, null);
 					factory = model.selected;
 				}
 			} else if (matching.size() == 1) {
 				IDataSetFactory iDataSetFactory = matching.get(0);
 				factory = iDataSetFactory;
-				create = iDataSetFactory.create(spec, null);
+				newDataSet = iDataSetFactory.create(spec, null);
 			}
 			long l3=System.currentTimeMillis();
 			
 			System.out.println("Dataset creation:"+(l3-l2));
-			if (create != null) {
-				dumpSettings(file2, create, factory);
-				return create;
+			if (newDataSet != null) {
+				newDataSet.getSettings().put(FILE_NAME, file2.getAbsolutePath().replace("\\", "/"));
+				dumpSettings(file2, newDataSet, factory);
+				return newDataSet;
 			}
 			GenericDataSet genericDataSet = new GenericDataSet(spec, t1);
 			dumpSettings(file2, genericDataSet, new GenericDataSetFactory());
@@ -210,12 +204,18 @@ public class DataProject {
 		}
 	}
 
-	protected void dumpSettings(File file2, IDataSet create, IDataSetFactory factory) {
+	static File getMetaFile(File file2) {
+		return new File(file2.getParentFile(), "." + file2.getName() + ".dataset_desc");
+	}
+	
+	public static void dumpSettings(File file2, IDataSet create, IDataSetFactory factory) {
 		if (create != null) {
 			try {
 				FileWriter fileWriter = new FileWriter(getMetaFile(file2));
 				Map<String, Object> settings = create.getSettings();
-				settings.put(DATASET_FACTORY, factory.getClass().getName());
+				if(factory != null) {
+					settings.put(DATASET_FACTORY, factory.getClass().getName());
+				}
 				YamlIO.dump(settings, fileWriter);
 				fileWriter.close();
 			} catch (IOException e) {
@@ -223,10 +223,6 @@ public class DataProject {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	static File getMetaFile(File file2) {
-		return new File(file2.getParentFile(), "." + file2.getName() + ".dataset_desc");
 	}
 
 }

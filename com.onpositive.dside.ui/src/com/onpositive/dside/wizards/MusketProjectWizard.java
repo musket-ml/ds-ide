@@ -43,6 +43,7 @@ import org.python.pydev.ui.wizards.gettingstarted.AbstractNewProjectWizard;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectExistingSourcesPage;
 import org.python.pydev.ui.wizards.project.IWizardNewProjectNameAndLocationPage;
 
+import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.dside.ui.builder.MusketNature;
 
 /**
@@ -227,7 +228,7 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 			final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
 			List<IContainer> ret = new ArrayList<IContainer>();
 
-			IContainer folder = projectHandle.getFolder("modules");
+			IContainer folder = projectHandle.getFolder(getSourceFolderPath());
 			ret = new ArrayList<IContainer>();
 			ret.add(folder);
 			return ret;
@@ -264,11 +265,11 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 
 		PyStructureConfigHelpers.createPydevProject(description, newProjectHandle, monitor, projectType,
 				projectInterpreter, getSourceFolderHandlesCallback, null, getExistingSourceFolderHandlesCallback);
-		IFolder folder = newProjectHandle.getFolder("experiments");
+		IFolder folder = newProjectHandle.getFolder(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER);
 		folder.create(true, true, monitor);
 		folder = newProjectHandle.getFolder("data");
 		folder.create(true, true, monitor);
-		IFile common=newProjectHandle.getFile("common.yaml");		
+		IFile common=newProjectHandle.getFile(IMusketConstants.COMMON_CONFIG_NAME);		
 		common.create(MusketProjectWizard.class.getResourceAsStream("/templates/common.yaml"), true, monitor);
 		
 		IFile gitIgnore=newProjectHandle.getFile(".gitignore");
@@ -347,5 +348,9 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data)
 			throws CoreException {
 		this.fConfigElement = config;
+	}
+
+	protected String getSourceFolderPath() {
+		return "modules";
 	}
 }

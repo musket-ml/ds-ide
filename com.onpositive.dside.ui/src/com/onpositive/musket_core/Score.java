@@ -10,11 +10,9 @@ public class Score implements Comparable<Score>{
 	double min;
 	double value;
 	String representation;
-	private Experiment experiment;
 	private boolean real;
 	
 	public Score(Object o, Experiment experiment) {
-		this.experiment=experiment;
 		if (o instanceof Map<?,?>) {
 			Map<String,?>m=(Map<String, ?>) o;
 			Double max =(Double) m.get("max");

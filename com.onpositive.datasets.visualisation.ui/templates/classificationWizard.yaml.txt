@@ -8,7 +8,7 @@ activation: {activation} #as we have multilabel classification, the activation f
 weights: imagenet #we would like to start from network pretrained on imagenet dataset
 shape: [{height},{width}, 3] #our desired input image size, everything will be resized to fit
 optimizer: Adam #Adam optimizer is a good default choice
-batch: 8 #our batch size will be 16
+batch: 8 #batch size. This can be decreased in case of Out Of Memory problems, but shouldn't be smaller than 3 in most cases
 lr: 0.001 
 metrics: #we would like to track some metrics
   - binary_accuracy

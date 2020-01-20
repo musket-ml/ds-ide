@@ -8,25 +8,16 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.StringTokenizer;
 
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
-import javax.swing.text.StringContent;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.StyleSheet;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.nebula.widgets.gallery.GalleryItem;
 import org.eclipse.nebula.widgets.pshelf.PShelf;
 import org.eclipse.nebula.widgets.pshelf.PShelfItem;
-import org.eclipse.nebula.widgets.pshelf.PaletteShelfRenderer;
 import org.eclipse.nebula.widgets.pshelf.RedmondShelfRenderer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -37,8 +28,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -47,7 +36,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.onpositive.dside.tasks.analize.IAnalizeResults;
-import com.onpositive.dside.ui.VisualizerViewer.It;
+import com.onpositive.dside.ui.views.VisualizerViewer;
 import com.onpositive.musket_core.IDataSet;
 import com.onpositive.semantic.model.ui.richtext.StyledString;
 import com.onpositive.semantic.model.ui.richtext.StyledString.Style;
@@ -124,7 +113,6 @@ public class VirtualTable extends VisualizerViewer<Control> {
 
 				@Override
 				public StyledString getColoredLabel(Item item, int index) {
-					System.out.println(index);
 					Integer data = (Integer) item.getData();
 					if (data == null) {
 						data = virtualTable.indexOf((TableItem) item);

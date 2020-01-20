@@ -155,51 +155,45 @@ public class TaskConfiguration extends PrivateServerTask<Object> {
 
 			@Override
 			public void run() {
-				ArrayList<Object> rrr = (ArrayList<Object>) result;
-				if (rrr==null) {
+				ArrayList<Object> resultList = (ArrayList<Object>) result;
+				if (resultList==null) {
 					return;
 				}
-				for (Object o : rrr) {
-					Map<String, Object> mmm = (Map<String, Object>) o;
-					if (mmm.containsKey("results")) {
-						Object object = mmm.get("results");
+				for (Object result : resultList) {
+					Map<String, Object> resultMap = (Map<String, Object>) result;
+					if (resultMap.containsKey("results")) {
+						Object object = resultMap.get("results");
 						if (object instanceof String) {
 							File fl = new File(object.toString());
 							File[] listFiles = fl.listFiles();
 							if (listFiles.length < 5) {
-								for (File f : listFiles) {
-									if (f.isFile()) {
-										IFile[] findFilesForLocation = ResourcesPlugin.getWorkspace().getRoot()
-												.findFilesForLocation(new Path(f.getAbsolutePath()));
-										for (IFile fa : findFilesForLocation) {
+								for (File curFile : listFiles) {
+									if (curFile.isFile()) {
+										IFile[] found = ResourcesPlugin.getWorkspace().getRoot()
+												.findFilesForLocation(new Path(curFile.getAbsolutePath()));
+										for (IFile workspFile : found) {
 											try {
-												fa.refreshLocal(IFile.DEPTH_INFINITE, new NullProgressMonitor());
-												FileEditorInput input = new FileEditorInput(fa);
+												workspFile.refreshLocal(IFile.DEPTH_INFINITE, new NullProgressMonitor());
+												FileEditorInput input = new FileEditorInput(workspFile);
 												IEditorDescriptor defaultEditor = PlatformUI.getWorkbench()
-														.getEditorRegistry().getDefaultEditor(fa.getName());
+														.getEditorRegistry().getDefaultEditor(workspFile.getName());
 												if (defaultEditor != null) {
 													try {
 														PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
 																.openEditor(input, defaultEditor.getId());
 													} catch (PartInitException e) {
-														// TODO Auto-generated catch block
-														e.printStackTrace();
+														DSIDEUIPlugin.log(e);
 													}
 												}
 											} catch (CoreException e1) {
-												// TODO Auto-generated catch block
-												e1.printStackTrace();
+												DSIDEUIPlugin.log(e1);
 											}
-											
-
 										}
 									}
 								}
 							}
-							System.out.println(fl);
 						}
 					}
-					System.out.println(mmm);
 				}
 			}
 		});

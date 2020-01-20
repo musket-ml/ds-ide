@@ -22,9 +22,9 @@ public class MultiClassClassificationItem extends BinaryClassificationItem imple
 
 	@Override
 	public ArrayList<String> classes() {
-		String value = (String) this.base.clazzColumn.getValue(item);
+		String value = (String) this.owner.clazzColumn.getValue(item);
 		
-		return splitByClass(value,this.base.labels);
+		return splitByClass(value,this.owner.labels);
 	}
 	
 	public static boolean isMultiClass(IColumn c) {

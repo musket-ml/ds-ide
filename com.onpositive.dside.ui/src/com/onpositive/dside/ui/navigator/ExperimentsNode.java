@@ -2,6 +2,7 @@ package com.onpositive.dside.ui.navigator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -11,6 +12,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.IMusketConstants;
 
 public class ExperimentsNode implements IAdaptable,IHasExperiments{
@@ -49,6 +51,9 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 
 	@Override
 	public <T> T getAdapter(Class<T> adapter) {
+		if (adapter == getClass()) {
+			return adapter.cast(this);
+		}
 		if (adapter==IFolder.class) {
 			return adapter.cast(folder);
 		}
@@ -62,26 +67,7 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 	}
 	
 	public Object[] getChildren() {
-		ArrayList<ExperimentNode>children=new ArrayList<>();
-		try {
-			folder.accept(new IResourceVisitor() {
-				
-				@Override
-				public boolean visit(IResource resource) throws CoreException {
-					if (resource.getName().equals(".history")) {
-						return false;
-					}
-					if (resource.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
-						children.add(new ExperimentNode((IFolder) resource.getParent()));
-					}
-					// TODO Auto-generated method stub
-					return true;
-				}
-			});
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		List<ExperimentNode> children = getExperiments();
 		LinkedHashMap<IPath, ExperimentGroup>groups=new LinkedHashMap<>();
 		for (ExperimentNode n:children) {
 			IPath projectRelativePath = n.folder.getProjectRelativePath().removeFirstSegments(1).removeLastSegments(1);
@@ -94,6 +80,31 @@ public class ExperimentsNode implements IAdaptable,IHasExperiments{
 				groups.put(projectRelativePath, g);				
 			}
 		}
+		if (groups.values().size() == 1) {
+			return children.toArray();
+		}
 		return groups.values().toArray();		
+	}
+
+	public List<ExperimentNode> getExperiments() {
+		ArrayList<ExperimentNode>children=new ArrayList<>();
+		try {
+			folder.accept(new IResourceVisitor() {
+				
+				@Override
+				public boolean visit(IResource resource) throws CoreException {
+					if (resource.getName().equals(".history")) {
+						return false;
+					}
+					if (resource.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
+						children.add(new ExperimentNode((IFolder) resource.getParent()));
+					}
+					return true;
+				}
+			});
+		} catch (CoreException e) {
+			DSIDEUIPlugin.log(e);
+		}
+		return children;
 	}
 }

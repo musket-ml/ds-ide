@@ -30,6 +30,9 @@ import org.python.pydev.parser.PyParser;
 import org.python.pydev.shared_core.model.ISimpleNode;
 import org.python.pydev.shared_core.parsing.BaseParser;
 import org.python.pydev.shared_core.parsing.BaseParser.ParseOutput;
+
+import com.onpositive.musket.data.utils.MusketFileReader;
+
 import org.python.pydev.parser.jython.ast.Assign;
 import org.python.pydev.parser.jython.ast.Call;
 import org.python.pydev.parser.jython.ast.Module;
@@ -119,41 +122,9 @@ public class ExampleExtractor {
 		
 		String wsPath = root.getAbsolutePath().replace("\\", "/");
 		String relPath = new Path(file.getAbsolutePath()).makeRelativeTo(new Path(wsPath)).toOSString().replace("\\","/");
-		String content = readStringFile(file);
+		String content = MusketFileReader.readStringFile(file);
 		IDocument document = new Document(content);
 		return processConfigDocument(relPath, wsPath, document, parser);
-	}
-
-	private String readStringFile(File file) {
-		FileInputStream fis = null;
-		BufferedInputStream bis = null;
-		String content = null;
-		try {
-			fis = new FileInputStream(file);
-			bis = new BufferedInputStream(fis);
-			byte[] buf = new byte[1024];
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			int l;
-			while((l=bis.read(buf))>=0) {
-				baos.write(buf, 0, l);
-			}
-			content = new String(baos.toByteArray(),"utf-8");
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally {
-			if(bis != null) {
-				try {
-					bis.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return content;
 	}
 
 	private MMDetCfgData tryProcessConfigFile(IFile file, IFolder root, BaseParser parser, IDocumentProvider provider) throws CoreException {

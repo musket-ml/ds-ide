@@ -1,7 +1,5 @@
 package com.onpositive.dside.ui.navigator;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.OpenFileAction;
@@ -40,11 +38,8 @@ public class BasicActionProvider extends CommonActionProvider {
 		super.fillActionBars(actionBars);
 		// forward doubleClick to doubleClickAction
 		actionBars.setGlobalActionHandler(ICommonActionConstants.OPEN, doubleClickAction);
-		IMenuManager menuManager = actionBars.getMenuManager();
-		menuManager.add(new Action("Delete 2 ") {
-		
-		});
-		menuManager.update(true);
+//		IMenuManager menuManager = actionBars.getMenuManager();
+//		menuManager.update(true);
 		actionBars.updateActionBars();
 	}
 }

@@ -6,14 +6,14 @@
          point="org.eclipse.ui.views">
       <view
             allowMultiple="false"
-            class="com.onpositive.dside.ui.ExperimentsView"
+            class="com.onpositive.dside.ui.views.ExperimentsView"
             icon="icons/experiment.png"
             id="com.onpositive.dside.ui.experiments"
             name="Experiments"
             restorable="true">
       </view>
       <view
-            class="com.onpositive.dside.ui.DataSetsView"
+            class="com.onpositive.dside.ui.views.DataSetsView"
             icon="icons/data_icon.png"
             id="com.onpositive.dside.ui.datasets"
             name="Datasets"
@@ -29,7 +29,7 @@
       </view>
       <view
             allowMultiple="false"
-            class="com.onpositive.dside.ui.navigator.MusketNavigator"
+            class="com.onpositive.dside.ui.navigator.MusketNavigatorContentProvider"
             icon="icons/maven.gif"
             id="com.onpositive.dside.ui.musket.navigator"
             name="Musket Navigator"
@@ -68,7 +68,7 @@
             id="com.onpositive.dside.ui.objectContribution1"
             objectClass="org.eclipse.core.resources.IFolder">
          <action
-               class="com.onpositive.dside.ui.ShowExperiments"
+               class="com.onpositive.dside.ui.views.ShowExperimentsAction"
                icon="icons/experiment.png"
                id="com.onpositive.dside.ui.action1"
                label="Show Experiments">
@@ -96,7 +96,7 @@
       </objectContribution>
       <objectContribution
             adaptable="true"
-            id="com.onpositive.dside.ui.objectContribution3"
+            id="com.onpositive.dside.ui.expNodeContribution"
             objectClass="com.onpositive.dside.ui.navigator.ExperimentNode">
             <action
                class="com.onpositive.dside.ui.navigator.RunOnKaggleKernelsAction"
@@ -175,11 +175,18 @@
             name="Experiment">
       </editor>
       <editor
-            class="com.onpositive.dside.ui.DataSetViewer"
+            class="com.onpositive.dside.ui.views.DataSetViewer"
             default="false"
             icon="icons/data_icon.png"
             id="com.onpositive.dside.ui.dsviewer"
             name="DataSet Viewer">
+      </editor>
+      <editor
+            class="com.onpositive.dside.ui.editors.preview.augmentation.AugmentationsPreviewEditorPart"
+            default="false"
+            icon="icons/swatches.png"
+            id="com.onpositive.dside.ui.editors.augmentation.preview"
+            name="Augmentations Preview">
       </editor>
    </extension>
    <extension
@@ -319,6 +326,31 @@
             image="icons/refresh.png"
             name="refresh">
       </image>
+      <image
+            id="export"
+            image="icons/export.gif"
+            name="Export">
+      </image>
+      <image
+            id="export_wiz"
+            image="icons/export_wiz.png"
+            name="export_wiz">
+      </image>
+      <image
+            id="export_web"
+            image="icons/webstatic_deploy.gif"
+            name="export_web">
+      </image>
+      <image
+            id="tensorflow"
+            image="icons/tensorflow.gif"
+            name="tensorflow">
+      </image>
+      <image
+            id="web_prj_wiz"
+            image="icons/newwprj_wiz.png"
+            name="name">
+      </image>
    </extension>
 	 <extension point="org.eclipse.ui.newWizards">
       <category
@@ -331,7 +363,7 @@
       
       <wizard
             category="org.musket.pydev.PythonCategory"
-            class="com.onpositive.dside.wizards.KaggleDataset"
+            class="com.onpositive.dside.wizards.ImportKaggleDatasetWizard"
             finalPerspective="com.onpositive.dside.ui.perspective"
             hasPages="true"
             icon="icons/experiment.png"
@@ -385,7 +417,7 @@
 
       <navigatorContent
             activeByDefault="true"
-            contentProvider="com.onpositive.dside.ui.navigator.MusketNavigator"
+            contentProvider="com.onpositive.dside.ui.navigator.MusketNavigatorContentProvider"
             icon="platform:/plugin/org.python.pydev.shared_ui/icons/python_16x16.png"
             id="org.python.pydev.navigator.musketcontent"
             labelProvider="com.onpositive.dside.ui.navigator.MusketLabelProvider"
@@ -412,12 +444,21 @@
                 <instanceof value="org.python.pydev.navigator.elements.ProjectConfigError"/>
             </or>
          </triggerPoints>
+         <commonSorter
+	      class="com.onpositive.dside.ui.navigator.ExperimentResourcesComparator"
+	            id="com.onpositive.dside.ui.navigator.defaultSorter">
+			  <parentExpression>
+			        <or>         
+				       <instanceof 
+			    	       value="com.onpositive.dside.ui.navigator.ExperimentNode" /> 
+				   </or>
+			  </parentExpression>
+	 	 </commonSorter>
          <commonWizard
                type="new"
                wizardId="org.python.pydev.ui.wizards.project.MusketProjectWizard">
          </commonWizard>
          <!-- that's so that we only have the python content shown, and not the resource content -->
-
 
       </navigatorContent>
       <commonFilter
@@ -433,12 +474,6 @@
             priority="high">
          <enablement></enablement>
       </actionProvider>
-
-
-
-
-
-
 	  <!-- The ones below are copied from org.eclipse.ui.navigator.resources, with changes from 'instanceof' to 'adapt type'
 
 	  It seems that eclipse 3.6 fixed that, so, it's not needed anymore.
@@ -449,20 +484,6 @@
 	  	  class="org.python.pydev.navigator.filters.DotStartFilter">
       </commonFilter>
       -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </extension>
 
     <!-- Bind the content extension to the viewer -->
@@ -504,7 +525,7 @@
           </action>
           
        </objectContribution>
-          <objectContribution
+       <objectContribution
              adaptable="true"
              id="com.onpositive.dside.ui.objectContribution1"
              objectClass="com.onpositive.dside.ui.navigator.IHasExperiments">
@@ -514,7 +535,7 @@
                 id="com.onpositive.dside.ui.action3"
                 label="New Experiment"
                 menubarPath="group.new">
-          		</action>
+          	 </action>
              <action
                    class="com.onpositive.dside.ui.navigator.NewExperimentGroup"
                    icon="icons/packagefolder_test_obj.png"
@@ -523,6 +544,25 @@
                    menubarPath="group.new">
              </action>
          </objectContribution>  
+         <objectContribution
+             adaptable="true"
+             id="com.onpositive.dside.ui.experiments.duplicate"
+             objectClass="com.onpositive.dside.ui.navigator.ExperimentNode">
+             <action
+                class="com.onpositive.dside.ui.navigator.DuplicateExperimentAction"
+                icon="icons/duplicate_16.png"
+                id="com.onpositive.dside.ui.experiments.duplicate.action"
+                label="Duplicate Experiment"
+                menubarPath="group.new">
+          	 </action>             
+          	 <action
+               class="com.onpositive.dside.ui.views.AddExperimentsToViewAction"
+               id="com.onpositive.dside.ui.AddExperimentsToViewAction"
+               icon="icons/experiment_add.png"
+               label="Add to Experiments View"
+               menubarPath="group.new">
+         	 </action>
+         </objectContribution>
     </extension>
     <extension
           point="org.eclipse.ui.decorators">
@@ -534,16 +574,14 @@
              lightweight="true"
              state="true">
           <enablement>
-             <and>
+         	<or>
                 <objectClass
                       name="com.onpositive.dside.ui.navigator.IHasExperiments">
                 </objectClass>
-                <or>
-                   <objectClass
-                         name="com.onpositive.dside.ui.navigator.ExperimentNode">
-                   </objectClass>
-                </or>
-             </and>
+               <objectClass
+                     name="com.onpositive.dside.ui.navigator.ExperimentNode">
+               </objectClass>
+            </or>
           </enablement>
        </decorator>
     </extension>
@@ -632,6 +670,11 @@
              defaultHandler="com.onpositive.dside.ui.datasets.CreateDataSetFromFolder"
              id="com.onpositive.dside.ui.createFromFolder"
              name="Create dataset from folder">
+       </command>
+       <command
+             defaultHandler="com.onpositive.dside.ui.handlers.AnalyzeAugmentationsHandler"
+             id="com.onpositive.dside.ui.config.analyzeAugmentations"
+             name="Analyze augmentations">
        </command>
     </extension>
     <extension
@@ -737,6 +780,13 @@
              </visibleWhen>
           </command>
        </menuContribution>
+       <menuContribution
+            locationURI="popup:yamleditor.editors.YamlEditor.context?after=additions">
+         <command
+               commandId="com.onpositive.dside.ui.config.analyzeAugmentations"
+               icon="icons/swatches.png">
+	 	 </command>
+       </menuContribution>	 	 
     </extension>
     <extension
           id="com.onpositive.musketProblem"
@@ -774,7 +824,7 @@
       
       <wizard
             category="org.musket.pydev.PythonCategory"
-            class="com.onpositive.dside.wizards.KaggleDataset"
+            class="com.onpositive.dside.wizards.ImportKaggleDatasetWizard"
             finalPerspective="org.python.pydev.ui.PythonPerspective"
             hasPages="true"
             icon="icons/experiment.png"
@@ -817,5 +867,21 @@
             introId="com.onpositive.dside.ui.intro"
             productId="com.onpositive.dside.ui.product">
       </introProductBinding>
-   </extension>     
+   </extension>
+   <extension
+         point="org.eclipse.ui.elementFactories">
+      <factory
+            class="com.onpositive.dside.ui.editors.ObjectEditorInputFactory"
+            id="com.onpositive.dside.ui.editors.ObjectEditorInputFactory">
+      </factory>
+   </extension> 
+   <!-- Context for Yaml-based preview                                     -->
+   <extension point="org.eclipse.ui.contexts">
+	  <context
+	        name="Yaml context"
+	        description="Editing Yaml files"
+	        parentId="org.eclipse.ui.textEditorScope"
+	        id="com.onpositive.dside.ui.editors.preview.context">
+	  </context>
+   </extension>    
 </plugin>

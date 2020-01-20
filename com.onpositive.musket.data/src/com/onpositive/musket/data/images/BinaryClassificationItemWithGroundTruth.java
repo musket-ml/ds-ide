@@ -15,11 +15,11 @@ public class BinaryClassificationItemWithGroundTruth extends BinaryClassificatio
 
 	@Override
 	public boolean isPredictionPositive() {
-		return super.isPositiveValue(base.clazzColumn.getValue(prediction));
+		return super.isPositiveValue(owner.clazzColumn.getValue(prediction));
 	}
 
 	public IItem getPrediction() {
-		return new BinaryClassificationItem(base, prediction);
+		return new BinaryClassificationItem(owner, prediction);
 	}
 
 

@@ -2,6 +2,7 @@ package com.onpositive.musket.data.images;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -22,13 +23,23 @@ import com.onpositive.musket.data.table.IHasLabels;
 import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageRepresenter;
+import com.onpositive.musket.data.text.ClassVisibilityOptions2;
+import com.onpositive.musket.data.text.IHasClassGroups;
 
 public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImageItem>
-		implements IMultiClassSegmentationDataSet,IBinarySegmentationDataSet ,IHasLabels{
+		implements IMultiClassSegmentationDataSet,IBinarySegmentationDataSet ,IHasLabels, IHasClassGroups {
 
 	public static final String CLAZZ_COLUMN = "CLAZZ_COLUMN";
 	protected IColumn clazzColumn;
-	protected ArrayList<Object> classes;
+	protected List<Object> classes;
+	
+	public static String FOCUS_ON_TARGET_CLASS = "Focus on target class";
+	public static String CLASSES_COLOURS = "Classes colours";
+	public static boolean FOCUS_ON_TARGET_CLASS_DEFAULT = true;
+	
+	{
+		parameters.put(FOCUS_ON_TARGET_CLASS, FOCUS_ON_TARGET_CLASS_DEFAULT);
+	}
 
 	@SuppressWarnings("unchecked")
 	public MultiClassSegmentationDataSet(DataSetSpec base, IColumn image, IColumn rle, int width2, int height2, IColumn clazzColumn) {
@@ -72,7 +83,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		return new MultiClassSegmentationDataSetWithGrounTruth(new DataSetSpec(base, representer),imageColumn,rleColumn,width,height,clazzColumn,t2.as(ITabularDataSet.class));
+		return new MultiClassSegmentationDataSetWithGrounTruth(new DataSetSpec(tabularBase, representer),imageColumn,rleColumn,width,height,clazzColumn,t2.as(ITabularDataSet.class));
 	}
 
 	@Override
@@ -92,7 +103,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 		if (items == null) {
 			items = new ArrayList<>();
 			LinkedHashMap<String, ArrayList<ITabularItem>> items = new LinkedHashMap<>();
-			base.items().forEach(v -> {
+			tabularBase.items().forEach(v -> {
 				String value = imageColumn.getValueAsString(v);
 				ArrayList<ITabularItem> arrayList = items.get(value);
 				if (arrayList == null) {
@@ -145,13 +156,23 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 						rs.add(nk);
 					}
 				} else {
-
-					Parameter nk = new Parameter();
-					nk.defaultValue = parameters.get(MASK_COLOR).toString();
-					nk.type = Color.class;
-					nk.name = MASK_COLOR;
-					rs.add(nk);
+					
+					Parameter parameter2 = new Parameter();
+					parameter2.name=CLASSES_COLOURS;
+					Object object = MultiClassSegmentationDataSet.this.getSettings().get(CLASSES_COLOURS);
+					if (object==null) {
+						object="";
+					}
+					parameter2.defaultValue=object.toString();
+					parameter2.type=ClassVisibilityOptions2.class;
+					rs.add(parameter2);
 				}
+				
+				Parameter focus = new Parameter();
+				focus.defaultValue = parameters.get(FOCUS_ON_TARGET_CLASS).toString();
+				focus.type = boolean.class;
+				focus.name = FOCUS_ON_TARGET_CLASS;
+				rs.add(focus);
 				addExtraParameters(rs);
 				return rs.toArray(new Parameter[rs.size()]);
 			}
@@ -216,7 +237,7 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
 		Map<String, Object> settings = this.getSettings();
-		return new BinarySegmentationDataSet(filter(clazz,this.base,clazzColumn.id()), settings, representer);
+		return new BinarySegmentationDataSet(filter(clazz,this.tabularBase,clazzColumn.id()), settings, representer);
 	}
 
 	@Override
@@ -232,5 +253,18 @@ public class MultiClassSegmentationDataSet extends AbstractRLEImageDataSet<IImag
 
 	public LabelsSet labels() {
 		return this.labels;
+	}
+
+	public void setClasses(List<Object> asList) {
+		this.classes=asList;
+	}
+
+	public List<Object> getClasses() {
+		return classes;
+	}
+
+	@Override
+	public ArrayList<LinkedHashSet<String>> classGroups() {
+		return new ArrayList<>(this.classes.stream().map(x->new LinkedHashSet<String>(Arrays.asList(new String[] {x.toString()}))).collect(Collectors.toList()));
 	}
 }

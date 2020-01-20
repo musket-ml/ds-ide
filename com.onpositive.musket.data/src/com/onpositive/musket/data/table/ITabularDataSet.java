@@ -55,7 +55,7 @@ public interface ITabularDataSet extends IDataSet,Cloneable {
 				}
 				else{
 					int sn = Integer.parseInt(substring);
-					SubColumn subColumn = new SubColumn(column.id(), split[sn], column.getNum(), String.class, sn);
+					SubColumn subColumn = new SubColumn(id, id, column.getNum(), String.class, sn);
 					subColumn.owner=this;
 					return subColumn;
 				}
@@ -89,7 +89,7 @@ public interface ITabularDataSet extends IDataSet,Cloneable {
 			this.items().forEach(v -> {
 				BasicItem z=(BasicItem) v;
 				Object[] clone = z.values.clone();
-				items.add(new BasicItem(v.num(), clone));			
+				items.add(new BasicItem(null,v.num(), clone));			
 			});
 			return new BasicDataSetImpl(items, list).as(ITabularDataSet.class);
 		}
@@ -98,7 +98,7 @@ public interface ITabularDataSet extends IDataSet,Cloneable {
 			BasicItem z=(BasicItem) v;
 			Object[] clone = z.values.clone();
 			clone[m]=values.apply(clone[m]);
-			items.add(new BasicItem(v.num(), clone));			
+			items.add(new BasicItem(null,v.num(), clone));			
 		});		
 		return new BasicDataSetImpl(items, columns).as(ITabularDataSet.class);
 	}

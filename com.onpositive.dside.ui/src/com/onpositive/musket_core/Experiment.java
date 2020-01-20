@@ -12,17 +12,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.dside.ui.ModelEvaluationSpec;
 import com.onpositive.musket_core.ProjectWrapper.BasicDataSetDesc;
@@ -48,19 +41,23 @@ public class Experiment {
 
 	public String getProjectPath() {
 		File file = new File(path);
-		if (new File(file, "experiments").exists() && new File(file, "experiments").isDirectory()) {
-			return path;
+		if (file.getName().equals("assets")) {
+			return file.getParentFile().getAbsolutePath();
 		}
+		
 		while (true) {
 			if (file.getParentFile() == null) {
-				break;
+				return null;
+			}
+			File experimentsFolder = new File(file, IMusketConstants.MUSKET_EXPERIMENTS_FOLDER);
+			if (experimentsFolder.exists() && experimentsFolder.isDirectory()) {
+				return file.getAbsolutePath();
 			}
 			file = file.getParentFile();
-			if (file.getName().equals("experiments")) {
+			if (file.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 				return file.getParentFile().getAbsolutePath();
-			}
+			}			
 		}
-		return file.getAbsolutePath();
 	}
 
 	public static class PredictionPair {
@@ -167,23 +164,11 @@ public class Experiment {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Map<String, Object> getConfig() {
 		if (this.config != null) {
 			return config;
 		}
-		File file = new File(path, IMusketConstants.MUSKET_CONFIG_FILE_NAME);
-		try {
-			FileReader fileReader = new FileReader(file);
-			try {
-				Map<String, Object> config = (Map<String, Object>) YamlIO.load(fileReader);
-				this.config = config;
-			} finally {
-				fileReader.close();
-			}
-		} catch (Exception e) {
-			return new HashMap<>();
-		}
+		this.config = ExperimentIO.readConfig(path);
 		return config;
 	}
 
@@ -239,7 +224,7 @@ public class Experiment {
 			if (file == null) {
 				break;
 			}
-			if (file.getName().equals("experiments")) {
+			if (file.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
 				break;
 			}
 		}
@@ -247,48 +232,54 @@ public class Experiment {
 		return sm.stream().collect(Collectors.joining("/"));
 	}
 
-	private void gatherResults(String baseName, String path2, ArrayList<ExperimentResults> r) {
-		File[] listFiles = new java.io.File(path2).listFiles();
-		for (File f : listFiles) {
-			if (f.getName().equals("summary.yaml")) {
-				r.add(new ExperimentResults(baseName, f.getAbsolutePath()));
+	private void gatherResults(String baseName, String fullPath, ArrayList<ExperimentResults> r) {
+		java.io.File currentDir = new java.io.File(fullPath);
+		if (!currentDir.isDirectory()) {
+			return;
+		}
+		File[] listFiles = currentDir.listFiles();
+		for (File current : listFiles) {
+			if (current.getName().equals("summary.yaml")) {
+				r.add(new ExperimentResults(baseName, current.getAbsolutePath()));
 			} else {
-				if (f.getName().startsWith("trial")) {
-					gatherResults("trial: " + f.getName(), f.getAbsolutePath(), r);
+				if (current.getName().startsWith("trial")) {
+					gatherResults("trial: " + current.getName(), current.getAbsolutePath(), r);
 				}
 				try {
-					int parseInt = Integer.parseInt(f.getName());
-					gatherResults(baseName + " split:" + f.getName(), f.getAbsolutePath(), r);
+					gatherResults(baseName + " split:" + current.getName(), current.getAbsolutePath(), r);
 				} catch (Exception e) {
-					// TODO: handle exception
+					DSIDEUIPlugin.log(e);
 				}
 			}
 		}
 	}
 
-	private void gatherLogs(String baseName, String path2, ArrayList<ExperimentLogs> r) {
-		File[] listFiles = new java.io.File(path2).listFiles();
-		for (File f : listFiles) {
-			if (f.getName().equals("metrics") && f.isDirectory()) {
-				for (File f1 : f.listFiles()) {
-					String name = f1.getName();
+	private void gatherLogs(String baseName, String fullPath, ArrayList<ExperimentLogs> logsList) {
+		java.io.File currentDir = new java.io.File(fullPath);
+		if (!currentDir.isDirectory()) {
+			return;
+		}
+		File[] listFiles = currentDir.listFiles();
+		for (File current : listFiles) {
+			if (current.getName().equals("metrics") && current.isDirectory()) {
+				for (File file : current.listFiles()) {
+					String name = file.getName();
 					int indexOf = name.indexOf('-');
 					if (indexOf != -1) {
 						String[] split = name.substring(indexOf + 1).split("\\.");
-						ExperimentLogs rs = new ExperimentLogs(baseName + " fold:" + split[0] + " stage:" + split[1],
-								f1.getAbsolutePath());
-						r.add(rs);
+						ExperimentLogs logs = new ExperimentLogs(baseName + " fold:" + split[0] + " stage:" + split[1],
+								file.getAbsolutePath());
+						logsList.add(logs);
 					}
 				}
 			} else {
-				if (f.getName().startsWith("trial")) {
-					gatherLogs("trial: " + f.getName(), f.getAbsolutePath(), r);
+				if (current.getName().startsWith("trial")) {
+					gatherLogs("trial: " + current.getName(), current.getAbsolutePath(), logsList);
 				}
 				try {
-					int parseInt = Integer.parseInt(f.getName());
-					gatherLogs(baseName + " split:" + f.getName(), f.getAbsolutePath(), r);
+					gatherLogs(baseName + " split: " + current.getName(), current.getAbsolutePath(), logsList);
 				} catch (Exception e) {
-					// TODO: handle exception
+					DSIDEUIPlugin.log(e);
 				}
 			}
 		}
@@ -317,47 +308,6 @@ public class Experiment {
 			return aMetric.toString();
 		}
 		return (String) object;
-	}
-
-	public boolean delete() {
-		IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
-				.findContainersForLocation(new Path(this.path));
-		for (IContainer c : findContainersForLocation) {
-			try {
-				c.delete(true, new NullProgressMonitor());
-			} catch (CoreException e) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public Experiment duplicate(String value) {
-		IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
-				.findContainersForLocation(new Path(this.path));
-		for (IContainer c : findContainersForLocation) {
-			IFile file = c.getFile(new Path(IMusketConstants.MUSKET_CONFIG_FILE_NAME));
-			if (file.exists()) {
-				IContainer parent = c.getParent();
-				IFolder folder = parent.getFolder(new Path(value));
-				if (!folder.exists()) {
-					try {
-						folder.create(true, true, new NullProgressMonitor());
-						IPath append = folder.getFullPath().append(IMusketConstants.MUSKET_CONFIG_FILE_NAME);
-						file.copy(append, true, new NullProgressMonitor());
-						IFile file2 = ResourcesPlugin.getWorkspace().getRoot().getFile(append);
-						String portableString = file2.getParent().getLocation().toPortableString();
-						return new Experiment(portableString);
-					} catch (CoreException e) {
-						MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error", e.getMessage());
-					}
-				} else {
-					MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error",
-							"Experiment with this name already exist at:" + parent.getFullPath().toPortableString());
-				}
-			}
-		}
-		return null;
 	}
 
 	public IPath getPath() {
@@ -391,7 +341,7 @@ public class Experiment {
 				}
 			});
 		} catch (Exception e) {
-			// TODO: handle exception
+			DSIDEUIPlugin.log(e);
 		}
 		return datasets;
 	}
@@ -429,70 +379,12 @@ public class Experiment {
 		this.config = null;
 	}
 
-	public void backup(boolean copyWeights) {
-		String projectPath = this.getProjectPath();
-		File modules = new File(projectPath, "modules");
-		File mcy = new File(projectPath, "common.yaml");
-		File file2 = getHistoryDir();
-		file2.mkdirs();
-		int maxNum = getLaunchCount(file2);
-		maxNum++;
-		File experimentHistory = new File(file2, "" + maxNum);
-		experimentHistory.mkdirs();
-		if (modules.exists()) {
-			Utils.copyDir(modules, new File(experimentHistory, "modules"));
-		}
-		if (mcy.exists()) {
-			Utils.copyDir(mcy, new File(experimentHistory, "common.yaml"));
-		}
-		String name = new File(path).getName();
-		File ed = new File(experimentHistory, name);
-		ed.mkdir();
-		Utils.copyDir(new File(path, IMusketConstants.MUSKET_CONFIG_FILE_NAME), new File(ed, IMusketConstants.MUSKET_CONFIG_FILE_NAME));
-
-		experimentHistory = new File(file2, "" + (maxNum - 1));
-		if (experimentHistory.exists()) {
-			ed = new File(experimentHistory, name);
-			File metrics = new File(path, "metrics");
-			if (metrics.exists()) {
-				Utils.copyDir(metrics, new File(ed, "metrics"));
-			}
-			metrics = new File(path, "examples");
-			if (metrics.exists()) {
-				Utils.copyDir(metrics, new File(ed, "examples"));
-			}
-			if (copyWeights) {
-				metrics = new File(path, "weights");
-				if (metrics.exists()) {
-					Utils.copyDir(metrics, new File(ed, "weights"));
-				}
-			}
-		}
-	}
-
-	protected int getLaunchCount(File file2) {
-		File[] listFiles = file2.listFiles();
-		int maxNum = -1;
-		for (File f : listFiles) {
-			try {
-				String name = f.getName();
-				int parseInt = Integer.parseInt(name);
-				if (maxNum < parseInt) {
-					maxNum = parseInt;
-				}
-			} catch (NumberFormatException e) {
-				// TODO: handle exception
-			}
-		}
-		return maxNum;
-	}
-
-	protected File getHistoryDir() {
-		return new File(this.path, ".history");
-	}
-
 	public boolean hasSplits() {
 		return false;
+	}
+	
+	public String getPathString() {
+		return path;
 	}
 
 }

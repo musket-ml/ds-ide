@@ -3,12 +3,15 @@ package com.onpositive.musket.data.text;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
+import com.onpositive.musket.data.core.AbstractDataSet;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
@@ -22,17 +25,18 @@ import com.onpositive.musket.data.table.ITabularDataSet;
 
 public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextDataSet{
 
-	protected ITabularDataSet base;
+	protected ITabularDataSet tabularBase;
 	protected IColumn idColumn;
 	
 	protected LabelsSet labels;
 	protected static String TEXT_COLUMN="TEXT_COLUMN";
+	private IDataSet parent;
 	
 	protected static String CLAZZ_COLUMNS="CLAZZ_COLUMNS";
 
 	public AbstractTextDataSet(ITabularDataSet base, IColumn textColumn, IColumn idColumn) {
 		super();
-		this.base = base;
+		this.tabularBase = base;
 		this.textColumn = textColumn;
 		this.idColumn = idColumn;
 		settings.put(GenericDataSet.FONT_SIZE, "13");
@@ -41,16 +45,15 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 	}
 
 	public AbstractTextDataSet(ITabularDataSet clone, Map<String, Object> options) {
-		this.base=clone;
+		this.tabularBase=clone;
 		this.settings=options;
-		this.textColumn=base.getColumn((String) settings.get(TEXT_COLUMN));
+		this.textColumn=tabularBase.getColumn((String) settings.get(TEXT_COLUMN));
 	}
 
 	protected IColumn textColumn;
 	protected ArrayList<IItem> items ;
 	protected Map<String, Object> settings = new LinkedHashMap<String, Object>();
-	private String name = "";
-	
+	private String name = "";	
 
 	@Override
 	public int length() {
@@ -203,4 +206,25 @@ public abstract class AbstractTextDataSet implements IDataSet, Cloneable ,ITextD
 	public abstract boolean isPositive(TextItem textItem);
 
 	public abstract Object binaryLabel(TextItem textItem);
+
+	public IDataSet getParent() {
+		return parent;
+	}
+
+	public void setParent(IDataSet parent) {
+		this.parent = parent;
+	}
+	
+	public IDataSet getRoot() {
+		IDataSet result = this;
+		IDataSet p = this.getParent();
+		Set<IDataSet> s = Collections.newSetFromMap(new IdentityHashMap<>());
+		s.add(this);
+		while(p!=null && !s.contains(p)) {
+			s.add(p);
+			result = p;
+			p = p.getParent();
+		}
+		return result;
+	}
 }

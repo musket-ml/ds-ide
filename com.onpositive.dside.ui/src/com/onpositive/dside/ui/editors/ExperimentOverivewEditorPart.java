@@ -31,11 +31,21 @@ import de.jcup.yamleditor.YamlEditor;
 
 public class ExperimentOverivewEditorPart extends EditorPart implements INodeListener {
 
-	private TextEditor experiment;
-	private EditorModel model;
 	private Binding binding;
+	boolean dirty;
+	boolean disposed;
 	private Experiment exp;
+	private TextEditor experiment;
+
 	private ExperimentMultiPageEditor mainEditor;
+
+	private EditorModel model;
+
+	private ProjectWrapper project;
+
+	private Runnable refreshListener;
+
+	private Container uiRoot;
 
 	public ExperimentOverivewEditorPart(TextEditor editor, Experiment exp,ExperimentMultiPageEditor mainEditor) {
 		this.experiment = editor;
@@ -58,8 +68,44 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 		
 	}
 
-	boolean disposed;
+	@Override
+	public void createPartControl(Composite parent) {
+		RootElement rl = new RootElement(parent);
+		NodeKind kind = new NodeKind("basicConfig", this);
+		model = new EditorModel(experiment, kind);
+		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(model, null, null);
+		binding = new Binding(model);
+		uiRoot = (Container) widgetObject.createWidget(binding);
+		rl.add((AbstractUIElement<?>) uiRoot);
+		populateTasks(uiRoot);
+	}
 
+	@Override
+	public void dispose() {
+		project.removeRefreshListener(refreshListener);
+		disposed = true;		
+	}
+
+	@Override
+	public void doSave(IProgressMonitor monitor) {
+		this.dirty = false;
+		firePropertyChange(PROP_DIRTY);
+	}
+
+	@Override
+	public void doSaveAs() {
+
+	}
+
+	public ProjectWrapper getProject() {
+		return project;
+	}
+
+	@Override
+	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
+		super.setInput(input);
+		super.setSite(site);
+	}
 	private void introspected(InstrospectionResult details) {
 		if (this.disposed) {
 			return;
@@ -71,23 +117,13 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 		}
 		this.mainEditor.validate();
 	}
-
 	@Override
-	public void dispose() {
-		project.removeRefreshListener(refreshListener);
-		disposed = true;		
+	public boolean isDirty() {
+		return dirty;
 	}
-
 	@Override
-	public void createPartControl(Composite parent) {
-		RootElement rl = new RootElement(parent);
-		NodeKind kind = new NodeKind("basicConfig", this);
-		model = new EditorModel(experiment, kind);
-		IWidgetProvider widgetObject = WidgetRegistry.getInstance().getWidgetObject(model, null, null);
-		binding = new Binding(model);
-		uiRoot = (Container) widgetObject.createWidget(binding);
-		rl.add((AbstractUIElement<?>) uiRoot);
-		populateTasks(uiRoot);
+	public boolean isSaveAsAllowed() {
+		return false;
 	}
 
 	private void populateTasks(Container createWidget) {
@@ -122,8 +158,8 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void linkExited(HyperlinkEvent e) {
-
+			public void linkActivated(HyperlinkEvent e) {
+				task.perform(ExperimentOverivewEditorPart.this, exp);
 			}
 
 			@Override
@@ -132,8 +168,8 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 			}
 
 			@Override
-			public void linkActivated(HyperlinkEvent e) {
-				task.perform(ExperimentOverivewEditorPart.this, exp);
+			public void linkExited(HyperlinkEvent e) {
+
 			}
 		});
 		element.add(element2);
@@ -143,36 +179,14 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 	public void setFocus() {
 	}
 
+	public void setProject(ProjectWrapper project) {
+		this.project = project;
+	}
+
 	@Override
-	public void doSave(IProgressMonitor monitor) {
-		this.dirty = false;
+	public void updated(ModelNode node, Object newValue, String property) {
+		this.dirty = true;
 		firePropertyChange(PROP_DIRTY);
-	}
-
-	@Override
-	public void doSaveAs() {
-
-	}
-
-	@Override
-	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		super.setInput(input);
-		super.setSite(site);
-	}
-
-	boolean dirty;
-	private ProjectWrapper project;
-	private Container uiRoot;
-	private Runnable refreshListener;
-
-	@Override
-	public boolean isDirty() {
-		return dirty;
-	}
-
-	@Override
-	public boolean isSaveAsAllowed() {
-		return false;
 	}
 
 	public void updateFromText() {
@@ -190,20 +204,6 @@ public class ExperimentOverivewEditorPart extends EditorPart implements INodeLis
 			this.dirty = false;
 			firePropertyChange(PROP_DIRTY);
 		}
-	}
-
-	@Override
-	public void updated(ModelNode node, Object newValue, String property) {
-		this.dirty = true;
-		firePropertyChange(PROP_DIRTY);
-	}
-
-	public ProjectWrapper getProject() {
-		return project;
-	}
-
-	public void setProject(ProjectWrapper project) {
-		this.project = project;
 	}
 
 }

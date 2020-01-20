@@ -73,7 +73,7 @@ public class CSVKind implements IDataSetIO{
 				for (int i=0;i<vals.length;i++) {
 					vals[i]=record.get(i);
 				}
-				BasicItem basicItem = new BasicItem(num-1, vals);
+				BasicItem basicItem = new BasicItem(null,num-1, vals);
 				items.add(basicItem);
 				num++;
 			}

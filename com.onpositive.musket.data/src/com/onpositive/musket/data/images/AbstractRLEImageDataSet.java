@@ -6,8 +6,11 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.onpositive.musket.data.columntypes.DataSetSpec;
@@ -20,16 +23,17 @@ import com.onpositive.musket.data.table.ITabularDataSet;
 import com.onpositive.musket.data.table.ITabularItem;
 import com.onpositive.musket.data.table.ImageDataSetFactories;
 import com.onpositive.musket.data.table.ImageRepresenter;
+import com.onpositive.musket.data.text.AbstractImageItem;
 
 public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends AbstractImageDataSet<T>
 		implements IImageDataSet, Cloneable {
 
 	public static final String CLAZZ = "CLASS";
-	private static final String RELATIVE_RLE = "RELATIVE_RLE";
+	public static final String RELATIVE_RLE = "RELATIVE_RLE";
 
-	private static final String RLE_COLUMN = "rle_column";
-	private static final String WIDTH_FIRST = "width_first";
-	private static final String MASK_IS_SAME_AS_IMAGE = "mask_is_same_as_image";
+	public static final String RLE_COLUMN = "rle_column";
+	public static final String WIDTH_FIRST = "width_first";
+	public static final String MASK_IS_SAME_AS_IMAGE = "mask_is_same_as_image";
 
 	{
 		parameters.put(MASK_ALPHA, MASK_ALPHA_DEFAULT);
@@ -37,8 +41,8 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 	}
 
 	public AbstractRLEImageDataSet(DataSetSpec spec, IColumn image, IColumn rle, int width2, int height2) {
-		super(spec.base(), image, width2, height2, spec.getRepresenter());
-		this.base = spec.base();
+		super(spec.tabularOrigin(), image, width2, height2, spec.getRepresenter());
+		this.tabularBase = spec.tabularOrigin();
 		this.imageColumn = image;
 		this.rleColumn = rle;
 		if (this.isMultiResolution) {
@@ -99,19 +103,17 @@ public abstract class AbstractRLEImageDataSet<T extends IImageItem> extends Abst
 		this.widthFirst = c;
 		try {
 
-			Optional<? extends ITabularItem> findAny = this.base.items().parallelStream().filter(v -> {
+			Optional<? extends ITabularItem> findAny = this.tabularBase.items().parallelStream().filter(v -> {
+				@SuppressWarnings("rawtypes")
 				RLEMask createMask = (RLEMask) this.createMask(this.rleColumn.getValueAsString(v), this.width,
-						this.height, new IImageItem() {
+						this.height, new AbstractImageItem<AbstractRLEImageDataSet>(this) {
 
 							@Override
 							public String id() {
 								return v.id();
 							}
 
-							@Override
-							public IDataSet getDataSet() {
-								return AbstractRLEImageDataSet.this;
-							}
+							
 
 							@Override
 							public Image getImage() {

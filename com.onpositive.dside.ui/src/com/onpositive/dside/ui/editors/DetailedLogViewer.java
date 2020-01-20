@@ -127,8 +127,6 @@ public class DetailedLogViewer {
 		DefaultXYDataset createDataset = createDataset("loss");
 		XYLineChart_AWT vvv=new XYLineChart_AWT("AA", "AA", createDataset);
 		vvv.show();
-		System.out.println(createDataset);
-		
 		//System.out.println(data);
 
 	}

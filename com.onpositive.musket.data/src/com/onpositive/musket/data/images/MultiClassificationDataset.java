@@ -30,7 +30,7 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 	
 	@Override
 	public IDataSet withPredictions(IDataSet t2) {
-		MultiClassificationDataSetWithGroundTruth multiClassificationDataSetWithGroundTruth = new MultiClassificationDataSetWithGroundTruth(base, imageColumn, clazzColumn, representer, width, height, (ITabularDataSet) t2);
+		MultiClassificationDataSetWithGroundTruth multiClassificationDataSetWithGroundTruth = new MultiClassificationDataSetWithGroundTruth(tabularBase, imageColumn, clazzColumn, representer, width, height, (ITabularDataSet) t2);
 		if (this.labels!=null) {
 			multiClassificationDataSetWithGroundTruth.labels=this.labels;
 		}
@@ -64,7 +64,7 @@ public class MultiClassificationDataset extends BinaryClassificationDataSet impl
 
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
-		ITabularDataSet filter = filter(clazz, base,clazzColumn.caption());
+		ITabularDataSet filter = filter(clazz, tabularBase,clazzColumn.caption());
 		return new BinaryClassificationDataSet(filter, this.getSettings(), representer);
 	}
 

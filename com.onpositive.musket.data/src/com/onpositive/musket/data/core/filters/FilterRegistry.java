@@ -24,6 +24,7 @@ import com.onpositive.musket.data.columntypes.DataSetSpec;
 import com.onpositive.musket.data.columntypes.IDColumnType;
 import com.onpositive.musket.data.columntypes.NumberColumn;
 import com.onpositive.musket.data.columntypes.TextColumnType;
+import com.onpositive.musket.data.core.AbstractItem;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IAnalizer;
 import com.onpositive.musket.data.core.IAnalizerProto;
@@ -40,12 +41,38 @@ import com.onpositive.musket.data.images.MultiClassClassificationItem;
 import com.onpositive.musket.data.table.IColumn;
 import com.onpositive.musket.data.table.IColumnType;
 import com.onpositive.musket.data.table.ITabularItem;
+import com.onpositive.musket.data.text.AbstractTextItem;
 import com.onpositive.musket.data.text.ITextItem;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 
 public class FilterRegistry {
 
 	static protected HashMap<String, FilterFactory> factories = new HashMap<String, FilterRegistry.FilterFactory>();
+
+	private final class LocalMultiItem extends AbstractItem implements IMulticlassClassificationItem {
+		private final IItem x;
+		private final IColumn column;
+
+		private LocalMultiItem(IItem x, IColumn column) {
+			super(x.getDataSet());
+			this.x = x;
+			this.column = column;
+		}
+
+		@Override
+		public String id() {
+			return x.id();
+		}
+
+		
+
+		@Override
+		public ArrayList<String> classes() {
+			GenericItem ti = (GenericItem) x;
+			String vl = column.getValueAsString((ITabularItem) ti.generic_base());
+			return MultiClassClassificationItem.splitByClass(vl,null);
+		}
+	}
 
 	static class FilterFactory implements IFilterProto, IAnalizerProto {
 		Class<?> clazz;
@@ -441,7 +468,7 @@ public class FilterRegistry {
 			boolean islc = val.toLowerCase().equals(val);
 			return (Predicate<IItem>) v -> {
 				GenericItem va = (GenericItem) v;
-				String valueAsString = column.getValueAsString(va.base());
+				String valueAsString = column.getValueAsString(va.generic_base());
 				if (type.equals(ClassColumnType.class)) {
 					if (!valueAsString.contains(" ")) {
 						return valueAsString.equals(val);
@@ -522,7 +549,7 @@ public class FilterRegistry {
 			double vlNum = !islc ? Double.parseDouble(val) : 0;
 			return (Predicate<IItem>) v -> {
 				GenericItem va = (GenericItem) v;
-				String valueAsString = column.getValueAsString(va.base());
+				String valueAsString = column.getValueAsString(va.generic_base());
 
 				try {
 					return vlNum == Double.parseDouble(valueAsString);
@@ -591,7 +618,7 @@ public class FilterRegistry {
 
 			return (Predicate<IItem>) v -> {
 				GenericItem va = (GenericItem) v;
-				String valueAsString = column.getValueAsString(va.base());
+				String valueAsString = column.getValueAsString(va.generic_base());
 
 				try {
 					if (mode) {
@@ -712,23 +739,20 @@ public class FilterRegistry {
 	}
 
 	protected Function<IItem, IItem> textAdapter(IColumn column) {
+		@SuppressWarnings("unchecked")
 		Function<IItem, IItem> converter = x -> {
-			return new ITextItem() {
+			return new AbstractTextItem(x.getDataSet()) {
 
 				@Override
 				public String id() {
 					return x.id();
 				}
 
-				@Override
-				public IDataSet getDataSet() {
-					return x.getDataSet();
-				}
 
 				@Override
 				public String getText() {
 					GenericItem ti = (GenericItem) x;
-					return column.getValueAsString((ITabularItem) ti.base());
+					return column.getValueAsString((ITabularItem) ti.generic_base());
 				}
 			};
 		};
@@ -737,25 +761,7 @@ public class FilterRegistry {
 
 	protected Function<IItem, IItem> clazzAdapter(IColumn column) {
 		Function<IItem, IItem> converter = x -> {
-			return new IMulticlassClassificationItem() {
-
-				@Override
-				public String id() {
-					return x.id();
-				}
-
-				@Override
-				public IDataSet getDataSet() {
-					return x.getDataSet();
-				}
-
-				@Override
-				public ArrayList<String> classes() {
-					GenericItem ti = (GenericItem) x;
-					String vl = column.getValueAsString((ITabularItem) ti.base());
-					return MultiClassClassificationItem.splitByClass(vl,null);
-				}
-			};
+			return new LocalMultiItem(x, column);
 		};
 		return converter;
 	}

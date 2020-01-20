@@ -2,7 +2,10 @@ package com.onpositive.dside.wizards;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.python.pydev.shared_ui.utils.UIUtils;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -10,7 +13,7 @@ import com.google.gson.JsonParser;
 import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
-import com.onpositive.dside.ui.DatasetTableElement;
+import com.onpositive.dside.ui.views.DatasetTableElement;
 import com.onpositive.musket_core.IServer;
 import com.onpositive.semantic.model.api.changes.ObjectChangeManager;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
@@ -141,6 +144,11 @@ public class KaggleDatasetParams {
 			
 	@Caption("Search")
 	public void searchButton() {
+		if (project == null) {
+			MessageDialog.openError(UIUtils.getActiveShell(), "No Project selected", "Please select project to import dataset to in Navigator view");
+			return;
+		}
+		
 		setWaiting(true);
 		
 		ObjectChangeManager.markChanged(this);

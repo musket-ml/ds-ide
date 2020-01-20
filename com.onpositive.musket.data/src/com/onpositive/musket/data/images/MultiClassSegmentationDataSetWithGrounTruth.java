@@ -50,8 +50,8 @@ public class MultiClassSegmentationDataSetWithGrounTruth extends MultiClassSegme
 
 	@Override
 	public IBinaryClassificationDataSet forClass(String clazz) {
-		ITabularDataSet filter = filter(clazz, this.predictionData.base, clazzColumn.id());
-		return (IBinaryClassificationDataSet) new BinarySegmentationDataSet(filter(clazz, this.base, clazzColumn.id()),
+		ITabularDataSet filter = filter(clazz, this.predictionData.tabularBase, clazzColumn.id());
+		return (IBinaryClassificationDataSet) new BinarySegmentationDataSet(filter(clazz, this.tabularBase, clazzColumn.id()),
 				this.getSettings(), representer).withPredictions(filter);
 	}
 }

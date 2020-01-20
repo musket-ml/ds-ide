@@ -3,7 +3,6 @@ package com.onpositive.datasets.visualisation.ui.views;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,9 +12,11 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -35,6 +36,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -51,26 +54,24 @@ import com.onpositive.dataset.visualization.internal.Utils;
 import com.onpositive.dataset.visualization.internal.VirtualTable;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertResolutionAction;
-import com.onpositive.musket.data.actions.BasicDataSetActions.GenerateDataSetAction;
+import com.onpositive.musket.data.actions.BasicDataSetActions.ConvertToInstanceSegmentation;
+import com.onpositive.musket.data.actions.BasicDataSetActions.GenerateMusketWrappersAction;
 import com.onpositive.musket.data.core.ChartData;
 import com.onpositive.musket.data.core.ChartData.BasicChartData;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IAnalizeResults;
 import com.onpositive.musket.data.core.IDataSet;
-import com.onpositive.musket.data.core.IItem;
 import com.onpositive.musket.data.core.VisualizationSpec;
 import com.onpositive.musket.data.core.VisualizationSpec.ChartType;
 import com.onpositive.musket.data.generic.GenericDataSet;
 import com.onpositive.musket.data.images.IMulticlassClassificationDataSet;
-import com.onpositive.musket.data.text.AbstractTextDataSet;
-import com.onpositive.musket.data.text.ITextItem;
+import com.onpositive.musket.data.project.DataProject;
 import com.onpositive.semantic.model.api.property.java.annotations.Caption;
 import com.onpositive.semantic.model.api.property.java.annotations.RealmProvider;
 import com.onpositive.semantic.model.api.property.java.annotations.Required;
 import com.onpositive.semantic.model.api.realm.Realm;
 import com.onpositive.semantic.model.binding.Binding;
 import com.onpositive.semantic.model.ui.actions.Action;
-import com.onpositive.semantic.model.ui.generic.Column;
 import com.onpositive.semantic.model.ui.property.editors.CompositeEditor;
 import com.onpositive.semantic.model.ui.property.editors.FormEditor;
 import com.onpositive.semantic.model.ui.property.editors.FormTextElement;
@@ -177,7 +178,6 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 			CompositeEditor element = (CompositeEditor) c.getChildren().get(c.getChildren().size() - 1);
 			c.remove(element);
 			filters.remove(element.getBinding().getObject());
-			System.out.println(filters);
 		}
 	}
 
@@ -312,11 +312,31 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 				ActionSelection actionSelection = new ActionSelection(results.getOriginal().conversions());
 				boolean createObject = WidgetRegistry.createObject(actionSelection);
 				if (createObject) {
-					String targetFile = actionSelection.targetFile();
+					String targetId = actionSelection.targetFile();
 					ConversionAction selectedAction = actionSelection.getSelectedAction();
-					if (selectedAction instanceof GenerateDataSetAction) {
-						GenerateDataSetAction fm = (GenerateDataSetAction) selectedAction;
-						String name = targetFile;
+					if (selectedAction instanceof ConvertToInstanceSegmentation) {
+						IDataSet original = results.getOriginal();
+						String fPathString = original.getSettings().get(DataProject.FILE_NAME).toString();
+						IPath fPath = Path.fromOSString(fPathString);
+						IPath pPath = getProject().getLocation();
+						IPath relFPath = fPath.makeRelativeTo(pPath);
+						IFile file = getProject().getFile(relFPath);	
+						selectedAction.run(results.getOriginal(), null);
+						IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+						IEditorPart activeEditor = activePage.getActiveEditor();
+						String editorId = activeEditor.getEditorSite().getId();
+						activePage.closeEditor(activeEditor, false);
+						try {
+							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+									.openEditor(new FileEditorInput(file), editorId);
+						} catch (PartInitException e) {
+							e.printStackTrace();
+						}
+						return;						
+					}
+					if (selectedAction instanceof GenerateMusketWrappersAction) {
+						GenerateMusketWrappersAction fm = (GenerateMusketWrappersAction) selectedAction;
+						String name = targetId;
 						boolean generateDataSet = new DataSetGenerator().generateDataSet(results.getOriginal(),
 								getInputFile(), name, true, getProject());
 						if (!generateDataSet) {
@@ -340,7 +360,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 						}
 					}
 					if (selectedAction instanceof ConvertResolutionAction) {
-						String[] split = targetFile.split(",");
+						String[] split = targetId.split(",");
 						try {
 							int width = Integer.parseInt(split[0].trim());
 							int height = Integer.parseInt(split[1].trim());
@@ -382,7 +402,7 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 									"Target should be width, height");
 						}
 					}
-					File actualTarget = getActualTarget(targetFile);
+					File actualTarget = getActualTarget(targetId);
 					if (selectedAction.isUsesCurrentFilters()) {
 						selectedAction.run(results.getFiltered(), actualTarget);
 					} else {
@@ -653,7 +673,6 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 		Object y;
 	}
 
-	@SuppressWarnings("unused")
 	private void update(JFreeChart createChart, Container element2) {
 		Point size = element2.getControl().getSize();
 		element2.getControl().setBackgroundImage(null);
@@ -662,7 +681,11 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 			visualizationSpec2=this.visualizationSpec;
 		}
 		if (visualizationSpec2.type!=ChartType.TABLE) {
-
+			
+			if (size.x == 0 || size.y == 0) {
+				return;
+			}
+			
 			BufferedImage createBufferedImage = createChart.createBufferedImage(size.x, size.y - 3);
 			ImageData convertToSWT = Utils.convertToSWT(createBufferedImage);
 			if (image != null) {
@@ -671,8 +694,8 @@ public abstract class AnalistsEditor extends XMLEditorPart {
 
 			TableEnumeratedValueSelector vs = (TableEnumeratedValueSelector) element2.getParent().getElement("v1");
 			vs.setEnabled(false);
-			for (Control c:vs.getAllControls()) {
-				setVisible(c,false);
+			for (Control control:vs.getAllControls()) {
+				setVisible(control,false);
 			}
 //		columns.get(0).setCaption("AAAA");
 			image = new Image(Display.getCurrent(), convertToSWT);

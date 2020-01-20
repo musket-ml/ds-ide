@@ -2,14 +2,19 @@ package com.onpositive.musket.data.images;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.onpositive.musket.data.actions.BasicDataSetActions;
 import com.onpositive.musket.data.actions.BasicDataSetActions.ConversionAction;
+import com.onpositive.musket.data.core.AbstractItem;
 import com.onpositive.musket.data.core.DescriptionEntry;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.core.IDataSetDelta;
@@ -26,9 +31,10 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 
 	protected int width;
 	protected int height;
-	protected ITabularDataSet base;
+	protected ITabularDataSet tabularBase;
 	protected IColumn imageColumn;
 	protected ImageRepresenter representer;
+	private IDataSet parent;
 	public ImageRepresenter getRepresenter() {
 		return representer;
 	}
@@ -45,7 +51,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 		super();
 		this.width = width;
 		this.height = height;
-		this.base = base;
+		this.tabularBase = base;
 		this.imageColumn = imageColumn;
 		this.representer=rep;
 		getSettings().put(AbstractRLEImageDataSet.CLAZZ, this.getClass().getName());
@@ -67,7 +73,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	protected ArrayList<T> items;
 	protected HashMap<String, IImageItem> itemsMap;
 	public AbstractImageDataSet(ITabularDataSet base,Map<String,Object>settings,ImageRepresenter rep) {
-		this.base=base;
+		this.tabularBase=base;
 		this.representer=rep;
 		this.imageColumn=base.getColumn((String) settings.get(IMAGE_COLUMN));
 		
@@ -97,10 +103,17 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public IDataSet subDataSet(String string, List<? extends IItem> arrayList) {
+		
 		try {
 			AbstractImageDataSet rs = (AbstractImageDataSet) this.clone();
-			rs.items = (ArrayList) arrayList;
+			List<? extends IItem> cloned = arrayList.stream().map(x -> {
+				AbstractItem<IDataSet>t=(AbstractItem<IDataSet>) x.clone();
+				t.setOwner(rs);
+				return t;
+				}).collect(Collectors.toList());				
+			rs.items = (ArrayList) cloned;			
 			rs.name = string;
+			rs.setParent(this);
 			return rs;
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
@@ -168,7 +181,7 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	
 	@Override
 	public ITabularDataSet original() {
-		return base;
+		return tabularBase;
 	}
 	@Override
 	public Object modelObject() {
@@ -178,5 +191,26 @@ public abstract class AbstractImageDataSet<T extends IImageItem> implements IIma
 	@Override
 	public String getImportString() {
 		return "from musket_core import image_datasets,datasets";
+	}
+
+	public IDataSet getParent() {
+		return parent;
+	}
+
+	public void setParent(IDataSet parent) {
+		this.parent = parent;
+	}
+	
+	public IDataSet getRoot() {
+		IDataSet result = this;
+		IDataSet p = this.getParent();
+		Set<IDataSet> s = Collections.newSetFromMap(new IdentityHashMap<>());
+		s.add(this);
+		while(p!=null && !s.contains(p)) {
+			s.add(p);
+			result = p;
+			p = p.getParent();
+		}
+		return result;
 	}
 }

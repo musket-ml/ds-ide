@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -32,6 +34,8 @@ import com.onpositive.semantic.model.api.property.java.annotations.Required;
 public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGroups,IPythonStringGenerator{
 
 	private SequenceLayout extension;
+	
+	private IDataSet parent;
 
 	public TextSequenceDataSet(ArrayList<Document> docs2) {
 		this.docs.addAll(docs2);
@@ -454,5 +458,26 @@ public class TextSequenceDataSet  implements IDataSet,ITextDataSet,IHasClassGrou
 	@Override
 	public String getImportString() {
 		return "from musket_text import text_datasets"+System.lineSeparator()+"from musket_core import datasets";
+	}
+
+	public IDataSet getParent() {
+		return parent;
+	}
+
+	public void setParent(IDataSet parent) {
+		this.parent = parent;
+	}
+	
+	public IDataSet getRoot() {
+		IDataSet result = this;
+		IDataSet p = this.getParent();
+		Set<IDataSet> s = Collections.newSetFromMap(new IdentityHashMap<>());
+		s.add(this);
+		while(p!=null && !s.contains(p)) {
+			s.add(p);
+			result = p;
+			p = p.getParent();
+		}
+		return result;
 	}
 }
