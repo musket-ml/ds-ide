@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui.navigator;
+package com.onpositive.dside.ui.actions;
 
 import java.util.ArrayList;
 
@@ -6,23 +6,27 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.actions.DeleteResourceAction;
+import org.eclipse.ui.actions.RenameResourceAction;
 import org.eclipse.ui.navigator.CommonNavigator;
 
-public class DeleteAction implements org.eclipse.ui.IObjectActionDelegate{
+import com.onpositive.dside.ui.navigator.ExperimentGroup;
+import com.onpositive.dside.ui.navigator.ExperimentNode;
+
+public class RenameAction implements IObjectActionDelegate{
+
+	public RenameAction() {
+	}
 
 	private ISelection selection;
 	private IWorkbenchPart part;
 
-	public DeleteAction() {
-		// TODO Auto-generated constructor stub
-	}
-
+	
 	@Override
 	public void run(IAction action) {
-		DeleteResourceAction deleteResourceAction = new DeleteResourceAction(part.getSite().getWorkbenchWindow());
+		RenameResourceAction deleteResourceAction = new RenameResourceAction(part.getSite().getWorkbenchWindow());
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection ddl=(IStructuredSelection) selection;
 			ArrayList<Object>newSelection=new ArrayList<>();
@@ -34,7 +38,7 @@ public class DeleteAction implements org.eclipse.ui.IObjectActionDelegate{
 					}
 				}
 				if (o instanceof ExperimentNode) {
-					newSelection.add(((ExperimentNode)o).folder);
+					newSelection.add(((ExperimentNode)o).getFolder());
 				}
 				else {
 					newSelection.add(o);
@@ -45,7 +49,6 @@ public class DeleteAction implements org.eclipse.ui.IObjectActionDelegate{
 		}
 		CommonNavigator activePart = (CommonNavigator) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart();
 		activePart.getCommonViewer().refresh();
-		//System.out.println(activePart);
 	}
 
 	@Override
@@ -57,5 +60,4 @@ public class DeleteAction implements org.eclipse.ui.IObjectActionDelegate{
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
 		this.part=targetPart;
 	}
-
 }

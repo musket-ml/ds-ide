@@ -48,6 +48,7 @@ import com.onpositive.dside.tasks.GateWayRelatedTask;
 import com.onpositive.dside.tasks.IGateWayServerTaskDelegate;
 import com.onpositive.dside.tasks.TaskManager;
 import com.onpositive.dside.ui.DSIDEUIPlugin;
+import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.musket.data.core.IDataSet;
 import com.onpositive.musket.data.project.DataProjectAccess;
 import com.onpositive.musket_core.IServer;
@@ -62,7 +63,6 @@ import com.onpositive.semantic.model.ui.roles.IWidgetProvider;
 import com.onpositive.semantic.model.ui.roles.WidgetRegistry;
 
 public class ImportKaggleDatasetWizard extends Wizard implements INewWizard {
-	private static final String DEPS_FILE = "project.yaml";
 	
 	private IStructuredSelection selection;
 
@@ -151,7 +151,7 @@ public class ImportKaggleDatasetWizard extends Wizard implements INewWizard {
 	private static List<DataLink> loadYaml(org.eclipse.core.resources.IProject project) {
 		String projectPath = project.getLocation().toOSString();
 		
-		IFile depsFile = project.getFile(DEPS_FILE);
+		IFile depsFile = project.getFile(IMusketConstants.PROJECT_DEPS_FILE);
 		
 		Yaml yaml = new Yaml();
 		
@@ -340,7 +340,7 @@ public class ImportKaggleDatasetWizard extends Wizard implements INewWizard {
 		
 		Yaml yaml = new Yaml();
 		
-		IFile depsFile = project.getFile(DEPS_FILE);
+		IFile depsFile = project.getFile(IMusketConstants.PROJECT_DEPS_FILE);
 		Map<String,Object>parsed=new LinkedHashMap<String, Object>();
 		try {
 			if(depsFile.exists()) {

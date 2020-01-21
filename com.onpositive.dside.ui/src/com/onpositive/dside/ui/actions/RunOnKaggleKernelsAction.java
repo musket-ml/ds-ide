@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui.navigator;
+package com.onpositive.dside.ui.actions;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.IAction;

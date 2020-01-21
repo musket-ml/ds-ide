@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui.navigator;
+package com.onpositive.dside.ui.actions;
 
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PlatformUI;

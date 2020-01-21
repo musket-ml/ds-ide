@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui.views;
+package com.onpositive.dside.ui.actions;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +16,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import com.onpositive.dside.ui.DSIDEUIPlugin;
+import com.onpositive.dside.ui.views.ExperimentsView;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ExperimentFinder;
 

@@ -6,6 +6,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import com.onpositive.dside.ui.IMusketConstants;
+
 public class ProjectManager {
 	
 	private static ProjectManager instance=new ProjectManager();
@@ -46,5 +48,10 @@ public class ProjectManager {
 		return getInstance().getProject(project.getLocation().toOSString());
 	}	
 	
+	public static boolean looksMusketProject(IProject project) {
+		return project.getFolder(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER).exists() || 
+			   project.getFile(IMusketConstants.COMMON_CONFIG_NAME).exists() ||
+			   project.getFile(IMusketConstants.PROJECT_DEPS_FILE).exists();
+	}
 	
 }

@@ -68,7 +68,7 @@
             id="com.onpositive.dside.ui.objectContribution1"
             objectClass="org.eclipse.core.resources.IFolder">
          <action
-               class="com.onpositive.dside.ui.views.ShowExperimentsAction"
+               class="com.onpositive.dside.ui.actions.ShowExperimentsAction"
                icon="icons/experiment.png"
                id="com.onpositive.dside.ui.action1"
                label="Show Experiments">
@@ -84,12 +84,12 @@
                label="Connect">
          </action>
          <action
-               class="com.onpositive.dside.ui.navigator.NewKaggleDatasetAction"
+               class="com.onpositive.dside.ui.actions.NewKaggleDatasetAction"
                id="com.onpositive.dside.ui.action4"
                label="Kaggle Dataset">
          </action>
          <action
-               class="com.onpositive.dside.ui.navigator.DownloadDepsAction"
+               class="com.onpositive.dside.ui.actions.DownloadDepsAction"
                id="com.onpositive.dside.ui.action4"
                label="Download Dependecies">
          </action>
@@ -99,7 +99,7 @@
             id="com.onpositive.dside.ui.expNodeContribution"
             objectClass="com.onpositive.dside.ui.navigator.ExperimentNode">
             <action
-               class="com.onpositive.dside.ui.navigator.RunOnKaggleKernelsAction"
+               class="com.onpositive.dside.ui.actions.RunOnKaggleKernelsAction"
                id="com.onpositive.dside.ui.action5"
                label="Run on Kaggle Kernels">
          	</action>
@@ -469,7 +469,7 @@
             visibleInUI="true">
       </commonFilter>
       <actionProvider
-            class="com.onpositive.dside.ui.navigator.BasicActionProvider"
+            class="com.onpositive.dside.ui.actions.BasicActionProvider"
             id="com.onpositive.dside.ui.navigator.BasicActionProvider"
             priority="high">
          <enablement></enablement>
@@ -511,14 +511,14 @@
              id="com.onpositive.dside.ui.objectContribution1"
              objectClass="com.onpositive.dside.ui.navigator.IExperimentContribution">
           <action
-                class="com.onpositive.dside.ui.navigator.DeleteAction"
+                class="com.onpositive.dside.ui.actions.DeleteAction"
                 icon="icons/delete.gif"
                 id="com.onpositive.dside.ui.action1"
                 label="Delete"
                 menubarPath="group.edit">
           </action>
           <action
-                class="com.onpositive.dside.ui.navigator.RenameAction"
+                class="com.onpositive.dside.ui.actions.RenameAction"
                 id="com.onpositive.dside.ui.action2"
                 label="Rename..."
                  menubarPath="group.edit">
@@ -530,7 +530,7 @@
              id="com.onpositive.dside.ui.objectContribution1"
              objectClass="com.onpositive.dside.ui.navigator.IHasExperiments">
              <action
-                class="com.onpositive.dside.ui.navigator.NewExperimentAction"
+                class="com.onpositive.dside.ui.actions.NewExperimentAction"
                 icon="icons/experiment.png"
                 id="com.onpositive.dside.ui.action3"
                 label="New Experiment"
@@ -549,7 +549,7 @@
              id="com.onpositive.dside.ui.experiments.duplicate"
              objectClass="com.onpositive.dside.ui.navigator.ExperimentNode">
              <action
-                class="com.onpositive.dside.ui.navigator.DuplicateExperimentAction"
+                class="com.onpositive.dside.ui.actions.DuplicateExperimentAction"
                 icon="icons/duplicate_16.png"
                 id="com.onpositive.dside.ui.experiments.duplicate.action"
                 label="Duplicate Experiment"

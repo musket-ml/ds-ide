@@ -225,7 +225,7 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 	protected ICallback<List<IContainer>, IProject> getSourceFolderHandlesCallback = new ICallback<List<IContainer>, IProject>() {
 		@Override
 		public List<IContainer> call(IProject projectHandle) {
-			final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
+//			final int sourceFolderConfigurationStyle = projectPage.getSourceFolderConfigurationStyle();
 			List<IContainer> ret = new ArrayList<IContainer>();
 
 			IContainer folder = projectHandle.getFolder(getSourceFolderPath());
@@ -275,7 +275,7 @@ public class MusketProjectWizard extends AbstractNewProjectWizard implements IEx
 		IFile gitIgnore=newProjectHandle.getFile(".gitignore");
 		gitIgnore.create(MusketProjectWizard.class.getResourceAsStream("/templates/ignore.txt"), true, monitor);
 		
-		IFile deps=newProjectHandle.getFile("project.yaml");
+		IFile deps=newProjectHandle.getFile(IMusketConstants.PROJECT_DEPS_FILE);
 		deps.create(MusketProjectWizard.class.getResourceAsStream("/templates/project.txt"), true, monitor);
 	}
 

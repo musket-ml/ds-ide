@@ -1,4 +1,4 @@
-package com.onpositive.dside.ui.navigator;
+package com.onpositive.dside.ui.actions;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
