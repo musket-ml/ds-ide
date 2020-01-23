@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
@@ -228,20 +229,32 @@ public class AnalistsView extends XMLView {
 			return !params.isEmpty();
 		}
 	}
+	
+	protected Object getSelectedElement(ComboEnumeratedValueSelector<?> enumeratedValueSelector) {
+		IStructuredSelection selection = enumeratedValueSelector.getSelection();
+		if (!selection.isEmpty()) {
+			return selection.getFirstElement();
+		}
+		return null;
+	}
 
 	protected void update() {
-		Combo v = (Combo) visualizers.getControl();
-		Combo a = (Combo) analizers.getControl();
 		Combo s = (Combo) stageSelector.getControl();
-		String visualizer = v.getText();
-		String analizer = a.getText();
+		Object visualizerElement = getSelectedElement(visualizers);
+		Object analizerElement = getSelectedElement(analizers);
+		InstrospectedFeature analizerFeature = null;
+		InstrospectedFeature visualizerFeature = null;
+		if (analizerElement instanceof InstrospectedFeature) {
+			analizerFeature = (InstrospectedFeature) analizerElement;
+		}
+		if (visualizerElement instanceof InstrospectedFeature) {
+			visualizerFeature = (InstrospectedFeature) visualizerElement;
+		}
 		String stage = s.getText();
 		this.visualizationParams = new HashMap<>();
 		this.analisisParams = new HashMap<>();
-		if (!visualizer.isEmpty() && !analizer.isEmpty()) {
-
-			visualizerFeature = this.options.getVisualizer(visualizer);
-			InstrospectedFeature analizerFeature = this.options.getAnalizer(analizer);
+		if (visualizerFeature != null && analizerFeature != null) {
+			this.visualizerFeature = visualizerFeature;
 			AnalizerOrVisualizerUI vui = new AnalizerOrVisualizerUI(visualizerFeature);
 			AnalizerOrVisualizerUI vai = new AnalizerOrVisualizerUI(analizerFeature);
 			vui.getArgs().putAll(this.visualizationParams);
@@ -258,7 +271,7 @@ public class AnalistsView extends XMLView {
 			getElement("empty").setEnabled(true);
 			getElement("label").setCaption("Initial calculation is performed...");
 			DataSetAnalisysRequest data = new DataSetAnalisysRequest(model, dataset,
-					this.experiment.getPath().toOSString(), visualizer, analizer, this.isData, stage);
+					this.experiment.getPath().toOSString(), visualizerFeature.getName(), analizerFeature.getName(), this.isData, stage);
 			data.setVisualizerArgs(new HashMap<>());
 			data.setAnalzierArgs(new HashMap<>());
 			data.setFilters(this.filters);
