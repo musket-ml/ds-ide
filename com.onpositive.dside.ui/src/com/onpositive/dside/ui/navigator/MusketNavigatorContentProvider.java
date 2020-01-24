@@ -2,6 +2,7 @@ package com.onpositive.dside.ui.navigator;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -10,21 +11,20 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
 import com.onpositive.dside.ui.DSIDEUIPlugin;
-import com.onpositive.dside.ui.IMusketConstants;
+import static com.onpositive.dside.ui.IMusketConstants.*;
 
 public class MusketNavigatorContentProvider implements ITreeContentProvider{
 
 	@Override
 	public Object[] getElements(Object inputElement) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.getChildren(inputElement);
 	}
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		if (parentElement instanceof IProject) {
 			IProject project = (IProject) parentElement;
-			IFolder folder = project.getFolder(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER);
+			IFolder folder = project.getFolder(MUSKET_EXPERIMENTS_FOLDER);
 			if (folder.exists()) {
 				return new Object[] { new ExperimentsNode(folder) };
 			}
@@ -45,7 +45,7 @@ public class MusketNavigatorContentProvider implements ITreeContentProvider{
 
 					@Override
 					public boolean visit(IResource resource) throws CoreException {
-						if (resource.getName().equals(IMusketConstants.MUSKET_CONFIG_FILE_NAME)) {
+						if (resource.getName().equals(MUSKET_CONFIG_FILE_NAME)) {
 							return false;
 						}
 						if (resource.equals(pm.folder)) {
@@ -65,7 +65,25 @@ public class MusketNavigatorContentProvider implements ITreeContentProvider{
 
 	@Override
 	public Object getParent(Object element) {
-		// TODO Auto-generated method stub
+		if (element instanceof IFolder) {
+			IFolder folder = (IFolder) element;
+			if (folder.getName().equals(MUSKET_EXPERIMENTS_FOLDER)) {
+				return folder.getProject();			
+			}
+			if (folder.getFile(MUSKET_CONFIG_FILE_NAME).exists()) {
+				if (folder.getParent().getName().equals(MUSKET_EXPERIMENTS_FOLDER)) {
+					return new ExperimentsNode((IFolder) folder.getParent());			
+				} else {
+					return new ExperimentGroup(folder.getProject(), folder.getParent().getProjectRelativePath());
+				}
+			}
+		}
+		if (element instanceof IFile && ((IFolder) element).getName().equals(MUSKET_CONFIG_FILE_NAME)) {
+			return new ExperimentNode((IFolder) ((IResource) element).getParent());			
+		}
+		if (element instanceof IResource) {
+			return ((IResource) element).getParent();
+		}
 		return null;
 	}
 

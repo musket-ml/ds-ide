@@ -486,6 +486,19 @@
       </commonFilter>
       -->
     </extension>
+        <extension
+          point="org.eclipse.ui.navigator.linkHelper">
+       <linkHelper
+             class="com.onpositive.dside.ui.navigator.DSIDEResourceLinkHelper"
+             id="com.onpositive.dside.ui.navigator.resources.linkHelper">
+          <selectionEnablement>
+             <instanceof value="com.onpositive.dside.ui.navigator.ExperimentNode"/>
+          </selectionEnablement>
+          <editorInputEnablement>
+             <instanceof value="org.eclipse.ui.IFileEditorInput"/>
+          </editorInputEnablement>
+       </linkHelper>
+    </extension>
 
     <!-- Bind the content extension to the viewer -->
     <extension point="org.eclipse.ui.navigator.viewer">
@@ -495,8 +508,9 @@
                 <contentExtension
                       pattern="com.onpositive.dside.ui.commonFilter1">
                 </contentExtension>
+                <contentExtension pattern="com.onpositive.dside.ui.navigator.resources.linkHelper"/>                
             </includes>
-        </viewerContentBinding>
+        </viewerContentBinding>                                  
         <viewerActionBinding viewerId="org.python.pydev.navigator.view">
             <includes>
              <actionExtension
