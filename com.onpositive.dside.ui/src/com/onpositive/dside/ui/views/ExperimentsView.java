@@ -56,6 +56,8 @@ public class ExperimentsView extends XMLView {
 
 	private static final String TABLE_BND_ID = "experiments";
 
+	public static final String ID = "com.onpositive.dside.ui.experiments";
+
 	private final class MockAction extends org.eclipse.jface.action.Action implements IAction{
 		
 	}
