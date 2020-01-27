@@ -3,7 +3,6 @@ package com.onpositive.dside.ui.editors.preview.augmentation;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 
-import com.onpositive.dside.ui.editors.ExperimentConfigContentAssistProcessor;
 import com.onpositive.dside.ui.editors.IExperimentConfigEditor;
 import com.onpositive.dside.ui.editors.preview.ISuggestionsComputer;
 import com.onpositive.dside.ui.editors.preview.MusketPreviewContentAssistProcessor;
@@ -22,7 +21,7 @@ public class AugmentationsSourceViewerConfiguration extends YamlSourceViewerConf
 			
 			@Override
 			protected ISuggestionsComputer createSuggestionsComputer() {
-				return new IntrospectedAugmentationsrSuggestionsComputer((IExperimentConfigEditor) adaptable);
+				return new IntrospectedAugmentationsSuggestionsComputer((IExperimentConfigEditor) adaptable);
 			}
 		};
 //		return new ExperimentConfigContentAssistProcessor((IExperimentConfigEditor) adaptable);

@@ -12,13 +12,13 @@ import com.onpositive.dside.ui.editors.preview.Suggestion;
 import com.onpositive.yamledit.introspection.InstrospectedFeature;
 import com.onpositive.yamledit.introspection.InstrospectionResult;
 
-public class IntrospectedAugmentationsrSuggestionsComputer extends AbstractSuggestionsComputer {
+public class IntrospectedAugmentationsSuggestionsComputer extends AbstractSuggestionsComputer {
 	
 	private static final String POSTFIX = ":";
 	private List<Suggestion> suggestionsList;
 	private IExperimentConfigEditor editor;
 
-	public IntrospectedAugmentationsrSuggestionsComputer(IExperimentConfigEditor editor) {
+	public IntrospectedAugmentationsSuggestionsComputer(IExperimentConfigEditor editor) {
 		this.editor = editor;
 	}
 

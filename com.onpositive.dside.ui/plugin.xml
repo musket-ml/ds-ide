@@ -691,6 +691,11 @@
              id="com.onpositive.dside.ui.config.analyzeAugmentations"
              name="Analyze augmentations">
        </command>
+       <command
+             defaultHandler="com.onpositive.dside.ui.handlers.RefreshAugmentationsHandler"
+             id="com.onpositive.dside.ui.config.refreshAugmentations"
+             name="Refresh">
+       </command>
     </extension>
     <extension
           point="org.eclipse.ui.menus">
@@ -801,7 +806,14 @@
                commandId="com.onpositive.dside.ui.config.analyzeAugmentations"
                icon="icons/swatches.png">
 	 	 </command>
-       </menuContribution>	 	 
+       </menuContribution>
+       <menuContribution
+            locationURI="popup:com.onpositive.dside.ui.augmentations.preview.context?after=additions">
+         <command
+               commandId="com.onpositive.dside.ui.config.refreshAugmentations"
+               icon="icons/refresh.png">
+	 	 </command>
+       </menuContribution>	 	 	 	 
     </extension>
     <extension
           id="com.onpositive.musketProblem"
@@ -893,10 +905,16 @@
    <!-- Context for Yaml-based preview                                     -->
    <extension point="org.eclipse.ui.contexts">
 	  <context
-	        name="Yaml context"
-	        description="Editing Yaml files"
+	        name="Preview context"
+	        description="Editing with preview"
 	        parentId="org.eclipse.ui.textEditorScope"
 	        id="com.onpositive.dside.ui.editors.preview.context">
+	  </context>
+	  <context
+	        name="Augmentations Preview context"
+	        description="Editing Augmentations with preview"
+	        parentId="com.onpositive.dside.ui.editors.preview.context"
+	        id="com.onpositive.dside.ui.augmentations.preview.context">
 	  </context>
    </extension>    
 </plugin>

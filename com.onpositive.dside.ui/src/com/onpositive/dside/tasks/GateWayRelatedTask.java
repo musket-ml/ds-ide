@@ -136,4 +136,11 @@ public class GateWayRelatedTask extends PrivateServerTask<Object> {
 			DSIDEUIPlugin.log(e);
 		}
 	}
+	
+	public boolean isTerminated() {
+		if (launch != null) {
+			return launch.isTerminated();
+		}
+		return false;
+	}
 }
