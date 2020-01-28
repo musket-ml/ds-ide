@@ -54,5 +54,10 @@ public class AugmentationsPreviewEditorPart extends MusketPreviewEditorPart {
 	public String getPartName() {
 		return "Augmentations preview";
 	}
+	
+	@Override
+	protected String getContext() {
+		return "com.onpositive.dside.ui.augmentations.preview.context";
+	}
 
 }

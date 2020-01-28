@@ -107,14 +107,18 @@ public abstract class MusketPreviewEditorPart extends YamlEditor implements IExp
 	@Override
 	protected void initializeEditor() {
 		super.initializeEditor();
-		setEditorContextMenuId(EDITOR_CONTEXT);
-		setRulerContextMenuId(EDITOR_CONTEXT);
+		setEditorContextMenuId(getContext());
+		setRulerContextMenuId(getContext());
+	}
+
+	protected String getContext() {
+		return EDITOR_CONTEXT;
 	}
 
 	protected void activateYamlEditorContext() {
 		IContextService contextService = getSite().getService(IContextService.class);
 		if (contextService != null) {
-			contextService.activateContext(EDITOR_CONTEXT);
+			contextService.activateContext(getContext());
 		}
 	}
 	

@@ -144,7 +144,7 @@ public class AugmentationPreviewDelegate implements IExperimentPreviewEditDelega
 
 	private synchronized void callTask(Consumer<IAnalizeResults> onSuccess, Consumer<Throwable> onFail,
 			ImageDataSetAugmentRequest data) {
-		if (gateWayRelatedTask == null) {
+		if (gateWayRelatedTask == null || gateWayRelatedTask.isTerminated()) {
 			gateWayRelatedTask = new GateWayRelatedTask(
 					inputFile.getProject(), new IGateWayServerTaskDelegate() {
 						
