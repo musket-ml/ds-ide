@@ -78,7 +78,7 @@ public class MusketNavigatorContentProvider implements ITreeContentProvider{
 				}
 			}
 		}
-		if (element instanceof IFile && ((IFolder) element).getName().equals(MUSKET_CONFIG_FILE_NAME)) {
+		if (element instanceof IFile && ((IResource) element).getName().equals(MUSKET_CONFIG_FILE_NAME)) {
 			return new ExperimentNode((IFolder) ((IResource) element).getParent());			
 		}
 		if (element instanceof IResource) {

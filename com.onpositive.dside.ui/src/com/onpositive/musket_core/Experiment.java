@@ -201,18 +201,6 @@ public class Experiment {
 		return new ExperimentDescription("None", this);
 	}
 
-	public ArrayList<ExperimentLogs> logs() {
-		ArrayList<ExperimentLogs> r = new ArrayList<>();
-		this.gatherLogs("", this.path, r);
-		return r;
-	}
-
-	public ArrayList<ExperimentResults> results() {
-		ArrayList<ExperimentResults> r = new ArrayList<>();
-		this.gatherResults("", this.path, r);
-		return r;
-	}
-
 	@Override
 	public String toString() {
 		File file = new File(this.path);
@@ -232,58 +220,7 @@ public class Experiment {
 		return sm.stream().collect(Collectors.joining("/"));
 	}
 
-	private void gatherResults(String baseName, String fullPath, ArrayList<ExperimentResults> r) {
-		java.io.File currentDir = new java.io.File(fullPath);
-		if (!currentDir.isDirectory()) {
-			return;
-		}
-		File[] listFiles = currentDir.listFiles();
-		for (File current : listFiles) {
-			if (current.getName().equals("summary.yaml")) {
-				r.add(new ExperimentResults(baseName, current.getAbsolutePath()));
-			} else {
-				if (current.getName().startsWith("trial")) {
-					gatherResults("trial: " + current.getName(), current.getAbsolutePath(), r);
-				}
-				try {
-					gatherResults(baseName + " split:" + current.getName(), current.getAbsolutePath(), r);
-				} catch (Exception e) {
-					DSIDEUIPlugin.log(e);
-				}
-			}
-		}
-	}
-
-	private void gatherLogs(String baseName, String fullPath, ArrayList<ExperimentLogs> logsList) {
-		java.io.File currentDir = new java.io.File(fullPath);
-		if (!currentDir.isDirectory()) {
-			return;
-		}
-		File[] listFiles = currentDir.listFiles();
-		for (File current : listFiles) {
-			if (current.getName().equals("metrics") && current.isDirectory()) {
-				for (File file : current.listFiles()) {
-					String name = file.getName();
-					int indexOf = name.indexOf('-');
-					if (indexOf != -1) {
-						String[] split = name.substring(indexOf + 1).split("\\.");
-						ExperimentLogs logs = new ExperimentLogs(baseName + " fold:" + split[0] + " stage:" + split[1],
-								file.getAbsolutePath());
-						logsList.add(logs);
-					}
-				}
-			} else {
-				if (current.getName().startsWith("trial")) {
-					gatherLogs("trial: " + current.getName(), current.getAbsolutePath(), logsList);
-				}
-				try {
-					gatherLogs(baseName + " split: " + current.getName(), current.getAbsolutePath(), logsList);
-				} catch (Exception e) {
-					DSIDEUIPlugin.log(e);
-				}
-			}
-		}
-	}
+	
 
 	public String getDataSet() {
 		Object object = getConfig().get("dataset");
@@ -374,7 +311,7 @@ public class Experiment {
 		return null;
 	}
 
-	public void readConfig() {
+	public void invalidateConfig() {
 		this._score=null;
 		this.config = null;
 	}

@@ -2,6 +2,7 @@ package com.onpositive.musket_core;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
+import com.onpositive.dside.ui.DSIDEUIPlugin;
 import com.onpositive.dside.ui.IMusketConstants;
 import com.onpositive.yamledit.io.YamlIO;
 
@@ -132,4 +134,127 @@ public class ExperimentIO {
 		}
 		return true;
 	}
+	
+	public static ArrayList<ExperimentResults> results(String experimentPath) {
+		ArrayList<ExperimentResults> resultList = new ArrayList<>();
+		gatherResults("", experimentPath, resultList);
+		return resultList;
+	}
+	
+	private static void gatherResults(String baseName, String fullPath, ArrayList<ExperimentResults> r) {
+		java.io.File currentDir = new java.io.File(fullPath);
+		if (!currentDir.isDirectory()) {
+			return;
+		}
+		File[] listFiles = currentDir.listFiles();
+		for (File current : listFiles) {
+			if (current.getName().equals("summary.yaml")) {
+				r.add(new ExperimentResults(baseName, current.getAbsolutePath()));
+			} else {
+				if (current.getName().startsWith("trial")) {
+					gatherResults("trial: " + current.getName(), current.getAbsolutePath(), r);
+				}
+				try {
+					gatherResults(baseName + " split:" + current.getName(), current.getAbsolutePath(), r);
+				} catch (Exception e) {
+					DSIDEUIPlugin.log(e);
+				}
+			}
+		}
+	}
+	public static boolean hasResults(String baseName, String fullPath) {
+		java.io.File currentDir = new java.io.File(fullPath);
+		if (!currentDir.isDirectory()) {
+			return false;
+		}
+		File[] listFiles = currentDir.listFiles();
+		for (File current : listFiles) {
+			if (current.getName().equals("summary.yaml")) {
+				return true;
+			} else {
+				if (current.getName().startsWith("trial") && hasResults("trial: " + current.getName(), current.getAbsolutePath())) {
+					return true;
+				}
+				try {
+					if (hasResults(baseName + " split:" + current.getName(), current.getAbsolutePath())) {
+						return true;
+					}
+				} catch (Exception e) {
+					DSIDEUIPlugin.log(e);
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static ArrayList<ExperimentLogs> logs(String experimentPath) {
+		ArrayList<ExperimentLogs> resultList = new ArrayList<>();
+		gatherLogs("", experimentPath, resultList);
+		return resultList;
+	}
+	
+	private static void gatherLogs(String baseName, String fullPath, ArrayList<ExperimentLogs> logsList) {
+		java.io.File currentDir = new java.io.File(fullPath);
+		if (!currentDir.isDirectory()) {
+			return;
+		}
+		File[] listFiles = currentDir.listFiles();
+		for (File current : listFiles) {
+			if (current.getName().equals("metrics") && current.isDirectory()) {
+				for (File file : current.listFiles()) {
+					String name = file.getName();
+					int indexOf = name.indexOf('-');
+					if (indexOf != -1) {
+						String[] split = name.substring(indexOf + 1).split("\\.");
+						ExperimentLogs logs = new ExperimentLogs(baseName + " fold:" + split[0] + " stage:" + split[1],
+								file.getAbsolutePath());
+						logsList.add(logs);
+					}
+				}
+			} else {
+				if (current.getName().startsWith("trial")) {
+					gatherLogs("trial: " + current.getName(), current.getAbsolutePath(), logsList);
+				}
+				try {
+					gatherLogs(baseName + " split: " + current.getName(), current.getAbsolutePath(), logsList);
+				} catch (Exception e) {
+					DSIDEUIPlugin.log(e);
+				}
+			}
+		}
+	}
+	
+	public static boolean hasLogs(String baseName, String fullPath) {
+		java.io.File currentDir = new java.io.File(fullPath);
+		if (!currentDir.isDirectory()) {
+			return false;
+		}
+		File[] listFiles = currentDir.listFiles();
+		for (File current : listFiles) {
+			if (current.getName().equals("metrics") && current.isDirectory()) {
+				for (File file : current.listFiles()) {
+					String name = file.getName();
+					int indexOf = name.indexOf('-');
+					if (indexOf != -1) {
+						return true;
+					}
+				}
+			} else {
+				if (current.getName().startsWith("trial")) {
+					if (hasLogs("trial: " + current.getName(), current.getAbsolutePath())) {
+						return true;
+					}
+				}
+				try {
+					if (hasLogs(baseName + " split: " + current.getName(), current.getAbsolutePath())) {
+						return true;
+					}
+				} catch (Exception e) {
+					DSIDEUIPlugin.log(e);
+				}
+			}
+		}
+		return false;
+	}
+
 }

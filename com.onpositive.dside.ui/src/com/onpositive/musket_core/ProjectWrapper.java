@@ -80,12 +80,21 @@ public class ProjectWrapper implements IPythonPathProvider {
 	public ProjectWrapper(String projectPath) {
 		this.path = projectPath;
 		String absolutePath = projectMetaPath();
-		synchronized (ProjectWrapper.this) {
-			InstrospectionResult result = YamlIO.loadFromFile(new File(absolutePath), InstrospectionResult.class);
-			if (result != null) {
-				this.refreshed(result);
+		Job introspectJob = new Job("Introspecting config for " + path) {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				synchronized (ProjectWrapper.this) {
+					InstrospectionResult result = YamlIO.loadFromFile(new File(absolutePath), InstrospectionResult.class);
+					if (result != null) {
+						ProjectWrapper.this.refreshed(result);
+					}
+				}
+				return Status.OK_STATUS;
 			}
-		}
+			
+		};
+		introspectJob.schedule();
 		projectIntrospector = createIntrospector();
 	}
 
@@ -317,11 +326,11 @@ public class ProjectWrapper implements IPythonPathProvider {
 				return;
 			}
 			this.details = details;
-			for (Runnable r : requests) {
-				r.run();
+			for (Runnable reauest : requests) {
+				reauest.run();
 			}
-			for (Runnable r : new ArrayList<>(listeners)) {
-				r.run();
+			for (Runnable listener : new ArrayList<>(listeners)) {
+				listener.run();
 			}
 		} finally {
 			requests.clear();

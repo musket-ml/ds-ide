@@ -120,7 +120,7 @@ public class EditorTasks {
 
 		@Override
 		public void perform(ExperimentOverivewEditorPart editor, Experiment exp) {
-			exp.readConfig();
+			exp.invalidateConfig();
 			AnalizeDataSet initial = new AnalizeData(exp);
 			initial.data=true;
 			boolean createObject = WidgetRegistry.createObject(initial);

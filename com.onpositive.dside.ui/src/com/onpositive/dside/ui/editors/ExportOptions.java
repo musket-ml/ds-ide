@@ -97,7 +97,7 @@ public class ExportOptions {
 			@Override
 			public void run(IProject prj, String experiment) {
 				Experiment exp = new Experiment(experiment);
-				exp.readConfig();
+				exp.invalidateConfig();
 				ExportDataSetTaskDelegate initial = new ExportDataSetTaskDelegate(exp);
 				initial.data=true;
 				boolean createObject = WidgetRegistry.createObject(initial);

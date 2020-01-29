@@ -1,6 +1,7 @@
 package com.onpositive.dside.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ArrayContentProvider;
@@ -70,7 +71,6 @@ public class ExperimentComposite extends Composite {
 
 			@Override
 			public void controlResized(ControlEvent e) {
-				// TODO Auto-generated method stub
 				render();
 			}
 
@@ -121,15 +121,14 @@ public class ExperimentComposite extends Composite {
 		render();
 	}
 
-	public void setExperiment(Experiment e) {
+	public void setExperiment(Experiment e, List<ExperimentLogs> logs) {
 
-		ArrayList<ExperimentLogs> results = e.logs();
-		if (results.isEmpty()) {
+		if (logs.isEmpty()) {
 			return;
 		}
-		selector.setInput(results.toArray());
-		selector.setSelection(new StructuredSelection(results.get(0)));
-		currentResults = (ExperimentLogs) results.get(0);
+		selector.setInput(logs.toArray());
+		selector.setSelection(new StructuredSelection(logs.get(0)));
+		currentResults = (ExperimentLogs) logs.get(0);
 		render();
 	}
 }

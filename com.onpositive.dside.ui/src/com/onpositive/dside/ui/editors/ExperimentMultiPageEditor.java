@@ -64,8 +64,7 @@ import com.onpositive.dside.ui.editors.YamlHyperlinkDetector.FeatureInfo;
 import com.onpositive.musket_core.Errors;
 import com.onpositive.musket_core.Experiment;
 import com.onpositive.musket_core.ExperimentError;
-import com.onpositive.musket_core.ExperimentLogs;
-import com.onpositive.musket_core.ExperimentResults;
+import com.onpositive.musket_core.ExperimentIO;
 import com.onpositive.musket_core.IExperimentExecutionListener;
 import com.onpositive.musket_core.ProjectWrapper;
 import com.onpositive.yamledit.ast.ASTElement;
@@ -463,9 +462,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		ScrolledForm form = this.getHeaderForm().getForm();
 
 		form.setText(experiment.toString());
-		ArrayList<ExperimentResults> results = experiment.results();
-		ArrayList<ExperimentLogs> logs = experiment.logs();
-		if (experiment.isCompleted() || results.size() > 0 && logs.size() > 0) {
+		if (experiment.isCompleted() || (ExperimentIO.hasResults("", experiment.getPathString()) && ExperimentIO.hasLogs("", experiment.getPathString()))) {
 			ExperimentResultsEditorPart ps = new ExperimentResultsEditorPart(experiment);
 			try {
 				int pageCount = this.getPageCount();
