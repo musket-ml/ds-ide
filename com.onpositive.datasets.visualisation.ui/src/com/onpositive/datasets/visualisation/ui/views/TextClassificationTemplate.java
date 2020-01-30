@@ -103,7 +103,7 @@ public class TextClassificationTemplate extends GenericExperimentTemplate {
 				result = result.replace((CharSequence) "{bertPath}", "" + '"'+this.bertPath+'"');
 			}
 			result = result.replace((CharSequence) "{maxLen}", "" + this.maxLen);
-			if (!this.bert_classifier) {
+			if (!this.bert_classifier && embeddings != null) {
 				result = result.replace((CharSequence) "{embeddings}", "" + this.embeddings.stream().collect(Collectors.joining(",")));
 			}
 			// result=result.replace((CharSequence)"{architecture}", ""+this.architecture);

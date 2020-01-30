@@ -77,7 +77,7 @@ public class ExperimentResultsEditorPart extends EditorPart {
 			ll.setFont(JFaceResources.getHeaderFont());
 			ll.setText("Primary result: " + score.toString());
 
-			ll.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).hint(-1, 20).create());
+			ll.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).create());
 			Label lla = new Label(ca, SWT.SEPARATOR | SWT.HORIZONTAL);
 			lla.setLayoutData(GridDataFactory.fillDefaults().span(2, 1).grab(true, false).create());
 			layout.verticalSpacing = 8;
