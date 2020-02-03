@@ -40,6 +40,8 @@
 			<unit id="org.eclipse.libra.framework.feature.feature.group" version="0.3.1.201609011955"/>
 			<unit id="org.eclipse.wst.web_ui.feature.feature.group" version="3.10.0.v201805161856"/>
 			<unit id="org.eclipse.tm.terminal.feature.feature.group" version="4.4.0.201806112243"/>
+			<unit id="org.eclipse.tm.terminal.control.feature.feature.group" version="4.4.0.201806112243"/>
+			<unit id="org.eclipse.tm.terminal.view.feature.feature.group" version="4.3.0.201806112243"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="org.fhsolution.eclipse.feature.csvedit.feature.group" version="1.2.0"/>

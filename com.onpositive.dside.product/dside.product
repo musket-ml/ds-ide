@@ -124,8 +124,11 @@
       <plugin id="org.apache.jasper.glassfish"/>
       <plugin id="org.apache.jasper.glassfish.source"/>
       <plugin id="org.apache.log4j"/>
+      <plugin id="org.apache.lucene.analyzers-common"/>
       <plugin id="org.apache.lucene.analyzers-common.source"/>
+      <plugin id="org.apache.lucene.analyzers-smartcn"/>
       <plugin id="org.apache.lucene.analyzers-smartcn.source"/>
+      <plugin id="org.apache.lucene.core"/>
       <plugin id="org.apache.lucene.core.source"/>
       <plugin id="org.apache.solr.client.solrj"/>
       <plugin id="org.apache.ws.commons.util"/>
@@ -142,6 +145,9 @@
       <plugin id="org.eclipse.ant.launching.source"/>
       <plugin id="org.eclipse.ant.ui"/>
       <plugin id="org.eclipse.ant.ui.source"/>
+      <plugin id="org.eclipse.cdt.core.native"/>
+      <plugin id="org.eclipse.cdt.core.win32" fragment="true"/>
+      <plugin id="org.eclipse.cdt.core.win32.x86_64" fragment="true"/>
       <plugin id="org.eclipse.compare"/>
       <plugin id="org.eclipse.compare.core"/>
       <plugin id="org.eclipse.compare.core.source"/>
@@ -253,6 +259,11 @@
       <plugin id="org.eclipse.emf.ecore.change"/>
       <plugin id="org.eclipse.emf.ecore.xmi"/>
       <plugin id="org.eclipse.emf.edit"/>
+      <plugin id="org.eclipse.epp.mpc.core"/>
+      <plugin id="org.eclipse.epp.mpc.core.win32"/>
+      <plugin id="org.eclipse.epp.mpc.help.ui"/>
+      <plugin id="org.eclipse.epp.mpc.ui"/>
+      <plugin id="org.eclipse.epp.mpc.ui.css"/>
       <plugin id="org.eclipse.equinox.app"/>
       <plugin id="org.eclipse.equinox.app.source"/>
       <plugin id="org.eclipse.equinox.bidi"/>
@@ -441,6 +452,10 @@
       <plugin id="org.eclipse.osgi.source"/>
       <plugin id="org.eclipse.osgi.util"/>
       <plugin id="org.eclipse.osgi.util.source"/>
+      <plugin id="org.eclipse.pde.build"/>
+      <plugin id="org.eclipse.pde.core"/>
+      <plugin id="org.eclipse.pde.launching"/>
+      <plugin id="org.eclipse.pde.ui"/>
       <plugin id="org.eclipse.platform"/>
       <plugin id="org.eclipse.platform.doc.isv"/>
       <plugin id="org.eclipse.platform.doc.user"/>
@@ -459,6 +474,13 @@
       <plugin id="org.eclipse.team.ui.source"/>
       <plugin id="org.eclipse.text"/>
       <plugin id="org.eclipse.text.source"/>
+      <plugin id="org.eclipse.tm.terminal.connector.local"/>
+      <plugin id="org.eclipse.tm.terminal.connector.process"/>
+      <plugin id="org.eclipse.tm.terminal.connector.ssh"/>
+      <plugin id="org.eclipse.tm.terminal.connector.telnet"/>
+      <plugin id="org.eclipse.tm.terminal.control"/>
+      <plugin id="org.eclipse.tm.terminal.view.core"/>
+      <plugin id="org.eclipse.tm.terminal.view.ui"/>
       <plugin id="org.eclipse.tools.layout.spy"/>
       <plugin id="org.eclipse.tools.layout.spy.source"/>
       <plugin id="org.eclipse.ui"/>
@@ -513,6 +535,9 @@
       <plugin id="org.eclipse.ui.workbench.texteditor.source"/>
       <plugin id="org.eclipse.update.configurator"/>
       <plugin id="org.eclipse.update.configurator.source"/>
+      <plugin id="org.eclipse.userstorage"/>
+      <plugin id="org.eclipse.userstorage.oauth"/>
+      <plugin id="org.eclipse.userstorage.ui"/>
       <plugin id="org.eclipse.xsd"/>
       <plugin id="org.eclipse.xsd.edit"/>
       <plugin id="org.eclipse.xtend.lib"/>
