@@ -458,7 +458,7 @@ public class ExperimentMultiPageEditor extends SharedHeaderFormEditor implements
 		}
 
 		IFileEditorInput e = (IFileEditorInput) getEditorInput();
-		this.setPartName(experiment.toString());
+		this.setPartName(new File(experiment.getPathString()).getName());
 		ScrolledForm form = this.getHeaderForm().getForm();
 
 		form.setText(experiment.toString());
