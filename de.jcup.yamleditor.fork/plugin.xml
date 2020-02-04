@@ -298,4 +298,11 @@
       </toc>
    </extension>
    
+   <extension
+     point="org.eclipse.core.runtime.preferences">
+	  <initializer
+	        class="de.jcup.yamleditor.preferences.YamlEditorPreferenceInitializer">
+	  </initializer>
+	</extension>
+   
 </plugin>

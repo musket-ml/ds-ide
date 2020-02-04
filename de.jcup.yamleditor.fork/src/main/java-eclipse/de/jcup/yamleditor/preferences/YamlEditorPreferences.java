@@ -36,11 +36,12 @@ import de.jcup.yamleditor.YamlEditor;
 
 public class YamlEditorPreferences {
 
+	private static final String YAMLEDITOR_NODE = "de.jcup.yamleditor";
 	private static YamlEditorPreferences INSTANCE = new YamlEditorPreferences();
 	private IPreferenceStore store;
 
 	private YamlEditorPreferences() {
-		store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "de.jcup.yamleditor"); //Use same prefs with original editor
+		store = new ScopedPreferenceStore(InstanceScope.INSTANCE, YAMLEDITOR_NODE); //Use same prefs with original editor
 		store.addPropertyChangeListener(new IPropertyChangeListener() {
 
 			@Override
@@ -168,7 +169,7 @@ public class YamlEditorPreferences {
 	}
 
 	public int getAmountOfSpacesToReplaceTab() {
-		return getPreferenceStore().getInt(P_SPACES_TO_REPLACE_TAB.getId());
+		return InstanceScope.INSTANCE.getNode(YAMLEDITOR_NODE).getInt(P_SPACES_TO_REPLACE_TAB.getId(),2);
 	}
 
 	
