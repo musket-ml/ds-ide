@@ -445,6 +445,16 @@
                 <instanceof value="org.python.pydev.navigator.elements.ProjectConfigError"/>
             </or>
          </triggerPoints>
+         <possibleChildren>
+         	<or>         
+		       <instanceof 
+	    	       value="com.onpositive.dside.ui.navigator.ExperimentNode" /> 
+	    	   <instanceof 
+	    	       value="com.onpositive.dside.ui.navigator.ExperimentsNode" />
+	    	   <instanceof 
+	    	       value="com.onpositive.dside.ui.navigator.ExperimentGroup" />
+			</or>
+         </possibleChildren>
          <commonSorter
 	      class="com.onpositive.dside.ui.navigator.ExperimentResourcesComparator"
 	            id="com.onpositive.dside.ui.navigator.defaultSorter">

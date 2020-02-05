@@ -19,8 +19,8 @@ public class ExperimentGroup implements IAdaptable,IExperimentContribution{
 	private IProject project;
 	
 	
-	public ExperimentGroup(IProject project,IPath projectRelativePath) {
-		this.setPath(projectRelativePath);
+	public ExperimentGroup(IProject project,IPath experimentRootRelativePath) {
+		this.setPath(experimentRootRelativePath);
 		this.project=project;
 	}
 
@@ -79,5 +79,9 @@ public class ExperimentGroup implements IAdaptable,IExperimentContribution{
 
 	public void setPath(IPath path) {
 		this.path = path;
+	}
+
+	public IProject getProject() {
+		return project;
 	}
 }
