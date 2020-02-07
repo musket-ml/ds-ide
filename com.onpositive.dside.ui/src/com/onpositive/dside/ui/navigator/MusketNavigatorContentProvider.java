@@ -1,20 +1,78 @@
 package com.onpositive.dside.ui.navigator;
 
-import java.util.ArrayList;
+import static com.onpositive.dside.ui.IMusketConstants.MUSKET_CONFIG_FILE_NAME;
+import static com.onpositive.dside.ui.IMusketConstants.MUSKET_EXPERIMENTS_FOLDER;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.navigator.CommonViewer;
 
 import com.onpositive.dside.ui.DSIDEUIPlugin;
-import static com.onpositive.dside.ui.IMusketConstants.*;
 
 public class MusketNavigatorContentProvider implements ITreeContentProvider{
+
+	private Viewer viewer;
+	
+	private IResourceChangeListener resListener = new IResourceChangeListener() {
+		
+		@Override
+		public void resourceChanged(IResourceChangeEvent event) {
+			try {
+				Set<IFolder> toUpdate = new HashSet<IFolder>();
+				event.getDelta().accept(delta -> {
+					if (delta.getResource() instanceof IFolder) {
+						if (isExperimentFolder((IFolder) delta.getResource()) && (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.REMOVED)) {
+							toUpdate.add(delta.getResource().getProject().getFolder(MUSKET_EXPERIMENTS_FOLDER));
+							return false;
+						} else {
+							return true;
+						}
+					}
+					return delta.getResource() instanceof IContainer;
+				});
+				if (!toUpdate.isEmpty()) {
+					updateFolders(toUpdate);
+				}
+			} catch (CoreException e) {
+				DSIDEUIPlugin.log(e);
+			}
+		}
+	};
+
+	public MusketNavigatorContentProvider() {
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(resListener);
+	}
+	
+	protected void updateFolders(Set<IFolder> toUpdate) {
+		List<ExperimentsNode> nodes = toUpdate.stream().map(folder -> new ExperimentsNode(folder.getProject())).distinct().collect(Collectors.toList());
+		Display.getDefault().asyncExec(() -> {
+			if (viewer instanceof CommonViewer) {
+				for (ExperimentsNode experimentsNode : nodes) {
+					((CommonViewer) viewer).refresh(experimentsNode, true);
+				}
+			}
+		});
+		
+	}
 
 	@Override
 	public Object[] getElements(Object inputElement) {
@@ -125,6 +183,20 @@ public class MusketNavigatorContentProvider implements ITreeContentProvider{
 		}
 		Object[] children = getChildren(element);
 		return children!=null&&children.length>0;		
+	}
+
+	private boolean isExperimentFolder(IFolder folder) {
+		return folder.getFile(MUSKET_CONFIG_FILE_NAME).exists(); 
+	}
+	
+	@Override
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		this.viewer = viewer;	
+	}
+	
+	@Override
+	public void dispose() {
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(resListener);
 	}
 
 }
