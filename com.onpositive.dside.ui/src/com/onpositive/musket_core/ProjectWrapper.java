@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -191,22 +192,17 @@ public class ProjectWrapper implements IPythonPathProvider {
 	}
 
 	public PyInfo getPythonPath() {
-		String pythonPath = null;
 		try {
-			IContainer[] findContainersForLocation = ResourcesPlugin.getWorkspace().getRoot()
+			IContainer[] foundContainers = ResourcesPlugin.getWorkspace().getRoot()
 					.findContainersForLocation(new Path(this.path));
-			if (findContainersForLocation != null&&findContainersForLocation.length>0) {
-				IProject project = findContainersForLocation[0].getProject();
-				LaunchShortcut launchShortCut = new InternalMusketLaunchShortcut(new IProject[] { project }, "org.python.pydev.debug.musketLaunchConfigurationType");
-				ILaunchConfiguration createDefaultLaunchConfiguration = launchShortCut
-						.createDefaultLaunchConfiguration(
-								new FileOrResource[] { new FileOrResource(project.getFolder(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER)) });
-				PythonRunnerConfig pythonRunner = new PythonRunnerConfig(createDefaultLaunchConfiguration,
-						"run", "run");
-				String pythonpathFromConfiguration = pythonRunner.getPythonpathFromConfiguration(
-						createDefaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
-				pythonPath = pythonpathFromConfiguration;
-				return new PyInfo(pythonPath, pythonRunner.interpreter.toFile().getAbsolutePath());
+			if (foundContainers != null&&foundContainers.length>0) {
+				IProject project = foundContainers[0].getProject();
+				IFolder experimentsFolder = project.getFolder(IMusketConstants.MUSKET_EXPERIMENTS_FOLDER);
+				if (experimentsFolder.exists()) {
+					return tryGetPyInfo(project, experimentsFolder);
+				} else {
+					return tryGetPyInfo(project, foundContainers[0]);
+				}
 			}
 
 		} catch (CoreException | InvalidRunException | MisconfigurationException e1) {
@@ -215,19 +211,34 @@ public class ProjectWrapper implements IPythonPathProvider {
 		return null;
 	}
 
+	protected PyInfo tryGetPyInfo(IProject project, IContainer baseFolder)
+			throws CoreException, InvalidRunException, MisconfigurationException {
+		String pythonPath;
+		LaunchShortcut launchShortCut = new InternalMusketLaunchShortcut(new IProject[] { project }, "org.python.pydev.debug.musketLaunchConfigurationType");
+		ILaunchConfiguration defaultLaunchConfiguration = launchShortCut
+				.createDefaultLaunchConfiguration(
+						new FileOrResource[] { new FileOrResource(baseFolder) });
+		PythonRunnerConfig pythonRunner = new PythonRunnerConfig(defaultLaunchConfiguration,
+				"run", "run");
+		String pythonpathFromConfiguration = PythonRunnerConfig.getPythonpathFromConfiguration(
+				defaultLaunchConfiguration, InterpreterManagersAPI.getPythonInterpreterManager());
+		pythonPath = pythonpathFromConfiguration;
+		return new PyInfo(pythonPath, pythonRunner.interpreter.toFile().getAbsolutePath());
+	}
+
 	public List<InstrospectedFeature> getTasks() {
 		return details.getFeatures().stream().filter(x -> x.getKind().equals("task")).collect(Collectors.toList());
 	}
 	
-	
 	public void innerIntrospect(PyInfo pythonPath, String absolutePath) {
 		synchronized (mon) {
-			InstrospectionResult introspect = projectIntrospector.introspect(path, pythonPath, absolutePath);
-			if (introspect!=null) {
-				refreshed(introspect);
+			if (pythonPath != null) {
+				InstrospectionResult introspect = projectIntrospector.introspect(path, pythonPath, absolutePath);
+				if (introspect!=null) {
+					refreshed(introspect);
+				}
 			}
 		}
-
 	}
 
 	public ArrayList<FunctionDeclaration> introspectModules() {
@@ -305,19 +316,15 @@ public class ProjectWrapper implements IPythonPathProvider {
 
 			@Override
 			public IStatus run(IProgressMonitor monitor) {
-
 				String absolutePath = projectMetaPath();
 				PyInfo pythonPath = ProjectWrapper.this.getPythonPath();
-
-				innerIntrospect(pythonPath, absolutePath);
+				if (pythonPath != null) {
+					innerIntrospect(pythonPath, absolutePath);
+				}
 				return Status.OK_STATUS;
 			}
-
-			
-
 		});
 		create.schedule();
-
 	}
 
 	protected void refreshed(InstrospectionResult details) {
@@ -326,8 +333,8 @@ public class ProjectWrapper implements IPythonPathProvider {
 				return;
 			}
 			this.details = details;
-			for (Runnable reauest : requests) {
-				reauest.run();
+			for (Runnable request : requests) {
+				request.run();
 			}
 			for (Runnable listener : new ArrayList<>(listeners)) {
 				listener.run();
@@ -340,8 +347,6 @@ public class ProjectWrapper implements IPythonPathProvider {
 	public void removeRefreshListener(Runnable r) {
 		this.listeners.remove(r);
 	}
-	
-	
 
 	public void setDetails(InstrospectionResult details) {
 		this.details = details;

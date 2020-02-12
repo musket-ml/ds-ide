@@ -11,8 +11,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.onpositive.python.command.IPythonPathProvider.PyInfo;
 
 public class PyCommandBuilder {
@@ -21,9 +19,7 @@ public class PyCommandBuilder {
 	private static final String PYTHON_EXECUTABLE = "python";
 
 
-	public static ProcessBuilder buildCommand(Collection<String> args, PyInfo pythonPath) {
-		
-		
+	public static ProcessBuilder buildCommand(Collection<String> args, PyInfo pythonPath) {		
 		String pyExe = pythonPath.pythonInterpreter;
 		ArrayList<String> fullArgsList = new ArrayList<>(1 + args.size());
 		fullArgsList.add(pyExe);
